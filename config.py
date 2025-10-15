@@ -88,6 +88,14 @@ SL_ATR_MULT: float = 2.0
 TP_ATR_MULT: float = 8.0
 TIME_EXIT_HOURS: float | None = 72
 
+# ===== Dynamic exits (MACD regime) =====
+DYN_EXITS_ENABLED: bool = True
+DYN_MACD_HIST_THRESH: float = 0.0
+DYN_TP_MULT_POS: float = 1.15
+DYN_SL_MULT_POS: float = 0.90
+DYN_TP_MULT_NEG: float = 0.85
+DYN_SL_MULT_NEG: float = 1.15
+
 # --- Partial/Trail (optional)
 PARTIAL_TP_ENABLED: bool = False
 PARTIAL_TP_RATIO: float = 0.5
@@ -171,9 +179,24 @@ if LABELING_MODE:
 META_PROB_THRESHOLD: float | None = 0.60   # e.g., 0.60 to gate, or None
 META_SIZING_ENABLED: bool = True          # turn ON to scale risk by prob
 META_SIZING_P0: float = 0.60               # below P0 → min size
-META_SIZING_P1: float = 0.90               # above P1 → max size
-META_SIZING_MIN: float = 0.30              # 0.5× base risk
-META_SIZING_MAX: float = 2.50              # 1.25× base risk
+META_SIZING_P1: float = 0.95               # above P1 → max size
+META_SIZING_MIN: float = 0.50              # minimum multiplier
+META_SIZING_MAX: float = 2.00              # maximum multiplier
+SIZE_MIN_CAP: float = 0.25
+SIZE_MAX_CAP: float = 3.00
+REGIME_DOWNSIZE_MULT: float = 0.65
+
+# ===== Week pattern OOS stress =====
+WEEK_PATTERN_ENABLED: bool = False
+WEEK_PATTERN: str = "10"
+
+# ===== Live de-risking of open positions =====
+LIVE_DERISK_ENABLED: bool = True
+DERISK_TARGET_MULT: float = 0.65
+DERISK_DOWNSHIFT_ONLY: bool = True
+DERISK_HYST: float = 0.02
+DERISK_MIN_QTY_FRAC: float = 0.10
+DERISK_COOLDOWN_BARS: int = 12
 
 META_PRED_PATH = RESULTS_DIR / "meta_export" / "oos_predictions.parquet"
 META_MERGE_ROUND = "5min"

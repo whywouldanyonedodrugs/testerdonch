@@ -7,6 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass, asdict, fields
 from typing import List, Dict, Optional, Tuple
 from pathlib import Path
+from datetime import time
 
 import numpy as np
 import pandas as pd
@@ -236,6 +237,76 @@ def _prob_size_multiplier(p: float, p0: float = 0.50, lo: float = 0.50, hi: floa
     # scale from p0..1 to 1..hi
     return 1.0 + (hi - 1.0) * ((p - p0) / max(1.0 - p0, 1e-9))
 
+
+def _dyn_exit_multipliers(row: pd.Series, cfg) -> Tuple[float, float]:
+    if not getattr(cfg, "DYN_EXITS_ENABLED", False):
+        return 1.0, 1.0
+
+    try:
+        hist = float(row.get("eth_macd_hist_4h", np.nan))
+    except Exception:
+        hist = np.nan
+    try:
+        both_pos = int(row.get("eth_macd_both_pos_4h", 0))
+    except Exception:
+        both_pos = 0
+
+    if not np.isfinite(hist):
+        return 1.0, 1.0
+
+    thresh = float(getattr(cfg, "DYN_MACD_HIST_THRESH", 0.0))
+    if hist >= thresh and both_pos == 1:
+        return float(getattr(cfg, "DYN_TP_MULT_POS", 1.0)), float(getattr(cfg, "DYN_SL_MULT_POS", 1.0))
+    if hist < thresh:
+        return float(getattr(cfg, "DYN_TP_MULT_NEG", 1.0)), float(getattr(cfg, "DYN_SL_MULT_NEG", 1.0))
+    return 1.0, 1.0
+
+
+def _dyn_size_multiplier(prob: float, hist_4h: float, cfg) -> float:
+    base = 1.0
+    if getattr(cfg, "META_SIZING_ENABLED", False):
+        p0 = float(getattr(cfg, "META_SIZING_P0", 0.60))
+        p1 = float(getattr(cfg, "META_SIZING_P1", 0.95))
+        lo = float(getattr(cfg, "META_SIZING_MIN", 0.5))
+        hi = float(getattr(cfg, "META_SIZING_MAX", 2.0))
+        try:
+            p = float(prob)
+        except Exception:
+            p = np.nan
+        if np.isfinite(p):
+            if p <= p0:
+                base = lo
+            elif p >= p1:
+                base = hi
+            else:
+                base = lo + (hi - lo) * ((p - p0) / max(p1 - p0, 1e-9))
+
+    try:
+        hist = float(hist_4h)
+    except Exception:
+        hist = np.nan
+    regime_mult = 1.0
+    if np.isfinite(hist) and hist < float(getattr(cfg, "DYN_MACD_HIST_THRESH", 0.0)):
+        regime_mult = float(getattr(cfg, "REGIME_DOWNSIZE_MULT", 1.0))
+
+    out = base * regime_mult
+    out = float(np.clip(out, float(getattr(cfg, "SIZE_MIN_CAP", 0.1)), float(getattr(cfg, "SIZE_MAX_CAP", 5.0))))
+    return out
+
+
+def _is_trade_week(ts: pd.Timestamp, pattern: str) -> bool:
+    if not pattern or set(pattern) <= {"1"}:
+        return True
+    iso_week = int(ts.isocalendar().week)
+    i = (iso_week - 1) % len(pattern)
+    return pattern[i] == "1"
+
+
+def _must_flatten_now(ts: pd.Timestamp, cfg) -> bool:
+    if not getattr(cfg, "WEEK_PATTERN_ENABLED", False):
+        return False
+    return bool(ts.weekday() == 4 and ts.time() >= time(23, 55))
+
 # ---------------- Regime gate (ETH MACD on configured TF) ----------------
 class RegimeGate:
     """
@@ -419,6 +490,10 @@ def _simulate_long_with_partials_trail(
     fixed_cash_override: float | None = None,
     # NEW: AVWAP anchor override (None → defaults to entry_ts)
     avwap_anchor_ts: pd.Timestamp | None = None,
+    sl_mult_override: float | None = None,
+    tp_mult_override: float | None = None,
+    av_sl_mult_override: float | None = None,
+    av_tp_mult_override: float | None = None,
 ) -> dict | None:
     """
     Simulate a long trade with:
@@ -436,15 +511,15 @@ def _simulate_long_with_partials_trail(
     time_hours = getattr(cfg, "TIME_EXIT_HOURS", None)
 
     # legacy ATR-price basis (default)
-    sl_mult_legacy = float(getattr(cfg, "SL_ATR_MULT", 2.0))
-    tp_mult_legacy = float(getattr(cfg, "TP_ATR_MULT", 8.0))
+    sl_mult_legacy = float(sl_mult_override if sl_mult_override is not None else getattr(cfg, "SL_ATR_MULT", 2.0))
+    tp_mult_legacy = float(tp_mult_override if tp_mult_override is not None else getattr(cfg, "TP_ATR_MULT", 8.0))
 
     # AVWAP basis (new)
     exit_basis   = str(getattr(cfg, "EXIT_BASIS", "price_atr")).lower()
     av_mode      = str(getattr(cfg, "AVWAP_MODE", "static")).lower()      # "static" | "dynamic"
     av_anchor    = pd.to_datetime(avwap_anchor_ts or entry_ts, utc=True)
-    av_sl_mult   = float(getattr(cfg, "AVWAP_SL_MULT", 2.0))
-    av_tp_mult   = float(getattr(cfg, "AVWAP_TP_MULT", 8.0))
+    av_sl_mult   = float(av_sl_mult_override if av_sl_mult_override is not None else getattr(cfg, "AVWAP_SL_MULT", 2.0))
+    av_tp_mult   = float(av_tp_mult_override if av_tp_mult_override is not None else getattr(cfg, "AVWAP_TP_MULT", 8.0))
     av_use_entry_atr = bool(getattr(cfg, "AVWAP_USE_ENTRY_ATR", True))
 
     # partials / trail
@@ -758,6 +833,13 @@ class Backtester:
             sym = str(s["symbol"])
             entry_price = float(s["entry"])
 
+            if getattr(cfg, "WEEK_PATTERN_ENABLED", False):
+                pattern = str(getattr(cfg, "WEEK_PATTERN", ""))
+                if not _is_trade_week(ts, pattern):
+                    continue
+                if _must_flatten_now(ts, cfg):
+                    continue
+
             # --- regime gate
             regime_up = self.regime.is_up(ts)
             if getattr(cfg, "REGIME_FILTER_ENABLED", True) and getattr(cfg, "REGIME_BLOCK_WHEN_DOWN", True) and not regime_up:
@@ -798,34 +880,47 @@ class Backtester:
             if (not regime_up) and (not getattr(cfg, "REGIME_BLOCK_WHEN_DOWN", True)):
                 equity_for_sizing *= float(getattr(cfg, "REGIME_SIZE_WHEN_DOWN", 0.5))
 
-            # === meta: gate + probability-weighted sizing ===
+            # === meta: gate + dynamic sizing ===
             prob = s.get("meta_p", np.nan)  # may not exist in plain signals; OK
+            try:
+                prob_val = float(prob)
+            except Exception:
+                prob_val = np.nan
 
-            # gate (only if user set META_PROB_THRESHOLD)
             thr = getattr(cfg, "META_PROB_THRESHOLD", None)
             if thr is not None:
-                try:
-                    p = float(prob)
-                    if not (0.0 <= p <= 1.0):
-                        # if prob missing, *do not* auto-skip; just don’t pass the gate
-                        continue
-                    if p < float(thr):
-                        continue
-                except Exception:
+                if (not np.isfinite(prob_val)) or (prob_val < float(thr)) or not (0.0 <= prob_val <= 1.0):
                     continue
 
-            # base risk pct
-            risk_pct_eff = float(getattr(cfg, "RISK_PCT", 0.01))
+            try:
+                hist4h_val = float(s.get("eth_macd_hist_4h", np.nan))
+            except Exception:
+                hist4h_val = np.nan
 
-            # user-provided scale wins; else scale by prob if enabled
             scale_in = s.get("risk_scale", None)
             if scale_in is not None:
                 try:
-                    risk_pct_eff *= float(scale_in)
+                    size_mult = float(scale_in)
                 except Exception:
-                    pass
-            elif bool(getattr(cfg, "META_SIZING_ENABLED", False)):
-                risk_pct_eff *= _prob_size_multiplier(prob)
+                    size_mult = 1.0
+            else:
+                size_mult = _dyn_size_multiplier(prob_val, hist4h_val, cfg)
+
+            risk_mode_cfg = str(getattr(cfg, "RISK_MODE", "cash"))
+            base_risk_pct = float(getattr(cfg, "RISK_PCT", 0.01))
+            base_fixed_cash = float(getattr(cfg, "FIXED_RISK_CASH", 10.0))
+            if risk_mode_cfg.lower() == "percent":
+                risk_pct_override = max(base_risk_pct * size_mult, 0.0)
+                fixed_cash_override = base_fixed_cash
+            else:
+                risk_pct_override = base_risk_pct
+                fixed_cash_override = max(base_fixed_cash * size_mult, 0.0)
+
+            tp_mult_scale, sl_mult_scale = _dyn_exit_multipliers(s, cfg)
+            sl_override = float(getattr(cfg, "SL_ATR_MULT", 2.0)) * sl_mult_scale
+            tp_override = float(getattr(cfg, "TP_ATR_MULT", 8.0)) * tp_mult_scale
+            av_sl_override = float(getattr(cfg, "AVWAP_SL_MULT", 2.0)) * sl_mult_scale
+            av_tp_override = float(getattr(cfg, "AVWAP_TP_MULT", 8.0)) * tp_mult_scale
 
             # --- simulate exit path with partials / trailing
             equity_at_entry = float(equity_for_sizing)
@@ -859,10 +954,14 @@ class Backtester:
                 atr_at_entry=atr_now,
                 equity_at_entry=equity_at_entry,
                 df5=df5,
-                risk_mode_override=getattr(cfg, "RISK_MODE", None),
-                risk_pct_override=getattr(cfg, "RISK_PCT", None),
-                fixed_cash_override=getattr(cfg, "FIXED_RISK_CASH", None),
+                risk_mode_override=risk_mode_cfg,
+                risk_pct_override=risk_pct_override,
+                fixed_cash_override=fixed_cash_override,
                 avwap_anchor_ts=anchor_ts,
+                sl_mult_override=sl_override,
+                tp_mult_override=tp_override,
+                av_sl_mult_override=av_sl_override,
+                av_tp_mult_override=av_tp_override,
             )
             if sim is None:
                 continue

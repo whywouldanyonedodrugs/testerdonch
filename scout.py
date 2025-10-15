@@ -145,6 +145,71 @@ def add_oi_funding_features(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+
+def _eth_macd_full_4h_to_5m(
+    signals_df: pd.DataFrame,
+    eth_parquet_path: str,
+    fast: int = 12,
+    slow: int = 26,
+    signal: int = 9,
+) -> pd.DataFrame:
+    """Merge ETH 4h MACD context (line/signal/hist + boolean) onto 5m signals."""
+
+    if signals_df.empty:
+        return signals_df
+
+    eth_path = Path(eth_parquet_path)
+    if not eth_path.exists():
+        return signals_df
+
+    eth = pd.read_parquet(eth_path)
+    if eth.empty:
+        return signals_df
+
+    if "timestamp" not in eth.columns:
+        raise ValueError("ETH parquet must include a 'timestamp' column.")
+
+    eth = eth.copy()
+    eth["timestamp"] = pd.to_datetime(eth["timestamp"], utc=True, errors="coerce")
+    eth = eth.dropna(subset=["timestamp"]).sort_values("timestamp").set_index("timestamp")
+
+    close_4h = (
+        eth["close"].astype(float)
+        .resample("4H", label="right", closed="right")
+        .last()
+        .dropna()
+    )
+
+    if close_4h.empty:
+        return signals_df
+
+    ema_fast = close_4h.ewm(span=fast, adjust=False, min_periods=fast).mean()
+    ema_slow = close_4h.ewm(span=slow, adjust=False, min_periods=slow).mean()
+    macd_line = ema_fast - ema_slow
+    macd_signal = macd_line.ewm(span=signal, adjust=False, min_periods=signal).mean()
+    macd_hist = macd_line - macd_signal
+
+    macd_4h = pd.DataFrame(
+        {
+            "eth_macd_line_4h": macd_line,
+            "eth_macd_signal_4h": macd_signal,
+            "eth_macd_hist_4h": macd_hist,
+        }
+    )
+
+    macd_5m = macd_4h.resample("5T").ffill()
+
+    out = signals_df.copy()
+    out["timestamp"] = pd.to_datetime(out["timestamp"], utc=True, errors="coerce")
+    out = out.merge(macd_5m, left_on="timestamp", right_index=True, how="left")
+    out["eth_macd_both_pos_4h"] = (
+        (out["eth_macd_line_4h"] > 0).astype("int8")
+        & (out["eth_macd_hist_4h"] > 0).astype("int8")
+    ).astype("int8")
+
+    return out
+
+
 def _optimize_signal_dtypes(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return df
@@ -234,24 +299,14 @@ def _process_one_symbol(sym: str, rs_table: Optional[pd.DataFrame]) -> int:
             scale = sig["atr_1h"].where(sig["atr_1h"].notna(), sig.get("atr", np.nan))
             sig["don_dist_atr"] = (sig["close"] - sig["don_upper"]) / scale.replace(0, np.nan)
 
-    # ETH 4h MACD histogram (align on columns only)
     try:
-        if getattr(cfg, "REGIME_FILTER_ENABLED", True):
-            eth = load_parquet_data(
-                cfg.REGIME_ASSET,
-                start_date=cfg.START_DATE,
-                end_date=cfg.END_DATE,
-                drop_last_partial=True,
-                columns=["open","high","low","close","volume"],
-            )
-            if not eth.empty:
-                eth = _normalize_ts_index(eth)
-                eth4 = resample_ohlcv(eth, cfg.REGIME_TIMEFRAME)
-                hist4 = macd_hist(eth4["close"], cfg.REGIME_MACD_FAST, cfg.REGIME_MACD_SLOW, cfg.REGIME_MACD_SIGNAL)
-                tsu = np.unique(np.sort(sig["timestamp"].values))
-                hmap = hist4.reindex(tsu, method="ffill").rename("eth_macd_hist_4h").to_frame()
-                hmap = hmap.rename_axis("timestamp").reset_index()
-                sig = sig.merge(hmap, on="timestamp", how="left", copy=False)
+        sig = _eth_macd_full_4h_to_5m(
+            signals_df=sig,
+            eth_parquet_path=str(Path("parquet") / f"{getattr(cfg, 'REGIME_ASSET', 'ETHUSDT')}.parquet"),
+            fast=int(getattr(cfg, "REGIME_MACD_FAST", 12)),
+            slow=int(getattr(cfg, "REGIME_MACD_SLOW", 26)),
+            signal=int(getattr(cfg, "REGIME_MACD_SIGNAL", 9)),
+        )
     except Exception:
         pass
 

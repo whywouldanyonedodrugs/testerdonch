@@ -33,6 +33,69 @@ try:
 except Exception as e:
     raise RuntimeError("LightGBM not available. Install with: pip install lightgbm") from e
 
+# --- Feature registry & toggles -------------------------------------------------
+CAND_NUM = [
+    "entry",
+    "atr",
+    "atr_1h",
+    "atr_pct",
+    "don_break_len",
+    "don_break_level",
+    "don_dist_atr",
+    "rs_pct",
+    "hour_sin",
+    "hour_cos",
+    "dow",
+    "vol_spike_i",
+    "rsi_1h",
+    "adx_1h",
+    "vol_mult",
+    "vol_prob_low_1d",
+    "regime_code_1d",
+    "markov_state_4h",
+    "markov_prob_up_4h",
+    "markov_state_up_4h",
+    "oi_level",
+    "oi_notional_est",
+    "oi_pct_1h",
+    "oi_pct_4h",
+    "oi_pct_1d",
+    "oi_z_7d",
+    "oi_chg_norm_vol_1h",
+    "oi_price_div_1h",
+    "funding_rate",
+    "funding_abs",
+    "funding_z_7d",
+    "funding_rollsum_3d",
+    "funding_oi_div",
+    "eth_macd_line_4h",
+    "eth_macd_signal_4h",
+    "eth_macd_hist_4h",
+    "eth_macd_both_pos_4h",
+    "days_since_prev_break",
+    "consolidation_range_atr",
+    "prior_1d_ret",
+    "rv_3d",
+    "basis_pct",
+    "funding_8h",
+    "prior_breakout_count",
+    "prior_breakout_fail_count",
+    "prior_breakout_fail_rate",
+    "rs_z",
+    "turnover_z",
+    "vwap_frac_in_band",
+    "vwap_expansion_pct",
+    "vwap_slope_pph",
+]
+
+ENABLE_INTERACTIONS = False
+INTERACTIONS: List[Tuple[str, str]] = [
+    ("rs_pct", "eth_macd_both_pos_4h"),
+    ("don_dist_atr", "eth_macd_both_pos_4h"),
+]
+
+TIME_DECAY_HALFLIFE_DAYS: int | None = 180
+
 # ---- Base LGBM params used for CV + final refit ----
 BASE_LGBM_PARAMS = dict(
     objective="binary",
@@ -46,6 +109,25 @@ BASE_LGBM_PARAMS = dict(
     verbose=-1,
 )
 
+
+
+def _add_interactions(df: pd.DataFrame, pairs: List[Tuple[str, str]]) -> pd.DataFrame:
+    if not pairs:
+        return df
+    out = df.copy()
+    for a, b in pairs:
+        if a in out.columns and b in out.columns:
+            out[f"{a}__x__{b}"] = out[a].astype(float) * out[b].astype(float)
+    return out
+
+
+def _time_decay_weights(ts: pd.Series, halflife_days: int | None) -> pd.Series:
+    if halflife_days is None:
+        return pd.Series(1.0, index=ts.index)
+    ts = pd.to_datetime(ts, utc=True, errors="coerce")
+    tmax = ts.max()
+    age_days = (tmax - ts).dt.total_seconds() / 86400.0
+    return pd.Series(np.power(0.5, age_days / float(halflife_days)), index=ts.index)
 
 
 # =============================================================================
@@ -166,33 +248,14 @@ def _mk_features(signals_or_joined: pd.DataFrame) -> Tuple[pd.DataFrame, List[st
         df["rs_pct"] = df["rs_pct"].fillna(-1)
 
     # Candidate numerics (keep what's present)
-    CAND_NUM = [
-        "entry","atr","atr_1h","atr_pct","don_break_len","don_break_level",
-        "don_dist_atr","rs_pct","hour_sin","hour_cos","dow","vol_spike_i",
-        "rsi_1h","adx_1h","vol_mult","eth_macd_hist_4h",
-        # optional extras (if you add them in signals):
-        "days_since_prev_break","consolidation_range_atr","prior_1d_ret","rv_3d",
-        "markov_state_4h","markov_prob_up_4h","vol_prob_low_1d","regime_code_1d","trend_bull_1d","vol_low_1d",
-        "markov_state_up_4h","markov_prob_up_4h",
-
-        # --- NEW: AVWAP stack
-        "vwap_frac_in_band","vwap_expansion_pct","vwap_slope_pph",
-
-        # --- NEW: funding/basis
-        "basis_pct","funding_8h",
-
-        # --- NEW: prior breakout quality
-        "prior_breakout_count","prior_breakout_fail_count","prior_breakout_fail_rate",
-
-        # --- NEW: crowding proxies
-        "rs_z","turnover_z",
-
-        # --- NEW: OI + Funding (full set, keep-what’s-present logic below)
-        "oi_level","oi_notional_est","oi_pct_1h","oi_pct_4h","oi_pct_1d",
-        "oi_z_7d","oi_chg_norm_vol_1h","oi_price_div_1h",
-        "funding_rate","funding_abs","funding_z_7d","funding_rollsum_3d","funding_oi_div",
-    ]
     num_cols = [c for c in CAND_NUM if c in df.columns]
+
+    if ENABLE_INTERACTIONS:
+        df = _add_interactions(df, INTERACTIONS)
+        for a, b in INTERACTIONS:
+            col = f"{a}__x__{b}"
+            if col in df.columns and col not in num_cols:
+                num_cols.append(col)
 
     # Categorical feature list
     cat_cols = [c for c in ["pullback_type","entry_rule","regime_1d"] if c in df.columns]
@@ -324,7 +387,16 @@ def generate_cpcv_masks(dates: pd.Series, cfgc: CPCVConfig) -> List[Tuple[np.nda
 # =============================================================================
 # Training / Evaluation
 # =============================================================================
-def train_one_fold(X_tr, y_tr, X_te, y_te, seed: int, imbalance_weight: bool = True, feature_names: List[str] | None = None):
+def train_one_fold(
+    X_tr,
+    y_tr,
+    X_te,
+    y_te,
+    seed: int,
+    imbalance_weight: bool = True,
+    feature_names: List[str] | None = None,
+    sample_weight: Optional[np.ndarray] = None,
+):
     """
     Train LGBM on a *DataFrame* with synthetic names (f0..fN), and align X_te to the same columns.
     This avoids sklearn name warnings and SHAP/PI shape mismatches.
@@ -367,7 +439,11 @@ def train_one_fold(X_tr, y_tr, X_te, y_te, seed: int, imbalance_weight: bool = T
         verbose=-1,
     )
 
-    model.fit(X_tr_df, y_tr)          # fit with *named* columns
+    fit_kwargs = {}
+    if sample_weight is not None:
+        fit_kwargs["sample_weight"] = sample_weight
+
+    model.fit(X_tr_df, y_tr, **fit_kwargs)          # fit with *named* columns
     proba = model.predict_proba(X_te_df)[:, 1]  # predict on *aligned* DF
 
     pr_auc = average_precision_score(y_te, proba)
@@ -515,7 +591,8 @@ def build_dataset(trades_csv: Optional[str], signals_parquet: Optional[str]):
         "pullback_type", "entry_rule", "rs_pct",
     ]
     extras = [
-        "atr_1h","rsi_1h","adx_1h","vol_mult","atr_pct","don_dist_atr","eth_macd_hist_4h",
+        "atr_1h","rsi_1h","adx_1h","vol_mult","atr_pct","don_dist_atr",
+        "eth_macd_hist_4h","eth_macd_line_4h","eth_macd_signal_4h","eth_macd_both_pos_4h",
         "days_since_prev_break","consolidation_range_atr","prior_1d_ret","rv_3d",
         "markov_state_4h","markov_prob_up_4h","vol_prob_low_1d","regime_code_1d",
         "markov_state_up_4h","regime_1d_NA_HIGH_VOL","regime_1d_NA_LOW_VOL",
@@ -594,6 +671,7 @@ def run_meta(
 
     feats["y"] = y.values
     feats["symbol"] = feats["symbol"].astype(str)
+    feats["sample_weight"] = _time_decay_weights(feats["entry_ts"], TIME_DECAY_HALFLIFE_DAYS).values
 
     masks = generate_cpcv_masks(feats["entry_ts"], CPCVConfig(blocks=blocks, k_test=k_test, embargo=embargo, max_splits=max_splits))
     if not masks:
@@ -612,7 +690,16 @@ def run_meta(
         y_tr = feats.iloc[tr_idx]["y"].values.astype(int)
         y_te = feats.iloc[te_idx]["y"].values.astype(int)
 
-        model, proba, m = train_one_fold(X_tr, y_tr, X_te, y_te, seed=random_seed + fold, feature_names=cols_all)
+        w_tr = feats.iloc[tr_idx]["sample_weight"].values
+        model, proba, m = train_one_fold(
+            X_tr,
+            y_tr,
+            X_te,
+            y_te,
+            seed=random_seed + fold,
+            feature_names=cols_all,
+            sample_weight=w_tr,
+        )
 
         fold_preds = pd.DataFrame({
             "entry_ts": feats.iloc[te_idx]["entry_ts"].values,
@@ -663,13 +750,31 @@ def run_meta(
     metrics = pd.DataFrame(all_metrics)
     metrics.to_csv(outdir / "metrics.csv", index=False)
 
+    features_to_drop: List[str] = []
+    perm_summary = None
     if perm_fold_list:
         perm_all = pd.concat(perm_fold_list, ignore_index=True)
-        g = perm_all.groupby("feature", as_index=False).apply(
-            lambda d: pd.Series({"importance_mean_weighted": float(np.average(d["importance_mean"], weights=d["weight"]))}),
+
+        def _agg_perm(d: pd.DataFrame) -> pd.Series:
+            return pd.Series({
+                "importance_mean_weighted": float(np.average(d["importance_mean"], weights=d["weight"])),
+                "importance_median": float(np.median(d["importance_mean"])),
+            })
+
+        perm_summary = perm_all.groupby("feature", as_index=False).apply(
+            _agg_perm,
             include_groups=False,
         ).reset_index(drop=True)
-        g.sort_values("importance_mean_weighted", ascending=False).to_csv(outdir / "perm_importance_oos.csv", index=False)
+        perm_summary.sort_values("importance_mean_weighted", ascending=False).to_csv(
+            outdir / "perm_importance_oos.csv", index=False
+        )
+
+        features_to_drop = [
+            f for f in perm_summary.loc[perm_summary["importance_median"] <= 0, "feature"].tolist()
+            if f in num_cols
+        ]
+        if features_to_drop:
+            print(f"[perm] pruning features with median ≤ 0: {features_to_drop}")
 
     if shap_fold_list:
         shap_all = pd.concat(shap_fold_list, ignore_index=True)
@@ -707,7 +812,8 @@ def run_meta(
     all_idx = np.arange(len(feats))
 
     # Numeric block
-    Xn_all = feats.iloc[all_idx][num_cols].astype(np.float64).fillna(0.0).to_numpy()
+    num_cols_final = [c for c in num_cols if c not in features_to_drop]
+    Xn_all = feats.iloc[all_idx][num_cols_final].astype(np.float64).fillna(0.0).to_numpy()
 
     # Categorical block (fit OHE on ALL data to define serving columns)
     ohe_all = _fit_ohe(feats.iloc[all_idx], cat_cols)
@@ -715,8 +821,9 @@ def run_meta(
 
     # Final feature matrix and ordered names for serving
     X_all = np.hstack([Xn_all, Xo_all])
-    cols_all = num_cols + ohe_names
+    cols_all = num_cols_final + ohe_names
     y_all = feats["y"].values.astype(int)
+    w_all = feats["sample_weight"].values
 
     # Class imbalance weight on full data
     pos = max(1, int((y_all == 1).sum()))
@@ -731,7 +838,7 @@ def run_meta(
     fcols_all = [f"f{i}" for i in range(X_all.shape[1])]
     X_all_df = pd.DataFrame(X_all, columns=fcols_all)
     final = LGBMClassifier(**final_params)
-    final.fit(X_all_df, y_all)
+    final.fit(X_all_df, y_all, sample_weight=w_all)
 
     # Optional: probability calibration using OOS predictions
     calibrator = None
