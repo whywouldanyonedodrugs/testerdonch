@@ -1,0 +1,8 @@
+# Original target
+python meta_model.py --target pnl_pos --r-threshold 0.0
+
+# Hit-TP-first target
+python meta_model.py --target hit_tp
+
+# MFE ≥ 2×ATR target
+python meta_model.py --target mfe_k --mfe-k 2.0

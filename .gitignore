@@ -1,0 +1,20 @@
+# Virtual Environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+
+# Other
+parquet/
+results_1010/
+results/
+signals/
+data5/
+signals_fixed/
+parquet_1m/
+results_labeling/

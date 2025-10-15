@@ -1,0 +1,221 @@
+Awesome—here’s a concise but *complete* “project doc” for **Donch** (our long-only breakout-pullback strategy): what each file does, the data/artifacts it produces, and exactly how to run the full analysis loop end-to-end on your machine.
+
+---
+
+# What the project is (one paragraph)
+
+**Donch** is a long-only crypto strategy that hunts for **strong coins** (weekly relative-strength ranking), waits for a **Donchian breakout** with **volume confirmation**, then looks for a brief **pullback/stall** to enter. It only trades when the **market regime** is favorable (e.g., ETH 4h MACD histogram ≥ 0). Exits are via **ATR-based stop**, **modest TP** (e.g., 1.0–1.5× ATR), or **time stop**. We also train a **meta-model** (LightGBM) on entry-time features to predict trade success; that probability is used to **filter** signals at an EV-optimal threshold before re-backtesting. (PR-AUC evaluates probability ranking; Brier score evaluates calibration.) ([Scikit-learn][1], [Wikipedia][2])
+
+---
+
+# Repository map (what each file does)
+
+**Core pipeline**
+
+* **`manager.py`**
+  Orchestrates a full run. Steps: (1) “scouting” to generate entry **signals**; (2) **backtest** over those signals; (3) **post-processing** aggregates. Accepts `--start`, `--end`, and optional `--signals` (to run on a pre-filtered signal set). Emits:
+
+  * `signals/signals.parquet` (all candidate entries)
+  * `results/trades.csv` (executed trades)
+  * `results/equity.csv` (equity curve)
+  * `results/trades_aggregated.csv` (daily/variant summaries)
+
+* **`scout.py`**
+  Loads per-symbol OHLCV, computes features, and decides entries. Key logic:
+
+  * **Relative-strength (weekly)**: ranks the whole universe and filters to top X% (configurable).
+  * **Regime**: ETH (or BTC) **4h MACD histogram** check; optional Markov regime detection.
+  * **Breakout**: **Donchian channel** (N-bar highest high); optional volume spike confirmation.
+  * **Pullback/stall**: simple stalls or small counter-moves on the trading timeframe.
+    Emits **signals** with columns like: `timestamp`, `symbol`, `entry`, `atr`, `don_break_len`, `don_break_level`, `vol_spike`, `pullback_type`, `entry_rule`, `rs_pct`, `regime_up`, etc.
+
+* **`backtester.py`**
+  Simulates fills/exits for every signal: **entry**, **SL/TP**, **trailing (if enabled)**, **time exit**, **fees**, **slippage**. Writes **trade-by-trade** P\&L (`results/trades.csv`) and **equity curve**. Uses vectorized/resampled logic where possible; intrabar stop/target fills defer to `bt_intrabar.py`.
+
+* **`bt_intrabar.py`**
+  Deterministic intrabar fill rules—e.g., if both SL and TP are within a bar’s range, define which hit “first”; handles **time-exit** edge cases safely.
+
+* **`bt_gates.py`**
+  On/off **entry gates** used by `scout.py`: e.g., EMA alignment, RSI/ADX bands, volatility/volume minimums, **regime gating**, symbol cooldowns.
+
+* **`indicators.py`**
+  Fast indicator helpers: **ATR**, **Donchian channels**, **MACD histogram**, **RSI/ADX**, **volume spike ratios**, etc. Keep these vectorized; the rest of the code plugs them in.
+
+* **`regime_detector.py`**
+  Optional (slower) regime classifier (e.g., Markov or volatility-break filters). For Donch we primarily use **ETH 4h MACD histogram ≥ 0** as the fast regime check.
+
+* **`reporting.py`**
+  Post-processing: aggregates (`results/trades_aggregated.csv`), and **robustness** utilities you can run via CLI:
+
+  * **CSCV / CPCV** → **PBO** (Probability of Backtest Overfitting)
+  * **PSR / DSR** for Sharpe significance under fat-tailed returns
+    These are standard tools to avoid overfitting selection bias. ([SSRN][3], [David H Bailey][4])
+
+**Meta-modeling & analytics**
+
+* **`meta_model.py`**
+  Trains a **LightGBM** classifier on *entry-time features* to predict the chance a trade will end up ≥ a chosen R threshold (default: win vs loss). Uses **purged, embargoed CPCV** splits, reports **PR-AUC** and **Brier**, and writes **OOS probabilities** per entry (`results/meta/oos_predictions.parquet`) plus **OOS permutation** and **OOS SHAP** importances. (Permutation importance comes from scikit-learn; SHAP uses TreeSHAP for tree models; LightGBM is the learner.) ([Scikit-learn][5], [shap.readthedocs.io][6], [lightgbm.readthedocs.io][7])
+
+* **`analysis_runner.py`, `analyze_trades.py`, `train_model.py`**
+  Your live-system analytics/regression code—useful for inspiration (extra diagnostics, richer plots). They’re not required for the Donch pipeline but can be adapted as needed.
+
+* **Utilities**
+
+  * **`check_header.py`**: simple schema/sanity checks on CSV/Parquet (e.g., required columns exist; dtype coercion).
+  * **`config.py`**: defaults for folders/fees/throughput; your YAML is the primary source; code reads both (YAML takes precedence).
+
+---
+
+# Data artifacts (what’s inside)
+
+* **`signals/signals.parquet`** (from `scout.py`)
+  One row per candidate entry:
+  `timestamp (UTC), symbol, entry (price), atr, don_break_len, don_break_level, vol_spike (bool), pullback_type, entry_rule, rs_pct, regime_up (0/1), …`
+
+* **`results/trades.csv`** (from `backtester.py`)
+  One row per executed trade:
+  `symbol, entry_ts (UTC), exit_ts, entry, exit, sl, tp, qty, fees, pnl, pnl_R, exit_reason, …`
+
+* **`results/equity.csv`**
+  Time series of equity and drawdown.
+
+* **`results/trades_aggregated.csv`**
+  Roll-ups by day/variant (e.g., by `pullback_type`, `entry_rule`, `don_break_len`, `regime_up`).
+
+* **`results/meta/*`** (from `meta_model.py`)
+
+  * `oos_predictions.parquet` → `entry_ts, symbol, y_true, y_proba, fold`
+  * `metrics.csv` → PR-AUC & Brier per fold
+  * `perm_importance_oos.csv`, `shap_importance_oos.csv` → global feature importance (OOS-weighted)
+
+**Why PR-AUC & Brier?**
+
+* **PR-AUC** summarizes ranking quality in imbalanced settings; the **baseline AP equals the positive rate**—so AP above prevalence indicates real lift.
+* **Brier** is the mean squared error of probabilities vs. outcomes—lower is better; it evaluates calibration and sharpness. ([Scikit-learn][1], [Wikipedia][2], [library.virginia.edu][8])
+
+---
+
+# How to run the full analysis (start → finish)
+
+> Commands assume PowerShell in the repo root (`C:\testerdonch`). Replace the dates with what you need. Your timezone is Europe/Vilnius; all timestamps written by the code are UTC.
+
+## 0) One-time setup
+
+```powershell
+# Core libs
+pip install pandas numpy pyarrow tqdm
+
+# Modeling libs
+pip install lightgbm shap scikit-learn
+```
+
+(LightGBM’s sklearn API and SHAP’s TreeExplainer are what we use; pyarrow handles Parquet I/O.) ([lightgbm.readthedocs.io][7], [shap.readthedocs.io][6])
+
+## 1) Generate signals & run a backtest (“baseline”, no meta-filter)
+
+```powershell
+python manager.py --start 2025-07-01 --end 2025-08-10
+```
+
+Outputs:
+
+* `signals/signals.parquet`
+* `results/trades.csv`, `results/equity.csv`
+* `results/trades_aggregated.csv`
+
+## 2) Train the meta-model (probabilities for each entry)
+
+```powershell
+python meta_model.py --returns-col pnl_R --r-threshold 0.0 ^
+  --blocks 12 --k-test 3 --embargo 1 --max-splits 25
+```
+
+You’ll see **fold PR-AUC** and **Brier** printed, then files under `results/meta/…`.
+(We use **CPCV** with **purged & embargoed** splits to avoid leakage; PBO/CSCV theory refs below.) ([SSRN][3], [David H Bailey][4])
+
+## 3) Pick an **EV-optimal** probability threshold `p*`
+
+Open a Python prompt (`python`) and paste only these *two* blocks (no tricky indents):
+
+```python
+import numpy as np, pandas as pd
+preds  = pd.read_parquet("results/meta/oos_predictions.parquet")
+trades = pd.read_csv("results/trades.csv", parse_dates=["entry_ts"])
+preds["entry_ts"]  = pd.to_datetime(preds["entry_ts"],  utc=True, errors="coerce")
+trades["entry_ts"] = pd.to_datetime(trades["entry_ts"], utc=True, errors="coerce")
+df = preds.merge(trades[["symbol","entry_ts","pnl_R"]], on=["symbol","entry_ts"], how="left").dropna(subset=["pnl_R"])
+```
+
+(We force both sides to **UTC-aware** before merging—pandas refuses to merge tz-aware with tz-naive datetime keys.) ([Pandas][9])
+
+```python
+evs = {float(t): float(df.loc[df.y_proba.ge(t), "pnl_R"].mean())
+       for t in np.round(np.linspace(0.50, 0.95, 10), 2)
+       if (df.y_proba >= t).any()}
+best_t = max(evs, key=evs.get); best_ev = evs[best_t]
+print("EV by threshold:", evs)
+print(f"Best p* = {best_t:.2f}  (EV={best_ev:.4f})")
+```
+
+## 4) Filter signals at `p*` and re-run Donch
+
+Still in that Python prompt:
+
+```python
+pstar = float(best_t)  # or set manually
+keep = preds.loc[preds.y_proba.ge(pstar), ["symbol","entry_ts"]].rename(columns={"entry_ts":"timestamp"})
+sig = pd.read_parquet("signals/signals.parquet")
+sig["timestamp"] = pd.to_datetime(sig["timestamp"], utc=True, errors="coerce")
+out = sig.merge(keep, on=["symbol","timestamp"], how="inner")
+out.to_parquet("signals/signals_filtered.parquet", index=False)
+print("Kept", len(out), "signals @ p* =", pstar)
+```
+
+Then back in PowerShell:
+
+```powershell
+python manager.py --start 2025-07-01 --end 2025-08-10 --signals signals\signals_filtered.parquet
+```
+
+## 5) Robustness stats (don’t skip this)
+
+```powershell
+python reporting.py --run-all --returns-col pnl_R --variant-cols pullback_type entry_rule don_break_len regime_up
+```
+
+* **CSCV/PBO**: How likely is it that we overfit?
+* **PSR/DSR**: Is Sharpe meaningfully > 0 after fat-tails & multiple testing?
+  These are standard diagnostics for strategy selection. ([SSRN][3], [David H Bailey][4])
+
+---
+
+# Interpreting the model outputs
+
+* **PR-AUC vs. prevalence**: Print `preds["y_true"].mean()`—that’s your **baseline AP** for a random model. Your PR-AUC should exceed it to be useful; even a modest lift can be monetized with thresholding and fee control. ([Scikit-learn][1])
+* **Brier score**: Lower is better; consider **isotonic** or Platt calibration later if you want better probability accuracy (improves EV targeting). ([Scikit-learn][10], [Wikipedia][2])
+* **Permutation importance (OOS)**: Which features actually contribute when shuffled on held-out data? (It measures the drop from a **baseline metric**—we use average precision.) ([Scikit-learn][5])
+* **SHAP (OOS)**: Consistent local→global attributions for tree models; inspect mean |SHAP|. (TreeSHAP is exact for tree ensembles.) ([shap.readthedocs.io][6])
+
+---
+
+# Where to tweak (small, surgical changes only)
+
+Change **one knob at a time**, re-run steps 1→5:
+
+* **Universe strength**: Raise weekly RS threshold (e.g., top 90% → 95% → 98%).
+* **Breakout strictness**: Increase Donch lookback (e.g., 40 → 55) and/or use a “close-above-break” rule. Investopedia has a decent overview of Donchian channels if you want a quick refresher. ([Investopedia][11])
+* **Volume confirmation**: Tighten spike multiple (1.5 → 2.0 → 3.0).
+* **Regime**: Require ETH MACD hist ≥ 0 (fast) or use the slower Markov classifier during bull runs only.
+
+Keep your run logs and CSVs—**compare like-for-like** date windows and watch fees/trade count.
+
+---
+
+# Common gotchas (and the fixes we built in)
+
+* **Datetime merges fail** → one side tz-aware, the other not. Always coerce both to UTC before merging on `entry_ts`. ([Pandas][9])
+* **Permutation/SHAP runtime** → reduce `n_repeats` (PI) or cap SHAP samples (we do). ([Scikit-learn][12])
+* **LightGBM warnings** about feature names → we pass named DataFrames at prediction to keep it quiet. ([lightgbm.readthedocs.io][7])
+* **Parquet I/O** → we use pandas/pyarrow (`read_parquet`, `to_parquet`) consistently. ([shap.readthedocs.io][6])
+
+-

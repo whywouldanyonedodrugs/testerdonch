@@ -1,0 +1,7 @@
+lightgbm==4.3.*
+scikit-learn==1.5.*
+pandas==2.2.*
+pyarrow==16.*
+joblib==1.4.*
+shap==0.45.*
+numpy==2.0.*

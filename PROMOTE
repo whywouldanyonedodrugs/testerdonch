@@ -1,0 +1,396 @@
+PROMOTE
+
+
+Awesome—here’s a clear, ultra-practical spec you can hand to your live bot. I’ll describe the **hypothesis**, the **data & timeframes**, all **gates/filters**, the exact **entry** and **exit** procedure, **sizing & fees**, **throughput guards**, and how the **meta-model** folds in. No code—just the contract your bot should implement.
+
+---
+
+# 1) Strategy hypothesis (what we’re exploiting)
+
+* **Core idea:** In crypto, **strong weekly relative strength** coins that **break out above a daily Donchian upper band** on **unusually high volume** tend to **trend positively**—*but* entries work best when we **wait for a shallow pullback/retest** after the breakout instead of chasing the first spike.
+* **Context matters:** Breakouts have higher follow-through when the **broader ETH regime** (4h momentum) is **up** (MACD histogram ≥ 0). We also observe state-dependence by daily regime and 4h Markov state (they’re used as **features** for the meta-model).
+
+---
+
+# 2) Data & timeframes (canonical)
+
+* **Base bars:** 5-minute OHLCV per symbol (UTC).
+* **Optional intrabar:** 1-minute OHLCV for SL/TP “which touched first” resolution (and for tighter live stops).
+* **Derived timeframes:**
+
+  * **Daily (1D):** For **Donchian breakout** (N calendar days) and daily regime features.
+  * **1-hour (1h):** For **ATR** (stop/targets scaling and %ATR sanity checks).
+  * **4-hour (4h):** For **ETH momentum regime** (MACD histogram), and an optional **4h Markov** regime feature.
+  * **Weekly (1w) returns:** For **relative strength (RS)** ranking across the universe.
+
+**UTC discipline:** All timestamps are UTC. Calculations use only **completed bars**; never use the forming bar.
+
+---
+
+# 3) Universe selection (recomputed daily)
+
+1. Start from your symbol list (spot or perpetuals; consistent venue).
+2. **Liquidity filter:** Keep symbols with **median 24h notional turnover ≥ \$500k** (over a rolling window, e.g., 30 days).
+3. **Relative strength filter:** From resampled **weekly** returns, compute **RS percentile** and keep **top X%** (default: top 30% → `RS_MIN_PERCENTILE = 70`).
+
+> Universe is refreshed daily (or each run); RS is recomputed with a stable weekly anchor (e.g., Monday close) to avoid drift.
+
+---
+
+# 4) Regime gate (trade only in favorable context)
+
+* **Primary gate:** Build **ETH 4h** bars; compute **MACD line** (EMA12−EMA26), **signal** (EMA9 of MACD), **histogram** (MACD−signal).
+
+  * **Regime-up condition:**
+
+    * default: **both** `MACD > signal` **and** `histogram > 0` (`REGIME_REQUIRE_BOTH_POSITIVE=True`),
+    * else: require at least `histogram > 0`.
+* **Gate behavior:**
+
+  * If `REGIME_BLOCK_WHEN_DOWN=True`: **no new entries** when regime is down.
+  * Else: **size down** by `REGIME_SIZE_WHEN_DOWN` (e.g., 0.5× risk).
+
+> The daily (BULL/BEAR × LOW/HIGH-vol) regime and 4h Markov state are *features only* (not hard gates) unless you choose to add them as extra filters.
+
+---
+
+# 5) Entry signal (evaluated on 5-minute bars, using higher-TF context)
+
+An **entry candidate** is generated when **all** of the following are true:
+
+1. **Donchian breakout (daily):** The latest **daily high** (computed from 5m → 1D) **takes out** the **N-day** highest high, with **no look-ahead** (use the **previous** N days; default **N=20**).
+
+   * **Confirmation close** (optional, default **ON**): require the **5m close** at the decision point to be **above** the daily Donchian upper (`DON_CONFIRM_CLOSE_ABOVE=True`).
+
+2. **Volume spike:** On the **decision bar**, volume is unusually high by one of:
+
+   * **Multiple mode:** `volume ≥ VOL_MULTIPLE × rolling_median(volume, VOL_LOOKBACK_DAYS)` (default **2.0×** over **30 days** mapped to bars), or
+   * **Quantile mode:** `volume ≥ rolling_quantile(q)` (default **q=0.95** over bounded window).
+
+   > Choose one; multiple mode is default.
+
+3. **Pullback/stall pattern (post-breakout):** After the breakout, wait for a **shallow pullback/retest** within a short window and only then enter on strength. Two variants exist; baseline uses **retest**:
+
+   * **PULLBACK\_MODEL="retest"** (default):
+
+     * After the breakout, price **revisits** the breakout level within **ε%** (default `RETEST_EPS_PCT ≈ 0.1%`) and **consolidates** for **PULLBACK\_WINDOW\_BARS** (default **12** 5m bars) or **PULLBACK\_WINDOW\_HOURS** (default **24h**), then
+     * **ENTRY\_RULE="close\_above\_break"** (default): go long when a bar **closes back above** the breakout level (or **"rebreak\_high"**: make a new local high).
+   * **PULLBACK\_MODEL="mean"** (alt): wait for mean-revert toward a short MA band and re-strengthen. (Not baseline.)
+
+4. **RS/liquidity compliance**: Symbol must be in the RS-kept, liquidity-kept universe at the time of signal.
+
+5. **ETH regime gate passes** (Section 4).
+
+If all 1–5 hold on a completed 5m bar, we **emit a signal** at that bar’s **close timestamp**.
+
+---
+
+# 6) Position sizing (computed at signal, filled next bar)
+
+* **Risk basis:**
+
+  * Default: **percent-of-equity risk** `RISK_PCT` (e.g., **1%**) applied to **SL distance** in price.
+  * Optional: **fixed cash risk** (if you enable: use a constant dollar risk instead of a % of equity).
+* **ATR for scaling:** Use **ATR(1h, length=14)** computed on 1h bars and **forward-filled** to the 5m decision bar.
+* **Stops/targets (initial):**
+
+  * **SL = entry − SL\_ATR\_MULT × ATR(1h)** (default **2.0×**)
+  * **TP = entry + TP\_ATR\_MULT × ATR(1h)** (default **8.0×**)
+* **Micro-stop sanity:** Skip signals where `ATR(1h) < MIN_ATR_PCT_OF_PRICE × price` (default **0.01%**) to avoid absurdly tight stops.
+* **Notional cap & leverage:** Enforce `NOTIONAL_CAP_PCT_OF_EQUITY` (e.g., 25%) and `MAX_LEVERAGE`.
+* **Fees:** Apply taker/maker fee (default **0.055%** per side, configurable).
+
+**Fill rule:** Entries are **executed at the *next* 5-minute bar** (market at open or aggressive limit). This matches the backtest alignment (“next tradable 5m bar after signal”).
+
+---
+
+# 7) Exit logic (live brackets & management)
+
+You should place/manage an **OCO bracket** with the following deterministic behavior:
+
+1. **Partial take-profit:** If `PARTIAL_TP_ENABLED`:
+
+   * At **TP1 = entry + PARTIAL\_TP1\_ATR\_MULT × ATR(1h)** (default **5× ATR**), **sell PARTIAL\_TP\_RATIO** of the position (default **50%**).
+   * Immediately **move stop to breakeven** (the entry price).
+
+2. **Trailing stop:** If `TRAIL_AFTER_TP1=True`:
+
+   * After TP1, maintain a **trailing stop** at `max(breakeven, highest_close_since_TP1 − TRAIL_ATR_MULT × ATR(1h))` (default trail **1× ATR**).
+   * If exchange lacks native trailing, emulate on each bar close.
+
+3. **Final take-profit:** If price **reaches initial TP** (8× ATR by default) before being stopped out, close the remainder and mark `exit_reason = "tp_final"`.
+
+4. **Stop-loss:** If price **reaches SL**, close and mark `exit_reason = "sl"`.
+
+5. **Time stop** (optional): if `TIME_EXIT_HOURS` is set and neither SL nor TP hit within that time window, **exit at market** and mark `exit_reason = "time_exit"`.
+
+**Intrabar sequencing (conflicts within one bar):**
+
+* If both SL and TP lie inside the same 5m bar:
+
+  * **Preferred:** Use **1m bars** to decide which was touched first.
+  * **Fallback:** Use your deterministic rule (e.g., `TIE_BREAKER="sl_wins"` or a canonical OHLC order).
+
+> In performance reporting, **R** is computed relative to the **initial** SL distance (not the moved stop), to avoid inflation after breakeven moves.
+
+---
+
+# 8) Throughput guards (avoid pathological churn)
+
+* **Per-symbol dedup:** Ignore **subsequent signals within D minutes** of the last signal for that symbol (default **8h** → `DEDUP_BUSY_WINDOW_MIN=480`) **in production**.
+  (For research labeling you may set it to 0.)
+* **Cooldown:** After closing a position, **cooldown** the symbol for **SYMBOL\_COOLDOWN\_MINUTES** (default **120**).
+* **Max trades/day:** Optional `MAX_TRADES_PER_DAY` cap (global).
+* **Equity floor:** Abort trading if equity drops below `MIN_EQUITY_FRACTION_BEFORE_ABORT × initial` (default **20%**).
+* **Max trades per variant:** Safety cap to avoid exploding logs.
+
+---
+
+# 9) Meta-model (probability filter/sizer)
+
+**Purpose:** Convert entry-time features into a **probability that the trade will produce meaningful follow-through** (we had success with label **MFE ≥ k×ATR**, e.g., k=2).
+
+**Features (entry-time, point-in-time safe):** examples you’re already computing
+
+* **Setup quality:** `don_dist_atr` (distance above breakout scaled by ATR), `vol_mult` (spike strength), `atr_pct` (ATR/price), RS percentile.
+* **Momentum/vol context:** `trend_bull_1d`, `vol_low_1d`, `vol_prob_low_1d`, `regime_code_1d` (daily combined regime), `markov_prob_up_4h`, ETH 4h **MACD histogram** value.
+* **Microstructure/mean-reversion context:** `rsi_1h`, `adx_1h`, consolidation range over the pullback window (scaled by ATR).
+* **Recent action:** `prior_1d_ret`, `rv_3d` (3-day realized vol).
+* (Optional interaction terms if you use linear models.)
+
+**Using p in live:**
+
+* **Filter:** trade only if `p ≥ p*` (selected from **EV-by-threshold** curve on OOS predictions).
+* **Sizing:** scale risk by a monotone map of p, e.g.
+  `risk = base_risk × clip( (p−p0)/(1−p0), 0.25, 1.5 )`, with `p0` = prevalence or safe floor.
+* **Calibration:** After a stable ranking is confirmed, apply **isotonic** (or Platt for L1-logit) to improve Brier/reliability.
+
+---
+
+# 10) Live evaluation loop (what your bot should do on each new 5-minute close)
+
+1. **Update data:**
+
+   * Ingest the just-closed **5m** bar for all symbols; refresh **1h**, **4h**, and **daily** aggregates for indicators that need them.
+2. **Recompute context:**
+
+   * If week boundary passed: recompute **RS** & update universe.
+   * Update **ETH 4h MACD** regime gate.
+   * (Optional) Refresh daily regime/4h Markov features (for meta).
+3. **Generate signals:** For each symbol in the universe, check **Donchian breakout (daily)**, **volume spike**, **pullback/stall**, **RS**, and **regime gate**. If all pass, emit a signal (timestamp = that 5m close).
+4. **Apply throughput guards:** Dedup & cooldown (production mode).
+5. **Meta decision:** Build feature vector → predict probability p → filter by `p*` and/or compute risk multiplier.
+6. **Compute size & place order:**
+
+   * Position size from **risk / (entry−SL)**, respecting notional/leverage caps.
+   * **Enter next bar** (market at 5m open or aggressive limit).
+   * Place **OCO bracket**: SL, TP1 (if partials), TP (final). If trailing isn’t native, schedule a trailing check each bar.
+7. **Manage open positions each 5m bar:**
+
+   * Check **TP1** → partial reduce & move stop to breakeven.
+   * Update **trailing stop** (if enabled).
+   * Enforce **time stop** if configured.
+   * Close positions on SL/TP/trail/time; record exit reason, fees, and MFE/MAE.
+8. **Logging & telemetry:**
+
+   * For every signal: log `(features, p, chosen risk, gate states)`.
+   * For every trade: log `(entry_ts, exit_ts, exit_reason, pnl, pnl_R, fees, MFE/MAE)`.
+   * Monitor drift: prevalence, mean p, realized avg-R by p-bucket and by regime.
+
+---
+
+# 11) Defaults you can start with (tune later)
+
+* **Donchian:** `N=20 days`, **confirm close above** upper.
+* **Volume spike:** multiple mode, `2.0×` over `30 days`.
+* **Pullback:** `retest`, window `12` 5m bars (or `24h`), **entry rule = close\_above\_break**.
+* **ATR:** `1h`, length `14`; `SL=2×ATR`, `TP=8×ATR`.
+* **Partials/trailing:** take **50% at 5×ATR**, move to **breakeven**, **trail 1×ATR**, else final TP.
+* **Regime gate:** ETH 4h **MACD>signal & hist>0**; block when down (or halve size).
+* **Risk:** `RISK_PCT=1%` (or your **fixed cash risk**).
+* **Fees:** 0.055% per side (configure to your venue).
+* **Guards:** dedup **8h**, cooldown **120 min**, `MIN_ATR_PCT_OF_PRICE=0.01%`.
+
+---
+
+# 12) What “done right” looks like
+
+* Entries happen **only** after a **daily breakout**, **volume confirmation**, **shallow retest**, and **ETH regime pass**.
+* **Orders** are created on the **next bar** with well-defined **SL/TP** and **partial/trailing** behavior.
+* All sizes are **risk-based** and within **notional/leverage** limits.
+* The **meta-model** filters/sizes with a **p threshold** chosen from **OOS EV curves**, not guesswork.
+* **Instrumentation** records everything needed for live calibration (ECE, reliability, EV by p-bucket, by regime).
+
+If you want, I can turn this into a one-page runbook/checklist for your ops—perfect for wiring into your live system’s state machine.
+
+
+
+
+
+SL=2× ATR, TP=8× ATR, Time-exit=72h, no partials, no trailing.
+(That’s the row with PF=1.665, AvgR≈0.43, MaxDD≈0.312, Daily Sharpe≈3.02, min_block_sharpe≈1.48 — your most robust of the top few.)
+
+
+
+
+
+
+# Donch — Live Trading Runbook (1-page)
+
+## TL;DR (defaults you ship with)
+
+* **Universe:** Top **30% weekly RS**; **median 24h turnover ≥ \$500k**.
+* **Gate:** **ETH 4h MACD** up (**MACD>signal & hist>0**). When down: block (or 0.5× size).
+* **Breakout:** **Daily Donchian N=20 days**, **close above** upper.
+* **Volume:** **≥2.0×** rolling median over **30 days** (or 95th pct alternative).
+* **Pullback:** **Retest** within **ε=0.1%**; **window: 12×5m** (or **24h**), **enter on close back above break**.
+* **ATR (1h, len=14):** **SL=2×ATR**, **TP=8×ATR**.
+* **Partial/Trail:** At **+5×ATR** take **50%**, move stop to **breakeven**, then **trail 1×ATR**.
+* **Risk:** **1% of equity** (or fixed cash risk).
+* **Fees:** 0.055% per side (venue-specific).
+* **Guards:** **dedup 8h**, **cooldown 120m**, **min ATR% of price = 0.01%**, **notional cap 25%**, **max lev 10×**.
+* **Execution:** Signal bar = closed 5m; **enter next 5m bar**; OCO bracket live.
+* **Meta-model (filter/sizer):** Label **MFE ≥ 2×ATR**; apply **p ≥ p\*** from EV curve; optional **risk ∝ g(p)**.
+
+---
+
+## Pre-flight (once per deploy / each trading day)
+
+**Data & clocks**
+
+* [ ] System clock in **UTC**; exchange time drift < **±1s**.
+* [ ] **5m/1m OHLCV** for all symbols (no gaps last 48h).
+* [ ] ETH **4h** bars present (for MACD gate).
+* [ ] Daily resampling OK (no partial day at head).
+
+**Config sanity**
+
+* [ ] RS filter **on**, liquidity threshold **\$500k**.
+* [ ] Donchian **N=20**, confirm close **ON**.
+* [ ] Volume spike mode **multiple**, **2.0×**, lookback **30d**.
+* [ ] ATR **1h/14**, SL/TP/partial/trail per TL;DR.
+* [ ] **ENTRY: next bar**; 1m intrabar **ON** if available.
+* [ ] **Guards** set (dedup/cooldown/notional/leverage/ATR%).
+* [ ] **Meta** artifacts loaded (model + calibrator), `p*` chosen from **EV**.
+* [ ] Venue keys: **read-only** dry-run → **trading** flip after shadow checks.
+
+---
+
+## Live loop (every 5-minute close)
+
+1. **Ingest bar:** Append the just-closed **5m** bar for all symbols.
+2. **Update context:**
+
+   * RS weekly (if anchor boundary passed).
+   * ETH **4h MACD** gate.
+   * Daily/4h regime *features* (optional).
+   * ATR(1h) ffilled; Donch daily (N=20); volume baselines.
+3. **Find setups (per symbol in RS universe):**
+
+   * Daily **Donch** breakout (prev N days, **no look-ahead**), **close above** upper.
+   * **Volume spike** passes.
+   * **Pullback/stall** satisfied (retest + consolidation).
+   * **ETH gate** up.
+4. **Throughput checks:** skip if within **dedup 8h**; skip if **cooldown** active.
+5. **Meta decision:** Build entry-time features → `p = calibrated_model(x)`.
+
+   * **Filter:** proceed only if `p ≥ p*`.
+   * **Size:** `risk = base_risk × g(p)` (monotone, capped).
+6. **Place order (at next 5m bar open):**
+
+   * Market/agg-limit **BUY** size = `risk / (entry − SL)`, obey **notional/leverage caps**.
+   * Place **OCO bracket**: **SL**, **TP1** (partial), **TP** final.
+7. **Manage open positions (each 5m):**
+
+   * If price ≥ **TP1** → sell **50%**, stop → **breakeven**.
+   * If trailing enabled & post-TP1 high advances → **trail = max(breakeven, high\_since\_TP1 − 1×ATR)**.
+   * If **SL/TP/trail/time-stop** hit → exit & log **exit\_reason**.
+8. **Log & telemetry:** write `(features, p, risk, gates, fills, MFE/MAE, fees)`.
+
+---
+
+## Order sequencing rules
+
+* **Entry alignment:** signal at bar *t* → **enter at t+1**.
+* **SL/TP conflict inside a bar:**
+
+  * Prefer **1m** OHLC to decide first touch;
+  * Fallback deterministic **tie-breaker** (e.g., “SL wins”).
+* **Fees & PnL:** apply both sides; **R** measured vs **initial** SL distance.
+
+---
+
+## Risk & guardrails (hard stops on behavior)
+
+* **Min ATR% of price:** if `ATR(1h)/price < 0.0001` → **skip** (micro-stop).
+* **Notional cap:** `position_value ≤ 25% equity`.
+* **Max leverage:** ≤ **10×**.
+* **Equity floor:** if equity < **20%** of initial → **halt** all new entries.
+* **Max trades/day** (optional): if reached → **halt** new entries.
+
+---
+
+## Monitoring & alerts
+
+* **Meta drift:**
+
+  * **Prevalence** (label rate) vs research;
+  * **Mean p** and **bucketed realized R** (e.g., p∈\[0.7,0.8), \[0.8,0.9), \[0.9,1.0])—alert on monotonicity breaks.
+* **Execution health:** reject rate, slippage vs baseline, OCO placement failures.
+* **Data health:** missing bars > **1 interval**, resample misalign, ETH 4h missing.
+* **Risk:** equity drawdown thresholds, leverage breaches, notional-cap blocks.
+
+---
+
+## Daily ops (UTC day boundary)
+
+* [ ] Refresh **universe/RS**; blacklist broken feeds.
+* [ ] Recompute **EV by p-threshold** on fresh OOS preds (optional).
+* [ ] Roll logs to cold storage; snapshot **model+calibrator** version used.
+* [ ] Health report: counts, hit-rate, avg-R by bucket & regime.
+
+---
+
+## Incident playbook
+
+* **Data hole (symbol):** freeze new entries for that symbol; keep managing open positions; backfill; resume.
+* **Exchange OCO failure:** emulate OCO in bot; place missing leg immediately; raise alert.
+* **Model artifact missing:** **fail-closed** → `p=0` (no new entries) until artifact restored.
+* **Clock drift >1s:** pause entries; fix NTP; resume.
+
+---
+
+## Versioning & rollout
+
+* **Artifacts:** `{feature_schema}.json`, `{model}.pkl`, `{calibrator}.pkl`, `{p_star}.json`.
+* **Canary:** shadow-trade 3–7 days (log decisions, no orders).
+* **Phase-in:** 0.25× risk → 0.5× → 1.0× over 1–2 weeks if KPIs hold.
+* **Rollback:** single env var / feature flag to revert to previous artifact set.
+
+---
+
+## Data contract (must not break)
+
+* **Timestamps:** tz-aware UTC; use **only closed bars**.
+* **Indicators:** Donchian uses **daily highs** (prev N days); ATR is **1h/14** ffilled to 5m.
+* **Meta features:** strictly **entry-time** (no future info). Missing → **impute neutral** or **skip trade**.
+
+---
+
+## Go / No-Go checklist (live flip)
+
+* [ ] Last 7 days shadow OK; EV curve monotone; p-bucket realized R ascending.
+* [ ] Gate, breakout, volume, pullback logic verified on **3+** recent examples.
+* [ ] OCO bracket tested on venue; trailing emulation verified.
+* [ ] Alerts wired; runbook accessible; rollback tested.
+* ✅ **Go live small** (tiny risk, probability-weighted sizing, strict guards).
+
+---
+
+### Notes on meta in live
+
+* **Filter** by `p ≥ p*` from OOS EV curve;
+* **Size** by `g(p)` (cap 0.25×–1.5×);
+* Re-evaluate **p**\* weekly or by drift triggers; calibrate (isotonic) after ranking proves stable.
+
+If you want this as a printable PDF or a YAML policy your bot can load, say the word and I’ll format/export it.
