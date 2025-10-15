@@ -13,7 +13,7 @@ SYMBOLS_FILE = PROJECT_ROOT / "symbols.txt"
 for p in (PARQUET_DIR, PARQUET_1M_DIR, SIGNALS_DIR, RESULTS_DIR): p.mkdir(parents=True, exist_ok=True)
 
 # --- Execution window
-START_DATE: str | None = "2025-08-01"
+START_DATE: str | None = "2025-05-01"
 END_DATE:   str | None = "2025-10-10"
 
 # --- Performance / I/O
@@ -207,4 +207,5 @@ META_MERGE_TOL = "10min"
 
 PORTFOLIO_RISK_CAP_PCT: float = 0.1       # e.g., total open risk ≤ 5% of equity
 GROSS_EXPOSURE_CAP_MULT: float = 3.0       # sum(|notional|) ≤ 3 × equity
+
 ON_CAP_BREACH: str = "scale"               # "scale" (downsize new trade) or "skip"
