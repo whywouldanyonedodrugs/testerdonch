@@ -176,8 +176,8 @@ if LABELING_MODE:
 
 
 # --- Meta gating / sizing ---
-META_PROB_THRESHOLD: float | None = 0.60   # e.g., 0.60 to gate, or None
-META_SIZING_ENABLED: bool = True          # turn ON to scale risk by prob
+META_PROB_THRESHOLD: float | None = None
+META_SIZING_ENABLED: bool = False
 META_SIZING_P0: float = 0.60               # below P0 → min size
 META_SIZING_P1: float = 0.95               # above P1 → max size
 META_SIZING_MIN: float = 0.50              # minimum multiplier
