@@ -1,30 +1,105 @@
 # debug_cutoff.py
 from __future__ import annotations
-import pandas as pd
-from pathlib import Path
 import glob
+from collections import defaultdict
+from pathlib import Path
+
+import pandas as pd
+
+
+UTC_TS_MAX = pd.Timestamp.max.tz_localize("UTC")
+UTC_TS_MIN = pd.Timestamp.min.tz_localize("UTC")
+CUTOFF_TS = pd.Timestamp("2025-10-01", tz="UTC")
 
 def tscol(x):
     return pd.to_datetime(x, utc=True, errors="coerce")
 
-def parquet_max_timestamp(parquet_dir="/parquet"):
-    rows=[]
-    for f in sorted(Path(parquet_dir).glob("*.parquet")):
+def _infer_symbol(path: Path) -> str:
+    """Best-effort extraction of a symbol from a partitioned parquet path."""
+
+    for part in reversed(path.parts):
+        if "=" in part:
+            key, _, value = part.partition("=")
+            if key.lower() in {"symbol", "ticker", "asset", "pair"} and value:
+                return value
+    stem = path.stem
+    return stem.split(".")[0] if stem else stem
+
+
+def parquet_max_timestamp(parquet_dir: str = "/parquet"):
+    root = Path(parquet_dir)
+    if not root.exists():
+        return pd.DataFrame(columns=["symbol", "ts_min", "ts_max", "n", "files", "failed_files"])
+
+    parquet_files = [
+        p
+        for p in root.rglob("*.parquet")
+        if p.is_file() and not p.name.startswith("_")
+    ]
+    if not parquet_files:
+        return pd.DataFrame(columns=["symbol", "ts_min", "ts_max", "n", "files", "failed_files"])
+
+    stats = defaultdict(
+        lambda: {
+            "ts_min": UTC_TS_MAX,
+            "ts_max": UTC_TS_MIN,
+            "n": 0,
+            "files": 0,
+            "failed_files": 0,
+        }
+    )
+
+    for f in sorted(parquet_files):
+        symbol = _infer_symbol(f)
+        rec = stats[symbol]
+        rec["files"] += 1
         try:
             df = pd.read_parquet(f, columns=["timestamp"])
-            if df.empty: continue
-            s = tscol(df["timestamp"])
-            rows.append((f.stem, s.min(), s.max(), len(df)))
         except Exception:
-            rows.append((f.stem, None, None, 0))
-    out = pd.DataFrame(rows, columns=["symbol","ts_min","ts_max","n"]).sort_values("ts_max")
+            rec["failed_files"] += 1
+            continue
+
+        if df.empty:
+            rec["failed_files"] += 1
+            continue
+
+        s = tscol(df["timestamp"])
+        rec["ts_min"] = min(rec["ts_min"], s.min())
+        rec["ts_max"] = max(rec["ts_max"], s.max())
+        rec["n"] += len(df)
+
+    rows = []
+    for symbol, rec in stats.items():
+        ts_min = rec["ts_min"]
+        ts_max = rec["ts_max"]
+        if rec["n"] == 0:
+            ts_min = pd.NaT
+            ts_max = pd.NaT
+        rows.append(
+            (
+                symbol,
+                ts_min,
+                ts_max,
+                rec["n"],
+                rec["files"],
+                rec["failed_files"],
+            )
+        )
+
+    out = pd.DataFrame(
+        rows,
+        columns=["symbol", "ts_min", "ts_max", "n", "files", "failed_files"],
+    ).sort_values("ts_max")
     return out
 
 def signals_max_timestamp(sig_dir="signals"):
     parts = sorted(glob.glob(f"{sig_dir}/symbol=*/part-*.parquet"))
     if not parts: return None
     mx = pd.Timestamp("1970-01-01", tz="UTC"); mn = pd.Timestamp("2100-01-01", tz="UTC")
-    for p in parts[:200]:  # sample to keep it fast
+    sample = parts
+    if len(parts) > 400:
+        sample = parts[:200] + parts[-200:]
+    for p in sample:
         df = pd.read_parquet(p, columns=["timestamp"])
         s = tscol(df["timestamp"])
         mn = min(mn, s.min()); mx = max(mx, s.max())
@@ -40,8 +115,8 @@ def main():
     pq = parquet_max_timestamp("parquet")
     if not pq.empty:
         print("raw:", pq["ts_min"].min(), "→", pq["ts_max"].max(), " symbols:", len(pq))
-        late = pq.query("ts_max >= '2025-09-01'")
-        print("symbols with data >= 2025-09-01:", len(late))
+        late = pq[pd.to_datetime(pq["ts_max"], utc=True) >= CUTOFF_TS]
+        print("symbols with data >= 2025-10-01:", len(late))
     else:
         print("no parquet files found")
 
@@ -63,14 +138,15 @@ def main():
 
     # Suggest likely bottleneck
     if not pq.empty and sm and tm:
-        if str(pq["ts_max"].max()) < "2025-09-01":
-            print("\nLikely bottleneck: RAW 5m parquet coverage stops before Sept.")
-        elif str(sm[1]) < "2025-09-01":
-            print("\nLikely bottleneck: SIGNALS end before Sept (filters/windows).")
-        elif str(tm[1]) < "2025-09-01":
+        raw_max = pd.to_datetime(pq["ts_max"].max(), utc=True)
+        if pd.isna(raw_max) or raw_max < CUTOFF_TS:
+            print("\nLikely bottleneck: RAW 5m parquet coverage stops before Oct.")
+        elif pd.isna(sm[1]) or sm[1] < CUTOFF_TS:
+            print("\nLikely bottleneck: SIGNALS end before Oct (filters/windows).")
+        elif pd.isna(tm[1]) or tm[1] < CUTOFF_TS:
             print("\nLikely bottleneck: BACKTEST skipped/locked after Aug; inspect dedup/cooldown/daycap/variant guards.")
         else:
-            print("\nAll three extend into Sept; if trades still end early, inspect time stops and regime filters on late months.")
+            print("\nAll three extend into Oct; if trades still end early, inspect time stops and regime filters on late months.")
 
 if __name__ == "__main__":
     main()
