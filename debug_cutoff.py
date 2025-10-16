@@ -7,7 +7,7 @@ import glob
 def tscol(x):
     return pd.to_datetime(x, utc=True, errors="coerce")
 
-def parquet_max_timestamp(parquet_dir="parquet"):
+def parquet_max_timestamp(parquet_dir="/parquet"):
     rows=[]
     for f in sorted(Path(parquet_dir).glob("*.parquet")):
         try:
