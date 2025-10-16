@@ -13,8 +13,8 @@ SYMBOLS_FILE = PROJECT_ROOT / "symbols.txt"
 for p in (PARQUET_DIR, PARQUET_1M_DIR, SIGNALS_DIR, RESULTS_DIR): p.mkdir(parents=True, exist_ok=True)
 
 # --- Execution window
-START_DATE: str | None = "2025-04-01"
-END_DATE:   str | None = "2025-10-10"
+START_DATE: str | None = "2022-01-01"
+END_DATE:   str | None = "2025-10-15"
 
 # --- Performance / I/O
 N_WORKERS: int = max(1, (os.cpu_count() or 2) - 1)
@@ -74,7 +74,7 @@ REGIME_BLOCK_WHEN_DOWN: bool = False        # or size-down instead
 REGIME_SIZE_WHEN_DOWN: float = 0.5
 
 # --- Risk / exits
-INITIAL_CAPITAL: float = 1000.0
+INITIAL_CAPITAL: float = 1000000.0
 
 RISK_MODE: str = "cash"          # "percent" | "cash"
 RISK_PCT: float = 0.01
@@ -116,8 +116,8 @@ AVWAP_USE_ENTRY_ATR: bool = True    # True: ATR_ref = ATR at entry; False: atr_p
 
 
 # --- Throughput guards (scout + exec)
-DEDUP_BUSY_WINDOW_MIN: int = 480       # 8h, applied in scout
-SYMBOL_COOLDOWN_MINUTES: int = 120     # 8h, enforced in backtester too
+DEDUP_BUSY_WINDOW_MIN: int = 480
+SYMBOL_COOLDOWN_MINUTES: int = 480
 MAX_TRADES_PER_DAY: int | None = 100
 
 # --- Intrabar resolution
@@ -125,7 +125,7 @@ USE_INTRABAR_1M: bool = False          # keep OFF for sweeps; turn ON for short-
 TIE_BREAKER: str = "sl_wins"
 
 # --- Variant guardrails (NEW)
-MAX_TRADES_PER_VARIANT: int = 10000
+MAX_TRADES_PER_VARIANT: int = 10000000
 MIN_EQUITY_FRACTION_BEFORE_ABORT: float = 0.05  # 20% of initial
 MIN_ATR_PCT_OF_PRICE: float = 0.0001             # skip micro-stops (ATR < 0.1% of price)
 
@@ -150,12 +150,12 @@ MARKOV_PROB_EWMA_ALPHA = 0.2
 MARKOV4H_PROB_EWMA_ALPHA = 0.2
 
 # ---------------- Labeling mode (research-only) ----------------
-LABELING_MODE: bool = False  # set True to build a max-labeling dataset; False for normal trading backtests
+LABELING_MODE: bool = False
 
 # --- Throughput guards (scout + exec)
-DEDUP_BUSY_WINDOW_MIN: int = 480       # normal default
-SYMBOL_COOLDOWN_MINUTES: int = 480     # normal default
-MAX_TRADES_PER_DAY: int | None = 100   # normal default
+DEDUP_BUSY_WINDOW_MIN: int = 480
+SYMBOL_COOLDOWN_MINUTES: int = 480
+MAX_TRADES_PER_DAY: int | None = 100
 
 # --- Intrabar (for cleaner labels)
 USE_INTRABAR_1M: bool = False          # normal default
@@ -176,12 +176,12 @@ if LABELING_MODE:
 
 
 # --- Meta gating / sizing ---
-META_PROB_THRESHOLD: float | None = None
-META_SIZING_ENABLED: bool = False
-META_SIZING_P0: float = 0.60               # below P0 → min size
-META_SIZING_P1: float = 0.95               # above P1 → max size
-META_SIZING_MIN: float = 0.50              # minimum multiplier
-META_SIZING_MAX: float = 2.00              # maximum multiplier
+META_PROB_THRESHOLD: float | None = 0.60
+META_SIZING_ENABLED: bool = True
+META_SIZING_P0: float = 0.60
+META_SIZING_P1: float = 0.95
+META_SIZING_MIN: float = 0.50
+META_SIZING_MAX: float = 2.00
 SIZE_MIN_CAP: float = 0.25
 SIZE_MAX_CAP: float = 3.00
 REGIME_DOWNSIZE_MULT: float = 0.65
@@ -198,7 +198,7 @@ DERISK_HYST: float = 0.02
 DERISK_MIN_QTY_FRAC: float = 0.10
 DERISK_COOLDOWN_BARS: int = 12
 
-META_PRED_PATH = RESULTS_DIR / "meta_export" / "oos_predictions.parquet"
+META_PRED_PATH = RESULTS_DIR / 'meta_export' / 'oos_predictions_calibrated.parquet'
 META_MERGE_ROUND = "5min"
 META_MERGE_TOL = "10min"
 
