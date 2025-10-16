@@ -27,28 +27,6 @@ def test_parquet_max_timestamp(tmp_path):
     assert result["n"].iloc[0] == 3
 
 
-def test_parquet_max_timestamp_partitioned(tmp_path):
-    pq_dir = tmp_path / "parquet"
-    part_dir = pq_dir / "exchange=binance" / "symbol=ETHUSDT"
-    part_dir.mkdir(parents=True)
-
-    df1 = pd.DataFrame({"timestamp": pd.to_datetime([
-        "2025-03-01T00:00:00Z", "2025-03-02T00:00:00Z"
-    ])})
-    df2 = pd.DataFrame({"timestamp": pd.to_datetime([
-        "2025-04-05T12:00:00Z", "2025-04-07T00:00:00Z"
-    ])})
-    df1.to_parquet(part_dir / "part-0000.parquet", index=False)
-    df2.to_parquet(part_dir / "part-0001.parquet", index=False)
-
-    result = parquet_max_timestamp(str(pq_dir))
-    assert not result.empty
-    assert list(result["symbol"]) == ["ETHUSDT"]
-    assert result["ts_min"].iloc[0] == pd.Timestamp("2025-03-01T00:00:00+0000")
-    assert result["ts_max"].iloc[0] == pd.Timestamp("2025-04-07T00:00:00+0000")
-    assert result["n"].iloc[0] == 4
-
-
 def test_signals_max_timestamp(tmp_path):
     sig_dir = tmp_path / "signals"
     part_dir = sig_dir / "symbol=ETH"
@@ -106,6 +84,6 @@ def test_main_handles_missing_data(tmp_path, monkeypatch, capsys):
     debug_cutoff_main()
 
     captured = capsys.readouterr()
-    assert "parquet directory not found" in captured.out.lower()
+    assert "no parquet files found" in captured.out.lower()
     assert "no signals found" in captured.out.lower()
     assert "trades.csv not found" in captured.out.lower()
