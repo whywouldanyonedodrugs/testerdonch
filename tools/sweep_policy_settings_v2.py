@@ -478,6 +478,12 @@ def main() -> int:
         encoding="utf-8",
     )
 
+    perf_overrides = {
+        # Throughput-only knobs: do not change fills/PnL logic.
+        "BT_PROGRESS_ENABLED": False,
+        "BT_DECISION_LOG_ENABLED": False,
+    }
+
     # Smoke test (fast)
     if a.smoke_n and a.smoke_n > 0:
         smoke_df = sig.head(int(a.smoke_n)).copy()
@@ -496,6 +502,7 @@ def main() -> int:
             start=a.start,
             end=end,
             overrides={
+                **perf_overrides,
                 "BT_META_ONLINE_ENABLED": True,
                 "META_STRICT_SCHEMA": True,
             },
@@ -511,16 +518,42 @@ def main() -> int:
 
     def run_one(gp: GridPoint) -> Dict[str, Any]:
         run_dir = sweep_root / gp.name
+        effective_overrides = {**gp.overrides, **perf_overrides}
         done = run_dir / "_DONE.json"
         if done.exists():
+            done_rc = None
             try:
-                return json.loads((run_dir / "metrics.json").read_text(encoding="utf-8"))
+                done_obj = json.loads(done.read_text(encoding="utf-8"))
+                done_rc = done_obj.get("returncode", None)
             except Exception:
-                pass
+                done_rc = None
+            try:
+                prev = json.loads((run_dir / "metrics.json").read_text(encoding="utf-8"))
+                prev_status = str(prev.get("status", "")).lower()
+                prev_rc = prev.get("returncode", done_rc)
+                if prev_status == "ok" or prev_rc == 0:
+                    return prev
+                print(
+                    f"[resume] rerunning failed variant {gp.name} "
+                    f"(status={prev.get('status')}, rc={prev_rc})",
+                    flush=True,
+                )
+            except Exception:
+                if done_rc == 0:
+                    print(
+                        f"[resume] {gp.name} has _DONE rc=0 but unreadable/missing metrics.json; "
+                        "rerunning for consistency",
+                        flush=True,
+                    )
+                else:
+                    print(
+                        f"[resume] rerunning incomplete/failed variant {gp.name} (done_rc={done_rc})",
+                        flush=True,
+                    )
 
         run_dir.mkdir(parents=True, exist_ok=True)
         (run_dir / "run_config.json").write_text(
-            json.dumps({"start": a.start, "end": end, "signals": str(scoped_dir), "overrides": gp.overrides}, indent=2, sort_keys=True),
+            json.dumps({"start": a.start, "end": end, "signals": str(scoped_dir), "overrides": effective_overrides}, indent=2, sort_keys=True),
             encoding="utf-8",
         )
 
@@ -532,7 +565,7 @@ def main() -> int:
             signals_dir=scoped_dir,
             start=a.start,
             end=end,
-            overrides=gp.overrides,
+            overrides=effective_overrides,
         )
         if rc != 0:
             (run_dir / "metrics.json").write_text(json.dumps({"status": "error", "returncode": rc}, indent=2), encoding="utf-8")

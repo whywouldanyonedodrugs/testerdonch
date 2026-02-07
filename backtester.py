@@ -641,6 +641,11 @@ class Trade:
     fees: float
     pnl: float
     pnl_R: float
+    meta_p: Optional[float] = None
+    size_mult: Optional[float] = None
+    risk_on: Optional[int] = None
+    risk_cash_target: Optional[float] = None
+    risk_cash_realized: Optional[float] = None
 
     # --- Diagnostics at trade level ---
     mae_over_atr: Optional[float] = None
@@ -1595,7 +1600,7 @@ class Backtester:
         notional = oi * close
         start_1d = max(0, pos - WIN_1D + 1)
         win_notional = notional[start_1d : pos + 1]
-        if win_notional.size >= WIN_1H:
+        if win_notional.size >= WIN_1H and np.isfinite(win_notional).any():
             notional_24h = float(np.nanmean(win_notional))
             cur_notional = float(out["oi_notional_est"])
             if np.isfinite(notional_24h):
@@ -1605,10 +1610,12 @@ class Backtester:
         start_7d = max(0, pos - WIN_7D + 1)
         win_oi = oi[start_7d : pos + 1]
         if win_oi.size >= WIN_1D:
-            mu = float(np.nanmean(win_oi))
-            sd = float(np.nanstd(win_oi, ddof=1)) if win_oi.size >= 2 else float("nan")
-            if np.isfinite(mu) and np.isfinite(sd):
-                out["oi_z_7d"] = float((oi_now - mu) / (sd + 1e-12))
+            finite_oi = int(np.isfinite(win_oi).sum())
+            if finite_oi > 0:
+                mu = float(np.nanmean(win_oi))
+                sd = float(np.nanstd(win_oi, ddof=1)) if finite_oi > 1 else float("nan")
+                if np.isfinite(mu) and np.isfinite(sd):
+                    out["oi_z_7d"] = float((oi_now - mu) / (sd + 1e-12))
 
         # oi_chg_norm_vol_1h = diff(1H) / sum(volume over last 1H), requires full 1H
         if pos - WIN_1H >= 0 and pos - WIN_1H + 1 >= 0:
@@ -1632,10 +1639,12 @@ class Backtester:
         # funding_z_7d (same windowing rules)
         win_fr = fr[start_7d : pos + 1]
         if win_fr.size >= WIN_1D:
-            mu = float(np.nanmean(win_fr))
-            sd = float(np.nanstd(win_fr, ddof=1)) if win_fr.size >= 2 else float("nan")
-            if np.isfinite(mu) and np.isfinite(sd) and np.isfinite(fr_now):
-                out["funding_z_7d"] = float((fr_now - mu) / (sd + 1e-12))
+            finite_fr = int(np.isfinite(win_fr).sum())
+            if finite_fr > 0:
+                mu = float(np.nanmean(win_fr))
+                sd = float(np.nanstd(win_fr, ddof=1)) if finite_fr > 1 else float("nan")
+                if np.isfinite(mu) and np.isfinite(sd) and np.isfinite(fr_now):
+                    out["funding_z_7d"] = float((fr_now - mu) / (sd + 1e-12))
 
         # funding_rollsum_3d (window=3D, min_periods=1D)
         start_3d = max(0, pos - WIN_3D + 1)
@@ -2178,6 +2187,7 @@ class Backtester:
 
         rs_enabled = bool(getattr(cfg, "RS_ENABLED", False))
         rs_min = float(getattr(cfg, "RS_MIN_PERCENTILE", 0.0))
+        progress_on = bool(getattr(cfg, "BT_PROGRESS_ENABLED", True))
 
         # Accept either:
         # - a DataFrame (single-file signals.parquet)
@@ -2213,13 +2223,25 @@ class Backtester:
             # --- MODIFIED: Wrap with tqdm for progress bar ---
             total_rows = len(sig)
             print(f"[bt] Processing {total_rows:,} signals (DataFrame mode)...")
-            sig_iter = tqdm((row for _, row in sig.iterrows()), total=total_rows, desc="Simulating", unit="sig", mininterval=1.0)
+            if progress_on:
+                sig_iter = tqdm(
+                    (row for _, row in sig.iterrows()),
+                    total=total_rows,
+                    desc="Simulating",
+                    unit="sig",
+                    mininterval=1.0,
+                )
+            else:
+                sig_iter = (row for _, row in sig.iterrows())
             stream_mode = False
         else:
             # Streaming iterator path (already sorted by iter_partitioned_signals_sorted)
             # --- MODIFIED: Wrap with tqdm for progress bar ---
             print(f"[bt] Processing signals (Streaming mode)...")
-            sig_iter = tqdm(signals, desc="Simulating", unit="sig", mininterval=1.0)
+            if progress_on:
+                sig_iter = tqdm(signals, desc="Simulating", unit="sig", mininterval=1.0)
+            else:
+                sig_iter = signals
             stream_mode = True
 
 
@@ -2586,14 +2608,12 @@ class Backtester:
 
 
 
-            risk_mode_cfg = str(getattr(cfg, "RISK_MODE", "percent"))
-
-
             try:
                 hist4h_val = float(s.get("eth_macd_hist_4h", np.nan))
             except Exception:
                 hist4h_val = np.nan
 
+            risk_mode_cfg = str(getattr(cfg, "RISK_MODE", "percent"))
             scale_in = s.get("risk_scale", None)
             if scale_in is not None:
                 try:
@@ -2604,9 +2624,11 @@ class Backtester:
                 size_mult = _dyn_size_multiplier(prob_val, hist4h_val, cfg)
 
             # --- risk-off probe sizing (absolute cap; do NOT overwrite regime_up) ---
-            probe = float(getattr(cfg, "RISK_OFF_PROBE_MULT", 1.0))
+            if risk_on == 0:
+                probe = float(getattr(cfg, "RISK_OFF_PROBE_MULT", 1.0))
+                size_mult = min(size_mult, max(probe, 0.0))
+            size_mult = max(size_mult, 0.0)
 
-            risk_mode_cfg = str(getattr(cfg, "RISK_MODE", "cash"))
             base_risk_pct = float(getattr(cfg, "RISK_PCT", 0.01))
             base_fixed_cash = float(getattr(cfg, "FIXED_RISK_CASH", 10.0))
             if risk_mode_cfg.lower() == "percent":
@@ -2624,6 +2646,10 @@ class Backtester:
 
             # --- simulate exit path with partials / trailing
             equity_at_entry = float(equity_for_sizing)
+            if risk_mode_cfg.lower() == "percent":
+                risk_cash_target = max(float(equity_at_entry) * float(risk_pct_override), 0.0)
+            else:
+                risk_cash_target = max(float(fixed_cash_override), 0.0)
 
             # choose AVWAP anchor (only used if EXIT_BASIS="avwap_atr")
             # Choose AVWAP anchor
@@ -2690,6 +2716,10 @@ class Backtester:
             risk_per_unit = max(entry_price - sl_init, 1e-12)
             risk_notional = risk_per_unit * qty
             pnl_R = (pnl / risk_notional) if risk_notional > 0 else np.nan
+            risk_cash_realized = float(risk_notional)
+
+            meta_p_store = float(prob_val) if np.isfinite(prob_val) else None
+            size_mult_store = float(size_mult) if np.isfinite(size_mult) else None
 
             # Optional: R normalized by risk budget (useful for meta/reporting)
             if str(getattr(cfg, "RISK_MODE", "percent")).lower() == "cash":
@@ -2765,6 +2795,11 @@ class Backtester:
                 fees=float(fees),
                 pnl=float(pnl),
                 pnl_R=float(pnl_R),
+                meta_p=meta_p_store,
+                size_mult=size_mult_store,
+                risk_on=int(risk_on),
+                risk_cash_target=float(risk_cash_target),
+                risk_cash_realized=float(risk_cash_realized),
                 mae_over_atr=float(sim["mae_over_atr"]),
                 mfe_over_atr=float(sim["mfe_over_atr"]),
 
