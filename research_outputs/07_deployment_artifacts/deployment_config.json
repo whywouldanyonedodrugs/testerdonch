@@ -1,0 +1,43 @@
+{
+  "calibration": {
+    "isotonic_artifact": null,
+    "method": "sigmoid",
+    "path": "calibration.json"
+  },
+  "decision": {
+    "criterion": "mean",
+    "expected": {
+      "mean_pnl_R": 2.396456121674176,
+      "mean_pnl_R_not_time": 2.73991041353798,
+      "n": 218,
+      "pos_rate": 0.7752293577981652,
+      "rank_by_mean_pnl": 1.0,
+      "rank_by_sum_pnl": 31.0,
+      "scope": "RISK_ON_1",
+      "sum_pnl_R": 522.4274345249704,
+      "threshold": 0.6,
+      "time_rate": 0.2522935779816513,
+      "win_rate": 0.7981651376146789
+    },
+    "scope": "RISK_ON_1",
+    "threshold": 0.6,
+    "type": "threshold"
+  },
+  "files": {
+    "ev_thresholds_csv": "ev_thresholds.csv",
+    "feature_manifest_json": "feature_manifest.json",
+    "thresholds_json": "thresholds.json"
+  },
+  "model": {
+    "name": "lgbm",
+    "path": "model.joblib",
+    "source": "research_outputs/04_models_cv/final_model_lgbm.joblib"
+  },
+  "probability_column": "p_lgbm",
+  "sizing": {
+    "curve_csv": "sizing_curve.csv",
+    "note": "risk_multiplier is looked up by calibrated probability bin; bins are in sizing_curve.csv"
+  },
+  "target": "y_good_05",
+  "version": "deploy_v1"
+}

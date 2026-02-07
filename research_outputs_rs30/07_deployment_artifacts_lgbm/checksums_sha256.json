@@ -1,0 +1,9 @@
+{
+  "calibration.json": "872c6afeed1d2d71cc56a18a4e4f85f7bbe9abe3bc81dde6c1aa14f4bdb616b2",
+  "deployment_config.json": "4e89672e43fcdb96fb5aec05aea7feb7ee4f43893785fb5fd35fe473cd21a83e",
+  "ev_thresholds.csv": "2d74e16392e99df5234aaf23357d55473c89ab7f2f151894100a957c7a0afd34",
+  "feature_manifest.json": "5646b82d69ddc3c1d38868193e33e47b70cd27ce8f4f93208c0b4b5a92b60cb8",
+  "model.joblib": "80ab779d57540a713b740be2768337f0fc92c879a313cdeb708c83f6404b4cdc",
+  "sizing_curve.csv": "a41fb7aa042438b82d3be95f530510e23a791a853a3657620de06bd798f81dff",
+  "thresholds.json": "a4310f115795e46e69a9624266e3548bfcbbd2c80b4ee2a4c25989d393e65fce"
+}

@@ -51,8 +51,8 @@ CAND_NUM = [
     "adx_1h",
     "vol_mult",
     "vol_prob_low_1d",
-    "regime_code_1d",
-    "markov_state_4h",
+    #"regime_code_1d",
+    #"markov_state_4h",
     "markov_prob_up_4h",
     "markov_state_up_4h",
     "oi_level",
@@ -86,6 +86,14 @@ CAND_NUM = [
     "vwap_frac_in_band",
     "vwap_expansion_pct",
     "vwap_slope_pph",
+    # --- Perps-wide sentiment (Phase 1) ---
+    "sent_rets_1h_z",
+    "sent_rets_1d_z",
+    "sent_oi_chg_1h_z",
+    "sent_oi_chg_1d_z",
+    "sent_funding_mean_1d",
+    "sent_funding_z_1d",
+    "sent_beta_risk_on",
 ]
 
 ENABLE_INTERACTIONS = False
@@ -227,15 +235,15 @@ def _mk_features(signals_or_joined: pd.DataFrame) -> Tuple[pd.DataFrame, List[st
     if "atr" in df.columns and "entry" in df.columns:
         df["atr_pct"] = df["atr"] / df["entry"]
     atr_scale = df["atr_1h"] if "atr_1h" in df.columns else (df["atr"] if "atr" in df.columns else None)
-    if {"entry","don_break_level"}.issubset(df.columns) and atr_scale is not None:
+    if {"entry", "don_break_level"}.issubset(df.columns) and atr_scale is not None:
         df["don_dist_atr"] = (df["entry"] - df["don_break_level"]) / atr_scale.replace(0, np.nan)
 
     # Time features (UTC)
     ts = _time_col(df)
     df["hour"] = ts.dt.hour
     df["dow"] = ts.dt.weekday
-    df["hour_sin"] = np.sin(2*np.pi*df["hour"]/24.0)
-    df["hour_cos"] = np.cos(2*np.pi*df["hour"]/24.0)
+    df["hour_sin"] = np.sin(2 * np.pi * df["hour"] / 24.0)
+    df["hour_cos"] = np.cos(2 * np.pi * df["hour"] / 24.0)
 
     # Binary from bools (robust)
     if "vol_spike" in df.columns:
@@ -250,6 +258,25 @@ def _mk_features(signals_or_joined: pd.DataFrame) -> Tuple[pd.DataFrame, List[st
     # Candidate numerics (keep what's present)
     num_cols = [c for c in CAND_NUM if c in df.columns]
 
+    # --- NEW: drop degenerate numeric features (all-NaN or near-constant) ---
+    sane_num_cols: List[str] = []
+    for c in num_cols:
+        s = df[c]
+        # 1) all-NaN → drop
+        if not s.notna().any():
+            continue
+        # 2) near-constant → optional drop (threshold is very small)
+        #    This will drop things like don_break_len when it's hard-coded to 20 everywhere.
+        try:
+            vals = s.dropna().to_numpy()
+            if vals.size > 1 and np.nanstd(vals) < 1e-8:
+                continue
+        except Exception:
+            # fallback: keep if we can't compute std
+            pass
+        sane_num_cols.append(c)
+    num_cols = sane_num_cols
+
     if ENABLE_INTERACTIONS:
         df = _add_interactions(df, INTERACTIONS)
         for a, b in INTERACTIONS:
@@ -258,11 +285,12 @@ def _mk_features(signals_or_joined: pd.DataFrame) -> Tuple[pd.DataFrame, List[st
                 num_cols.append(col)
 
     # Categorical feature list
-    cat_cols = [c for c in ["pullback_type","entry_rule","regime_1d"] if c in df.columns]
+    cat_cols = [c for c in ["pullback_type", "entry_rule", "regime_1d"] if c in df.columns]
 
     feats = df[["symbol"] + (["entry_ts"] if "entry_ts" in df.columns else ["timestamp"]) + num_cols + cat_cols].copy()
-    feats.rename(columns={"entry_ts":"entry_ts", "timestamp":"entry_ts"}, inplace=True)
+    feats.rename(columns={"entry_ts": "entry_ts", "timestamp": "entry_ts"}, inplace=True)
     return feats, num_cols, cat_cols
+
 
 def _make_ohe() -> OneHotEncoder:
     try:
@@ -649,6 +677,179 @@ class CPCVArgs:
     embargo: int = 1
     max_splits: int = 30
 
+def describe_meta_schema(
+    trades_csv: Optional[str] = None,
+    signals_parquet: Optional[str] = None,
+    target: str = "pnl_pos",
+    r_threshold: float = 0.0,
+    mfe_k: float = 2.0,
+    max_rows: int | None = 200_000,
+    outdir: Optional[str] = None,
+) -> None:
+    """
+    Build the meta-training frame once and print a compact schema report:
+      - columns & dtypes
+      - non-null / missing counts
+      - basic stats for numeric features
+      - Pearson correlation with the chosen target, where defined
+      - simple snake_case naming sanity checks
+
+    Optionally saves CSVs into outdir (default: cfg.RESULTS_DIR / "meta").
+    """
+    import re
+
+    # --- load & build exactly like training does ---
+    df_joined, feats, num_cols, cat_cols = build_dataset(trades_csv, signals_parquet)
+    y = compute_targets(df_joined, mode=target, r_threshold=r_threshold, mfe_k=mfe_k)
+    feats = feats.copy()
+    feats["y"] = y.values
+
+    if max_rows is not None and len(feats) > max_rows:
+        # keep the most recent rows – usually more relevant for current behaviour
+        feats = feats.iloc[-max_rows:].reset_index(drop=True)
+
+    n_rows = len(feats)
+    print(f"\n[meta_schema] rows in dataset: {n_rows}")
+
+    # --- numeric feature summary ------------------------------------------------
+    num_present = [c for c in num_cols if c in feats.columns]
+    rows_num: list[dict] = []
+
+    for col in num_present:
+        s = feats[col]
+        nn = int(s.notna().sum())
+        na = int(s.isna().sum())
+        na_frac = float(na / n_rows) if n_rows else float("nan")
+
+        # stats; use float conversion but be robust to weird dtypes
+        s_float = pd.to_numeric(s, errors="coerce")
+        stats = {
+            "mean": float(s_float.mean(skipna=True)) if nn else float("nan"),
+            "std": float(s_float.std(skipna=True)) if nn > 1 else float("nan"),
+            "min": float(s_float.min(skipna=True)) if nn else float("nan"),
+            "max": float(s_float.max(skipna=True)) if nn else float("nan"),
+        }
+
+        # correlation vs target y (only if enough non-null)
+        corr = float("nan")
+        try:
+            if "y" in feats.columns:
+                df_corr = pd.DataFrame(
+                    {"y": pd.to_numeric(feats["y"], errors="coerce"), "x": s_float}
+                ).dropna()
+                if len(df_corr) >= 30 and df_corr["x"].std() > 0:
+                    corr = float(df_corr[["y", "x"]].corr().iloc[0, 1])
+        except Exception:
+            corr = float("nan")
+
+        rows_num.append(
+            {
+                "feature": col,
+                "dtype": str(s.dtype),
+                "n_non_null": nn,
+                "n_null": na,
+                "null_frac": na_frac,
+                "mean": stats["mean"],
+                "std": stats["std"],
+                "min": stats["min"],
+                "max": stats["max"],
+                "corr_y": corr,
+            }
+        )
+
+    df_num = pd.DataFrame(rows_num)
+    if not df_num.empty:
+        df_num = df_num.sort_values("corr_y", ascending=False)
+
+    # --- categorical feature summary -------------------------------------------
+    rows_cat: list[dict] = []
+    for col in cat_cols:
+        s = feats[col].astype("string")
+        nn = int(s.notna().sum())
+        na = int(s.isna().sum())
+        na_frac = float(na / n_rows) if n_rows else float("nan")
+        nunique = int(s.nunique(dropna=True))
+
+        top = s.value_counts(dropna=True).head(5)
+        top_repr = "; ".join(f"{idx} ({cnt})" for idx, cnt in top.items())
+
+        # optional: mean target by category, for top categories only
+        pos_rate_repr = ""
+        if "y" in feats.columns and nn:
+            try:
+                grp = (
+                    feats.dropna(subset=[col])
+                    .groupby(col)["y"]
+                    .mean()
+                    .sort_values(ascending=False)
+                    .head(5)
+                )
+                pos_rate_repr = "; ".join(
+                    f"{idx}: {rate:.3f}" for idx, rate in grp.items()
+                )
+            except Exception:
+                pos_rate_repr = ""
+
+        rows_cat.append(
+            {
+                "feature": col,
+                "dtype": str(s.dtype),
+                "n_non_null": nn,
+                "n_null": na,
+                "null_frac": na_frac,
+                "n_unique": nunique,
+                "top_values": top_repr,
+                "top_pos_rate": pos_rate_repr,
+            }
+        )
+
+    df_cat = pd.DataFrame(rows_cat)
+
+    # --- naming sanity checks ---------------------------------------------------
+    bad_names = []
+    snake = re.compile(r"^[a-z0-9_]+$")
+    for col in num_present + cat_cols:
+        if not snake.match(col):
+            bad_names.append(col)
+
+    if bad_names:
+        print("\n[meta_schema] WARNING: non-snake_case feature names detected:")
+        for c in bad_names:
+            print(f"   - {c}")
+
+    # --- print summaries --------------------------------------------------------
+    pd.set_option("display.max_rows", 200)
+    pd.set_option("display.width", 200)
+
+    if not df_num.empty:
+        print("\n=== Numeric features (sorted by corr_y) ===")
+        print(
+            df_num.to_string(
+                index=False,
+                float_format=lambda x: f"{x: .4f}" if isinstance(x, float) else str(x),
+            )
+        )
+    else:
+        print("\n[meta_schema] No numeric features found.")
+
+    if not df_cat.empty:
+        print("\n=== Categorical features ===")
+        print(df_cat.to_string(index=False))
+    else:
+        print("\n[meta_schema] No categorical features found.")
+
+    # --- optional CSV export ----------------------------------------------------
+    out = _p(outdir or (cfg.RESULTS_DIR / "meta"))
+    out.mkdir(parents=True, exist_ok=True)
+    if not df_num.empty:
+        df_num.to_csv(out / "schema_numeric.csv", index=False)
+    if not df_cat.empty:
+        df_cat.to_csv(out / "schema_categorical.csv", index=False)
+
+    print(f"\n[meta_schema] Saved schema CSVs to: {out}")
+
+
+
 def run_meta(
     trades_csv: Optional[str],
     signals_parquet: Optional[str],
@@ -894,19 +1095,69 @@ def run_meta(
 # CLI
 # =============================================================================
 def main():
-    ap = argparse.ArgumentParser(description="Meta-model with alternate targets (pnl_pos / hit_tp / mfe_k)")
+    ap = argparse.ArgumentParser(
+        description="Meta-model with alternate targets (pnl_pos / hit_tp / mfe_k)"
+    )
     ap.add_argument("--trades-csv", default=None, help="Path to results/trades.csv")
     ap.add_argument("--signals-parquet", default=None, help="Path to signals/signals.parquet")
-    ap.add_argument("--target", default="pnl_pos", choices=["pnl_pos","hit_tp","mfe_k"], help="Meta target choice")
-    ap.add_argument("--r-threshold", type=float, default=0.0, help="Threshold for pnl_pos target (R units)")
-    ap.add_argument("--mfe-k", type=float, default=2.0, help="k for mfe_k target: label=1 if mfe_over_atr >= k")
+
+    ap.add_argument(
+        "--target",
+        default="pnl_pos",
+        choices=["pnl_pos", "hit_tp", "mfe_k"],
+        help="Meta target choice",
+    )
+    ap.add_argument(
+        "--r-threshold",
+        type=float,
+        default=0.0,
+        help="Threshold for pnl_pos target (R units)",
+    )
+    ap.add_argument(
+        "--mfe-k",
+        type=float,
+        default=2.0,
+        help="k for mfe_k target: label=1 if mfe_over_atr >= k",
+    )
+
     ap.add_argument("--blocks", type=int, default=12, help="CSCV blocks")
     ap.add_argument("--k-test", type=int, default=3, help="Blocks in test")
     ap.add_argument("--embargo", type=int, default=1, help="Embargo blocks")
     ap.add_argument("--max-splits", type=int, default=30, help="Max combinations")
-    ap.add_argument("--pstar", type=float, default=None, help="Optional deployment threshold to store in pstar.txt")
+    ap.add_argument(
+        "--pstar",
+        type=float,
+        default=None,
+        help="Optional deployment threshold to store in pstar.txt",
+    )
     ap.add_argument("--outdir", default=None, help="Output folder (default: results/meta)")
+
+    # NEW: schema inspection mode
+    ap.add_argument(
+        "--schema-only",
+        action="store_true",
+        help="Only build meta dataset and print schema stats; skip training.",
+    )
+    ap.add_argument(
+        "--schema-max-rows",
+        type=int,
+        default=200_000,
+        help="Limit rows used for schema stats (most recent rows kept).",
+    )
+
     args = ap.parse_args()
+
+    if args.schema_only:
+        describe_meta_schema(
+            trades_csv=args.trades_csv,
+            signals_parquet=args.signals_parquet,
+            target=args.target,
+            r_threshold=args.r_threshold,
+            mfe_k=args.mfe_k,
+            max_rows=args.schema_max_rows,
+            outdir=args.outdir,
+        )
+        return
 
     run_meta(
         trades_csv=args.trades_csv,
@@ -921,6 +1172,7 @@ def main():
         outdir=args.outdir,
         pstar=args.pstar,
     )
+
 
 if __name__ == "__main__":
     main()

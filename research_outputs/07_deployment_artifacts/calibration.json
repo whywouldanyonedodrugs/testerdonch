@@ -1,0 +1,12 @@
+{
+  "artifact": null,
+  "chosen_method": "sigmoid",
+  "fit_scope": "ALL",
+  "formula": "p_cal = sigmoid(a*logit(clip(p_raw))+b)",
+  "model_col": "p_lgbm",
+  "params": {
+    "a": 0.49821413344433235,
+    "b": -0.060692237402320506,
+    "eps": 1e-12
+  }
+}

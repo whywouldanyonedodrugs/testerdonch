@@ -18,3 +18,14 @@ data5/
 signals_fixed/
 parquet_1m/
 results_labeling/
+# Data Folders
+parquet/
+parquet_0202/
+parquet_older/
+raw_csv/
+raw_csv_old/
+
+# System/Python
+.venv/
+__pycache__/
+.DS_Store

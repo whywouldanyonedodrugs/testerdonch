@@ -1,0 +1,104 @@
+{
+  "best_thresholds": {
+    "ALL": {
+      "best_by_mean_pnl_R": {
+        "mean_pnl_R": 2.363528353609565,
+        "mean_pnl_R_not_time": 2.5872511961629003,
+        "n": 206,
+        "pos_rate": 0.7524271844660194,
+        "rank_by_mean_pnl": 1.0,
+        "rank_by_sum_pnl": 33.0,
+        "scope": "ALL",
+        "sum_pnl_R": 486.8868408435703,
+        "threshold": 0.68,
+        "time_rate": 0.2087378640776699,
+        "win_rate": 0.7669902912621359
+      },
+      "best_by_sum_pnl_R": {
+        "mean_pnl_R": 0.8875886053788564,
+        "mean_pnl_R_not_time": 0.8448874024774407,
+        "n": 2990,
+        "pos_rate": 0.4431438127090301,
+        "rank_by_mean_pnl": 21.0,
+        "rank_by_sum_pnl": 1.0,
+        "scope": "ALL",
+        "sum_pnl_R": 2653.8899300827807,
+        "threshold": 0.28,
+        "time_rate": 0.24648829431438127,
+        "win_rate": 0.4882943143812709
+      }
+    },
+    "RISK_ON_1": {
+      "best_by_mean_pnl_R": {
+        "mean_pnl_R": 2.396456121674176,
+        "mean_pnl_R_not_time": 2.73991041353798,
+        "n": 218,
+        "pos_rate": 0.7752293577981652,
+        "rank_by_mean_pnl": 1.0,
+        "rank_by_sum_pnl": 31.0,
+        "scope": "RISK_ON_1",
+        "sum_pnl_R": 522.4274345249704,
+        "threshold": 0.6,
+        "time_rate": 0.25229357798165136,
+        "win_rate": 0.7981651376146789
+      },
+      "best_by_sum_pnl_R": {
+        "mean_pnl_R": 0.8557877910972014,
+        "mean_pnl_R_not_time": 0.7908304811551474,
+        "n": 1509,
+        "pos_rate": 0.4459907223326706,
+        "rank_by_mean_pnl": 21.0,
+        "rank_by_sum_pnl": 1.0,
+        "scope": "RISK_ON_1",
+        "sum_pnl_R": 1291.3837767656769,
+        "threshold": 0.2,
+        "time_rate": 0.2591119946984758,
+        "win_rate": 0.48177601060304837
+      }
+    }
+  },
+  "calibration_bins_path": "calibration_bins_p_lgbm.csv",
+  "calibrator_path": "calibrator_p_lgbm_sigmoid.joblib",
+  "chosen_method": "sigmoid",
+  "ev_thresholds_path": "ev_thresholds_p_lgbm.csv",
+  "global_calibrated": {
+    "auc": 0.7550756597665875,
+    "avg_precision": 0.5177888175121914,
+    "brier": 0.15879113104258588,
+    "ece": 0.01701850761367694,
+    "logloss": 0.4837911523803857
+  },
+  "global_raw": {
+    "auc": 0.7550756597665875,
+    "avg_precision": 0.5177888175121914,
+    "brier": 0.1706401734586537,
+    "ece": 0.1021524651698968,
+    "logloss": 0.5584377999293586
+  },
+  "methods_test_metrics": {
+    "isotonic": {
+      "auc": 0.7563021505159625,
+      "avg_precision": 0.543017156879943,
+      "brier": 0.16665018492560718,
+      "ece": 0.04563678095739949,
+      "logloss": 0.5138237014461522
+    },
+    "none": {
+      "auc": 0.756962639739869,
+      "avg_precision": 0.5650855425363883,
+      "brier": 0.1797485388122418,
+      "ece": 0.12257197103794987,
+      "logloss": 0.5905691484297418
+    },
+    "sigmoid": {
+      "auc": 0.756962639739869,
+      "avg_precision": 0.5650855425363883,
+      "brier": 0.16649941178894656,
+      "ece": 0.04397391515086969,
+      "logloss": 0.5034085552515087
+    }
+  },
+  "model_col": "p_lgbm",
+  "oof_calibrated_path": "oof_with_calibrated_p_lgbm.parquet",
+  "sizing_curve_path": "sizing_curve_p_lgbm.csv"
+}

@@ -1,0 +1,11 @@
+check,count,rate
+rows_with_entry_ge_exit,96,0.008517434122970456
+rows_with_bad_EXIT_FINAL,96,0.008517434122970456
+rows_with_bad_entry_ts,0,0.0
+rows_with_bad_exit_ts,0,0.0
+rows_with_nonpositive_entry_price,0,0.0
+rows_with_nonpositive_exit_price,0,0.0
+rows_with_nonpositive_qty,0,0.0
+rows_with_nan_pnl,0,0.0
+rows_with_nan_pnl_R,0,0.0
+rows_with_nan_WIN,0,0.0

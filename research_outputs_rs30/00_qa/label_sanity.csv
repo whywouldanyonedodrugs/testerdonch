@@ -1,0 +1,9 @@
+metric,count
+rows_with_WIN_1,2896
+rows_with_WIN_0,8375
+rows_with_pnl_R_pos,2896
+rows_with_pnl_R_nonpos,8375
+rows_with_EXIT_FINAL_TP,1410
+rows_with_EXIT_FINAL_SL,7907
+rows_with_EXIT_FINAL_TIME,1858
+rows_with_WIN_mismatch_pnl_R,0
