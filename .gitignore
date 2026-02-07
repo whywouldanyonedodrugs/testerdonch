@@ -1,3 +1,13 @@
+parquet/
+parquet_0202/
+parquet_older/
+raw_csv/
+raw_csv_old/
+.venv/
+__pycache__/
+.DS_Store
+
+
 # Virtual Environment
 .venv/
 venv/
