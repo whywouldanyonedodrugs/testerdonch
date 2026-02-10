@@ -229,6 +229,106 @@ DEFAULT_EXCLUDE = {
     "mfe_over_atr",
 }
 
+# Extra exclusions for live-safe deployment manifests (decision-time only).
+LIVE_SAFE_EXCLUDE_EXACT = {
+    # post-decision / recursive meta fields
+    "meta_p",
+    "size_mult",
+    "risk_cash_target",
+    "risk_cash_realized",
+    "recent_winrate_20",
+    "recent_winrate_50",
+    "recent_winrate_ewm_20",
+    # duplicated merge artifacts (canonicalized to unsuffixed names)
+    "est_leverage_x",
+    "est_leverage_y",
+    "btc_vol_regime_level_x",
+    "btc_vol_regime_level_y",
+    "btc_trend_slope_x",
+    "btc_trend_slope_y",
+    "eth_vol_regime_level_x",
+    "eth_vol_regime_level_y",
+    "eth_trend_slope_x",
+    "eth_trend_slope_y",
+    # regime label categories and composite regime-set labels
+    "trend_regime_1d",
+    "vol_regime_1d",
+    "regime_1d",
+    "regime_code_1d",
+    "markov_state_4h",
+    "markov_state_up_4h",
+    "regime_up",
+    "funding_regime_code",
+    "oi_regime_code",
+    "btc_risk_regime_code",
+    "risk_on",
+    "risk_on_1",
+}
+
+
+def _coalesce_suffix_pairs(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    If columns like foo_x/foo_y exist and foo doesn't, create canonical foo by coalescing x then y.
+    Keeps original columns intact; feature filter can drop suffixed variants later.
+    """
+    pairs: Dict[str, Dict[str, str]] = {}
+    for c in df.columns:
+        if c.endswith("_x") and len(c) > 2:
+            pairs.setdefault(c[:-2], {})["x"] = c
+        elif c.endswith("_y") and len(c) > 2:
+            pairs.setdefault(c[:-2], {})["y"] = c
+
+    if not pairs:
+        return df
+
+    out = df.copy()
+    made = 0
+    for base, d in pairs.items():
+        if base in out.columns:
+            continue
+        cx = d.get("x")
+        cy = d.get("y")
+        if cx and cy:
+            out[base] = out[cx].combine_first(out[cy])
+            made += 1
+        elif cx:
+            out[base] = out[cx]
+            made += 1
+        elif cy:
+            out[base] = out[cy]
+            made += 1
+    if made:
+        print(f"[04_models_cv] INFO: canonicalized {made} *_x/*_y feature pairs.", flush=True)
+    return out
+
+
+def _apply_live_safe_feature_filter(
+    numeric_cols: List[str],
+    cat_cols: List[str],
+    *,
+    enabled: bool,
+) -> Tuple[List[str], List[str]]:
+    if not enabled:
+        return numeric_cols, cat_cols
+
+    def _drop(c: str) -> bool:
+        if c in LIVE_SAFE_EXCLUDE_EXACT:
+            return True
+        if c.endswith("_x") or c.endswith("_y"):
+            return True
+        if c.startswith("meta_"):
+            return True
+        if c.startswith("S") and "_" in c:
+            return True
+        return False
+
+    num2 = [c for c in numeric_cols if not _drop(c)]
+    cat2 = [c for c in cat_cols if not _drop(c)]
+    dropped = (len(numeric_cols) - len(num2)) + (len(cat_cols) - len(cat2))
+    if dropped:
+        print(f"[04_models_cv] INFO: live-safe filter dropped {dropped} features.", flush=True)
+    return num2, cat2
+
 
 def autodetect_features(df: pd.DataFrame, max_cat_card: int = 60) -> Tuple[List[str], List[str]]:
     numeric_cols: List[str] = []
@@ -318,6 +418,18 @@ def load_top_features_from_univariate(path: str, top_k: int) -> List[str]:
     agg = df.groupby("feature", as_index=False)[score_col].max().sort_values(score_col, ascending=False)
     feats = agg["feature"].astype(str).tolist()
     return feats[:top_k] if top_k and top_k > 0 else feats
+
+
+def load_feature_manifest(path: str) -> Tuple[List[str], List[str]]:
+    with open(path, "r", encoding="utf-8") as f:
+        obj = json.load(f)
+    feats = obj.get("features") or {}
+    num = list(feats.get("numeric_cols") or [])
+    cat = list(feats.get("cat_cols") or [])
+    # stable de-dup while preserving order
+    num = list(dict.fromkeys([str(c) for c in num]))
+    cat = list(dict.fromkeys([str(c) for c in cat if str(c) not in set(num)]))
+    return num, cat
 
 
 # -----------------------------
@@ -610,6 +722,9 @@ def process(
     train_scope: str,
     top_features_csv: Optional[str],
     top_k_features: int,
+    feature_manifest_path: Optional[str],
+    allow_missing_manifest_cols: bool,
+    live_safe_features: bool,
     fit_final: bool,
     time_decay_halflife_days: Optional[float],
     allow_missing_oof: bool,
@@ -628,6 +743,7 @@ def process(
 
     df = trades.join(targets, how="left").join(regimes, how="left")
     df = _drop_duplicate_columns(df, "joined_frame")
+    df = _coalesce_suffix_pairs(df)
 
     if target not in df.columns:
         raise RuntimeError(
@@ -649,29 +765,61 @@ def process(
         r = pd.to_numeric(df[risk_col], errors="coerce").fillna(0).to_numpy()
         df = df.loc[r == 1].copy()
 
-    numeric_cols, cat_cols = autodetect_features(df)
+    if feature_manifest_path:
+        numeric_cols, cat_cols = load_feature_manifest(feature_manifest_path)
+        if top_features_csv:
+            print("[04_models_cv] INFO: --feature-manifest provided; ignoring --top-features-csv.", flush=True)
+        if include_regimes_as_features:
+            print("[04_models_cv] INFO: --feature-manifest provided; ignoring --include-regimes-as-features.", flush=True)
+        if live_safe_features:
+            print("[04_models_cv] INFO: --feature-manifest provided; ignoring --live-safe-features.", flush=True)
 
-    if include_regimes_as_features:
-        for c in df.columns:
-            if c == "risk_on" or c == "risk_on_1" or (c.startswith("S") and "_" in c) or c.endswith("_regime_code") or c.startswith("regime_") or c in ("markov_state_4h", "regime_up", "regime_code_1d"):
-                if c not in cat_cols and c not in DEFAULT_EXCLUDE and not c.startswith("y_"):
-                    cat_cols.append(c)
-        cat_cols = list(dict.fromkeys(cat_cols))
-        numeric_cols = [c for c in numeric_cols if c not in set(cat_cols)]
+        requested = list(dict.fromkeys(numeric_cols + cat_cols))
+        missing = [c for c in requested if c not in df.columns]
+        if missing:
+            msg = (
+                f"feature-manifest requested {len(requested)} cols but "
+                f"{len(missing)} are missing in joined data. First 40: {missing[:40]}"
+            )
+            if allow_missing_manifest_cols:
+                print(f"[04_models_cv] WARNING: {msg}", flush=True)
+            else:
+                raise RuntimeError(msg)
 
-    if top_features_csv:
-        top_feats = load_top_features_from_univariate(top_features_csv, top_k_features)
-        if top_feats:
-            keep = set(top_feats)
-            numeric_cols = [c for c in numeric_cols if c in keep]
+        numeric_cols = [c for c in numeric_cols if c in df.columns]
+        cat_cols = [c for c in cat_cols if c in df.columns]
+        numeric_cols = list(dict.fromkeys(numeric_cols))
+        cat_cols = list(dict.fromkeys([c for c in cat_cols if c not in set(numeric_cols)]))
+    else:
+        numeric_cols, cat_cols = autodetect_features(df)
 
-    numeric_cols, cat_cols, df = filter_feature_columns(
-        df=df,
-        numeric_cols=numeric_cols,
-        cat_cols=cat_cols,
-        max_missing=max_missing,
-        min_unique_numeric=min_unique_numeric,
-    )
+        if include_regimes_as_features:
+            for c in df.columns:
+                if c == "risk_on" or c == "risk_on_1" or (c.startswith("S") and "_" in c) or c.endswith("_regime_code") or c.startswith("regime_") or c in ("markov_state_4h", "regime_up", "regime_code_1d"):
+                    if c not in cat_cols and c not in DEFAULT_EXCLUDE and not c.startswith("y_"):
+                        cat_cols.append(c)
+            cat_cols = list(dict.fromkeys(cat_cols))
+            numeric_cols = [c for c in numeric_cols if c not in set(cat_cols)]
+
+        if top_features_csv:
+            top_feats = load_top_features_from_univariate(top_features_csv, top_k_features)
+            if top_feats:
+                keep = set(top_feats)
+                numeric_cols = [c for c in numeric_cols if c in keep]
+
+        numeric_cols, cat_cols = _apply_live_safe_feature_filter(
+            numeric_cols,
+            cat_cols,
+            enabled=bool(live_safe_features),
+        )
+
+        numeric_cols, cat_cols, df = filter_feature_columns(
+            df=df,
+            numeric_cols=numeric_cols,
+            cat_cols=cat_cols,
+            max_missing=max_missing,
+            min_unique_numeric=min_unique_numeric,
+        )
 
     feat_cols = list(dict.fromkeys(numeric_cols + cat_cols))
     if not feat_cols:
@@ -874,6 +1022,9 @@ def process(
         "include_regimes_as_features": bool(include_regimes_as_features),
         "top_features_csv": top_features_csv,
         "top_k_features": int(top_k_features),
+        "feature_manifest_path": feature_manifest_path,
+        "allow_missing_manifest_cols": bool(allow_missing_manifest_cols),
+        "live_safe_features": bool(live_safe_features),
         "time_decay_halflife_days": (None if time_decay_halflife_days is None else float(time_decay_halflife_days)),
         "features": {"numeric_cols": numeric_cols, "cat_cols": cat_cols},
         "models": list(models.keys()),
@@ -914,6 +1065,22 @@ def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
 
     p.add_argument("--top-features-csv", type=str, default="")
     p.add_argument("--top-k-features", type=int, default=0)
+    p.add_argument(
+        "--feature-manifest",
+        type=str,
+        default="",
+        help="Optional feature manifest JSON; if provided, uses exactly those numeric/cat cols.",
+    )
+    p.add_argument(
+        "--allow-missing-manifest-cols",
+        action="store_true",
+        help="With --feature-manifest: warn and drop missing cols instead of failing.",
+    )
+    p.add_argument(
+        "--live-safe-features",
+        action="store_true",
+        help="Drop non-decision-time / non-portable features for live-safe manifests.",
+    )
 
     p.add_argument("--no-fit-final", action="store_true")
     p.add_argument("--time-decay-halflife-days", type=float, default=0.0)
@@ -933,6 +1100,9 @@ def main(argv: Optional[List[str]] = None) -> None:
     top_csv = args.top_features_csv.strip() or None
     if top_csv and not os.path.exists(top_csv):
         raise FileNotFoundError(f"--top-features-csv not found: {top_csv}")
+    feature_manifest = args.feature_manifest.strip() or None
+    if feature_manifest and not os.path.exists(feature_manifest):
+        raise FileNotFoundError(f"--feature-manifest not found: {feature_manifest}")
 
     time_decay = None
     if float(args.time_decay_halflife_days) and float(args.time_decay_halflife_days) > 0:
@@ -954,6 +1124,9 @@ def main(argv: Optional[List[str]] = None) -> None:
         train_scope=args.train_scope,
         top_features_csv=top_csv,
         top_k_features=int(args.top_k_features),
+        feature_manifest_path=feature_manifest,
+        allow_missing_manifest_cols=bool(args.allow_missing_manifest_cols),
+        live_safe_features=bool(args.live_safe_features),
         fit_final=(not args.no_fit_final),
         time_decay_halflife_days=time_decay,
         allow_missing_oof=bool(args.allow_missing_oof),

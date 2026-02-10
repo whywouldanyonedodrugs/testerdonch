@@ -151,14 +151,19 @@ def compute_daily_combined_regime(conf: DailyRegimeConfig | None = None) -> pd.D
         model = sm.tsa.MarkovRegression(ret, k_regimes=2, switching_variance=True, trend="c")
         results = model.fit(disp=False, maxiter=200)
 
-        probs = [results.smoothed_marginal_probabilities[i] for i in range(2)]
+        # IMPORTANT: filtered probabilities are past-only; smoothed probabilities leak future info.
+        probs = [results.filtered_marginal_probabilities[i] for i in range(2)]
 
         r = ret.reindex(probs[0].index)
         var_est = []
         for p in probs:
             w = p.values
-            mu = np.sum(w * r.values) / np.sum(w)
-            var = np.sum(w * (r.values - mu) ** 2) / np.sum(w)
+            denom = float(np.sum(w))
+            if denom <= 1e-12:
+                var_est.append(np.inf)
+                continue
+            mu = float(np.sum(w * r.values) / denom)
+            var = float(np.sum(w * (r.values - mu) ** 2) / denom)
             var_est.append(var)
         low_idx = int(np.argmin(var_est))
 

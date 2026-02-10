@@ -2562,13 +2562,18 @@ class LiveTrader:
             LOG.warning("De-dup check failed for %s: %s (continuing)", sig.symbol, _e)
 
         # --- Win-probability gate (optional) ---
+        # Strict parity: only use the threshold decided at scan-time.
+        # No secondary/fallback gate here.
+        thr_raw = getattr(sig, "meta_pstar", None)
+        try:
+            thr = float(thr_raw) if thr_raw is not None else None
+            if thr is not None and ((not np.isfinite(thr)) or thr < 0.0 or thr > 1.0):
+                thr = None
+        except Exception:
+            thr = None
 
-        thr = float(getattr(self.winprob, "pstar", None)
-                    or self.cfg.get("MIN_WINPROB_TO_TRADE",
-                                    self.cfg.get("META_PROB_THRESHOLD", 0.0)))
-
-        wp  = float(getattr(sig, "win_probability", 0.0) or 0.0)
-        if wp < thr:
+        wp = float(getattr(sig, "win_probability", 0.0) or 0.0)
+        if (thr is not None) and (wp < thr):
             LOG.info("Skip %s: WinProb %.3f < threshold %.3f", sig.symbol, wp, thr)
             return
 

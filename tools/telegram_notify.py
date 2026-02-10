@@ -1,0 +1,151 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import json
+import os
+import socket
+import urllib.error
+import urllib.parse
+import urllib.request
+from dataclasses import dataclass
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Dict, Optional
+
+
+TOKEN_ENV = "DONCH_TG_BOT_TOKEN"
+CHAT_ENV = "DONCH_TG_CHAT_ID"
+MAX_MSG_LEN = 3500
+
+
+def _safe(value: Optional[str]) -> str:
+    return (value or "").strip()
+
+
+def _clip(msg: str) -> str:
+    txt = msg.strip()
+    if len(txt) <= MAX_MSG_LEN:
+        return txt
+    return txt[: MAX_MSG_LEN - 24] + "\n... [truncated for Telegram]"
+
+
+def _api_url(token: str, method: str) -> str:
+    return f"https://api.telegram.org/bot{token}/{method}"
+
+
+def _post_json(url: str, payload: Dict[str, Any], timeout_sec: float = 12.0) -> Dict[str, Any]:
+    data = urllib.parse.urlencode(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=data, method="POST")
+    req.add_header("Content-Type", "application/x-www-form-urlencoded")
+    with urllib.request.urlopen(req, timeout=timeout_sec) as resp:
+        raw = resp.read().decode("utf-8", errors="replace")
+    obj = json.loads(raw)
+    if not bool(obj.get("ok", False)):
+        desc = str(obj.get("description", "unknown error"))
+        raise RuntimeError(f"telegram api error: {desc}")
+    return obj
+
+
+def _get_json(url: str, timeout_sec: float = 12.0) -> Dict[str, Any]:
+    with urllib.request.urlopen(url, timeout=timeout_sec) as resp:
+        raw = resp.read().decode("utf-8", errors="replace")
+    obj = json.loads(raw)
+    if not bool(obj.get("ok", False)):
+        desc = str(obj.get("description", "unknown error"))
+        raise RuntimeError(f"telegram api error: {desc}")
+    return obj
+
+
+def discover_chat_id(token: str, timeout_sec: float = 12.0) -> Optional[str]:
+    tok = _safe(token)
+    if not tok:
+        return None
+    try:
+        url = _api_url(tok, "getUpdates") + "?timeout=1&limit=25"
+        obj = _get_json(url, timeout_sec=timeout_sec)
+        rows = list(obj.get("result", []))
+        for upd in reversed(rows):
+            for key in ("message", "edited_message", "channel_post", "edited_channel_post"):
+                node = upd.get(key, {})
+                chat = node.get("chat", {})
+                cid = chat.get("id", None)
+                if cid is not None:
+                    return str(cid)
+    except Exception:
+        return None
+    return None
+
+
+def send_telegram_message(token: str, chat_id: str, text: str, timeout_sec: float = 12.0) -> None:
+    tok = _safe(token)
+    cid = _safe(chat_id)
+    if not tok:
+        raise ValueError("missing telegram bot token")
+    if not cid:
+        raise ValueError("missing telegram chat id")
+    payload = {
+        "chat_id": cid,
+        "text": _clip(text),
+        "disable_web_page_preview": "true",
+    }
+    _post_json(_api_url(tok, "sendMessage"), payload, timeout_sec=timeout_sec)
+
+
+@dataclass
+class TelegramNotifier:
+    token: str
+    chat_id: str
+    enabled: bool
+    run_label: str
+    auto_chat: bool = False
+
+    @classmethod
+    def from_args(
+        cls,
+        args: Any,
+        *,
+        run_label: str,
+        token_attr: str = "tg_bot_token",
+        chat_attr: str = "tg_chat_id",
+        auto_chat_attr: str = "tg_auto_chat",
+    ) -> "TelegramNotifier":
+        tok = _safe(getattr(args, token_attr, "")) or _safe(os.environ.get(TOKEN_ENV))
+        cid = _safe(getattr(args, chat_attr, "")) or _safe(os.environ.get(CHAT_ENV))
+        auto_chat = bool(getattr(args, auto_chat_attr, False))
+        if tok and (not cid) and auto_chat:
+            cid = _safe(discover_chat_id(tok) or "")
+        enabled = bool(tok and cid)
+        return cls(
+            token=tok,
+            chat_id=cid,
+            enabled=enabled,
+            run_label=run_label.strip() or "run",
+            auto_chat=auto_chat,
+        )
+
+    def status_line(self) -> str:
+        if self.enabled:
+            return "enabled"
+        if self.token and not self.chat_id:
+            return f"disabled: missing chat id (set {CHAT_ENV} or --tg-chat-id, or use --tg-auto-chat)"
+        if self.chat_id and not self.token:
+            return f"disabled: missing bot token (set {TOKEN_ENV} or --tg-bot-token)"
+        return "disabled"
+
+    def send(self, title: str, body: str = "") -> bool:
+        if (not self.enabled) and self.token and (not self.chat_id) and self.auto_chat:
+            self.chat_id = _safe(discover_chat_id(self.token) or "")
+            self.enabled = bool(self.token and self.chat_id)
+        if not self.enabled:
+            return False
+        ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ")
+        host = socket.gethostname()
+        cwd = str(Path.cwd())
+        msg = f"[{self.run_label}] {title}\nUTC: {ts}\nHost: {host}\nCWD: {cwd}"
+        if body.strip():
+            msg += f"\n\n{body.strip()}"
+        try:
+            send_telegram_message(self.token, self.chat_id, msg)
+            return True
+        except (urllib.error.URLError, TimeoutError, OSError, RuntimeError, ValueError):
+            return False

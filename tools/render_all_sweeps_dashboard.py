@@ -449,6 +449,7 @@ def _render_html(
 
     run_cols = [
         "run_id",
+        "run_ts",
         "n_variants",
         "n_ok",
         "n_error",
@@ -469,6 +470,9 @@ def _render_html(
         return df.to_html(index=False, classes="tbl", border=0)
 
     # compact/pretty formatting
+    if "run_ts" in run_tbl.columns:
+        run_tbl["run_ts"] = pd.to_datetime(run_tbl["run_ts"], utc=True, errors="coerce").dt.strftime("%Y-%m-%d %H:%M:%S UTC")
+
     for c in ["best_total_pnl", "best_utility", "median_total_pnl", "median_max_drawdown", "probe_invariance_ratio"]:
         if c in run_tbl.columns:
             run_tbl[c] = run_tbl[c].map(lambda x: _fmt(x, 4))
@@ -477,6 +481,11 @@ def _render_html(
             top_util[c] = top_util[c].map(lambda x: _fmt(x, 4))
         if c in top_pnl.columns:
             top_pnl[c] = top_pnl[c].map(lambda x: _fmt(x, 4))
+
+    if "run_ts" in top_util.columns:
+        top_util["run_ts"] = pd.to_datetime(top_util["run_ts"], utc=True, errors="coerce").dt.strftime("%Y-%m-%d %H:%M:%S UTC")
+    if "run_ts" in top_pnl.columns:
+        top_pnl["run_ts"] = pd.to_datetime(top_pnl["run_ts"], utc=True, errors="coerce").dt.strftime("%Y-%m-%d %H:%M:%S UTC")
 
     probe_warn = runs_df[_to_num(runs_df.get("probe_invariance_ratio", pd.Series(dtype=float))) >= 0.9] if not runs_df.empty else pd.DataFrame()
     partial_runs = runs_df[~runs_df["summary_exists"].astype(bool)] if not runs_df.empty else pd.DataFrame()
@@ -509,6 +518,7 @@ def _render_html(
 <body>
   <h1>Policy Sweep Cross-Run Dashboard</h1>
   <div class="meta">Generated: {now} | Root: {sweeps_root}</div>
+  <div class="small">Note: <code>run_id</code> is the folder name and may encode when the run started; use <code>run_ts</code> as the actual timestamp shown by this report.</div>
   <div class="cards">
     <div class="card"><div class="k">Runs scanned</div><div class="v">{n_runs}</div></div>
     <div class="card"><div class="k">Complete runs</div><div class="v">{n_complete}</div></div>
@@ -535,12 +545,12 @@ def _render_html(
 
   <div class="section">
     <h2>Top Variants By Utility (All Runs)</h2>
-    {_tbl(top_util[[c for c in ["run_id","setting","utility","total_pnl","max_drawdown","number_of_trades","win_rate","tail_loss_p05","status"] if c in top_util.columns]])}
+    {_tbl(top_util[[c for c in ["run_id","run_ts","setting","utility","total_pnl","max_drawdown","number_of_trades","win_rate","tail_loss_p05","status"] if c in top_util.columns]])}
   </div>
 
   <div class="section">
     <h2>Top Variants By Total PnL (All Runs)</h2>
-    {_tbl(top_pnl[[c for c in ["run_id","setting","total_pnl","utility","max_drawdown","number_of_trades","win_rate","tail_loss_p05","status"] if c in top_pnl.columns]])}
+    {_tbl(top_pnl[[c for c in ["run_id","run_ts","setting","total_pnl","utility","max_drawdown","number_of_trades","win_rate","tail_loss_p05","status"] if c in top_pnl.columns]])}
   </div>
 
   <div class="section">

@@ -91,7 +91,7 @@ def compute_daily_regime_snapshot(
     """
     Canonical daily combined regime:
       - Trend: TMA(close, ma_period) with Keltner bands using ATR(atr_period) * atr_mult.
-      - Vol: 2-state MarkovRegression on daily pct returns with smoothed probs;
+      - Vol: 2-state MarkovRegression on daily pct returns with filtered probs (past-only);
              identify low-vol state by weighted variance; vol_prob_low is that state's prob.
 
     Returns snapshot for the latest fully-closed daily bar as-of `asof_ts`:
@@ -123,7 +123,8 @@ def compute_daily_regime_snapshot(
         model = sm.tsa.MarkovRegression(ret, k_regimes=2, switching_variance=True, trend="c")
         results = model.fit(disp=False, maxiter=200)
 
-        probs = [results.smoothed_marginal_probabilities[i] for i in range(2)]
+        # Filtered probabilities are past-only; smoothed would leak future information.
+        probs = [results.filtered_marginal_probabilities[i] for i in range(2)]
 
         r = ret.reindex(probs[0].index)
         var_est = []

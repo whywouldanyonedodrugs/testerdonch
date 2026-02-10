@@ -73,7 +73,7 @@ REGIME_MACD_SLOW: int = 26
 REGIME_MACD_SIGNAL: int = 9
 REGIME_REQUIRE_BOTH_POSITIVE: bool = False   # macd>signal AND hist>0
 REGIME_BLOCK_WHEN_DOWN: bool = False        # or size-down instead
-REGIME_SIZE_WHEN_DOWN: float = 0.2
+REGIME_SIZE_WHEN_DOWN: float = 0.2  
 
 # --- Risk / exits
 INITIAL_CAPITAL: float = 2000
@@ -253,6 +253,10 @@ CROWD_Z_LOW: float = -1.0   # "low" (negative) z-score threshold
 # --- Meta online scoring (optional; backtester only) ---
 BT_META_ONLINE_ENABLED: bool = True  # if True, backtester computes meta_p via WinProbScorer instead of using offline META_PRED_PATH
 
+# Disable training-feature replay in backtests by default.
+# When False, backtester will NOT load results/trades.clean.csv as a feature source.
+BT_META_REPLAY_ENABLED: bool = False
+
 # Directory with meta artifacts (model, ohe, calibrator, feature_names.json, pstar.txt)
 # Adjust if your training/export scripts write elsewhere.
 META_MODEL_DIR = RESULTS_DIR / "meta_export"
@@ -266,5 +270,4 @@ REGIME_SLOPE_FILTER_ENABLED: bool = False   # turn this ON to gate by slope
 REGIME_SLOPE_MIN: float = 0.0             # require macd_hist_slope >= this at entry
 
 META_STRICT_SCHEMA = True
-
 

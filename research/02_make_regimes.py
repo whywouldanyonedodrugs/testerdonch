@@ -86,6 +86,42 @@ def _safe_cols(all_cols: List[str], candidates: List[str]) -> List[str]:
     return [c for c in candidates if c in s]
 
 
+def _expand_usecols_with_xy_aliases(all_cols: List[str], candidates: List[str]) -> List[str]:
+    """
+    Build read-usecols that can satisfy canonical candidate names even when CSV has *_x/*_y variants.
+    """
+    s = set(all_cols)
+    out: List[str] = []
+    for c in candidates:
+        if c in s:
+            out.append(c)
+            continue
+        cx = f"{c}_x"
+        cy = f"{c}_y"
+        if cx in s:
+            out.append(cx)
+        if cy in s:
+            out.append(cy)
+    return list(dict.fromkeys(out))
+
+
+def _coalesce_xy_series(chunk: pd.DataFrame, base: str) -> pd.Series:
+    """
+    Return chunk[base] if present; else coalesce base_x/base_y; else all-NA series.
+    """
+    if base in chunk.columns:
+        return chunk[base]
+    cx = f"{base}_x"
+    cy = f"{base}_y"
+    if (cx in chunk.columns) and (cy in chunk.columns):
+        return chunk[cx].combine_first(chunk[cy])
+    if cx in chunk.columns:
+        return chunk[cx]
+    if cy in chunk.columns:
+        return chunk[cy]
+    return pd.Series(pd.array([pd.NA] * len(chunk), dtype="Float64"), index=chunk.index)
+
+
 def _to_num(s: pd.Series) -> pd.Series:
     return pd.to_numeric(s, errors="coerce")
 
@@ -306,12 +342,9 @@ def _btc_risk_regime(
 
 def _risk_on(regime_up: pd.Series, btc_trend_up: pd.Series, btc_vol_high: pd.Series) -> pd.Series:
     ru = _int8_nullable(regime_up)
-    out = ((ru == 1) & (btc_trend_up == 1) & (btc_vol_high == 0)).astype("int8")
-    # If any component is NA, set NA
-    na_mask = ru.isna() | btc_trend_up.isna() | btc_vol_high.isna()
-    out = pd.Series(out, index=ru.index).astype("Int8")
-    out = out.where(~na_mask, other=pd.NA)
-    return out
+    # Keep nullable integer output so rows with any NA component remain <NA>.
+    cond = (ru == 1) & (btc_trend_up == 1) & (btc_vol_high == 0)
+    return cond.astype("Int8")
 
 
 def _set_code_2x2(a01: pd.Series, b01: pd.Series) -> pd.Series:
@@ -388,14 +421,18 @@ def pass1_estimate_cutpoints(
     """
     rng = np.random.default_rng(seed)
 
-    sample_cols = _safe_cols(cols_present, SAMPLE_COLS)
+    sample_cols = [c for c in SAMPLE_COLS if (c in cols_present) or (f"{c}_x" in cols_present) or (f"{c}_y" in cols_present)]
     if not sample_cols:
+        return {}
+
+    read_cols = _expand_usecols_with_xy_aliases(cols_present, sample_cols)
+    if not read_cols:
         return {}
 
     # Accumulate samples per col (bounded by sample_per_col)
     samples: Dict[str, np.ndarray] = {c: np.array([], dtype=np.float64) for c in sample_cols}
 
-    reader = pd.read_csv(infile, chunksize=chunksize, low_memory=False, usecols=sample_cols)
+    reader = pd.read_csv(infile, chunksize=chunksize, low_memory=False, usecols=read_cols)
 
     for i, chunk in enumerate(reader):
         for c in sample_cols:
@@ -404,7 +441,8 @@ def pass1_estimate_cutpoints(
             if remaining <= 0:
                 continue
             take = min(remaining, 5000)  # per-chunk cap
-            arr = _sample_values_from_series(chunk[c], max_keep=take, rng=rng)
+            src = _coalesce_xy_series(chunk, c)
+            arr = _sample_values_from_series(src, max_keep=take, rng=rng)
             if arr.size > 0:
                 samples[c] = np.concatenate([cur, arr], axis=0)
 
@@ -507,8 +545,8 @@ def pass2_build_regimes(
         volm_q33 = cutpoints["vol_mult"].get("q33")
         volm_q66 = cutpoints["vol_mult"].get("q66")
 
-    # Build usecols for pass2 (only those present)
-    usecols = _safe_cols(cols_present, PASS2_REQUIRED_COLS)
+    # Build usecols for pass2, supporting *_x/*_y aliases for canonical columns.
+    usecols = _expand_usecols_with_xy_aliases(cols_present, PASS2_REQUIRED_COLS)
     if "trade_id" not in usecols:
         raise RuntimeError("trade_id is required.")
     if "symbol" not in usecols:
@@ -560,6 +598,17 @@ def pass2_build_regimes(
         if len(chunk) == 0:
             continue
         chunk["trade_id"] = pd.to_numeric(chunk["trade_id"], errors="coerce").astype("int64")
+
+        # Canonicalize known duplicated merge columns when source CSV kept only *_x/*_y variants.
+        for base in [
+            "btc_trend_slope",
+            "btc_vol_regime_level",
+            "days_since_prev_break",
+            "consolidation_range_atr",
+            "vol_mult",
+        ]:
+            if base not in chunk.columns:
+                chunk[base] = _coalesce_xy_series(chunk, base)
 
         idx = chunk.index
 

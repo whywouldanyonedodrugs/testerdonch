@@ -1378,13 +1378,22 @@ class Backtester:
         Key: (SYMBOL_UPPER, entry_ts_floor_5m)
         Value: dict of manifest feature columns (the same names the model expects).
         """
-        if getattr(self, "_meta_store_df", None) is not None:
+        # Initialize once per Backtester instance.
+        if bool(getattr(self, "_meta_store_initialized", False)):
+            return
+
+        if not bool(getattr(cfg, "BT_META_REPLAY_ENABLED", False)):
+            self._meta_store_df = None
+            self._meta_store_cols = []
+            self._meta_store_initialized = True
+            print("[meta_store] replay disabled (BT_META_REPLAY_ENABLED=False)", flush=True)
             return
 
         path = self._meta_store_path()
         if path is None:
             self._meta_store_df = None
             self._meta_store_cols = []
+            self._meta_store_initialized = True
             print("[meta_store] no filled trade feature file found; replay disabled", flush=True)
             return
 
@@ -1456,6 +1465,7 @@ class Backtester:
         # Store
         self._meta_store_df = df
         self._meta_store_cols = [c for c in df.columns if c != "entry"]
+        self._meta_store_initialized = True
 
         print(f"[meta_store] using {path} rows={len(df):,} cols={len(df.columns)}", flush=True)
 

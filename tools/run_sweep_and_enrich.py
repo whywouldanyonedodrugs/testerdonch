@@ -13,6 +13,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional
 
+from telegram_notify import TelegramNotifier
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -58,6 +60,14 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--python", default=sys.executable)
     p.add_argument("--sweep-script", default="tools/sweep_policy_settings_v2.py")
     p.add_argument("--enrich-script", default="tools/enrich_trades_pipeline.py")
+    p.add_argument("--tg-bot-token", default="")
+    p.add_argument("--tg-chat-id", default="")
+    p.add_argument(
+        "--tg-auto-chat",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Try Telegram getUpdates to auto-discover chat id when not provided.",
+    )
     return p.parse_args()
 
 
@@ -227,73 +237,71 @@ def main() -> int:
     sweep_root = (results_dir / "policy_sweeps" / rid).resolve()
     sweep_script = (REPO_ROOT / a.sweep_script).resolve()
     enrich_script = (REPO_ROOT / a.enrich_script).resolve()
+    notifier = TelegramNotifier.from_args(a, run_label=f"sweep:{rid}")
 
-    if not a.skip_sweep:
-        sweep_cmd = [
-            a.python,
-            str(sweep_script),
-            "--start",
-            str(a.start),
-            "--end",
-            str(a.end),
-            "--jobs",
-            str(a.jobs),
-            "--pstar",
-            str(a.pstar),
-            "--lambda",
-            str(a.lam),
-            "--mu",
-            str(a.mu),
-            "--on-missing-symbol",
-            str(a.on_missing_symbol),
-            "--smoke-n",
-            str(a.smoke_n),
-            "--run-id",
-            rid,
-        ]
-        run_cmd(sweep_cmd, REPO_ROOT)
-    else:
-        if not sweep_root.exists():
-            raise FileNotFoundError(f"--skip-sweep was set but run directory does not exist: {sweep_root}")
+    print(f"[orchestrator] telegram notify: {notifier.status_line()}", flush=True)
+    notifier.send(
+        "STARTED",
+        body=(
+            f"run_id={rid}\n"
+            f"start={a.start} end={a.end}\n"
+            f"jobs={a.jobs} enrich_jobs={a.enrich_jobs}\n"
+            f"skip_sweep={bool(a.skip_sweep)} skip_enrich={bool(a.skip_enrich)}"
+        ),
+    )
 
-    print(f"[orchestrator] sweep root: {sweep_root}", flush=True)
+    try:
+        if not a.skip_sweep:
+            sweep_cmd = [
+                a.python,
+                str(sweep_script),
+                "--start",
+                str(a.start),
+                "--end",
+                str(a.end),
+                "--jobs",
+                str(a.jobs),
+                "--pstar",
+                str(a.pstar),
+                "--lambda",
+                str(a.lam),
+                "--mu",
+                str(a.mu),
+                "--on-missing-symbol",
+                str(a.on_missing_symbol),
+                "--smoke-n",
+                str(a.smoke_n),
+                "--run-id",
+                rid,
+            ]
+            run_cmd(sweep_cmd, REPO_ROOT)
+        else:
+            if not sweep_root.exists():
+                raise FileNotFoundError(f"--skip-sweep was set but run directory does not exist: {sweep_root}")
 
-    if a.skip_enrich:
-        return 0
+        print(f"[orchestrator] sweep root: {sweep_root}", flush=True)
 
-    variants = list_variant_dirs(sweep_root)
-    if a.max_variants > 0:
-        variants = variants[: int(a.max_variants)]
+        if a.skip_enrich:
+            notifier.send("FINISHED", body=f"run_id={rid}\nstatus=ok\nsweep_root={sweep_root}\nsteps=sweep_only")
+            return 0
 
-    if not variants:
-        raise RuntimeError(f"No variant directories found in {sweep_root}")
+        variants = list_variant_dirs(sweep_root)
+        if a.max_variants > 0:
+            variants = variants[: int(a.max_variants)]
 
-    stage_path = sweep_root / "_ENRICH_STAGE.txt"
-    stage_path.write_text(f"ENRICH_START total={len(variants)}\n", encoding="utf-8")
+        if not variants:
+            raise RuntimeError(f"No variant directories found in {sweep_root}")
 
-    jobs = max(1, int(a.enrich_jobs))
-    rows: List[EnrichResult] = []
+        stage_path = sweep_root / "_ENRICH_STAGE.txt"
+        stage_path.write_text(f"ENRICH_START total={len(variants)}\n", encoding="utf-8")
 
-    if jobs == 1:
-        for i, vdir in enumerate(variants, 1):
-            stage_path.write_text(f"ENRICH_RUNNING {i}/{len(variants)} {vdir.name}\n", encoding="utf-8")
-            res = enrich_one_variant(
-                vdir,
-                python_exe=a.python,
-                enrich_script=enrich_script,
-                resume=bool(a.resume),
-                retries=int(a.enrich_retries),
-                funding_stage=a.funding_stage,
-                funding_throttle=float(a.funding_throttle),
-            )
-            rows.append(res)
-            print(f"[orchestrator] enrich {res.variant}: {res.status} attempts={res.attempts}", flush=True)
-    else:
-        fut_to_name: Dict[object, str] = {}
-        with ThreadPoolExecutor(max_workers=jobs) as ex:
-            for vdir in variants:
-                fut = ex.submit(
-                    enrich_one_variant,
+        jobs = max(1, int(a.enrich_jobs))
+        rows: List[EnrichResult] = []
+
+        if jobs == 1:
+            for i, vdir in enumerate(variants, 1):
+                stage_path.write_text(f"ENRICH_RUNNING {i}/{len(variants)} {vdir.name}\n", encoding="utf-8")
+                res = enrich_one_variant(
                     vdir,
                     python_exe=a.python,
                     enrich_script=enrich_script,
@@ -302,32 +310,66 @@ def main() -> int:
                     funding_stage=a.funding_stage,
                     funding_throttle=float(a.funding_throttle),
                 )
-                fut_to_name[fut] = vdir.name
-            done_n = 0
-            for fut in as_completed(fut_to_name):
-                done_n += 1
-                res = fut.result()
                 rows.append(res)
-                stage_path.write_text(
-                    f"ENRICH_RUNNING {done_n}/{len(variants)} last={res.variant} status={res.status}\n",
-                    encoding="utf-8",
-                )
                 print(f"[orchestrator] enrich {res.variant}: {res.status} attempts={res.attempts}", flush=True)
+        else:
+            fut_to_name: Dict[object, str] = {}
+            with ThreadPoolExecutor(max_workers=jobs) as ex:
+                for vdir in variants:
+                    fut = ex.submit(
+                        enrich_one_variant,
+                        vdir,
+                        python_exe=a.python,
+                        enrich_script=enrich_script,
+                        resume=bool(a.resume),
+                        retries=int(a.enrich_retries),
+                        funding_stage=a.funding_stage,
+                        funding_throttle=float(a.funding_throttle),
+                    )
+                    fut_to_name[fut] = vdir.name
+                done_n = 0
+                for fut in as_completed(fut_to_name):
+                    done_n += 1
+                    res = fut.result()
+                    rows.append(res)
+                    stage_path.write_text(
+                        f"ENRICH_RUNNING {done_n}/{len(variants)} last={res.variant} status={res.status}\n",
+                        encoding="utf-8",
+                    )
+                    print(f"[orchestrator] enrich {res.variant}: {res.status} attempts={res.attempts}", flush=True)
 
-    write_enrich_summary(sweep_root, rows)
+        write_enrich_summary(sweep_root, rows)
 
-    n_ok = sum(1 for r in rows if r.status == "ok")
-    n_err = sum(1 for r in rows if r.status == "error")
-    n_skip = len(rows) - n_ok - n_err
-    stage_path.write_text(
-        f"ENRICH_DONE ok={n_ok} error={n_err} skipped={n_skip}\n",
-        encoding="utf-8",
-    )
-    print(f"[orchestrator] enrich summary: ok={n_ok} error={n_err} skipped={n_skip}", flush=True)
+        n_ok = sum(1 for r in rows if r.status == "ok")
+        n_err = sum(1 for r in rows if r.status == "error")
+        n_skip = len(rows) - n_ok - n_err
+        stage_path.write_text(
+            f"ENRICH_DONE ok={n_ok} error={n_err} skipped={n_skip}\n",
+            encoding="utf-8",
+        )
+        print(f"[orchestrator] enrich summary: ok={n_ok} error={n_err} skipped={n_skip}", flush=True)
 
-    if a.strict and n_err > 0:
-        return 2
-    return 0
+        rc = 2 if (a.strict and n_err > 0) else 0
+        notifier.send(
+            "FINISHED" if rc == 0 else "FINISHED_WITH_ERRORS",
+            body=(
+                f"run_id={rid}\n"
+                f"status={'ok' if rc == 0 else 'error'} rc={rc}\n"
+                f"variants={len(rows)} ok={n_ok} error={n_err} skipped={n_skip}\n"
+                f"sweep_root={sweep_root}"
+            ),
+        )
+        return rc
+
+    except KeyboardInterrupt:
+        notifier.send("INTERRUPTED", body=f"run_id={rid}\nstatus=interrupted (KeyboardInterrupt)\nsweep_root={sweep_root}")
+        raise
+    except Exception as exc:
+        notifier.send(
+            "FAILED",
+            body=f"run_id={rid}\nstatus=failed\nerror={type(exc).__name__}: {exc}\nsweep_root={sweep_root}",
+        )
+        raise
 
 
 if __name__ == "__main__":

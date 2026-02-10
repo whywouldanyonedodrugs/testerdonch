@@ -482,6 +482,8 @@ def main() -> int:
         # Throughput-only knobs: do not change fills/PnL logic.
         "BT_PROGRESS_ENABLED": False,
         "BT_DECISION_LOG_ENABLED": False,
+        # Leak-safety: never replay training trade rows as online-scoring features.
+        "BT_META_REPLAY_ENABLED": False,
     }
 
     # Smoke test (fast)

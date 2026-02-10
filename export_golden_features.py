@@ -7,7 +7,7 @@ Deterministic "golden features" exporter for parity testing between:
 - live feature-building + meta scoring.
 
 Guarantees:
-- Output includes: timestamp (UTC tz-aware), symbol, and all 73 raw feature columns
+- Output includes: timestamp (UTC tz-aware), symbol, and all raw feature columns
   exactly as in bundle feature_manifest.json (features.numeric_cols + features.cat_cols).
 - If the trade store is missing some *derivable* regime-set columns
   (funding_regime_code, oi_regime_code, btc_risk_regime_code, risk_on, S1..S6),
@@ -678,8 +678,21 @@ def main() -> None:
     numeric_cols = list(feats.get("numeric_cols") or [])
     cat_cols = list(feats.get("cat_cols") or [])
     raw_cols = numeric_cols + cat_cols
-    if len(raw_cols) != 73:
-        raise RuntimeError(f"Expected 73 raw feature cols; got {len(raw_cols)}")
+    if not raw_cols:
+        raise RuntimeError("feature_manifest.json has empty features.numeric_cols/cat_cols")
+
+    # Use scorer schema as authoritative if it disagrees with manifest ordering/content.
+    scorer_raw = list(getattr(scorer, "raw_cols", []) or [])
+    if scorer_raw:
+        if scorer_raw != raw_cols:
+            print(
+                f"[export] WARNING: manifest/scorer raw feature mismatch "
+                f"(manifest={len(raw_cols)}, scorer={len(scorer_raw)}); using scorer schema",
+                file=sys.stderr,
+            )
+            raw_cols = scorer_raw
+            numeric_cols = list(getattr(scorer, "numeric_cols", []) or [])
+            cat_cols = list(getattr(scorer, "cat_cols", []) or [])
 
     store_path = Path(args.trade_store).expanduser().resolve()
     store_cols = list_store_columns(store_path)
