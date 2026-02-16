@@ -466,6 +466,42 @@ def _dyn_exit_multipliers(row: pd.Series, cfg) -> Tuple[float, float]:
     return 1.0, 1.0
 
 
+def _regime_exit_overrides(
+    *,
+    risk_on: int,
+    base_sl_mult: float,
+    base_tp_mult: float,
+    base_time_hours: Optional[float],
+    cfg,
+) -> Tuple[float, float, Optional[float]]:
+    """
+    Optional regime-conditioned exit policy.
+    When enabled, use separate SL/TP/TIME_EXIT settings for risk_on vs risk_off states.
+    """
+    if not bool(getattr(cfg, "REGIME_COND_EXITS_ENABLED", False)):
+        return float(base_sl_mult), float(base_tp_mult), base_time_hours
+
+    is_risk_on = int(risk_on) == 1
+    if is_risk_on:
+        sl_mult = float(getattr(cfg, "RISK_ON_SL_ATR_MULT", base_sl_mult))
+        tp_mult = float(getattr(cfg, "RISK_ON_TP_ATR_MULT", base_tp_mult))
+        t_exit = getattr(cfg, "RISK_ON_TIME_EXIT_HOURS", base_time_hours)
+    else:
+        sl_mult = float(getattr(cfg, "RISK_OFF_SL_ATR_MULT", base_sl_mult))
+        tp_mult = float(getattr(cfg, "RISK_OFF_TP_ATR_MULT", base_tp_mult))
+        t_exit = getattr(cfg, "RISK_OFF_TIME_EXIT_HOURS", base_time_hours)
+
+    if t_exit is None:
+        time_hours = None
+    else:
+        try:
+            time_hours = float(t_exit)
+        except Exception:
+            time_hours = base_time_hours
+
+    return float(sl_mult), float(tp_mult), time_hours
+
+
 def _dyn_size_multiplier(prob: float, hist_4h: float, cfg) -> float:
     base = 1.0
     if getattr(cfg, "META_SIZING_ENABLED", False):
@@ -826,13 +862,17 @@ def _simulate_long_with_partials_trail(
     avwap_anchor_ts: pd.Timestamp | None = None,
     sl_mult_override: float | None = None,
     tp_mult_override: float | None = None,
+    time_hours_override: float | None = None,
+    exit_on_regime_flip: bool = False,
+    regime_flip_grace_bars: int = 1,
+    regime_gate=None,
     av_sl_mult_override: float | None = None,
     av_tp_mult_override: float | None = None,
 ) -> dict | None:
     
     # --- config
     fee_rate   = float(getattr(cfg, "FEE_RATE", 0.00055))
-    time_hours = getattr(cfg, "TIME_EXIT_HOURS", None)
+    time_hours = time_hours_override if time_hours_override is not None else getattr(cfg, "TIME_EXIT_HOURS", None)
     
     # Spread config
     use_spread = getattr(cfg, "SIMULATE_SPREAD_ENABLED", False)
@@ -959,7 +999,7 @@ def _simulate_long_with_partials_trail(
 
     deadline = entry_ts + pd.Timedelta(hours=float(time_hours)) if time_hours is not None else None
 
-    for ts, row in walk.iterrows():
+    for bar_i, (ts, row) in enumerate(walk.iterrows(), start=1):
         o, h, l, c = map(float, (row["open"], row["high"], row["low"], row["close"]))
         
         # Simulate Bid/Ask for checks
@@ -1020,6 +1060,16 @@ def _simulate_long_with_partials_trail(
         if "trail" in levels and bid_low <= levels["trail"]:
             t_exit, px_exit, reason = ts, levels["trail"], "trail"
             break
+
+        # Optional regime-flip protective exit (checked after intrabar SL/TP/trail checks).
+        if exit_on_regime_flip and regime_gate is not None and bar_i >= max(1, int(regime_flip_grace_bars)):
+            try:
+                if not bool(regime_gate.is_up(ts)):
+                    t_exit, px_exit, reason = ts, c * (1 - spread_pct / 2), "regime_flip"
+                    break
+            except Exception:
+                # Do not fail a simulation because regime lookup is unavailable for one bar.
+                pass
 
         # Time Exit
         if deadline is not None and ts >= deadline:
@@ -2651,6 +2701,17 @@ class Backtester:
             tp_mult_scale, sl_mult_scale = _dyn_exit_multipliers(s, cfg)
             sl_override = float(getattr(cfg, "SL_ATR_MULT", 2.0)) * sl_mult_scale
             tp_override = float(getattr(cfg, "TP_ATR_MULT", 8.0)) * tp_mult_scale
+            time_exit_override = getattr(cfg, "TIME_EXIT_HOURS", None)
+
+            # Optional regime-conditioned exits: separate SL/TP/time for risk_on vs risk_off.
+            sl_override, tp_override, time_exit_override = _regime_exit_overrides(
+                risk_on=int(risk_on),
+                base_sl_mult=float(sl_override),
+                base_tp_mult=float(tp_override),
+                base_time_hours=time_exit_override,
+                cfg=cfg,
+            )
+
             av_sl_override = float(getattr(cfg, "AVWAP_SL_MULT", 2.0)) * sl_mult_scale
             av_tp_override = float(getattr(cfg, "AVWAP_TP_MULT", 8.0)) * tp_mult_scale
 
@@ -2696,6 +2757,10 @@ class Backtester:
                 avwap_anchor_ts=anchor_ts,
                 sl_mult_override=sl_override,
                 tp_mult_override=tp_override,
+                time_hours_override=time_exit_override,
+                exit_on_regime_flip=bool(getattr(cfg, "EXIT_ON_REGIME_FLIP", False)),
+                regime_flip_grace_bars=int(getattr(cfg, "EXIT_ON_REGIME_FLIP_GRACE_BARS", 1)),
+                regime_gate=self.regime,
                 av_sl_mult_override=av_sl_override,
                 av_tp_mult_override=av_tp_override,
             )

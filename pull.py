@@ -344,10 +344,14 @@ def pull_symbol(symbol: str, interval: str, out_dir: Path) -> str:
                          .sort_values("funding_ts")
                          .reset_index(drop=True))
                 # As-of merge: each 5m bar gets last known funding rate (settlement) up to that time
-                df = pd.merge_asof(df.sort_values("open_time"),
-                                   fdf.sort_values("funding_ts"),
-                                   left_on="open_time", right_on="funding_ts",
-                                   direction="backward")
+                df = pd.merge_asof(
+                    df.sort_values("open_time"),
+                    fdf.sort_values("funding_ts"),
+                    left_on="open_time",
+                    right_on="funding_ts",
+                    direction="backward",
+                    allow_exact_matches=True,
+                )
                 df.drop(columns=["funding_ts"], inplace=True)
 
         # Re-write CSV with enriched columns (preserve base order)

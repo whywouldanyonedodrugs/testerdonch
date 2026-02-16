@@ -6,6 +6,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -14,6 +15,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+from telegram_notify import TelegramNotifier
 
 try:
     import pyarrow as pa  # type: ignore
@@ -54,6 +56,10 @@ def args() -> argparse.Namespace:
     p.add_argument("--smoke-n", type=int, default=500, help="Run a smoke backtest on first N signals (0 disables).")
 
     p.add_argument("--run-id", type=str, default="", help="Default: UTC timestamp.")
+    p.add_argument("--tg-bot-token", default="")
+    p.add_argument("--tg-chat-id", default="")
+    p.add_argument("--tg-auto-chat", action=argparse.BooleanOptionalAction, default=True)
+    p.add_argument("--notify-every-variants", type=int, default=8)
     return p.parse_args()
 
 
@@ -461,6 +467,8 @@ def main() -> int:
     signals_dir, parquet_dir, results_dir, _meta_model_dir = resolve_paths(cfg)
 
     rid = utc_run_id(a.run_id)
+    notifier = TelegramNotifier.from_args(a, run_label=f"sweepv2:{rid}")
+    print(f"[sweepv2] telegram notify: {notifier.status_line()}", flush=True)
     sweep_root = (results_dir / "policy_sweeps" / rid).resolve()
     sweep_root.mkdir(parents=True, exist_ok=True)
 
@@ -517,6 +525,14 @@ def main() -> int:
 
     # Grid
     gps = grid(a.pstar)
+    notifier.send(
+        "STARTED",
+        body=(
+            f"run_id={rid}\nstart={a.start} end={end}\n"
+            f"signals_rows={len(sig)} symbols={int(sig['symbol'].nunique()) if 'symbol' in sig.columns else 0}\n"
+            f"variants={len(gps)} jobs={max(int(a.jobs),1)} pstar={float(a.pstar):.4f}"
+        ),
+    )
 
     def run_one(gp: GridPoint) -> Dict[str, Any]:
         run_dir = sweep_root / gp.name
@@ -574,7 +590,26 @@ def main() -> int:
             (run_dir / "_DONE.json").write_text(json.dumps({"returncode": rc}, indent=2), encoding="utf-8")
             return {"setting": gp.name, "status": "error", "returncode": rc}
 
-        met = compute_metrics(run_dir, a.lam, a.mu)
+        try:
+            met = compute_metrics(run_dir, a.lam, a.mu)
+        except RuntimeError as exc:
+            if "No trades file found under" in str(exc):
+                met = {
+                    "trades_file": str(run_dir / "trades.csv"),
+                    "pnl_col": "pnl",
+                    "total_pnl": 0.0,
+                    "max_drawdown": 0.0,
+                    "number_of_trades": 0,
+                    "win_rate": float("nan"),
+                    "tail_loss_p05": float("nan"),
+                    "pnl_risk_on": float("nan"),
+                    "pnl_risk_off": float("nan"),
+                    "bad_regime_damage": float("nan"),
+                    "utility": float("-inf"),
+                    "empty_reason": "no_trades_file_no_executions",
+                }
+            else:
+                raise
         met["setting"] = gp.name
         met["status"] = "ok"
         (run_dir / "metrics.json").write_text(json.dumps(met, indent=2, sort_keys=True), encoding="utf-8")
@@ -583,15 +618,38 @@ def main() -> int:
 
     results: List[Dict[str, Any]] = []
     jobs = max(int(a.jobs), 1)
+    done = 0
+    n_total = len(gps)
+    notify_every = max(1, int(a.notify_every_variants))
+    t0 = time.time()
+
+    def _on_result(row: Dict[str, Any]) -> None:
+        nonlocal done
+        results.append(row)
+        done += 1
+        if done % notify_every == 0 or done == n_total:
+            ok = sum(1 for r in results if str(r.get("status", "")).lower() == "ok")
+            err = done - ok
+            elapsed_min = max((time.time() - t0) / 60.0, 1e-9)
+            rate = done / elapsed_min
+            eta_min = (n_total - done) / rate if rate > 0 else float("nan")
+            notifier.send(
+                "PROGRESS",
+                body=(
+                    f"run_id={rid}\ndone={done}/{n_total} ok={ok} err={err}\n"
+                    f"elapsed_min={elapsed_min:.1f}\n"
+                    f"eta_min={(f'{eta_min:.1f}' if np.isfinite(eta_min) else 'n/a')}"
+                ),
+            )
 
     if jobs == 1:
         for gp in gps:
-            results.append(run_one(gp))
+            _on_result(run_one(gp))
     else:
         with ThreadPoolExecutor(max_workers=jobs) as ex:
             futs = [ex.submit(run_one, gp) for gp in gps]
             for fut in as_completed(futs):
-                results.append(fut.result())
+                _on_result(fut.result())
 
     df = pd.DataFrame(results)
     df.to_csv(sweep_root / "summary.csv", index=False)
@@ -615,6 +673,20 @@ def main() -> int:
     show = df_ok[["setting","utility","pnl_risk_on","pnl_risk_off","bad_regime_damage","max_drawdown","number_of_trades","win_rate"]].head(15)
     lines.append(show.to_markdown(index=False))
     (sweep_root / "report.md").write_text("\n".join(lines), encoding="utf-8")
+
+    n_ok = int((df.get("status", pd.Series(dtype=str)).astype(str) == "ok").sum()) if "status" in df.columns else 0
+    n_err = int(len(df) - n_ok)
+    if n_err > 0:
+        notifier.send(
+            "WARN",
+            body=f"run_id={rid}\nstatus=partial\nok={n_ok}/{len(gps)}\nsummary={sweep_root / 'summary.csv'}",
+        )
+    else:
+        best = str(top.iloc[0]["setting"]) if len(top) else "n/a"
+        notifier.send(
+            "DONE",
+            body=f"run_id={rid}\nstatus=ok\nok={n_ok}/{len(gps)}\nbest={best}\nsummary={sweep_root / 'summary.csv'}",
+        )
 
     print(str(sweep_root))
     return 0

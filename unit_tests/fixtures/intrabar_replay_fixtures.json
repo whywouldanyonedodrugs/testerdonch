@@ -1,0 +1,144 @@
+{
+  "version": "v1",
+  "description": "Deterministic fixtures for 1m first-touch replay parity.",
+  "cases": [
+    {
+      "case_id": "long_sl_first",
+      "side": "long",
+      "start_ts": "2026-01-01T00:00:00Z",
+      "end_ts": "2026-01-01T00:05:00Z",
+      "stop_price": 98.0,
+      "take_price": 102.0,
+      "bars_1m": [
+        { "ts": "2026-01-01T00:01:00Z", "open": 100.0, "high": 101.0, "low": 97.5, "close": 99.0 },
+        { "ts": "2026-01-01T00:02:00Z", "open": 99.0, "high": 103.0, "low": 98.5, "close": 102.0 }
+      ],
+      "expected": {
+        "default": { "hit": "sl", "hit_ts": "2026-01-01T00:01:00+00:00" }
+      }
+    },
+    {
+      "case_id": "long_tp_first",
+      "side": "long",
+      "start_ts": "2026-01-01T00:00:00Z",
+      "end_ts": "2026-01-01T00:05:00Z",
+      "stop_price": 98.0,
+      "take_price": 102.0,
+      "bars_1m": [
+        { "ts": "2026-01-01T00:01:00Z", "open": 100.0, "high": 102.5, "low": 99.0, "close": 102.2 },
+        { "ts": "2026-01-01T00:02:00Z", "open": 102.2, "high": 102.4, "low": 97.8, "close": 98.1 }
+      ],
+      "expected": {
+        "default": { "hit": "tp", "hit_ts": "2026-01-01T00:01:00+00:00" }
+      }
+    },
+    {
+      "case_id": "long_same_minute_both_touch",
+      "side": "long",
+      "start_ts": "2026-01-01T00:00:00Z",
+      "end_ts": "2026-01-01T00:05:00Z",
+      "stop_price": 98.0,
+      "take_price": 102.0,
+      "tie_breakers": ["sl_wins", "tp_wins"],
+      "bars_1m": [
+        { "ts": "2026-01-01T00:01:00Z", "open": 100.0, "high": 103.0, "low": 97.0, "close": 101.0 }
+      ],
+      "expected": {
+        "sl_wins": { "hit": "sl", "hit_ts": "2026-01-01T00:01:00+00:00" },
+        "tp_wins": { "hit": "tp", "hit_ts": "2026-01-01T00:01:00+00:00" }
+      }
+    },
+    {
+      "case_id": "long_no_touch",
+      "side": "long",
+      "start_ts": "2026-01-01T00:00:00Z",
+      "end_ts": "2026-01-01T00:05:00Z",
+      "stop_price": 98.0,
+      "take_price": 102.0,
+      "bars_1m": [
+        { "ts": "2026-01-01T00:01:00Z", "open": 100.0, "high": 101.0, "low": 99.0, "close": 100.5 },
+        { "ts": "2026-01-01T00:02:00Z", "open": 100.5, "high": 101.5, "low": 98.2, "close": 99.1 }
+      ],
+      "expected": {
+        "default": { "hit": null, "hit_ts": null }
+      }
+    },
+    {
+      "case_id": "long_start_boundary_exclusive",
+      "side": "long",
+      "start_ts": "2026-01-01T00:00:00Z",
+      "end_ts": "2026-01-01T00:05:00Z",
+      "stop_price": 98.0,
+      "take_price": 102.0,
+      "bars_1m": [
+        { "ts": "2026-01-01T00:00:00Z", "open": 100.0, "high": 103.0, "low": 97.0, "close": 100.0 },
+        { "ts": "2026-01-01T00:01:00Z", "open": 100.0, "high": 101.0, "low": 99.0, "close": 100.0 }
+      ],
+      "expected": {
+        "default": { "hit": null, "hit_ts": null }
+      }
+    },
+    {
+      "case_id": "long_end_boundary_inclusive",
+      "side": "long",
+      "start_ts": "2026-01-01T00:00:00Z",
+      "end_ts": "2026-01-01T00:05:00Z",
+      "stop_price": 98.0,
+      "take_price": 102.0,
+      "bars_1m": [
+        { "ts": "2026-01-01T00:01:00Z", "open": 100.0, "high": 101.0, "low": 99.0, "close": 100.0 },
+        { "ts": "2026-01-01T00:05:00Z", "open": 100.0, "high": 102.6, "low": 99.5, "close": 102.2 }
+      ],
+      "expected": {
+        "default": { "hit": "tp", "hit_ts": "2026-01-01T00:05:00+00:00" }
+      }
+    },
+    {
+      "case_id": "short_tp_first",
+      "side": "short",
+      "start_ts": "2026-01-01T00:00:00Z",
+      "end_ts": "2026-01-01T00:05:00Z",
+      "stop_price": 102.0,
+      "take_price": 98.0,
+      "bars_1m": [
+        { "ts": "2026-01-01T00:01:00Z", "open": 100.0, "high": 100.8, "low": 97.2, "close": 98.0 },
+        { "ts": "2026-01-01T00:02:00Z", "open": 98.0, "high": 103.1, "low": 98.0, "close": 102.7 }
+      ],
+      "expected": {
+        "default": { "hit": "tp", "hit_ts": "2026-01-01T00:01:00+00:00" }
+      }
+    },
+    {
+      "case_id": "short_sl_first",
+      "side": "short",
+      "start_ts": "2026-01-01T00:00:00Z",
+      "end_ts": "2026-01-01T00:05:00Z",
+      "stop_price": 102.0,
+      "take_price": 98.0,
+      "bars_1m": [
+        { "ts": "2026-01-01T00:01:00Z", "open": 100.0, "high": 103.2, "low": 99.4, "close": 102.0 },
+        { "ts": "2026-01-01T00:02:00Z", "open": 102.0, "high": 102.1, "low": 97.3, "close": 98.1 }
+      ],
+      "expected": {
+        "default": { "hit": "sl", "hit_ts": "2026-01-01T00:01:00+00:00" }
+      }
+    },
+    {
+      "case_id": "short_same_minute_both_touch",
+      "side": "short",
+      "start_ts": "2026-01-01T00:00:00Z",
+      "end_ts": "2026-01-01T00:05:00Z",
+      "stop_price": 102.0,
+      "take_price": 98.0,
+      "tie_breakers": ["sl_wins", "tp_wins"],
+      "bars_1m": [
+        { "ts": "2026-01-01T00:01:00Z", "open": 100.0, "high": 103.2, "low": 97.0, "close": 99.0 }
+      ],
+      "expected": {
+        "sl_wins": { "hit": "sl", "hit_ts": "2026-01-01T00:01:00+00:00" },
+        "tp_wins": { "hit": "tp", "hit_ts": "2026-01-01T00:01:00+00:00" }
+      }
+    }
+  ]
+}
+

@@ -31,9 +31,9 @@ MAX_OPEN_POSITIONS: int = 9999
 
 # --- Relative strength (weekly)
 RS_ENABLED: bool = True
-RS_MIN_PERCENTILE: int = 70       # tighten by default (top 5%)
+RS_MIN_PERCENTILE: int = 0       # tighten by default (top 5%)
 RS_REBALANCE_ANCHOR_WEEKDAY: int = 0
-RS_LIQ_MIN_USD_24H: float = 100000.0  # filter illiquid names
+RS_LIQ_MIN_USD_24H: float = 0.0  # filter illiquid names
 MICRO_VOL_MIN = 0.0001
 
 # --- Donchian configuration (NEW)
@@ -97,6 +97,19 @@ DYN_TP_MULT_POS: float = 1.15
 DYN_SL_MULT_POS: float = 0.90
 DYN_TP_MULT_NEG: float = 0.85
 DYN_SL_MULT_NEG: float = 1.15
+# Optional immediate protective exit if regime flips down after entry.
+EXIT_ON_REGIME_FLIP: bool = False
+EXIT_ON_REGIME_FLIP_GRACE_BARS: int = 1
+
+# ===== Regime-conditioned exits (risk_on vs risk_off) =====
+# Disabled by default. When enabled, these override effective SL/TP/time-exit by risk_on state.
+REGIME_COND_EXITS_ENABLED: bool = False
+RISK_ON_SL_ATR_MULT: float = 2.0
+RISK_ON_TP_ATR_MULT: float = 8.0
+RISK_ON_TIME_EXIT_HOURS: float | None = 72
+RISK_OFF_SL_ATR_MULT: float = 1.5
+RISK_OFF_TP_ATR_MULT: float = 4.0
+RISK_OFF_TIME_EXIT_HOURS: float | None = 48
 
 # --- Partial/Trail (optional)
 PARTIAL_TP_ENABLED: bool = False
@@ -270,4 +283,3 @@ REGIME_SLOPE_FILTER_ENABLED: bool = False   # turn this ON to gate by slope
 REGIME_SLOPE_MIN: float = 0.0             # require macd_hist_slope >= this at entry
 
 META_STRICT_SCHEMA = True
-

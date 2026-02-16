@@ -77,7 +77,14 @@ def _merge_asof(left: pd.DataFrame, right: pd.DataFrame, left_on: str, right_ind
     if right_index:
         r = right.sort_index().copy()
         r = r.reset_index().rename(columns={"timestamp": "_ts"})
-        out = pd.merge_asof(l, r, left_on=left_on, right_on="_ts", direction="backward")
+        out = pd.merge_asof(
+            l,
+            r,
+            left_on=left_on,
+            right_on="_ts",
+            direction="backward",
+            allow_exact_matches=True,
+        )
         out = out.drop(columns=["_ts"])
         return out
     else:

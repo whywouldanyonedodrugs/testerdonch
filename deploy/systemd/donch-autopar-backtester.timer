@@ -1,0 +1,12 @@
+[Unit]
+Description=Run Donch Autopar Backtester Daily
+
+[Timer]
+# Live side timer is 00:20 UTC; run backtester shortly after.
+OnCalendar=*-*-* 00:35:00 UTC
+Persistent=true
+RandomizedDelaySec=60
+Unit=donch-autopar-backtester.service
+
+[Install]
+WantedBy=timers.target

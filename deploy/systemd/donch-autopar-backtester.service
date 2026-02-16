@@ -1,0 +1,18 @@
+[Unit]
+Description=Donch Autopar Backtester Daily Sync + Parity
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/opt/testerdonch
+EnvironmentFile=-/etc/default/donch-autopar-backtester
+ExecStart=/opt/testerdonch/.venv/bin/python /opt/testerdonch/tools/donch_autopar_pull_and_run.py --remote-src root@167.235.64.82:/srv/donch-autopar/ --sync-dir /data/autopar --results-root /opt/testerdonch/results/donch_autopar --parquet-dir /opt/fader2/parquet --model-dir /opt/testerdonch/results/offline_releases/20260209_meta_release_v2_live_safe/meta_export_pstar_042 --window-days 3 --scout-workers 2 --max-new-packages 3 --resume --tg-auto-chat
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+
+[Install]
+WantedBy=multi-user.target
