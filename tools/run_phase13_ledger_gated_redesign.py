@@ -903,18 +903,20 @@ def main() -> int:
     )
 
     official_challenger = "none_yet"
+    official_status = "none_yet"
     if not replay_df.empty:
         replay_df = replay_df.sort_values("delta_net_pnl_vs_r0", ascending=False).reset_index(drop=True)
         top = replay_df.iloc[0]
         if float(top["delta_net_pnl_vs_r0"]) > 0 and float(top["upside_deletion_ratio"]) <= gates["max_total_upside_deletion_ratio"]:
             official_challenger = str(top["candidate"])
+            official_status = "challenger_selected_for_additional_replay_only"
 
     (REPORTS / "PHASE13_OFFICIAL_CHALLENGER_DECISION_v1.md").write_text(
         "\n".join(
             [
                 "# PHASE13 Official Challenger Decision v1",
                 "",
-                f"decision: `{official_challenger if official_challenger != 'none_yet' else 'none_yet'}`",
+                f"decision_status: `{official_status}`",
                 "",
                 "Allowed statuses:",
                 "- `none_yet`",
@@ -922,7 +924,7 @@ def main() -> int:
                 "- `challenger_selected_for_additional_replay_only`",
                 "",
                 (
-                    f"selected: `{official_challenger}`"
+                    f"selected_challenger: `{official_challenger}`"
                     if official_challenger != "none_yet"
                     else "No candidate cleared Stage-1 + full replay + upside-deletion requirements."
                 ),
