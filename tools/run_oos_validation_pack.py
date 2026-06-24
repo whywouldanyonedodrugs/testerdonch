@@ -86,7 +86,7 @@ def _parse_args() -> argparse.Namespace:
     )
     p.add_argument("--run-id", default="", help="Sweep-like run id under results/policy_sweeps.")
     p.add_argument("--results-dir", default="results")
-    p.add_argument("--parquet-dir", default="/opt/fader2/parquet")
+    p.add_argument("--parquet-dir", default="/opt/parquet/5m")
     p.add_argument("--parquet-1m-dir", default="")
     p.add_argument("--model-dir", default="results/offline_releases/20260209_meta_release_v1/meta_export_pstar_042")
     p.add_argument("--start", default="2025-11-16")

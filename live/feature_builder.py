@@ -66,10 +66,8 @@ class FeatureBuilder:
         vol_mult_s = df5["volume"] / vol_med.replace(0.0, np.nan)
         out["vol_mult"] = float(vol_mult_s.loc[decision_ts])
 
-        # --- 3) Days Since Prev Break (Left/Left daily highs) ---
-        daily_high = df5["high"].resample("1D", label="left", closed="left").max().dropna()
-        don_daily = daily_high.rolling(self.don_days, min_periods=self.don_days).max().shift(1)
-        don_5m = don_daily.reindex(df5.index, method="ffill")
+        # --- 3) Days Since Prev Break (completed daily Donchian only) ---
+        don_5m = pd.Series(donchian_upper_days_no_lookahead(df5["high"], self.don_days), index=df5.index)
 
         touch = df5["high"] >= don_5m
         touch_upto = touch.loc[:decision_ts]

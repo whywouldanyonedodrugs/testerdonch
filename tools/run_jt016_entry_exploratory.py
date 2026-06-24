@@ -20,9 +20,12 @@ from run_jt014_regime_conditioned_exits import _compute_variant_metrics  # type:
 from sweep_policy_settings_v2 import (  # type: ignore
     import_cfg,
     latest_from_signals,
+    load_scoped_signals,
     resolve_paths,
     run_backtest_subprocess,
+    write_signals_file,
 )
+from adverse_research_helpers import filter_df_by_windows, load_windows_file
 from telegram_notify import TelegramNotifier
 
 
@@ -99,6 +102,108 @@ def _safe_float(x: object, default: float = float("nan")) -> float:
     if not np.isfinite(v):
         return float(default)
     return float(v)
+
+
+def _load_signals_with_symbol(signals_dir: Path, start: str, end: str) -> pd.DataFrame:
+    """
+    Load scoped signals and guarantee a physical `symbol` column.
+    Falls back to hive partition parsing when needed.
+    """
+    try:
+        df = load_scoped_signals(signals_dir, start, end)
+        if "symbol" in df.columns:
+            return df
+    except Exception:
+        df = pd.DataFrame()
+
+    parts = sorted(signals_dir.glob("symbol=*/*.parquet"))
+    if not parts:
+        raise RuntimeError(
+            "Signals appear to be missing a physical 'symbol' column, and no hive partition "
+            f"dirs like {signals_dir}/symbol=XYZ were found."
+        )
+
+    chunks: List[pd.DataFrame] = []
+    for fp in parts:
+        try:
+            sub = pd.read_parquet(fp)
+        except Exception:
+            continue
+        if sub.empty:
+            continue
+        sym = fp.parent.name.split("=", 1)[1].strip().upper() if "=" in fp.parent.name else ""
+        if "symbol" not in sub.columns:
+            sub["symbol"] = sym
+        else:
+            sub["symbol"] = sub["symbol"].astype(str).str.upper().fillna(sym)
+        chunks.append(sub)
+
+    if not chunks:
+        raise RuntimeError("No readable partition parquet files were found in seed signals directory.")
+
+    out = pd.concat(chunks, ignore_index=True)
+    if "timestamp" not in out.columns:
+        raise RuntimeError("Signals are missing required 'timestamp' column.")
+    out["timestamp"] = pd.to_datetime(out["timestamp"], utc=True, errors="coerce")
+    out = out.dropna(subset=["timestamp", "symbol"]).copy()
+
+    st = pd.Timestamp(start, tz="UTC")
+    en = pd.Timestamp(end, tz="UTC")
+    out = out[(out["timestamp"] >= st) & (out["timestamp"] <= en)].copy()
+    return out
+
+
+def _empty_metrics_payload(reason: str) -> Dict[str, Any]:
+    return {
+        "status": "ok",
+        "reason": reason,
+        "number_of_trades": 0,
+        "total_pnl_cash": 0.0,
+        "total_pnl_R": 0.0,
+        "win_rate": float("nan"),
+        "profit_factor": float("nan"),
+        "max_dd_pct": float("nan"),
+        "sharpe_daily": float("nan"),
+        "sortino_daily": float("nan"),
+        "calmar": float("nan"),
+        "overall_worst_window_mean_pnl_R": float("nan"),
+        "overall_worst_month_mean_pnl_R": float("nan"),
+        "overall_positive_month_ratio": float("nan"),
+        "risk_off_n_trades": 0,
+        "risk_off_total_pnl_cash": 0.0,
+        "risk_off_total_pnl_R": 0.0,
+        "risk_off_worst_window_mean_pnl_R": float("nan"),
+        "risk_off_worst_month_mean_pnl_R": float("nan"),
+        "risk_off_positive_month_ratio": float("nan"),
+        "risk_off_downside_deviation_R": float("nan"),
+        "risk_off_drawdown_tail_p05_R": float("nan"),
+        "risk_off_max_dd_R": float("nan"),
+    }
+
+
+def _meta_mode_overrides(meta_mode: str, meta_threshold: Optional[float]) -> Dict[str, Any]:
+    mm = str(meta_mode).strip().lower()
+    if mm == "off":
+        return {
+            "BT_META_ONLINE_ENABLED": False,
+            "META_SIZING_ENABLED": False,
+            "META_PROB_THRESHOLD": None,
+        }
+    if mm == "size_only":
+        return {
+            "BT_META_ONLINE_ENABLED": True,
+            "META_SIZING_ENABLED": True,
+            "META_PROB_THRESHOLD": None,
+        }
+    if mm == "full":
+        out = {
+            "BT_META_ONLINE_ENABLED": True,
+            "META_SIZING_ENABLED": True,
+        }
+        if meta_threshold is not None:
+            out["META_PROB_THRESHOLD"] = float(meta_threshold)
+        return out
+    raise ValueError(f"unsupported meta_mode: {meta_mode!r}")
 
 
 @dataclass(frozen=True)
@@ -276,6 +381,14 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--initial-capital", type=float, default=2000.0)
     p.add_argument("--scout-workers", type=int, default=2)
     p.add_argument("--variant-retries", type=int, default=1)
+    p.add_argument("--meta-mode", choices=["off", "size_only", "full"], default="off")
+    p.add_argument("--meta-threshold", type=float, default=None)
+    p.add_argument("--window-file", type=str, default="")
+    p.add_argument("--seed-signals-root", type=str, default="")
+    p.add_argument("--policy-neutral", action=argparse.BooleanOptionalAction, default=False)
+    p.add_argument("--policy-block-when-down", action=argparse.BooleanOptionalAction, default=None)
+    p.add_argument("--policy-size-when-down", type=float, default=None)
+    p.add_argument("--policy-probe-mult", type=float, default=None)
 
     p.add_argument("--jt011-top-k", type=int, default=3)
     p.add_argument("--python", type=str, default=sys.executable)
@@ -302,6 +415,15 @@ def main() -> int:
     if str(end).lower() == "latest":
         end = latest_from_signals(_signals_dir)
 
+    windows = []
+    if str(a.window_file).strip():
+        windows = load_windows_file(Path(str(a.window_file).strip()))
+        if not windows:
+            raise RuntimeError(f"window file parsed to zero windows: {a.window_file}")
+    seed_root = Path(str(a.seed_signals_root).strip()).resolve() if str(a.seed_signals_root).strip() else None
+    if seed_root is not None and (not seed_root.exists()):
+        raise FileNotFoundError(f"seed signals root not found: {seed_root}")
+
     grid = _build_grid(
         don_days_values=_parse_int_list(a.don_days_values),
         retest_eps_values=_parse_float_list(a.retest_eps_values),
@@ -317,7 +439,10 @@ def main() -> int:
         body=(
             f"run_id={rid}\nstart={a.start} end={end}\n"
             f"variants={len(grid)} scout_workers={int(a.scout_workers)}\n"
-            f"jt011_top_k={int(a.jt011_top_k)}"
+            f"jt011_top_k={int(a.jt011_top_k)}\n"
+            f"meta_mode={a.meta_mode} meta_threshold={a.meta_threshold}\n"
+            f"policy_neutral={bool(a.policy_neutral)} windows={len(windows)}\n"
+            f"seed_signals_root={(str(seed_root) if seed_root is not None else 'none')}"
         ),
     )
 
@@ -361,49 +486,109 @@ def main() -> int:
         attempts: List[Dict[str, Any]] = []
         for attempt in range(max_attempts):
             try:
-                if scout_dir.exists():
-                    shutil.rmtree(scout_dir, ignore_errors=True)
-                scout_dir.mkdir(parents=True, exist_ok=True)
+                seed_used = False
+                scout_input_dir = scout_dir
+                if seed_root is not None:
+                    cand = seed_root / gp.name / "signals"
+                    if (cand / "signals.parquet").exists() or any(cand.rglob("*.parquet")):
+                        seed_used = True
+                        scout_input_dir = cand
+
+                if not seed_used:
+                    if scout_dir.exists():
+                        shutil.rmtree(scout_dir, ignore_errors=True)
+                    scout_dir.mkdir(parents=True, exist_ok=True)
                 bt_dir.mkdir(parents=True, exist_ok=True)
 
-                scout_overrides = gp.scout_overrides(int(a.scout_workers))
-                scout_rc = _run_scout_subprocess(
-                    signals_dir=scout_dir,
-                    start=str(a.start),
-                    end=str(end),
-                    overrides=scout_overrides,
-                    log_path=vdir / f"scout.attempt_{attempt}.log",
-                )
-                if scout_rc != 0:
-                    attempts.append({"attempt": attempt, "stage": "scout", "returncode": int(scout_rc)})
-                    out["returncode"] = int(scout_rc)
-                    continue
+                if not seed_used:
+                    scout_overrides = gp.scout_overrides(int(a.scout_workers))
+                    scout_rc = _run_scout_subprocess(
+                        signals_dir=scout_dir,
+                        start=str(a.start),
+                        end=str(end),
+                        overrides=scout_overrides,
+                        log_path=vdir / f"scout.attempt_{attempt}.log",
+                    )
+                    if scout_rc != 0:
+                        attempts.append({"attempt": attempt, "stage": "scout", "returncode": int(scout_rc)})
+                        out["returncode"] = int(scout_rc)
+                        continue
+                else:
+                    attempts.append(
+                        {
+                            "attempt": attempt,
+                            "stage": "scout_seed",
+                            "returncode": 0,
+                            "seed_dir": str(scout_input_dir),
+                        }
+                    )
 
                 bt_overrides = {
                     "BT_PROGRESS_ENABLED": False,
                     "BT_DECISION_LOG_ENABLED": False,
                     "BT_META_REPLAY_ENABLED": False,
                     "USE_INTRABAR_1M": False,
+                    **_meta_mode_overrides(a.meta_mode, a.meta_threshold),
                 }
+                if bool(a.policy_neutral):
+                    bt_overrides.update(
+                        {
+                            "REGIME_BLOCK_WHEN_DOWN": False,
+                            "REGIME_SIZE_WHEN_DOWN": 1.0,
+                            "RISK_OFF_PROBE_MULT": 1.0,
+                        }
+                    )
+                if a.policy_block_when_down is not None:
+                    bt_overrides["REGIME_BLOCK_WHEN_DOWN"] = bool(a.policy_block_when_down)
+                if a.policy_size_when_down is not None:
+                    bt_overrides["REGIME_SIZE_WHEN_DOWN"] = float(a.policy_size_when_down)
+                if a.policy_probe_mult is not None:
+                    bt_overrides["RISK_OFF_PROBE_MULT"] = float(a.policy_probe_mult)
+
+                bt_signals_dir = scout_input_dir
+                scoped_n = None
+                if windows:
+                    scoped = _load_signals_with_symbol(scout_input_dir, str(a.start), str(end))
+                    scoped = filter_df_by_windows(scoped, windows, ts_col="timestamp")
+                    scoped_n = int(len(scoped))
+                    bt_signals_dir = write_signals_file(
+                        scoped,
+                        vdir / f"_bt_scoped_signals_attempt_{attempt}",
+                    )
                 rc_bt, _ = run_backtest_subprocess(
                     run_dir=bt_dir,
-                    signals_dir=scout_dir,
+                    signals_dir=bt_signals_dir,
                     start=str(a.start),
                     end=str(end),
                     overrides=bt_overrides,
                 )
-                attempts.append({"attempt": attempt, "stage": "backtest", "returncode": int(rc_bt)})
+                attempts.append(
+                    {
+                        "attempt": attempt,
+                        "stage": "backtest",
+                        "returncode": int(rc_bt),
+                        "scoped_signals_n": scoped_n,
+                        "signals_dir": str(bt_signals_dir),
+                        "meta_mode": str(a.meta_mode),
+                    }
+                )
                 out["returncode"] = int(rc_bt)
                 if int(rc_bt) != 0:
                     continue
 
-                met, windows = _compute_variant_metrics(
-                    run_dir=bt_dir,
-                    rolling_trades_window=int(a.rolling_trades_window),
-                    initial_capital=float(a.initial_capital),
-                )
-                if not windows.empty:
-                    windows.to_csv(vdir / "window_metrics.csv", index=False)
+                try:
+                    met, win_df = _compute_variant_metrics(
+                        run_dir=bt_dir,
+                        rolling_trades_window=int(a.rolling_trades_window),
+                        initial_capital=float(a.initial_capital),
+                    )
+                except RuntimeError as exc:
+                    if "No trades file found under" in str(exc):
+                        met, win_df = _empty_metrics_payload("no_trades_file_no_executions"), pd.DataFrame()
+                    else:
+                        raise
+                if not win_df.empty:
+                    win_df.to_csv(vdir / "window_metrics.csv", index=False)
 
                 met.update(
                     {
@@ -416,6 +601,10 @@ def main() -> int:
                         "pullback_window_hours": gp.pullback_window_hours,
                         "vol_multiple": gp.vol_multiple,
                         "rs_min_percentile": gp.rs_min_percentile,
+                        "meta_mode": str(a.meta_mode),
+                        "seed_signals_root": (str(seed_root) if seed_root is not None else None),
+                        "window_file": (str(a.window_file).strip() or None),
+                        "policy_neutral": bool(a.policy_neutral),
                         "attempts": attempts,
                     }
                 )

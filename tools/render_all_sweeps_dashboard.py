@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
@@ -37,6 +38,22 @@ def parse_args() -> argparse.Namespace:
         action=argparse.BooleanOptionalAction,
         default=True,
         help="Include run dirs even when summary.csv is missing.",
+    )
+    p.add_argument(
+        "--run-include-regex",
+        default="",
+        help="Optional regex: include only run_id values matching this pattern.",
+    )
+    p.add_argument(
+        "--run-exclude-regex",
+        default="",
+        help="Optional regex: exclude run_id values matching this pattern.",
+    )
+    p.add_argument(
+        "--min-ok-variants",
+        type=int,
+        default=0,
+        help="Optional filter: include only runs with at least this many status=ok variants.",
     )
     return p.parse_args()
 
@@ -106,7 +123,9 @@ def _variant_rows_from_metrics(run_dir: Path) -> List[Dict[str, Any]]:
 
 
 def _load_run_variants(run_dir: Path, lam: float, mu: float) -> pd.DataFrame:
-    summary = run_dir / "summary.csv"
+    summary_recomputed = run_dir / "summary.recomputed.csv"
+    summary = summary_recomputed if summary_recomputed.exists() else (run_dir / "summary.csv")
+    summary_source = summary.name if summary.exists() else ""
     if summary.exists():
         try:
             df = pd.read_csv(summary)
@@ -127,6 +146,12 @@ def _load_run_variants(run_dir: Path, lam: float, mu: float) -> pd.DataFrame:
     if "status" not in df.columns:
         df["status"] = "ok"
     df["status"] = df["status"].astype(str)
+    df["summary_source"] = summary_source
+
+    if "pnl_col" not in df.columns:
+        df["pnl_col"] = ""
+    df["pnl_col"] = df["pnl_col"].fillna("").astype(str)
+    df["total_pnl_unit"] = np.where(df["pnl_col"].str.lower().eq("pnl_r"), "R", "cash")
 
     # recompute utility when missing
     if "utility" not in df.columns:
@@ -191,14 +216,31 @@ def _run_enrich_counts(run_dir: Path) -> Tuple[int, int, int]:
     return ok, err, skipped
 
 
-def _scan_runs(root: Path, lam: float, mu: float, include_partial: bool) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def _scan_runs(
+    root: Path,
+    lam: float,
+    mu: float,
+    include_partial: bool,
+    run_include_regex: str = "",
+    run_exclude_regex: str = "",
+    min_ok_variants: int = 0,
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     all_variants: List[pd.DataFrame] = []
     run_rows: List[Dict[str, Any]] = []
+
+    include_pat = re.compile(run_include_regex) if str(run_include_regex).strip() else None
+    exclude_pat = re.compile(run_exclude_regex) if str(run_exclude_regex).strip() else None
 
     if not root.exists():
         raise FileNotFoundError(f"sweeps root not found: {root}")
 
     for run_dir in sorted([p for p in root.iterdir() if p.is_dir() and not p.name.startswith("_")]):
+        rid = run_dir.name
+        if include_pat is not None and not include_pat.search(rid):
+            continue
+        if exclude_pat is not None and exclude_pat.search(rid):
+            continue
+
         summary_exists = (run_dir / "summary.csv").exists()
         if (not include_partial) and (not summary_exists):
             continue
@@ -223,6 +265,8 @@ def _scan_runs(root: Path, lam: float, mu: float, include_partial: bool) -> Tupl
 
         ok_mask = df["status"].astype(str).str.lower().eq("ok")
         ok_df = df.loc[ok_mask].copy()
+        if int(min_ok_variants) > 0 and int(ok_mask.sum()) < int(min_ok_variants):
+            continue
 
         best_util_setting = ""
         best_util = float("nan")
@@ -244,6 +288,7 @@ def _scan_runs(root: Path, lam: float, mu: float, include_partial: bool) -> Tupl
                 "run_id": run_dir.name,
                 "run_ts": run_ts,
                 "summary_exists": bool(summary_exists),
+                "summary_source": str(df.get("summary_source", pd.Series([""])).iloc[0]) if len(df) else "",
                 "stage": stage,
                 "n_variants": int(len(df)),
                 "n_ok": int(ok_mask.sum()),
@@ -258,6 +303,11 @@ def _scan_runs(root: Path, lam: float, mu: float, include_partial: bool) -> Tupl
                 "median_max_drawdown": float(_to_num(ok_df.get("max_drawdown", pd.Series(dtype=float))).median())
                 if not ok_df.empty
                 else float("nan"),
+                "pnl_unit_mode": (
+                    ok_df["total_pnl_unit"].mode(dropna=True).iloc[0]
+                    if (not ok_df.empty and "total_pnl_unit" in ok_df.columns and not ok_df["total_pnl_unit"].mode(dropna=True).empty)
+                    else ""
+                ),
                 "probe_invariance_ratio": _probe_invariance_ratio(ok_df),
                 "enrich_ok": enrich_ok,
                 "enrich_error": enrich_err,
@@ -450,6 +500,8 @@ def _render_html(
     run_cols = [
         "run_id",
         "run_ts",
+        "pnl_unit_mode",
+        "summary_source",
         "n_variants",
         "n_ok",
         "n_error",
@@ -519,6 +571,7 @@ def _render_html(
   <h1>Policy Sweep Cross-Run Dashboard</h1>
   <div class="meta">Generated: {now} | Root: {sweeps_root}</div>
   <div class="small">Note: <code>run_id</code> is the folder name and may encode when the run started; use <code>run_ts</code> as the actual timestamp shown by this report.</div>
+  <div class="small"><strong>Important:</strong> <code>total_pnl</code> is interpreted in the run's <code>pnl_unit_mode</code> (cash or R). Do not compare cash and R directly.</div>
   <div class="cards">
     <div class="card"><div class="k">Runs scanned</div><div class="v">{n_runs}</div></div>
     <div class="card"><div class="k">Complete runs</div><div class="v">{n_complete}</div></div>
@@ -545,12 +598,12 @@ def _render_html(
 
   <div class="section">
     <h2>Top Variants By Utility (All Runs)</h2>
-    {_tbl(top_util[[c for c in ["run_id","run_ts","setting","utility","total_pnl","max_drawdown","number_of_trades","win_rate","tail_loss_p05","status"] if c in top_util.columns]])}
+    {_tbl(top_util[[c for c in ["run_id","run_ts","setting","total_pnl_unit","utility","total_pnl","max_drawdown","number_of_trades","win_rate","tail_loss_p05","status"] if c in top_util.columns]])}
   </div>
 
   <div class="section">
     <h2>Top Variants By Total PnL (All Runs)</h2>
-    {_tbl(top_pnl[[c for c in ["run_id","run_ts","setting","total_pnl","utility","max_drawdown","number_of_trades","win_rate","tail_loss_p05","status"] if c in top_pnl.columns]])}
+    {_tbl(top_pnl[[c for c in ["run_id","run_ts","setting","total_pnl_unit","total_pnl","utility","max_drawdown","number_of_trades","win_rate","tail_loss_p05","status"] if c in top_pnl.columns]])}
   </div>
 
   <div class="section">
@@ -589,7 +642,15 @@ def main() -> int:
     assets = outdir / "all_runs_assets"
     assets.mkdir(parents=True, exist_ok=True)
 
-    all_df, runs_df = _scan_runs(sweeps_root, lam=float(a.lam), mu=float(a.mu), include_partial=bool(a.include_partial))
+    all_df, runs_df = _scan_runs(
+        sweeps_root,
+        lam=float(a.lam),
+        mu=float(a.mu),
+        include_partial=bool(a.include_partial),
+        run_include_regex=str(a.run_include_regex),
+        run_exclude_regex=str(a.run_exclude_regex),
+        min_ok_variants=int(a.min_ok_variants),
+    )
     if all_df.empty or runs_df.empty:
         raise RuntimeError(f"No sweep data found under {sweeps_root}")
 

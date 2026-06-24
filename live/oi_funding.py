@@ -3,9 +3,11 @@ from __future__ import annotations
 from typing import Dict, Tuple
 import numpy as np
 import pandas as pd
+from indicators import align_series_point_in_time
 
 # 5-minute windows (training parity)
 WIN_1H, WIN_4H, WIN_1D, WIN_3D, WIN_7D = 12, 48, 288, 864, 2016
+FUNDING_PUBLISH_LAG = pd.Timedelta("5min")
 
 
 # -------------------- TZ helpers --------------------
@@ -61,8 +63,8 @@ def _as_df(items: list[dict], ts_key: str, val_key: str) -> pd.DataFrame:
 # -------------------- main fetch/alignment --------------------
 async def fetch_series_5m(exchange, symbol: str, lookback_oi_days: int = 7, lookback_fr_days: int = 7) -> Tuple[pd.Series, pd.Series]:
     """
-    Returns (oi_series_5m, funding_series_5m) aligned on a 5-minute UTC grid.
-    Funding is forward-filled to the 5m grid (training parity).
+    Returns sparse 5m-grid-aligned OI and funding series.
+    Point-in-time propagation is handled later when features are computed.
     """
     # Pull raw histories (helpers are on ExchangeProxy)
     oi_hist = await exchange.fetch_open_interest_history_5m(symbol, lookback_days=lookback_oi_days)
@@ -88,24 +90,39 @@ async def fetch_series_5m(exchange, symbol: str, lookback_oi_days: int = 7, look
     oi5 = oi_df.reindex(idx5)["openInterest"] if "openInterest" in oi_df.columns else pd.Series(index=idx5, dtype=float)
     fr5 = fr_df.reindex(idx5)["fundingRate"] if "fundingRate" in fr_df.columns else pd.Series(index=idx5, dtype=float)
 
-    # Funding is published discretely → forward-fill to 5m (matches training)
-    fr5 = fr5.ffill()
-
     return oi5, fr5
 
 
-# -------------------- feature computation (13 features) --------------------
-def compute_oi_funding_features(df5: pd.DataFrame, oi5: pd.Series, fr5: pd.Series, *, allow_nans: bool = True) -> Dict[str, float]:
+def compute_oi_funding_feature_panel(
+    df5: pd.DataFrame,
+    oi5: pd.Series,
+    fr5: pd.Series,
+    *,
+    funding_publish_lag: pd.Timedelta = FUNDING_PUBLISH_LAG,
+) -> pd.DataFrame:
     """
-    Compute the 13 OI+Funding features for the **last** bar of df5.
-    If allow_nans=False, replace missing with 0.0 to satisfy strict parity.
-    """
-    # Align to df5’s UTC 5m index
-    oi = oi5.reindex(df5.index)
-    fr = fr5.reindex(df5.index)
+    Compute the OI/Funding feature panel on `df5.index`.
 
-    close = df5["close"].astype(float)
-    volume = df5.get("volume", pd.Series(index=df5.index, dtype=float)).astype(float)
+    Contract:
+    - OI is available from its timestamp forward.
+    - Funding is treated as a discrete published event and is only available
+      from `timestamp + funding_publish_lag` forward.
+    - Nothing is prefilled before the first observed print.
+    """
+    base = df5.copy()
+    if not isinstance(base.index, pd.DatetimeIndex):
+        raise ValueError("df5 must be indexed by timestamps")
+    if base.index.tz is None:
+        base.index = base.index.tz_localize("UTC")
+    else:
+        base.index = base.index.tz_convert("UTC")
+    base = base.sort_index()
+
+    oi = align_series_point_in_time(base.index, oi5.astype(float))
+    fr = align_series_point_in_time(base.index, fr5.astype(float), availability_lag=funding_publish_lag)
+
+    close = base["close"].astype(float)
+    volume = base.get("volume", pd.Series(index=base.index, dtype=float)).astype(float)
 
     # 1-2) levels
     oi_level        = oi
@@ -141,20 +158,60 @@ def compute_oi_funding_features(df5: pd.DataFrame, oi5: pd.Series, fr5: pd.Serie
     funding_oi_div = funding_z_7d * oi_z_7d
 
     # Assemble last-bar snapshot
+    panel = pd.DataFrame(
+        {
+            "oi_level": oi_level,
+            "oi_notional_est": oi_notional_est,
+            "oi_pct_1h": oi_pct_1h,
+            "oi_pct_4h": oi_pct_4h,
+            "oi_pct_1d": oi_pct_1d,
+            "oi_z_7d": oi_z_7d,
+            "oi_chg_norm_vol_1h": oi_chg_norm_vol_1h,
+            "oi_price_div_1h": oi_price_div_1h,
+            "funding_rate": funding_rate,
+            "funding_abs": funding_abs,
+            "funding_z_7d": funding_z_7d,
+            "funding_rollsum_3d": funding_rollsum_3d,
+            "funding_oi_div": funding_oi_div,
+        },
+        index=base.index,
+    )
+    panel["crowded_long"] = ((panel["oi_z_7d"] >= 1.0) & (panel["funding_z_7d"] >= 1.0)).astype(float)
+    panel["crowded_short"] = ((panel["oi_z_7d"] >= 1.0) & (panel["funding_z_7d"] <= -1.0)).astype(float)
+    panel["crowd_side"] = 0.0
+    panel.loc[panel["crowded_long"] == 1.0, "crowd_side"] = 1.0
+    panel.loc[panel["crowded_short"] == 1.0, "crowd_side"] = -1.0
+    panel["est_leverage"] = oi_notional_est / (oi_notional_est.rolling(WIN_1D, min_periods=WIN_1H).mean() + 1e-9)
+    panel = panel.replace([np.inf, -np.inf], np.nan)
+    panel.index.name = "timestamp"
+    return panel
+
+
+# -------------------- feature computation (13 features) --------------------
+def compute_oi_funding_features(df5: pd.DataFrame, oi5: pd.Series, fr5: pd.Series, *, allow_nans: bool = True) -> Dict[str, float]:
+    """
+    Compute the OI+Funding feature snapshot for the **last** bar of df5.
+    If allow_nans=False, replace missing with 0.0 to satisfy strict parity.
+    """
+    panel = compute_oi_funding_feature_panel(df5, oi5, fr5)
     fields = {
-        "oi_level":            float(oi_level.iloc[-1]) if len(oi_level) else np.nan,
-        "oi_notional_est":     float(oi_notional_est.iloc[-1]) if len(oi_notional_est) else np.nan,
-        "oi_pct_1h":           float(oi_pct_1h.iloc[-1]) if len(oi_pct_1h) else np.nan,
-        "oi_pct_4h":           float(oi_pct_4h.iloc[-1]) if len(oi_pct_4h) else np.nan,
-        "oi_pct_1d":           float(oi_pct_1d.iloc[-1]) if len(oi_pct_1d) else np.nan,
-        "oi_z_7d":             float(oi_z_7d.iloc[-1]) if len(oi_z_7d) else np.nan,
-        "oi_chg_norm_vol_1h":  float(oi_chg_norm_vol_1h.iloc[-1]) if len(oi_chg_norm_vol_1h) else np.nan,
-        "oi_price_div_1h":     float(oi_price_div_1h.iloc[-1]) if len(oi_price_div_1h) else np.nan,
-        "funding_rate":        float(funding_rate.iloc[-1]) if len(funding_rate) else np.nan,
-        "funding_abs":         float(funding_abs.iloc[-1]) if len(funding_abs) else np.nan,
-        "funding_z_7d":        float(funding_z_7d.iloc[-1]) if len(funding_z_7d) else np.nan,
-        "funding_rollsum_3d":  float(funding_rollsum_3d.iloc[-1]) if len(funding_rollsum_3d) else np.nan,
-        "funding_oi_div":      float(funding_oi_div.iloc[-1]) if len(funding_oi_div) else np.nan,
+        "oi_level":            float(panel["oi_level"].iloc[-1]) if len(panel) else np.nan,
+        "oi_notional_est":     float(panel["oi_notional_est"].iloc[-1]) if len(panel) else np.nan,
+        "oi_pct_1h":           float(panel["oi_pct_1h"].iloc[-1]) if len(panel) else np.nan,
+        "oi_pct_4h":           float(panel["oi_pct_4h"].iloc[-1]) if len(panel) else np.nan,
+        "oi_pct_1d":           float(panel["oi_pct_1d"].iloc[-1]) if len(panel) else np.nan,
+        "oi_z_7d":             float(panel["oi_z_7d"].iloc[-1]) if len(panel) else np.nan,
+        "oi_chg_norm_vol_1h":  float(panel["oi_chg_norm_vol_1h"].iloc[-1]) if len(panel) else np.nan,
+        "oi_price_div_1h":     float(panel["oi_price_div_1h"].iloc[-1]) if len(panel) else np.nan,
+        "funding_rate":        float(panel["funding_rate"].iloc[-1]) if len(panel) else np.nan,
+        "funding_abs":         float(panel["funding_abs"].iloc[-1]) if len(panel) else np.nan,
+        "funding_z_7d":        float(panel["funding_z_7d"].iloc[-1]) if len(panel) else np.nan,
+        "funding_rollsum_3d":  float(panel["funding_rollsum_3d"].iloc[-1]) if len(panel) else np.nan,
+        "funding_oi_div":      float(panel["funding_oi_div"].iloc[-1]) if len(panel) else np.nan,
+        "crowded_long":        float(panel["crowded_long"].iloc[-1]) if len(panel) else np.nan,
+        "crowded_short":       float(panel["crowded_short"].iloc[-1]) if len(panel) else np.nan,
+        "crowd_side":          float(panel["crowd_side"].iloc[-1]) if len(panel) else np.nan,
+        "est_leverage":        float(panel["est_leverage"].iloc[-1]) if len(panel) else np.nan,
     }
 
     if not allow_nans:

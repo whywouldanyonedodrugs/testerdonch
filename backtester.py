@@ -17,9 +17,9 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 import config as cfg
-from indicators import resample_ohlcv, atr
+from indicators import resample_ohlcv, atr, map_to_left_index
 from bt_intrabar import resolve_first_touch_1m
-from shared_utils import load_parquet_data
+from shared_utils import load_parquet_data, resolve_intrabar_1m_path
 from fill_entry_quality_features import compute_entry_quality_panel
 
 from collections import OrderedDict, deque
@@ -534,6 +534,151 @@ def _dyn_size_multiplier(prob: float, hist_4h: float, cfg) -> float:
     return out
 
 
+def _derive_risk_on_state(
+    s: pd.Series,
+    *,
+    regime_up: bool,
+    btc_vol_hi: float,
+    cfg,
+) -> tuple[int, dict]:
+    """
+    Derive risk_on state from signal-time features only.
+    This is intentionally leak-safe: no future bars, no post-trade fields.
+    """
+    ru_raw = 1 if bool(regime_up) else 0
+
+    try:
+        btc_trend_slope = float(s.get("btcusdt_trend_slope", np.nan))
+    except Exception:
+        btc_trend_slope = np.nan
+    btc_trend_min = float(getattr(cfg, "RISK_ON_BTC_TREND_MIN", 0.0))
+    btc_trend_up = 1 if (np.isfinite(btc_trend_slope) and btc_trend_slope > btc_trend_min) else 0
+
+    try:
+        btc_vol_level = float(s.get("btcusdt_vol_regime_level", np.nan))
+    except Exception:
+        btc_vol_level = np.nan
+    vol_hi_mult = float(getattr(cfg, "RISK_ON_BTC_VOL_HI_MULT", 1.0))
+    vol_hi_eff = float(btc_vol_hi) * vol_hi_mult
+    btc_vol_high = 1 if (np.isfinite(btc_vol_level) and btc_vol_level >= vol_hi_eff) else 0
+    btc_vol_low = 1 - btc_vol_high
+
+    req_eth = bool(getattr(cfg, "RISK_ON_REQUIRE_ETH_REGIME", True))
+    req_trend = bool(getattr(cfg, "RISK_ON_REQUIRE_BTC_TREND", True))
+    req_vol_low = bool(getattr(cfg, "RISK_ON_REQUIRE_BTC_VOL_LOW", True))
+
+    comps: List[int] = []
+    if req_eth:
+        comps.append(ru_raw)
+    if req_trend:
+        comps.append(btc_trend_up)
+    if req_vol_low:
+        comps.append(btc_vol_low)
+
+    if len(comps) == 0:
+        # Degenerate case: no enabled components -> treat as pass-through regime_up.
+        ru = ru_raw
+        legacy_risk_on = ru_raw
+    else:
+        ru = ru_raw
+        min_fav = getattr(cfg, "RISK_ON_LEGACY_MIN_FAVORABLE", None)
+        if min_fav is None:
+            min_fav_i = len(comps)
+        else:
+            min_fav_i = int(min_fav)
+        min_fav_i = max(1, min(min_fav_i, len(comps)))
+        legacy_risk_on = 1 if int(sum(comps)) >= min_fav_i else 0
+
+    mode = str(getattr(cfg, "RISK_ON_RULE_MODE", "legacy")).strip().lower()
+    beta_min = float(getattr(cfg, "RISK_ON_SENT_BETA_MIN", 0.0))
+    comp_min = float(getattr(cfg, "RISK_ON_SENT_COMPOSITE_MIN", 0.0))
+    fz_min = float(getattr(cfg, "RISK_ON_SENT_FUNDING_Z_MIN", -1e9))
+    sent_fail_open = bool(getattr(cfg, "RISK_ON_SENT_FAIL_OPEN", False))
+
+    try:
+        sent_beta = float(s.get("sent_beta_risk_on", np.nan))
+    except Exception:
+        sent_beta = np.nan
+    try:
+        sent_r1d = float(s.get("sent_rets_1d_z", np.nan))
+    except Exception:
+        sent_r1d = np.nan
+    try:
+        sent_r1h = float(s.get("sent_rets_1h_z", np.nan))
+    except Exception:
+        sent_r1h = np.nan
+    try:
+        sent_fz = float(s.get("sent_funding_z_1d", np.nan))
+    except Exception:
+        sent_fz = np.nan
+
+    sent_ok = np.isfinite(sent_beta)
+    sent_comp = float("nan")
+    if np.isfinite(sent_beta) and np.isfinite(sent_r1d) and np.isfinite(sent_r1h) and np.isfinite(sent_fz):
+        # Favor broad positive momentum and less crowding stress.
+        sent_comp = (0.55 * sent_beta) + (0.25 * sent_r1d) + (0.10 * sent_r1h) - (0.10 * sent_fz)
+
+    sent_beta_on = 1 if (np.isfinite(sent_beta) and sent_beta >= beta_min) else 0
+    sent_comp_on = 1 if (np.isfinite(sent_comp) and sent_comp >= comp_min) else 0
+    sent_funding_on = 1 if (np.isfinite(sent_fz) and sent_fz >= fz_min) else 0
+
+    if mode == "legacy":
+        risk_on = legacy_risk_on
+    elif mode == "legacy_and_sent_beta":
+        if sent_ok:
+            risk_on = 1 if (legacy_risk_on == 1 and sent_beta_on == 1) else 0
+        else:
+            risk_on = legacy_risk_on if sent_fail_open else 0
+    elif mode == "legacy_and_sent_composite":
+        if np.isfinite(sent_comp):
+            risk_on = 1 if (legacy_risk_on == 1 and sent_comp_on == 1) else 0
+        else:
+            risk_on = legacy_risk_on if sent_fail_open else 0
+    elif mode == "legacy_and_sent_beta_funding":
+        if sent_ok and np.isfinite(sent_fz):
+            risk_on = 1 if (legacy_risk_on == 1 and sent_beta_on == 1 and sent_funding_on == 1) else 0
+        else:
+            risk_on = legacy_risk_on if sent_fail_open else 0
+    elif mode == "sent_beta_only":
+        if sent_ok:
+            risk_on = 1 if (ru == 1 and sent_beta_on == 1) else 0
+        else:
+            risk_on = 1 if (ru == 1 and sent_fail_open) else 0
+    elif mode == "sent_beta_funding_only":
+        if sent_ok and np.isfinite(sent_fz):
+            risk_on = 1 if (ru == 1 and sent_beta_on == 1 and sent_funding_on == 1) else 0
+        else:
+            risk_on = 1 if (ru == 1 and sent_fail_open) else 0
+    elif mode == "sent_composite_only":
+        if np.isfinite(sent_comp):
+            risk_on = 1 if (ru == 1 and sent_comp_on == 1) else 0
+        else:
+            risk_on = 1 if (ru == 1 and sent_fail_open) else 0
+    else:
+        risk_on = legacy_risk_on
+
+    diag = {
+        "rule_mode": mode,
+        "legacy_risk_on": legacy_risk_on,
+        "ru_raw": ru_raw,
+        "risk_on_require_eth_regime": int(req_eth),
+        "risk_on_require_btc_trend": int(req_trend),
+        "risk_on_require_btc_vol_low": int(req_vol_low),
+        "risk_on_legacy_min_favorable": int(min_fav_i) if len(comps) else np.nan,
+        "risk_on_btc_trend_min": btc_trend_min,
+        "risk_on_btc_vol_hi_eff": vol_hi_eff,
+        "btc_trend_up": btc_trend_up,
+        "btc_vol_high": btc_vol_high,
+        "btc_vol_low": btc_vol_low,
+        "sent_beta": sent_beta,
+        "sent_comp": sent_comp,
+        "sent_ok": int(bool(sent_ok)),
+        "sent_funding_z": sent_fz,
+        "sent_funding_on": sent_funding_on,
+    }
+    return int(risk_on), diag
+
+
 def _is_trade_week(ts: pd.Timestamp, pattern: str) -> bool:
     if not pattern or set(pattern) <= {"1"}:
         return True
@@ -604,6 +749,24 @@ class RegimeGate:
         hist_up = bool(row["hist"].iloc[0] > 0)
         both = bool(getattr(cfg, "REGIME_REQUIRE_BOTH_POSITIVE", True))
         return (macd_up and hist_up) if both else hist_up
+
+    def source_bounds(self, ts: pd.Timestamp) -> tuple[pd.Timestamp | None, pd.Timestamp | None]:
+        """
+        Return (source_bar_open_ts, source_bar_close_ts) for regime row selected as-of ts.
+        """
+        tf = str(getattr(cfg, "REGIME_TIMEFRAME", "4h"))
+        df = self._ensure_eth_tf(tf)
+        if df.empty:
+            return None, None
+        row = df.loc[:ts].iloc[-1:]
+        if row.empty:
+            return None, None
+        close_ts = pd.Timestamp(row.index[0])
+        try:
+            open_ts = close_ts - pd.Timedelta(tf)
+        except Exception:
+            open_ts = None
+        return open_ts, close_ts
 
     def get_hist_and_slope(self, ts: pd.Timestamp) -> tuple[float | None, float | None]:
         """
@@ -1222,6 +1385,10 @@ class Backtester:
 
         self.trades: List[Trade] = []
         self.equity_curve: List[Tuple[pd.Timestamp, float]] = []
+        # Realized PnL settlement queue keyed by exit timestamp.
+        # This prevents non-causal equity jumps when trades are simulated in entry order.
+        self._pending_realized_pnl: List[Tuple[int, int, float, pd.Timestamp]] = []
+        self._pending_realized_seq = count()
 
         # Per-signal decision log (for parity debugging)
         self._decision_log: List[Dict[str, object]] = []
@@ -1263,6 +1430,39 @@ class Backtester:
             return None, None
         row = df.loc[:ts].iloc[-1]
         return int(row["state_up"]), float(row["prob_up"])
+
+    def _queue_realized_pnl(self, exit_ts: Optional[pd.Timestamp], pnl_cash: float, fallback_ts: pd.Timestamp) -> None:
+        """Queue trade PnL for settlement at its realized exit timestamp."""
+        if not np.isfinite(pnl_cash):
+            return
+        settle_ts = pd.to_datetime(exit_ts if exit_ts is not None else fallback_ts, utc=True, errors="coerce")
+        if pd.isna(settle_ts):
+            settle_ts = pd.to_datetime(fallback_ts, utc=True, errors="coerce")
+        if pd.isna(settle_ts):
+            return
+        settle_ts = pd.Timestamp(settle_ts)
+        heapq.heappush(
+            self._pending_realized_pnl,
+            (int(settle_ts.value), next(self._pending_realized_seq), float(pnl_cash), settle_ts),
+        )
+
+    def _settle_equity_until(self, ts: pd.Timestamp) -> None:
+        """Apply queued realized PnL with exit_ts <= ts to equity and equity_curve."""
+        tsv = pd.to_datetime(ts, utc=True, errors="coerce")
+        if pd.isna(tsv):
+            return
+        ts_ns = int(pd.Timestamp(tsv).value)
+        while self._pending_realized_pnl and self._pending_realized_pnl[0][0] <= ts_ns:
+            _, _, pnl_cash, settle_ts = heapq.heappop(self._pending_realized_pnl)
+            self.equity += float(pnl_cash)
+            self.equity_curve.append((pd.Timestamp(settle_ts), float(self.equity)))
+
+    def _settle_all_equity(self) -> None:
+        """Flush all remaining realized PnL at end of run."""
+        while self._pending_realized_pnl:
+            _, _, pnl_cash, settle_ts = heapq.heappop(self._pending_realized_pnl)
+            self.equity += float(pnl_cash)
+            self.equity_curve.append((pd.Timestamp(settle_ts), float(self.equity)))
 
     # ----- Data caches -----
     def _maybe_downcast_ohlcv(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -1357,7 +1557,7 @@ class Backtester:
         if tf:
             dft = resample_ohlcv(df, str(tf))
             atr_tf = atr(dft, int(getattr(cfg, "ATR_LEN", 14)))
-            df["atr_pre"] = atr_tf.reindex(df.index, method="ffill")
+            df["atr_pre"] = map_to_left_index(df.index, atr_tf)
         else:
             df["atr_pre"] = atr(df, int(getattr(cfg, "ATR_LEN", 14)))
 
@@ -1733,8 +1933,8 @@ class Backtester:
         if cached is not None:
             return cached
 
-        p = cfg.PARQUET_1M_DIR / f"{sym}.parquet"
-        if not p.exists():
+        p = resolve_intrabar_1m_path(sym)
+        if p is None:
             return None
 
         df = pd.read_parquet(p)
@@ -2315,6 +2515,9 @@ class Backtester:
             if not sym:
                 continue
 
+            # Settle only already-realized exits before processing this timestamp.
+            self._settle_equity_until(pd.Timestamp(ts))
+
             # Apply RS filter in streaming mode (DataFrame mode already filtered)
             if stream_mode and rs_enabled:
                 try:
@@ -2377,6 +2580,7 @@ class Backtester:
 
             # --- regime gate
             regime_up = self.regime.is_up(ts)
+            regime_src_open_ts, regime_src_close_ts = self.regime.source_bounds(ts)
             if (
                 getattr(cfg, "REGIME_FILTER_ENABLED", True)
                 and getattr(cfg, "REGIME_BLOCK_WHEN_DOWN", True)
@@ -2388,6 +2592,10 @@ class Backtester:
                     ts_effective=ts,
                     decision="skipped",
                     reason="regime_down",
+                    extra={
+                        "regime_source_bar_open_ts": regime_src_open_ts,
+                        "regime_source_bar_close_ts": regime_src_close_ts,
+                    },
                 )
                 continue
 
@@ -2405,7 +2613,12 @@ class Backtester:
                             ts_effective=ts,
                             decision="skipped",
                             reason="regime_slope_down",
-                            extra={"hist_now": hist_now, "hist_slope": hist_slope},
+                            extra={
+                                "hist_now": hist_now,
+                                "hist_slope": hist_slope,
+                                "regime_source_bar_open_ts": regime_src_open_ts,
+                                "regime_source_bar_close_ts": regime_src_close_ts,
+                            },
                         )
                         continue
 
@@ -2609,26 +2822,12 @@ class Backtester:
 
             # --- risk_on state used for scope-gating and risk-off probe cap ---
             btc_vol_hi = float(self._meta_get_threshold("btc_vol_hi", float(getattr(cfg, "BTC_VOL_HI", 1.0))))
-
-            # IMPORTANT: do not reassign `regime_up`
-            ru = 1 if bool(regime_up) else 0
-
-            # BTC trend up
-            try:
-                btc_trend_slope = float(s.get("btcusdt_trend_slope", np.nan))
-            except Exception:
-                btc_trend_slope = np.nan
-            btc_trend_up = 1 if (np.isfinite(btc_trend_slope) and btc_trend_slope > 0.0) else 0
-
-            # BTC vol high
-            try:
-                btc_vol_level = float(s.get("btcusdt_vol_regime_level", np.nan))
-            except Exception:
-                btc_vol_level = np.nan
-            btc_vol_high = 1 if (np.isfinite(btc_vol_level) and btc_vol_level >= btc_vol_hi) else 0
-
-            # risk_on = 1[(regime_up==1) & (btc_trend_up==1) & (btc_vol_high==0)]
-            risk_on = 1 if (ru == 1 and btc_trend_up == 1 and btc_vol_high == 0) else 0
+            risk_on, risk_diag = _derive_risk_on_state(
+                s,
+                regime_up=bool(regime_up),
+                btc_vol_hi=float(btc_vol_hi),
+                cfg=cfg,
+            )
 
 
             # 2) Apply gating ONLY when we have a valid probability in [0,1]
@@ -2650,20 +2849,20 @@ class Backtester:
                             ts_effective=ts,
                             decision="skipped",
                             reason="meta_scope",
-                            extra={"risk_on": risk_on, "scope": gate_scope, "fail_closed": True},
+                            extra={"risk_on": risk_on, "scope": gate_scope, "fail_closed": True, **risk_diag},
                         )
                         continue
 
                 if in_scope and valid and (prob_val < thr_f):
-                    self._log_decision(
-                        symbol=sym,
-                        signal_ts=sig_ts,
-                        ts_effective=ts,
-                        decision="skipped",
-                        reason="meta_prob",
-                        extra={"prob_val": prob_val, "thr": thr_f, "scope": gate_scope},
-                    )
-                    continue
+                        self._log_decision(
+                            symbol=sym,
+                            signal_ts=sig_ts,
+                            ts_effective=ts,
+                            decision="skipped",
+                            reason="meta_prob",
+                            extra={"prob_val": prob_val, "thr": thr_f, "scope": gate_scope, **risk_diag},
+                        )
+                        continue
                 # if not valid → treat as "no meta available" => do NOT gate here
 
 
@@ -2684,6 +2883,21 @@ class Backtester:
                 size_mult = _dyn_size_multiplier(prob_val, hist4h_val, cfg)
 
             # --- risk-off probe sizing (absolute cap; do NOT overwrite regime_up) ---
+            if risk_on == 0 and bool(getattr(cfg, "RISK_OFF_BLOCK_WHEN_OFF", False)):
+                self._log_decision(
+                    symbol=sym,
+                    signal_ts=sig_ts,
+                    ts_effective=ts,
+                    decision="skipped",
+                    reason="risk_off_block",
+                    extra={
+                        "risk_on": int(risk_on),
+                        "regime_up": int(bool(regime_up)),
+                        **risk_diag,
+                    },
+                )
+                continue
+
             if risk_on == 0:
                 probe = float(getattr(cfg, "RISK_OFF_PROBE_MULT", 1.0))
                 size_mult = min(size_mult, max(probe, 0.0))
@@ -2721,6 +2935,12 @@ class Backtester:
                 risk_cash_target = max(float(equity_at_entry) * float(risk_pct_override), 0.0)
             else:
                 risk_cash_target = max(float(fixed_cash_override), 0.0)
+
+            # Pre-simulation sizing diagnostics (for audit traces)
+            risk_per_unit_pre = max(float(atr_now) * float(sl_override), 1e-12)
+            target_qty_pre = float(risk_cash_target) / risk_per_unit_pre if risk_per_unit_pre > 0 else np.nan
+            target_notional_pre = target_qty_pre * float(entry_price) if np.isfinite(target_qty_pre) else np.nan
+            max_notional_cap = float(equity_at_entry) * float(getattr(cfg, "NOTIONAL_CAP_PCT_OF_EQUITY", 0.25)) * float(getattr(cfg, "MAX_LEVERAGE", 10.0))
 
             # choose AVWAP anchor (only used if EXIT_BASIS="avwap_atr")
             # Choose AVWAP anchor
@@ -2771,6 +2991,17 @@ class Backtester:
                     ts_effective=ts,
                     decision="skipped",
                     reason="simulation_none",
+                    extra={
+                        "risk_on": int(risk_on),
+                        "regime_up": int(bool(regime_up)),
+                        "size_mult": float(size_mult),
+                        "risk_cash_target": float(risk_cash_target),
+                        "risk_per_unit_pre": float(risk_per_unit_pre),
+                        "target_qty_pre": float(target_qty_pre) if np.isfinite(target_qty_pre) else np.nan,
+                        "target_notional_pre": float(target_notional_pre) if np.isfinite(target_notional_pre) else np.nan,
+                        "max_notional_cap": float(max_notional_cap),
+                        **risk_diag,
+                    },
                 )
                 continue
 
@@ -2804,8 +3035,9 @@ class Backtester:
             pnl_Rcash = pnl / denom_cash if denom_cash > 0 else np.nan  # (kept if you want to store it)
 
             # --- update equity & bookkeeping
-            self.equity += pnl
-            self.equity_curve.append((exit_ts or ts, self.equity))
+            self._queue_realized_pnl(exit_ts=exit_ts, pnl_cash=float(pnl), fallback_ts=pd.Timestamp(ts))
+            # settle same-timestamp exits before guard checks
+            self._settle_equity_until(pd.Timestamp(ts))
 
 
 
@@ -2997,6 +3229,19 @@ class Backtester:
                     "exit_reason": exit_reason,
                     "pnl": float(pnl),
                     "pnl_R": float(pnl_R),
+                    "entry_price": float(entry_price),
+                    "qty_filled": float(qty),
+                    "final_notional": float(qty) * float(entry_price),
+                    "risk_per_unit_pre": float(risk_per_unit_pre),
+                    "target_qty_pre": float(target_qty_pre) if np.isfinite(target_qty_pre) else np.nan,
+                    "target_notional_pre": float(target_notional_pre) if np.isfinite(target_notional_pre) else np.nan,
+                    "max_notional_cap": float(max_notional_cap),
+                    "risk_cash_target": float(risk_cash_target),
+                    "risk_cash_realized": float(risk_cash_realized),
+                    "size_mult": float(size_mult),
+                    "regime_up": int(bool(regime_up)),
+                    "risk_on": int(risk_on),
+                    **risk_diag,
 
                     # new fields (what the analyzers need)
                     "open_until": open_until,
@@ -3047,11 +3292,16 @@ class Backtester:
                 })
 
         # finalize
+        self._settle_all_equity()
         self._save_outputs()
         if any(self._skipped.values()):
             print(f"[throughput] skipped due to lock={self._skipped['lock']} (open={self._skipped['open']}, cooldown={self._skipped['cooldown']}), daycap={self._skipped['daycap']}, max_open={self._skipped['max_open']}")
 
     def _save_outputs(self):
+        # Normalize RESULTS_DIR to Path defensively; some orchestrators may pass strings.
+        results_dir = Path(cfg.RESULTS_DIR)
+        results_dir.mkdir(parents=True, exist_ok=True)
+        cfg.RESULTS_DIR = results_dir
 
         # Build trades DataFrame robustly (even if there are zero fills)
         if not self.trades:
@@ -3083,36 +3333,49 @@ class Backtester:
         try:
             pq.write_table(
                 pa.Table.from_pandas(trades_df, preserve_index=False),
-                cfg.RESULTS_DIR / "trades.parquet",
+                results_dir / "trades.parquet",
             )
         except Exception:
             pass
-        trades_df.to_csv(cfg.RESULTS_DIR / "trades.csv", index=False)
+        trades_df.to_csv(results_dir / "trades.csv", index=False)
 
-        # write equity if available
-        if self.equity_curve:
+        # write equity (prefer chronological reconstruction from trades)
+        eq = pd.DataFrame(columns=["timestamp", "equity"])
+        if (not trades_df.empty) and ("exit_ts" in trades_df.columns) and ("pnl" in trades_df.columns):
+            try:
+                eq_src = trades_df[["exit_ts", "pnl"]].copy()
+                eq_src["timestamp"] = pd.to_datetime(eq_src["exit_ts"], utc=True, errors="coerce")
+                eq_src["pnl_use"] = pd.to_numeric(eq_src["pnl"], errors="coerce")
+                eq_src = eq_src.dropna(subset=["timestamp", "pnl_use"]).sort_values("timestamp", kind="mergesort")
+                if not eq_src.empty:
+                    eq_src["equity"] = float(self.initial_capital) + eq_src["pnl_use"].cumsum()
+                    eq = eq_src[["timestamp", "equity"]].copy()
+            except Exception:
+                eq = pd.DataFrame(columns=["timestamp", "equity"])
+        if eq.empty and self.equity_curve:
             eq = (
                 pd.DataFrame(self.equity_curve, columns=["timestamp", "equity"])
                 .sort_values("timestamp")
             )
+        if not eq.empty:
             try:
                 pq.write_table(
                     pa.Table.from_pandas(eq, preserve_index=False),
-                    cfg.RESULTS_DIR / "equity.parquet",
+                    results_dir / "equity.parquet",
                 )
             except Exception:
                 pass
-            eq.to_csv(cfg.RESULTS_DIR / "equity.csv", index=False)
+            eq.to_csv(results_dir / "equity.csv", index=False)
 
         # write decision log for parity debugging (if any decisions collected)
         if getattr(self, "_decision_log", None):
             dec_df = pd.DataFrame(self._decision_log)
-            dec_df.to_csv(cfg.RESULTS_DIR / "signal_decisions.csv", index=False)
+            dec_df.to_csv(results_dir / "signal_decisions.csv", index=False)
 
         # NEW: Save lock timeline
         if getattr(self, "_lock_timeline", None):
             lock_df = pd.DataFrame(self._lock_timeline)
-            lock_df.to_csv(cfg.RESULTS_DIR / "lock_timeline.csv", index=False)
+            lock_df.to_csv(results_dir / "lock_timeline.csv", index=False)
 
 
 def run_backtest(signals_path: Path | None = None):
@@ -3120,6 +3383,11 @@ def run_backtest(signals_path: Path | None = None):
     Read signals either from a partitioned dataset directory (signals/symbol=*)
     or from a single file signals.parquet, then run the simulation.
     """
+    # Defensive path normalization for external runners.
+    cfg.RESULTS_DIR = Path(cfg.RESULTS_DIR)
+    cfg.SIGNALS_DIR = Path(cfg.SIGNALS_DIR)
+    cfg.RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+
     # Resolve path: prefer explicit argument; else choose intelligently
     if signals_path is None:
         part_dirs = list(cfg.SIGNALS_DIR.glob("symbol=*"))

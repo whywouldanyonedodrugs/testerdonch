@@ -3,6 +3,11 @@ import pandas as pd
 import numpy as np
 from typing import Any, Dict, Optional, Tuple
 from . import indicators as ta
+from indicators import (
+    align_series_point_in_time as _align_series_point_in_time,
+    donchian_upper_days_no_lookahead as _donchian_upper_days_no_lookahead,
+    resample_ohlcv as _canonical_resample_ohlcv,
+)
 
 
 def _norm_tf(tf: str) -> str:
@@ -31,24 +36,11 @@ def _norm_tf(tf: str) -> str:
 
 def resample_ohlcv(df: pd.DataFrame, timeframe: str) -> pd.DataFrame:
     """
-    Standard resampling (Label='left', Closed='left').
-    Used for Entry Quality features (ATR, RSI, ADX, etc.) and days_since_prev_break.
+    Canonical close-labeled resampling delegated to top-level indicators.py.
     """
     if df is None or df.empty:
         return df
-
-    freq = _norm_tf(timeframe)
-
-    # Explicit left/left to match offline/scout behavior
-    res = df.resample(freq, label="left", closed="left")
-    agg = res.agg({
-        "open": "first",
-        "high": "max",
-        "low": "min",
-        "close": "last",
-        "volume": "sum",
-    })
-    return agg.dropna()
+    return _canonical_resample_ohlcv(df, _norm_tf(timeframe))
 
 
 def resample_ohlcv_robust(df: pd.DataFrame, timeframe: str) -> pd.DataFrame:
@@ -56,27 +48,16 @@ def resample_ohlcv_robust(df: pd.DataFrame, timeframe: str) -> pd.DataFrame:
     Robust resampling (Label='right', Closed='right').
     Matches offline 'scout' usage for Regime detection and Donchian 'completed days' logic.
     """
-    if df.empty:
+    if df is None or df.empty:
         return df
-
-    freq = _norm_tf(timeframe)
-    res = df.resample(freq, label="right", closed="right")
-    agg = res.agg({
-        "open": "first",
-        "high": "max",
-        "low": "min",
-        "close": "last",
-        "volume": "sum",
-    })
-    return agg.dropna()
+    return _canonical_resample_ohlcv(df, _norm_tf(timeframe))
 
 
 def map_to_left_index(target_index: pd.DatetimeIndex, source_series: pd.Series) -> pd.Series:
     """
-    Forward-fill source_series onto target_index.
-    Matches offline indicators.map_to_left_index.
+    Canonical backward as-of alignment delegated to top-level indicators.py.
     """
-    return source_series.reindex(target_index, method="ffill")
+    return _align_series_point_in_time(target_index, source_series)
 
 
 def donchian_upper_days_no_lookahead(high_5m: pd.Series, n_days: int) -> pd.Series:
@@ -86,13 +67,7 @@ def donchian_upper_days_no_lookahead(high_5m: pd.Series, n_days: int) -> pd.Seri
 
     Returns a pd.Series indexed by high_5m.index (wrapping the numpy array from scout logic).
     """
-    daily_high = high_5m.resample("1D", label="right", closed="right").max().dropna()
-    don_daily = daily_high.rolling(n_days, min_periods=n_days).max().shift(1)
-
-    # Map to 5m bars by day start, then ffill through the day.
-    keyed = don_daily.reindex(high_5m.index.floor("D"))
-    arr = keyed.ffill().to_numpy(dtype=float)
-    return pd.Series(arr, index=high_5m.index)
+    return _donchian_upper_days_no_lookahead(high_5m, n_days)
 
 
 # =============================================================================

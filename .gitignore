@@ -6,6 +6,7 @@ raw_csv_old/
 .venv/
 __pycache__/
 .DS_Store
+.telegram.env
 
 
 # Virtual Environment
@@ -20,16 +21,13 @@ __pycache__/
 *.log
 
 # Other
-parquet/
 results_1010/
 results/
 signals/
 data5/
 signals_fixed/
-parquet_1m/
 results_labeling/
 # Data Folders
-parquet/
 parquet_0202/
 parquet_older/
 raw_csv/
@@ -39,3 +37,29 @@ raw_csv_old/
 .venv/
 __pycache__/
 .DS_Store
+
+# Generated research/report artifacts: keep local, do not sync to GitHub
+reports/
+archive/
+artifacts/
+research_outputs*
+research_outputs*/
+*.parquet
+*.duckdb
+*.bundle
+*.zip
+*.tar.gz
+*.tgz
+*.pkl
+*.joblib
+*.feather
+*.h5
+*.hdf5
+
+# Local secrets / runtime state
+.env
+*.env
+!.env.example
+.telegram.env
+*.pid
+*.lock

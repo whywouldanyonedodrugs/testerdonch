@@ -6,7 +6,7 @@ from datetime import timedelta
 import config as cfg
 
 # --- Configuration ---
-PARQUET_DIR = Path("parquet")
+PARQUET_DIR = Path("/opt/parquet/5m")
 BT_TRADES_PATH = Path("results/trades.csv")
 LIVE_TRADES_PATH = Path("results/livetrading.csv")
 

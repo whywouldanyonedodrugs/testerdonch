@@ -11,6 +11,15 @@ RUN_ID="$1"
 shift || true
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ENV_FILE="${ROOT_DIR}/.telegram.env"
+if [[ -f "${ENV_FILE}" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "${ENV_FILE}"
+  set +a
+fi
+TG_TOKEN="${DONCH_TG_BOT_TOKEN:-${DONCH_TG_TOKEN:-${DONCH_TELEGRAM_BOT_TOKEN:-${TG_BOT_TOKEN:-${TELEGRAM_BOT_TOKEN:-${BOT_TOKEN:-}}}}}}"
+TG_CHAT="${DONCH_TG_CHAT_ID:-${DONCH_CHAT_ID:-${DONCH_TELEGRAM_CHAT_ID:-${TG_CHAT_ID:-${TELEGRAM_CHAT_ID:-${CHAT_ID:-}}}}}}"
 SESSION="jt013_${RUN_ID}"
 OUT_DIR="${ROOT_DIR}/results/jt013_risk_off_sweeps/${RUN_ID}"
 LOG_PATH="${OUT_DIR}/_runner.log"
@@ -39,11 +48,11 @@ CMD=(
   "--tg-auto-chat"
 )
 
-if [[ -n "${DONCH_TG_BOT_TOKEN:-}" ]]; then
-  CMD+=("--tg-bot-token" "${DONCH_TG_BOT_TOKEN}")
+if [[ -n "${TG_TOKEN:-}" ]]; then
+  CMD+=("--tg-bot-token" "${TG_TOKEN}")
 fi
-if [[ -n "${DONCH_TG_CHAT_ID:-}" ]]; then
-  CMD+=("--tg-chat-id" "${DONCH_TG_CHAT_ID}")
+if [[ -n "${TG_CHAT:-}" ]]; then
+  CMD+=("--tg-chat-id" "${TG_CHAT}")
 fi
 if [[ $# -gt 0 ]]; then
   CMD+=("$@")

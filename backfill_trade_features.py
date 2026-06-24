@@ -69,7 +69,15 @@ def _compute_daily_regime_and_trend(df5: pd.DataFrame, prefix: str) -> pd.DataFr
     return out
 
 
-def _merge_asof(left: pd.DataFrame, right: pd.DataFrame, left_on: str, right_index: bool = True) -> pd.DataFrame:
+def _merge_asof(
+    left: pd.DataFrame,
+    right: pd.DataFrame,
+    left_on: str,
+    *,
+    right_index: bool = True,
+    tolerance: str | pd.Timedelta | None = None,
+    provenance_name: str | None = None,
+) -> pd.DataFrame:
     """
     Merge right (time-indexed) onto left (has a timestamp column) using backward asof.
     """
@@ -84,8 +92,12 @@ def _merge_asof(left: pd.DataFrame, right: pd.DataFrame, left_on: str, right_ind
             right_on="_ts",
             direction="backward",
             allow_exact_matches=True,
+            tolerance=pd.Timedelta(tolerance) if tolerance is not None else None,
         )
-        out = out.drop(columns=["_ts"])
+        if provenance_name:
+            out = out.rename(columns={"_ts": f"{provenance_name}_source_ts"})
+        else:
+            out = out.drop(columns=["_ts"])
         return out
     else:
         raise ValueError("right_index must be True in this project")
@@ -129,8 +141,20 @@ def main():
     btc_daily = _compute_daily_regime_and_trend(btc5, "btc")
     eth_daily = _compute_daily_regime_and_trend(eth5, "eth")
 
-    trades2 = _merge_asof(trades, btc_daily, left_on="entry_ts")
-    trades2 = _merge_asof(trades2, eth_daily, left_on="entry_ts")
+    trades2 = _merge_asof(
+        trades,
+        btc_daily,
+        left_on="entry_ts",
+        tolerance="8D",
+        provenance_name="btc_daily",
+    )
+    trades2 = _merge_asof(
+        trades2,
+        eth_daily,
+        left_on="entry_ts",
+        tolerance="8D",
+        provenance_name="eth_daily",
+    )
 
     # --- Per-symbol est_leverage (OI-dependent) ---
     # Do it per symbol to keep memory bounded
@@ -150,7 +174,13 @@ def main():
         feat = pd.DataFrame({"est_leverage": est}, index=df5.index)
         feat.index.name = "timestamp"
 
-        grp = _merge_asof(grp, feat, left_on="entry_ts")
+        grp = _merge_asof(
+            grp,
+            feat,
+            left_on="entry_ts",
+            tolerance="12h",
+            provenance_name="est_leverage",
+        )
 
         enriched_parts.append(grp)
 

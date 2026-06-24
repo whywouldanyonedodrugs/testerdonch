@@ -57,7 +57,7 @@ from pydantic_settings import BaseSettings
 from .strategy_engine import StrategyEngine
 
 from .feature_builder import FeatureBuilder
-from .parity_utils import resample_ohlcv, donchian_upper_days_no_lookahead, eval_meta_scope
+from .parity_utils import resample_ohlcv, map_to_left_index, donchian_upper_days_no_lookahead, eval_meta_scope
 
 from .oi_funding import fetch_series_5m, compute_oi_funding_features
 
@@ -997,7 +997,7 @@ class LiveTrader:
         if tf != "5m":
             df_atr = ta.resample_ohlcv(df5, tf)
             atr_tf = ta.atr(df_atr, atr_len)
-            atr_pre = atr_tf.reindex(df5.index, method="ffill")
+            atr_pre = map_to_left_index(df5.index, atr_tf)
         else:
             atr_pre = ta.atr(df5, atr_len)
 
@@ -1645,7 +1645,7 @@ class LiveTrader:
                 if tf == base_tf:
                     continue
                 try:
-                    dfs[tf] = resample_ohlcv(df_base, tf)  # pandas default label="left", closed="left"
+                    dfs[tf] = resample_ohlcv(df_base, tf)  # canonical close-labeled last-closed resample
                 except Exception as e:
                     LOG.warning("SCAN_SKIP symbol=%s stage=resample_fail tf=%s err=%s", symbol, tf, e)
                     return None
@@ -1681,8 +1681,8 @@ class LiveTrader:
 
             # ---------------- Indicators aligned to base index ---
             # EMA on ema_tf (for optional heuristics)
-            df5['ema_fast'] = ta.ema(dfs[ema_tf]['close'], cfg.EMA_FAST_PERIOD).reindex(df5.index, method='ffill')
-            df5['ema_slow'] = ta.ema(dfs[ema_tf]['close'], cfg.EMA_SLOW_PERIOD).reindex(df5.index, method='ffill')
+            df5['ema_fast'] = map_to_left_index(df5.index, ta.ema(dfs[ema_tf]['close'], cfg.EMA_FAST_PERIOD))
+            df5['ema_slow'] = map_to_left_index(df5.index, ta.ema(dfs[ema_tf]['close'], cfg.EMA_SLOW_PERIOD))
 
             # Training features are 1h ATR/RSI/ADX
             atr_len = int(self.cfg.get("ATR_LEN", 14))
@@ -1701,9 +1701,9 @@ class LiveTrader:
             adx_1h = ta.adx(df1h, adx_len)
 
 
-            df5['atr_1h'] = atr_1h.reindex(df5.index, method='ffill')
-            df5['rsi_1h'] = rsi_1h.reindex(df5.index, method='ffill')
-            df5['adx_1h'] = adx_1h.reindex(df5.index, method='ffill')
+            df5['atr_1h'] = map_to_left_index(df5.index, atr_1h)
+            df5['rsi_1h'] = map_to_left_index(df5.index, rsi_1h)
+            df5['adx_1h'] = map_to_left_index(df5.index, adx_1h)
 
             # Legacy aliases used downstream
             df5['atr'] = df5['atr_1h']

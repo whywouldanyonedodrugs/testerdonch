@@ -20,6 +20,7 @@ from indicators import (
     rsi,
     adx,
     macd_histogram as macd_hist,      # keep alias if you reference macd_hist elsewhere
+    align_series_point_in_time,
     rolling_median_multiple,
     map_to_left_index,
     volume_spike_multiple,
@@ -27,10 +28,12 @@ from indicators import (
 )
 
 from shared_utils import get_symbols_from_file, load_parquet_data
+from live.oi_funding import compute_oi_funding_feature_panel
 
 from regime_detector import compute_daily_combined_regime, DailyRegimeConfig, compute_markov_regime_4h
 
 _SENTIMENT_INDEX_CACHE: Optional[pd.DataFrame] = None
+_CROSS_ASSET_CONTEXT_CACHE: dict[tuple[str, str], dict[str, pd.Series]] = {}
 
 # --- Local helpers -----------------------------------------------------------
 
@@ -52,6 +55,33 @@ def _macd_components(
     macd_signal = macd_line.ewm(span=signal, adjust=False, min_periods=signal).mean()
     macd_hist = macd_line - macd_signal
     return macd_line, macd_signal, macd_hist
+
+
+def _map_last_closed_with_source(
+    target_index: pd.DatetimeIndex,
+    ts_to_value: pd.Series,
+    timeframe: str,
+) -> tuple[pd.Series, pd.Series, pd.Series]:
+    """
+    Backward as-of map and return (value, source_open_ts, source_close_ts).
+    Assumes source index is close-labeled HTF timestamps.
+    """
+    mapped = map_to_left_index(target_index, ts_to_value)
+    src_close = map_to_left_index(target_index, pd.Series(ts_to_value.index, index=ts_to_value.index))
+    src_close = pd.to_datetime(src_close, utc=True, errors="coerce")
+    td = pd.Timedelta(timeframe)
+    src_open = src_close - td
+
+    # Enforce Option-A contract at feature-construction time.
+    bad = src_close > pd.Series(target_index, index=target_index)
+    if bool(bad.fillna(False).any()):
+        n_bad = int(bad.fillna(False).sum())
+        raise RuntimeError(
+            f"HTF mapping violates last-closed contract for timeframe={timeframe}: "
+            f"{n_bad} rows with source_close_ts > decision_ts"
+        )
+
+    return mapped, src_open, src_close
 
 
 
@@ -85,76 +115,48 @@ def _load_sentiment_index() -> pd.DataFrame:
     _SENTIMENT_INDEX_CACHE = df
     return _SENTIMENT_INDEX_CACHE
 
-def _merge_cross_asset_context(feat: pd.DataFrame) -> pd.DataFrame:
+def _build_cross_asset_context_for_asset(asset: str, base_dir: Path) -> dict[str, pd.Series]:
     """
-    Attach BTCUSDT / ETHUSDT context to the per-symbol feature panel.
-
-    Keeps existing behavior:
-      - adds btcusdt_/ethusdt_ prefixed oi_* and funding_* columns (when available)
-
-    Adds robust OHLCV-only context (always computable if OHLCV exists):
-      - btcusdt_vol_regime_level, btcusdt_trend_slope
-      - ethusdt_vol_regime_level, ethusdt_trend_slope
-
-    Look-ahead protection:
-      Daily features are shifted by 1 day before mapping to intraday timestamps.
+    Build reusable per-asset context series once, then map into each symbol panel.
+    Cache key must include parquet root so reruns with different roots do not cross-pollute.
     """
-    base_dir = cfg.PARQUET_DIR
-    ctx: dict[str, pd.Series] = {}
+    out: dict[str, pd.Series] = {}
+    path = base_dir / f"{asset}.parquet"
+    if not path.exists():
+        return out
 
-    # Normalize target timestamps once (avoid repeated parsing)
-    ts5 = pd.to_datetime(feat["timestamp"], utc=True, errors="coerce")
+    try:
+        df = pd.read_parquet(path)
+    except Exception as e:
+        print(f"[scout] could not read {asset} parquet for cross-asset context: {e}")
+        return out
 
-    for asset in ("BTCUSDT", "ETHUSDT"):
-        path = base_dir / f"{asset}.parquet"
-        if not path.exists():
-            continue
+    if df.empty:
+        return out
 
-        try:
-            df = pd.read_parquet(path)
-        except Exception as e:
-            print(f"[scout] could not read {asset} parquet for cross-asset context: {e}")
-            continue
+    df = _normalize_ts_index(df)
+    asset_prefix = asset.lower()  # "btcusdt" / "ethusdt"
 
-        if df.empty:
-            continue
+    # (A) OHLCV-only DAILY regime/trend
+    needed_ohlc = ["open", "high", "low", "close", "volume"]
+    if all(c in df.columns for c in needed_ohlc):
+        ohlc = _normalize_ts_index(df[needed_ohlc].copy())
+        daily = resample_ohlcv(ohlc, "1D")
+        if not daily.empty:
+            atr1d = atr(daily, 20)
+            atr_pct_1d = atr1d / daily["close"].replace(0, np.nan)
 
-        # Normalize to a DatetimeIndex named 'timestamp'
-        df = _normalize_ts_index(df)
-        asset_prefix = asset.lower()  # "btcusdt" / "ethusdt"
+            # Past-only and short warmup to avoid avoidable early-history holes.
+            base = atr_pct_1d.expanding(min_periods=5).median().replace(0, np.nan)
+            out[f"{asset_prefix}_vol_regime_level"] = (atr_pct_1d / (base + 1e-12)).shift(1)
 
-        # ------------------------------------------------------------------
-        # (A) OHLCV-only DAILY regime/trend (do NOT depend on OI/funding)
-        # ------------------------------------------------------------------
-        needed_ohlc = ["open", "high", "low", "close", "volume"]
-        if all(c in df.columns for c in needed_ohlc):
-            ohlc = df[needed_ohlc].copy()
-            ohlc = _normalize_ts_index(ohlc)
+            ema20 = daily["close"].ewm(span=20, adjust=False, min_periods=1).mean()
+            ema50 = daily["close"].ewm(span=50, adjust=False, min_periods=1).mean()
+            out[f"{asset_prefix}_trend_slope"] = (ema20 - ema50).diff().shift(1)
 
-            daily = resample_ohlcv(ohlc, "1D")
-            if not daily.empty:
-                atr1d = atr(daily, 20)
-                atr_pct_1d = atr1d / daily["close"].replace(0, np.nan)
-
-                # Past-only baseline; shift(1) avoids using same-day close info intraday
-                base = atr_pct_1d.expanding(min_periods=50).median().replace(0, np.nan)
-                vol_regime_level = (atr_pct_1d / (base + 1e-12)).shift(1)
-
-                ma20 = daily["close"].rolling(20, min_periods=20).mean()
-                ma50 = daily["close"].rolling(50, min_periods=50).mean()
-                trend_slope = (ma20 - ma50).diff().shift(1)
-
-                ctx[f"{asset_prefix}_vol_regime_level"] = map_to_left_index(ts5, vol_regime_level)
-                ctx[f"{asset_prefix}_trend_slope"] = map_to_left_index(ts5, trend_slope)
-
-        # ------------------------------------------------------------------
-        # (B) OI + funding features (only if columns exist)
-        # ------------------------------------------------------------------
-        needed_of = ["close", "volume", "open_interest", "funding_rate"]
-        if not all(c in df.columns for c in needed_of):
-            # still keep (A) even if (B) unavailable
-            continue
-
+    # (B) OI + funding features
+    needed_of = ["close", "volume", "open_interest", "funding_rate"]
+    if all(c in df.columns for c in needed_of):
         tmp = pd.DataFrame(
             {
                 "timestamp": df.index,
@@ -164,29 +166,38 @@ def _merge_cross_asset_context(feat: pd.DataFrame) -> pd.DataFrame:
                 "funding_rate": df["funding_rate"].values,
             }
         )
-
         try:
             tmp = add_oi_funding_features(tmp)
         except Exception as e:
             print(f"[scout] add_oi_funding_features failed for {asset}: {e}")
-            continue
+            tmp = pd.DataFrame()
 
-        tmp["timestamp"] = pd.to_datetime(tmp["timestamp"], utc=True, errors="coerce")
-        tmp = tmp.dropna(subset=["timestamp"]).sort_values("timestamp")
-        if tmp.empty:
-            continue
+        if not tmp.empty:
+            tmp["timestamp"] = pd.to_datetime(tmp["timestamp"], utc=True, errors="coerce")
+            tmp = tmp.dropna(subset=["timestamp"]).sort_values("timestamp")
+            if not tmp.empty:
+                cols = [c for c in tmp.columns if c.startswith("oi_") or c.startswith("funding_")]
+                tmp_indexed = tmp.set_index("timestamp")
+                for c in cols:
+                    out[f"{asset_prefix}_{c}"] = tmp_indexed[c]
 
-        cols = [c for c in tmp.columns if c.startswith("oi_") or c.startswith("funding_")]
-        if not cols:
-            continue
+    return out
 
-        tmp_indexed = tmp.set_index("timestamp")
-        for c in cols:
-            ctx[f"{asset_prefix}_{c}"] = map_to_left_index(ts5, tmp_indexed[c])
 
-    # Attach aligned cross-asset columns to the per-symbol feature panel
-    for k, v in ctx.items():
-        feat[k] = v.values
+def _merge_cross_asset_context(feat: pd.DataFrame) -> pd.DataFrame:
+    """
+    Attach BTCUSDT / ETHUSDT context to the per-symbol feature panel.
+    Context series are cached per (parquet_root, asset) to avoid recomputing for each symbol.
+    """
+    base_dir = Path(cfg.PARQUET_DIR)
+    ts5 = pd.to_datetime(feat["timestamp"], utc=True, errors="coerce")
+
+    for asset in ("BTCUSDT", "ETHUSDT"):
+        key = (str(base_dir.resolve()), asset)
+        if key not in _CROSS_ASSET_CONTEXT_CACHE:
+            _CROSS_ASSET_CONTEXT_CACHE[key] = _build_cross_asset_context_for_asset(asset, base_dir)
+        for col, ser in _CROSS_ASSET_CONTEXT_CACHE[key].items():
+            feat[col] = map_to_left_index(ts5, ser).values
 
     return feat
 
@@ -252,84 +263,34 @@ def add_oi_funding_features(df: pd.DataFrame) -> pd.DataFrame:
     Expects columns: timestamp (UTC), close, volume, open_interest, funding_rate.
     Uses only past data at each timestamp (no look-ahead).
     """
-    df = df.sort_values("timestamp").copy()
+    out = df.sort_values("timestamp").copy()
+    out["timestamp"] = pd.to_datetime(out["timestamp"], utc=True, errors="coerce")
+    out = out.dropna(subset=["timestamp"])
 
-    # Ensure numeric
     for col in ["open_interest", "funding_rate", "close", "volume"]:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
+        if col in out.columns:
+            out[col] = pd.to_numeric(out[col], errors="coerce")
 
-    # Rolling window sizes for 5-minute bars
-    WIN_1H = 12
-    WIN_4H = 48
-    WIN_1D = 288
-    WIN_3D = 3 * WIN_1D
-    WIN_7D = 7 * WIN_1D
+    base = out.set_index("timestamp")
+    panel = compute_oi_funding_feature_panel(
+        base[["close", "volume"]].copy(),
+        base.get("open_interest", pd.Series(index=base.index, dtype=float)),
+        base.get("funding_rate", pd.Series(index=base.index, dtype=float)),
+    ).reset_index()
 
-    # ---- Open Interest (OI) features ----
-    df["oi_level"] = df["open_interest"]
-    df["oi_notional_est"] = df["open_interest"] * df["close"]
+    merged = out.merge(panel, on="timestamp", how="left", suffixes=("", "_pit"))
 
-    # Crude leverage proxy: current OI notional vs 24h average notional
-    # (using 288 × 5m bars ≈ 1 day)
-    notional_24h = df["oi_notional_est"].rolling(WIN_1D, min_periods=WIN_1H).mean()
-    df["est_leverage"] = df["oi_notional_est"] / (notional_24h + 1e-9)
-
-    # Explicitly set fill_method=None to silence pandas deprecation warnings
-    df["oi_pct_1h"] = df["open_interest"].pct_change(WIN_1H, fill_method=None)
-
-    df["oi_pct_4h"] = df["open_interest"].pct_change(WIN_4H, fill_method=None)
-    df["oi_pct_1d"] = df["open_interest"].pct_change(WIN_1D, fill_method=None)
-
-    oi_mean_7d = df["open_interest"].rolling(WIN_7D, min_periods=WIN_1D).mean()
-    oi_std_7d  = df["open_interest"].rolling(WIN_7D, min_periods=WIN_1D).std()
-    df["oi_z_7d"] = (df["open_interest"] - oi_mean_7d) / (oi_std_7d + 1e-12)
-
-    vol_1h = df["volume"].rolling(WIN_1H).sum()
-    df["oi_chg_norm_vol_1h"] = df["open_interest"].diff(WIN_1H) / (vol_1h + 1e-9)
-
-    # Simple OI–price interaction (keeps signs consistent and is cheap)
-    ret_1h = df["close"].pct_change(WIN_1H, fill_method=None)
-    df["oi_price_div_1h"] = np.sign(ret_1h) * df["oi_pct_1h"]
-
-    # ---- Funding features ----
-    # Forward-fill to 5m grid to avoid NaNs between funding prints
-    df["funding_rate"] = df["funding_rate"].ffill()
-    df["funding_abs"]  = df["funding_rate"].abs()
-
-    fr_mean_7d = df["funding_rate"].rolling(WIN_7D, min_periods=WIN_1D).mean()
-    fr_std_7d  = df["funding_rate"].rolling(WIN_7D, min_periods=WIN_1D).std()
-    df["funding_z_7d"] = (df["funding_rate"] - fr_mean_7d) / (fr_std_7d + 1e-12)
-
-    # Cumulative funding (3d)
-    df["funding_rollsum_3d"] = df["funding_rate"].rolling(WIN_3D, min_periods=WIN_1D).sum()
-
-    # Interaction: leverage + bias together
-    df["funding_oi_div"] = df["funding_z_7d"] * df["oi_z_7d"]
-
-    # --- Simple crowding flags from OI & funding z-scores --------------------
-    # Uses thresholds from config.py; falls back to 1.0 / -1.0 if missing.
     high = float(getattr(cfg, "CROWD_Z_HIGH", 1.0))
-    low  = float(getattr(cfg, "CROWD_Z_LOW", -1.0))
-
-    # "Crowded long" → OI elevated and funding strongly positive
-    crowded_long = (df["oi_z_7d"] >= high) & (df["funding_z_7d"] >= high)
-
-    # "Crowded short" → OI elevated and funding strongly negative
-    crowded_short = (df["oi_z_7d"] >= high) & (df["funding_z_7d"] <= low)
-
-    # Store as both binary flags and a signed side indicator
-    df["crowded_long"] = crowded_long.astype(int)
-    df["crowded_short"] = crowded_short.astype(int)
-
-    # -1 = crowded shorts, 0 = neutral/mixed, +1 = crowded longs
-    df["crowd_side"] = 0
-    df.loc[crowded_long, "crowd_side"] = 1
-    df.loc[crowded_short, "crowd_side"] = -1
-
-    # Cleanups: keep finite only
-    df.replace([np.inf, -np.inf], np.nan, inplace=True)
-    return df
+    low = float(getattr(cfg, "CROWD_Z_LOW", -1.0))
+    crowded_long = (merged["oi_z_7d"] >= high) & (merged["funding_z_7d"] >= high)
+    crowded_short = (merged["oi_z_7d"] >= high) & (merged["funding_z_7d"] <= low)
+    merged["crowded_long"] = crowded_long.astype(int)
+    merged["crowded_short"] = crowded_short.astype(int)
+    merged["crowd_side"] = 0
+    merged.loc[crowded_long, "crowd_side"] = 1
+    merged.loc[crowded_short, "crowd_side"] = -1
+    merged.replace([np.inf, -np.inf], np.nan, inplace=True)
+    return merged
 
 
 
@@ -403,8 +364,6 @@ def _eth_macd_full_4h_to_5m(
             "eth_macd_hist_slope_4h": macd_hist_slope_4h,
         }
     )
-    macd_5m = macd_4h.resample("5min").ffill()
-
     # ---------- 1h MACD histogram slope ----------
     close_1h = (
         eth["close"].astype(float)
@@ -420,12 +379,17 @@ def _eth_macd_full_4h_to_5m(
         macd_hist_1h = macd_line_1h - macd_signal_1h
         macd_hist_slope_1h = macd_hist_1h.diff()
 
-        macd_1h = pd.DataFrame({"eth_macd_hist_slope_1h": macd_hist_slope_1h})
-        macd_5m = macd_5m.join(macd_1h.resample("5min").ffill(), how="left")
-
     out = signals_df.copy()
     out["timestamp"] = pd.to_datetime(out["timestamp"], utc=True, errors="coerce")
-    out = out.merge(macd_5m, left_on="timestamp", right_index=True, how="left")
+    target_idx = pd.DatetimeIndex(out["timestamp"])
+    out["eth_macd_line_4h"] = align_series_point_in_time(target_idx, macd_4h["eth_macd_line_4h"]).to_numpy()
+    out["eth_macd_signal_4h"] = align_series_point_in_time(target_idx, macd_4h["eth_macd_signal_4h"]).to_numpy()
+    out["eth_macd_hist_4h"] = align_series_point_in_time(target_idx, macd_4h["eth_macd_hist_4h"]).to_numpy()
+    out["eth_macd_hist_slope_4h"] = align_series_point_in_time(target_idx, macd_4h["eth_macd_hist_slope_4h"]).to_numpy()
+    if not close_1h.empty:
+        out["eth_macd_hist_slope_1h"] = align_series_point_in_time(target_idx, macd_hist_slope_1h).to_numpy()
+    else:
+        out["eth_macd_hist_slope_1h"] = np.nan
 
     out["eth_macd_both_pos_4h"] = (
         (out["eth_macd_line_4h"] > 0).astype("int8")
@@ -519,17 +483,26 @@ def _process_one_symbol(sym: str, rs_table: Optional[pd.DataFrame]) -> int:
             validate="m:1",
         )
 
-        # don_dist_atr if we have Donchian upper and ATR context (prefer atr_1h, fallback to 'atr')
+        # Keep Donchian upper populated from the signal-level break level.
+        # After merge, a pre-existing all-NaN `don_upper` column from feature panel
+        # would otherwise block this fallback.
         if "don_break_level" in sig.columns:
-            sig["don_upper"] = sig.get("don_upper", sig["don_break_level"])
+            if "don_upper" in sig.columns:
+                sig["don_upper"] = sig["don_upper"].where(sig["don_upper"].notna(), sig["don_break_level"])
+            else:
+                sig["don_upper"] = sig["don_break_level"]
         if "don_upper" in sig.columns:
             scale = sig["atr_1h"].where(sig["atr_1h"].notna(), sig.get("atr", np.nan))
             sig["don_dist_atr"] = (sig["close"] - sig["don_upper"]) / scale.replace(0, np.nan)
 
     try:
+        regime_asset = str(getattr(cfg, "REGIME_ASSET", "ETHUSDT"))
+        # Use configured parquet root so context features stay consistent across
+        # environments (e.g., /opt/parquet/5m in research runs).
+        eth_ctx_path = Path(getattr(cfg, "PARQUET_DIR", Path("/opt/parquet/5m"))) / f"{regime_asset}.parquet"
         sig = _eth_macd_full_4h_to_5m(
             signals_df=sig,
-            eth_parquet_path=str(Path("parquet") / f"{getattr(cfg, 'REGIME_ASSET', 'ETHUSDT')}.parquet"),
+            eth_parquet_path=str(eth_ctx_path),
             fast=int(getattr(cfg, "REGIME_MACD_FAST", 12)),
             slow=int(getattr(cfg, "REGIME_MACD_SLOW", 26)),
             signal=int(getattr(cfg, "REGIME_MACD_SIGNAL", 9)),
@@ -587,9 +560,9 @@ def _attach_entry_quality_features(out: pd.DataFrame) -> pd.DataFrame:
         rsi1h = rsi(df1h["close"], int(getattr(cfg, "RSI_LEN", 14)))
         adx1h = adx(df1h, int(getattr(cfg, "ADX_LEN", 14)))
 
-        atr1h_5m = atr1h.reindex(df5.index, method="ffill")
-        rsi1h_5m = rsi1h.reindex(df5.index, method="ffill")
-        adx1h_5m = adx1h.reindex(df5.index, method="ffill")
+        atr1h_5m = map_to_left_index(df5.index, atr1h)
+        rsi1h_5m = map_to_left_index(df5.index, rsi1h)
+        adx1h_5m = map_to_left_index(df5.index, adx1h)
 
         # vol_mult over rolling 30 days on 5m (approx 288 bars/day)
         bars_per_day = 288
@@ -603,9 +576,7 @@ def _attach_entry_quality_features(out: pd.DataFrame) -> pd.DataFrame:
 
         # days_since_prev_break using DON_N_DAYS (daily Donch upper)
         N = int(getattr(cfg, "DON_N_DAYS", 20))
-        daily_high = df5["high"].resample("1D").max().dropna()
-        don_daily = daily_high.rolling(N, min_periods=N).max().shift(1)  # no look-ahead
-        don_5m = don_daily.reindex(df5.index, method="ffill")
+        don_5m = pd.Series(donchian_upper_days_no_lookahead(df5["high"], N), index=df5.index)
         touch = (df5["high"] >= don_5m)
         # last touch timestamp (ffill)
         touch_time = pd.Series(df5.index.where(touch), index=df5.index)
@@ -649,10 +620,11 @@ def _attach_entry_quality_features(out: pd.DataFrame) -> pd.DataFrame:
     # Drop exact duplicate index rows if any
     feat_panel = feat_panel[~feat_panel.index.duplicated(keep="last")]
 
-    # Ensure same MultiIndex on both sides
+    # Ensure same MultiIndex on both sides. Candidate timestamps should already
+    # be exact 5m bar closes, so require exact symbol-local matches here rather
+    # than a generic MultiIndex forward-fill.
     out_idx = out.set_index(["timestamp", "symbol"]).sort_index()
-    # Align feature panel to out's index (ffill is OK because features are built on past-only info)
-    feat_panel = feat_panel.reindex(out_idx.index, method="ffill")
+    feat_panel = feat_panel.reindex(out_idx.index)
 
     # Add only brand-new columns; for overlaps, coalesce (keep existing non-NA, otherwise take new)
     for col in feat_panel.columns:
@@ -675,12 +647,18 @@ def _attach_entry_quality_features(out: pd.DataFrame) -> pd.DataFrame:
         mk4 = pd.DataFrame()
 
     if not out.empty and not mk4.empty:
-        # forward-fill from 4h to entry timestamps
-        ts_sorted_unique = np.unique(np.sort(out["timestamp"].values))
-        mk4_ff = mk4.reindex(ts_sorted_unique, method="ffill")
+        # backward point-in-time map from 4h close-labeled bars to decision timestamps
+        ts_sorted_unique = pd.DatetimeIndex(np.unique(np.sort(out["timestamp"].values)))
+        mk4_ff = pd.DataFrame(
+            {
+                "state_up": align_series_point_in_time(ts_sorted_unique, mk4["state_up"]),
+                "prob_up": align_series_point_in_time(ts_sorted_unique, mk4["prob_up"]),
+            },
+            index=ts_sorted_unique,
+        )
         out = out.set_index("timestamp")
-        out["markov_state_up_4h"] = mk4_ff["state_up"].astype("Int8").reindex(out.index, method="ffill").values
-        out["markov_prob_up_4h"]  = mk4_ff["prob_up"].astype(float).reindex(out.index, method="ffill").values
+        out["markov_state_up_4h"] = align_series_point_in_time(out.index, mk4_ff["state_up"]).astype("Int8").values
+        out["markov_prob_up_4h"]  = align_series_point_in_time(out.index, mk4_ff["prob_up"]).astype(float).values
         out = out.reset_index()
 
 
@@ -694,12 +672,11 @@ def donchian_upper_days_no_lookahead(high_5m: pd.Series, n_days: int) -> pd.Seri
       3) shift(1) => prior days only (no look-ahead)
       4) map/ffill back to 5m index within each day
     """
-    # daily highs by completed sessions
-    daily_high = high_5m.resample("1D", label="right", closed="right").max()
+    day_key = high_5m.index.floor("D")
+    daily_high = high_5m.groupby(day_key).max()
     # N-day rolling max of completed days
     don_daily = daily_high.rolling(n_days, min_periods=n_days).max().shift(1)
-    # map to 5m bars: align by day start (floor('D')) then forward-fill inside the day
-    keyed = don_daily.reindex(high_5m.index.floor("D"))
+    keyed = don_daily.reindex(day_key)
     return keyed.ffill().to_numpy(dtype=float)
 
 def donchian_upper_bars(high_5m: pd.Series, n_bars: int) -> pd.Series:
@@ -737,7 +714,7 @@ def _daily_row_for_symbol(sym: str) -> pd.DataFrame:
     df5 = _normalize_ts_index(df5)
 
     # 1. Resample to Daily
-    daily = df5.resample("1D").agg({
+    daily = df5.resample("1D", label="right", closed="right").agg({
         "close": "last",
         "volume": "sum"
     }).dropna()
@@ -755,9 +732,9 @@ def _daily_row_for_symbol(sym: str) -> pd.DataFrame:
     daily["ret_7d"] = daily["close"].pct_change(7)
 
     daily["symbol"] = sym
-    daily = daily.reset_index().rename(columns={"timestamp": "week_start"})
-    
-    return daily[["week_start", "symbol", "ret_7d", "usd_vol_med_24h"]]
+    daily = daily.reset_index().rename(columns={"timestamp": "snapshot_ts"})
+
+    return daily[["snapshot_ts", "symbol", "ret_7d", "usd_vol_med_24h"]]
 
 def build_weekly_rs(symbols: List[str]) -> pd.DataFrame:
     """
@@ -787,20 +764,21 @@ def build_weekly_rs(symbols: List[str]) -> pd.DataFrame:
                     print(f"[RS] {futs[f]} failed: {e}")
 
     if not rows:
-        return pd.DataFrame(columns=["week_start", "symbol", "rs_pct", "usd_vol_med_24h"])
+        return pd.DataFrame(columns=["snapshot_ts", "week_start", "symbol", "rs_pct", "usd_vol_med_24h"])
 
     rs = pd.concat(rows, ignore_index=True)
     rs = rs.dropna(subset=["ret_7d"])
 
     # Rank by day
-    rs["rs_rank"] = rs.groupby("week_start")["ret_7d"].rank(method="average", ascending=False)
-    counts = rs.groupby("week_start")["ret_7d"].transform("count")
+    rs["rs_rank"] = rs.groupby("snapshot_ts")["ret_7d"].rank(method="average", ascending=False)
+    counts = rs.groupby("snapshot_ts")["ret_7d"].transform("count")
     denom = (counts - 1).clip(lower=1)
     rs["rs_pct"] = (100.0 * (counts - rs["rs_rank"]) / denom).clip(0.0, 100.0)
 
     # Save
-    out_cols = ["week_start", "symbol", "rs_pct", "usd_vol_med_24h"]
-    rs = rs[out_cols].sort_values(["week_start", "symbol"])
+    rs["week_start"] = rs["snapshot_ts"]
+    out_cols = ["snapshot_ts", "week_start", "symbol", "rs_pct", "usd_vol_med_24h"]
+    rs = rs[out_cols].sort_values(["snapshot_ts", "symbol"])
     
     pq.write_table(pa.Table.from_pandas(rs), cfg.RESULTS_DIR / "rs_weekly.parquet")
     print(f"[RS] Saved DAILY metrics to {cfg.RESULTS_DIR / 'rs_weekly.parquet'}")
@@ -809,10 +787,11 @@ def build_weekly_rs(symbols: List[str]) -> pd.DataFrame:
 
 def rs_lookup(rs_table: pd.DataFrame, sym: str, ts: pd.Timestamp) -> float | None:
     """Return RS percentile for (symbol, timestamp) or None if unavailable."""
+    ts_col = "snapshot_ts" if "snapshot_ts" in rs_table.columns else "week_start"
     rs_sym = rs_table[rs_table["symbol"] == sym]
     if rs_sym.empty:
         return None
-    candidates = rs_sym[rs_sym["week_start"] <= ts.floor("D")]
+    candidates = rs_sym[rs_sym[ts_col] <= ts.floor("D")]
     if candidates.empty:
         return None
     return float(candidates.iloc[-1]["rs_pct"])
@@ -823,12 +802,13 @@ def liq_lookup(rs_table: pd.DataFrame, sym: str, ts: pd.Timestamp) -> float | No
     Look up the weekly liquidity proxy (~median 24h USD turnover)
     for a given symbol at time ts.
 
-    Uses the same weekly 'week_start' alignment as rs_lookup.
+    Uses the same daily snapshot alignment as rs_lookup.
     """
+    ts_col = "snapshot_ts" if "snapshot_ts" in rs_table.columns else "week_start"
     rs_sym = rs_table[rs_table["symbol"] == sym]
     if rs_sym.empty:
         return None
-    candidates = rs_sym[rs_sym["week_start"] <= ts.floor("D")]
+    candidates = rs_sym[rs_sym[ts_col] <= ts.floor("D")]
     if candidates.empty:
         return None
     return float(candidates.iloc[-1]["usd_vol_med_24h"])
@@ -855,8 +835,8 @@ def _build_feature_panel(sym: str) -> pd.DataFrame:
     rsi1h = rsi(df1h["close"], cfg.RSI_LEN)
     adx1h = adx(df1h, cfg.ADX_LEN)
 
-    # Map 1h to 5m (left-aligned, ffill semantics inside map_to_left_index)
-    atr1h_5m = map_to_left_index(df5.index, atr1h)
+    # Map 1h to 5m using strict last-closed semantics + provenance timestamps.
+    atr1h_5m, src_open_1h, src_close_1h = _map_last_closed_with_source(df5.index, atr1h, "1h")
     rsi1h_5m = map_to_left_index(df5.index, rsi1h)
     adx1h_5m = map_to_left_index(df5.index, adx1h)
 
@@ -902,24 +882,13 @@ def _build_feature_panel(sym: str) -> pd.DataFrame:
             "atr_pct": atr_pct.values,
             "close": df5["close"].values,
             "don_upper": np.nan,  # filled later when we know Donchian level
+            "src_bar_open_1h": src_open_1h.values,
+            "src_bar_close_1h": src_close_1h.values,
         }
     )
 
     if not oi_feat.empty:
-        # Ensure ordering by time (add_oi_funding_features already does this,
-        # but re-sort here defensively)
         oi_feat = oi_feat.sort_values("timestamp").copy()
-
-        # Forward-fill funding-related features between prints
-        for col in [
-            "funding_rate",
-            "funding_abs",
-            "funding_z_7d",
-            "funding_rollsum_3d",
-            "funding_oi_div",
-        ]:
-            if col in oi_feat.columns:
-                oi_feat[col] = oi_feat[col].ffill()
 
     # Attach known engineered columns by position (same length as df5)
     for c in [
@@ -963,15 +932,28 @@ def _build_feature_panel(sym: str) -> pd.DataFrame:
     macd1h_slope = macd1h_hist.diff(3)
     macd4h_slope = macd4h_hist.diff(3)
 
-    feat["asset_macd_line_1h"] = map_to_left_index(df5.index, macd1h_line).values
-    feat["asset_macd_signal_1h"] = map_to_left_index(df5.index, macd1h_signal).values
-    feat["asset_macd_hist_1h"] = map_to_left_index(df5.index, macd1h_hist).values
-    feat["asset_macd_slope_1h"] = map_to_left_index(df5.index, macd1h_slope).values
+    macd1h_line_5m = map_to_left_index(df5.index, macd1h_line)
+    macd1h_signal_5m = map_to_left_index(df5.index, macd1h_signal)
+    macd1h_hist_5m, _src_open_1h_m, _src_close_1h_m = _map_last_closed_with_source(df5.index, macd1h_hist, "1h")
+    macd1h_slope_5m = map_to_left_index(df5.index, macd1h_slope)
+    feat["asset_macd_line_1h"] = macd1h_line_5m.values
+    feat["asset_macd_signal_1h"] = macd1h_signal_5m.values
+    feat["asset_macd_hist_1h"] = macd1h_hist_5m.values
+    feat["asset_macd_slope_1h"] = macd1h_slope_5m.values
+    # Keep explicit hist-slope names for downstream strict schema/context filters.
+    feat["asset_macd_hist_slope_1h"] = macd1h_slope_5m.values
 
-    feat["asset_macd_line_4h"] = map_to_left_index(df5.index, macd4h_line).values
-    feat["asset_macd_signal_4h"] = map_to_left_index(df5.index, macd4h_signal).values
-    feat["asset_macd_hist_4h"] = map_to_left_index(df5.index, macd4h_hist).values
-    feat["asset_macd_slope_4h"] = map_to_left_index(df5.index, macd4h_slope).values
+    macd4h_line_5m = map_to_left_index(df5.index, macd4h_line)
+    macd4h_signal_5m = map_to_left_index(df5.index, macd4h_signal)
+    macd4h_hist_5m, src_open_4h, src_close_4h = _map_last_closed_with_source(df5.index, macd4h_hist, "4h")
+    macd4h_slope_5m = map_to_left_index(df5.index, macd4h_slope)
+    feat["asset_macd_line_4h"] = macd4h_line_5m.values
+    feat["asset_macd_signal_4h"] = macd4h_signal_5m.values
+    feat["asset_macd_hist_4h"] = macd4h_hist_5m.values
+    feat["asset_macd_slope_4h"] = macd4h_slope_5m.values
+    feat["asset_macd_hist_slope_4h"] = macd4h_slope_5m.values
+    feat["src_bar_open_4h"] = src_open_4h.values
+    feat["src_bar_close_4h"] = src_close_4h.values
 
     # Realized volatility proxies (log-return stdevs)
     ret1h = np.log(df1h["close"]).diff()
@@ -1080,47 +1062,50 @@ def detect_signals_for_symbol(sym: str, rs_table: Optional[pd.DataFrame]) -> pd.
     if tf:
         dft = resample_ohlcv(df, str(tf))
         atr_tf = atr(dft, int(getattr(cfg, "ATR_LEN", 14)))
-        df["atr"] = atr_tf.reindex(df.index, method="ffill")
+        df["atr"] = map_to_left_index(df.index, atr_tf)
     else:
         df["atr"] = atr(df, int(getattr(cfg, "ATR_LEN", 14)))
 
-    # --- Daily Donchian breakout level using *daily* bars ---
-    if cfg.DONCH_BASIS.lower() != "days":
-        raise ValueError("This detector expects DONCH_BASIS='days' to mirror live YAML logic.")
+    # --- Donchian breakout level ---
+    don_basis = str(getattr(cfg, "DONCH_BASIS", "days")).lower()
+    don_break_len = np.nan
+    if don_basis == "days":
+        don_n_days = int(getattr(cfg, "DON_N_DAYS", 20))
+        don_break_len = int(don_n_days)
 
-    don_n_days = int(cfg.DON_N_DAYS)
+        # Group 5m bars into calendar days and compute daily highs and closes
+        day_index = df.index.floor("D")
+        daily = (
+            df.assign(_day=day_index)
+            .groupby("_day")
+            .agg({"high": "max", "close": "last"})
+            .sort_index()
+        )
 
-    # Group 5m bars into calendar days and compute daily highs and closes
-    day_index = df.index.floor("D")
-    daily = (
-        df.assign(_day=day_index)
-        .groupby("_day")
-        .agg({"high": "max", "close": "last"})
-        .sort_index()
-    )
+        # Prior N-day rolling high, shifted by 1 day to avoid look-ahead.
+        daily["donch_upper"] = daily["high"].rolling(don_n_days, min_periods=don_n_days).max().shift(1)
+        daily["donch_break_ok"] = (daily["close"] > daily["donch_upper"]) & daily["donch_upper"].notna()
 
-    # Prior N-day rolling high, shifted by 1 day to avoid look-ahead,
-    # as in _op_donch_breakout_daily_confirm.
-    daily["donch_upper"] = daily["high"].rolling(don_n_days, min_periods=don_n_days).max().shift(1)
-
-    # Daily breakout flag: daily close > prior N-day high
-    daily["donch_break_ok"] = (daily["close"] > daily["donch_upper"]) & daily["donch_upper"].notna()
-
-    # In live, for any intraday 5m bar on day D, the breakout op sees the
-    # last *completed* 1d bar, i.e. day D-1 (because they drop the last
-    # partial 1d candle). We mirror this by shifting the daily breakout
-    # information forward by 1 day and joining on the 5m day index.
-    daily_effect = daily[["donch_upper", "donch_break_ok"]].copy()
-    daily_effect.index = daily_effect.index + pd.Timedelta(days=1)
-    daily_effect = daily_effect.rename(
-        columns={
-            "donch_upper": "donch_break_level",
-            "donch_break_ok": "donch_break_ok",
-        }
-    )
-
-    df = df.assign(day=day_index)
-    df = df.join(daily_effect, on="day")
+        # For intraday bars on day D, use last completed daily candle (D-1).
+        daily_effect = daily[["donch_upper", "donch_break_ok"]].copy()
+        daily_effect.index = daily_effect.index + pd.Timedelta(days=1)
+        daily_effect = daily_effect.rename(
+            columns={
+                "donch_upper": "donch_break_level",
+                "donch_break_ok": "donch_break_ok",
+            }
+        )
+        df = df.assign(day=day_index)
+        df = df.join(daily_effect, on="day")
+    elif don_basis == "bars":
+        don_n_bars = int(getattr(cfg, "DON_N_BARS", 288))
+        don_break_len = int(don_n_bars)
+        # Intraday Donchian: close > prior N-bar high (no look-ahead via shift(1)).
+        don_upper = df["high"].rolling(don_n_bars, min_periods=don_n_bars).max().shift(1)
+        df["donch_break_level"] = don_upper.astype(float)
+        df["donch_break_ok"] = (df["close"] > df["donch_break_level"]) & df["donch_break_level"].notna()
+    else:
+        raise ValueError(f"Unsupported DONCH_BASIS={don_basis!r}; expected 'days' or 'bars'.")
 
     # --- Volume spike: mirror volume_median_multiple op (using bars) ---
     vol_mode = getattr(cfg, "VOL_SPIKE_MODE", "multiple")
@@ -1245,7 +1230,7 @@ def detect_signals_for_symbol(sym: str, rs_table: Optional[pd.DataFrame]) -> pd.
                 "symbol": sym,
                 "entry": float(close[i]),
                 "atr": float(atrv[i]) if np.isfinite(atrv[i]) else np.nan,
-                "don_break_len": don_n_days,
+                "don_break_len": don_break_len,
                 "don_break_level": float(lev),
                 "pullback_type": "retest",
                 "entry_rule": "donch_yaml_v1",

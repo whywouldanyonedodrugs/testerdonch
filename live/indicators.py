@@ -28,9 +28,7 @@ except ImportError:
     try:
         import pandas_ta as pta  # type: ignore
     except ImportError as exc:
-        raise ImportError("Neither TA‑Lib nor pandas_ta is installed.\n"
-                          "Run `pip install ta-lib‑binary` (Windows) or `pip install pandas_ta`."
-                          ) from exc
+        pta = None
     _HAS_TA = False
 
 # --- MODIFICATION: Add 'adx' to the export list ---
@@ -46,6 +44,17 @@ def ema(series: pd.Series, span: int) -> pd.Series:
 def atr(df: pd.DataFrame, period: int) -> pd.Series:
     if _HAS_TA:
         return pd.Series(talib.ATR(df["high"], df["low"], df["close"], timeperiod=period), index=df.index)
+    if pta is None:
+        prev_close = df["close"].shift(1)
+        tr = pd.concat(
+            [
+                (df["high"] - df["low"]).abs(),
+                (df["high"] - prev_close).abs(),
+                (df["low"] - prev_close).abs(),
+            ],
+            axis=1,
+        ).max(axis=1)
+        return tr.ewm(alpha=1 / period, adjust=False).mean()
     atr_series = pta.atr(high=df["high"], low=df["low"], close=df["close"], length=period)
     if atr_series is None:
         return pd.Series(dtype='float64', index=df.index)
@@ -55,6 +64,14 @@ def atr(df: pd.DataFrame, period: int) -> pd.Series:
 def rsi(series: pd.Series, period: int = 14) -> pd.Series:
     if _HAS_TA:
         return pd.Series(talib.RSI(series, timeperiod=period), index=series.index)
+    if pta is None:
+        delta = series.diff()
+        up = delta.clip(lower=0.0)
+        down = -delta.clip(upper=0.0)
+        up_ema = up.ewm(alpha=1 / period, adjust=False).mean()
+        down_ema = down.ewm(alpha=1 / period, adjust=False).mean()
+        rs = up_ema / down_ema.replace(0.0, np.nan)
+        return 100.0 - 100.0 / (1.0 + rs)
     rsi_series = pta.rsi(series, length=period)
     if rsi_series is None:
         return pd.Series(dtype='float64', index=series.index)
@@ -70,6 +87,12 @@ def macd(series: pd.Series) -> pd.DataFrame:
         return pd.DataFrame(
             {"macd": macd, "signal": sig, "hist": hist}, index=series.index
         )
+
+    if pta is None:
+        macd_line = series.ewm(span=12, adjust=False).mean() - series.ewm(span=26, adjust=False).mean()
+        signal = macd_line.ewm(span=9, adjust=False).mean()
+        hist = macd_line - signal
+        return pd.DataFrame({"macd": macd_line, "signal": signal, "hist": hist}, index=series.index)
 
     df_raw = pta.macd(series)
     mapping = {}
@@ -126,6 +149,27 @@ def adx(df: pd.DataFrame, period: int = 14) -> pd.Series:
     if _HAS_TA:
         adx_series = talib.ADX(df["high"], df["low"], df["close"], timeperiod=period)
         return pd.Series(adx_series, index=df.index)
+
+    if pta is None:
+        high, low, close = df["high"], df["low"], df["close"]
+        prev_close = close.shift(1)
+        tr = pd.concat(
+            [
+                (high - low).abs(),
+                (high - prev_close).abs(),
+                (low - prev_close).abs(),
+            ],
+            axis=1,
+        ).max(axis=1)
+        atr_series = tr.ewm(alpha=1 / period, adjust=False).mean()
+        up_move = high.diff().clip(lower=0.0)
+        down_move = (low.shift(1) - low).clip(lower=0.0)
+        plus_dm = ((up_move > down_move) * up_move).ewm(alpha=1 / period, adjust=False).mean()
+        minus_dm = ((down_move > up_move) * down_move).ewm(alpha=1 / period, adjust=False).mean()
+        pdi = 100 * plus_dm / atr_series.replace(0.0, np.nan)
+        ndi = 100 * minus_dm / atr_series.replace(0.0, np.nan)
+        dx = ((pdi - ndi).abs() / (pdi + ndi).replace(0.0, np.nan)) * 100
+        return dx.ewm(alpha=1 / period, adjust=False).mean()
     
     # pandas_ta fallback
     adx_df = pta.adx(high=df["high"], low=df["low"], close=df["close"], length=period)

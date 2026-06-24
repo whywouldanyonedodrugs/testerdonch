@@ -8,7 +8,7 @@ import config as cfg
 BT_TRADES_PATH = Path("results/trades.csv")
 LIVE_TRADES_PATH = Path("results/livetrading.csv")
 SIGNALS_DIR = Path("signals")
-PARQUET_DIR = Path("parquet")
+PARQUET_DIR = Path("/opt/parquet/5m")
 
 def load_data():
     # Load Trades

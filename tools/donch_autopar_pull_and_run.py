@@ -65,7 +65,7 @@ def _parse_args() -> argparse.Namespace:
     p.add_argument("--python", default=sys.executable)
     p.add_argument("--daily-script", default="tools/donch_autopar_daily.py")
 
-    p.add_argument("--parquet-dir", default="/opt/fader2/parquet")
+    p.add_argument("--parquet-dir", default="/opt/parquet/5m")
     p.add_argument("--parquet-1m-dir", default="")
     p.add_argument(
         "--model-dir",

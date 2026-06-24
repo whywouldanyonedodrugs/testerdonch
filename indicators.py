@@ -31,20 +31,122 @@ def _ensure_dtindex(df: pd.DataFrame) -> pd.DataFrame:
     raise ValueError("DataFrame must have DatetimeIndex or 'timestamp' column")
 
 
+def _ensure_utc_dtindex(index_like) -> pd.DatetimeIndex:
+    idx = pd.to_datetime(index_like, utc=True, errors="coerce")
+    if not isinstance(idx, pd.DatetimeIndex):
+        idx = pd.DatetimeIndex(idx)
+    if idx.tz is None:
+        idx = idx.tz_localize("UTC")
+    else:
+        idx = idx.tz_convert("UTC")
+    return idx
+
+
+def _normalize_timeframe_alias(timeframe: str) -> str:
+    tf = str(timeframe).strip()
+    aliases = {
+        "1m": "1min",
+        "3m": "3min",
+        "5m": "5min",
+        "15m": "15min",
+        "30m": "30min",
+        "1h": "1h",
+        "2h": "2h",
+        "4h": "4h",
+        "1d": "1D",
+    }
+    return aliases.get(tf, tf)
+
+
+def _to_timedelta(value) -> pd.Timedelta:
+    if isinstance(value, pd.Timedelta):
+        return value
+    if value is None:
+        return pd.Timedelta(0)
+    return pd.Timedelta(_normalize_timeframe_alias(str(value)))
+
+
 def resample_ohlcv(df: pd.DataFrame, timeframe: str) -> pd.DataFrame:
-    """Simple OHLCV resampler; expects tz-aware 'timestamp' index."""
+    """
+    OHLCV resampler with CLOSE-labeled bins (Option A / last-closed semantics).
+    Returned index timestamp is the bar close time.
+    """
     df = df.copy()
     if not isinstance(df.index, pd.DatetimeIndex):
         df = df.set_index(pd.to_datetime(df["timestamp"], utc=True))
-    o = df["open"].resample(timeframe).first()
-    h = df["high"].resample(timeframe).max()
-    l = df["low"].resample(timeframe).min()
-    c = df["close"].resample(timeframe).last()
-    v = df["volume"].resample(timeframe).sum()
+    timeframe = _normalize_timeframe_alias(timeframe)
+    o = df["open"].resample(timeframe, label="right", closed="right").first()
+    h = df["high"].resample(timeframe, label="right", closed="right").max()
+    l = df["low"].resample(timeframe, label="right", closed="right").min()
+    c = df["close"].resample(timeframe, label="right", closed="right").last()
+    v = df["volume"].resample(timeframe, label="right", closed="right").sum()
     out = pd.DataFrame({"open": o, "high": h, "low": l, "close": c, "volume": v})
     out.index = out.index.tz_convert("UTC")
     out.index.name = "timestamp"
     return out.dropna(how="any")
+
+
+def align_series_point_in_time(
+    target_index: pd.DatetimeIndex,
+    source_series: pd.Series,
+    *,
+    availability_lag: str | pd.Timedelta | None = None,
+) -> pd.Series:
+    """
+    Backward as-of align a source series to target timestamps.
+
+    `source_series.index` is treated as the earliest timestamp at which the value
+    becomes available. `availability_lag` delays that availability further,
+    which is useful for exogenous feeds with ambiguous publication timing.
+    """
+    tgt = _ensure_utc_dtindex(target_index)
+    s = source_series.copy()
+    s.index = _ensure_utc_dtindex(s.index)
+    s = s[~s.index.isna()].sort_index()
+    if len(s.index) and s.index.has_duplicates:
+        s = s[~s.index.duplicated(keep="last")]
+
+    lag = _to_timedelta(availability_lag)
+    if lag != pd.Timedelta(0):
+        s.index = s.index + lag
+        s = s.sort_index()
+        if s.index.has_duplicates:
+            s = s[~s.index.duplicated(keep="last")]
+
+    return s.reindex(tgt, method="ffill")
+
+
+def align_series_point_in_time_with_provenance(
+    target_index: pd.DatetimeIndex,
+    source_series: pd.Series,
+    *,
+    timeframe: str | None = None,
+    availability_lag: str | pd.Timedelta | None = None,
+) -> tuple[pd.Series, pd.Series, pd.Series]:
+    """
+    Return `(mapped_value, source_open_ts, source_close_or_publish_ts)`.
+
+    For OHLCV-derived HTF series, pass `timeframe` so `source_open_ts` can be
+    reconstructed from the close-labeled source index.
+    For exogenous event series, omit `timeframe`; `source_open_ts` will equal the
+    effective publish timestamp.
+    """
+    mapped = align_series_point_in_time(
+        target_index,
+        source_series,
+        availability_lag=availability_lag,
+    )
+    publish_or_close = align_series_point_in_time(
+        target_index,
+        pd.Series(source_series.index, index=source_series.index),
+        availability_lag=availability_lag,
+    )
+    publish_or_close = pd.to_datetime(publish_or_close, utc=True, errors="coerce")
+    if timeframe is None:
+        source_open = publish_or_close.copy()
+    else:
+        source_open = publish_or_close - _to_timedelta(timeframe)
+    return mapped, source_open, publish_or_close
 
 # --------------------- Core indicators ---------------------
 
@@ -98,11 +200,12 @@ def macd_histogram_tf(
     close.index.name = "timestamp"
 
     if timeframe:
-        close_tf = close.resample(timeframe).last().dropna()
+        timeframe = _normalize_timeframe_alias(timeframe)
+        close_tf = close.resample(timeframe, label="right", closed="right").last().dropna()
         macd_line = close_tf.ewm(span=fast, adjust=False).mean() - close_tf.ewm(span=slow, adjust=False).mean()
         sig      = macd_line.ewm(span=signal, adjust=False).mean()
         hist_tf  = (macd_line - sig).astype(float)
-        return hist_tf.reindex(close.index, method="ffill").astype(float)
+        return align_series_point_in_time(close.index, hist_tf).astype(float)
 
     # base-TF MACD
     macd_line = close.ewm(span=fast, adjust=False).mean() - close.ewm(span=slow, adjust=False).mean()
@@ -158,9 +261,19 @@ def donchian_upper_days(high_5m: pd.Series, n_days: int) -> pd.Series:
     else:
         high_5m.index = high_5m.index.tz_localize("UTC") if high_5m.index.tz is None else high_5m.index.tz_convert("UTC")
 
-    daily_high = high_5m.resample("1D").max().dropna()
-    don_daily  = daily_high.rolling(n_days, min_periods=n_days).max().shift(1)
-    return don_daily.reindex(high_5m.index, method="ffill")
+    day_key = _ensure_utc_dtindex(high_5m.index).floor("D")
+    daily_high = high_5m.groupby(day_key).max().dropna()
+    don_daily = daily_high.rolling(n_days, min_periods=n_days).max().shift(1)
+    keyed = don_daily.reindex(day_key)
+    arr = keyed.ffill().to_numpy(dtype=float)
+    return pd.Series(arr, index=high_5m.index, name="donchian_upper_days")
+
+
+def donchian_upper_days_no_lookahead(high_5m: pd.Series, n_days: int) -> pd.Series:
+    """
+    Explicit alias for the completed-days-only Donchian helper.
+    """
+    return donchian_upper_days(high_5m, n_days)
 
 # --------------------- Volume spike (two flavors) ---------------------
 
@@ -168,10 +281,11 @@ _MAX_BN_WINDOW = 1000
 
 
 def map_to_left_index(target_index: pd.DatetimeIndex, ts_to_value: pd.Series) -> pd.Series:
-    """Align right (feature) series to left timestamps via last-known value forward-fill."""
-    s = ts_to_value.copy()
-    s.index = pd.to_datetime(s.index, utc=True)
-    return s.reindex(target_index, method="ffill")
+    """
+    Backward as-of align feature series to target timestamps.
+    Works for close-labeled HTF series under last-closed semantics.
+    """
+    return align_series_point_in_time(target_index, ts_to_value)
 
 def rolling_median_multiple(vol: pd.Series, lookback_bars: int) -> pd.Series:
     med = vol.rolling(lookback_bars, min_periods=max(5, lookback_bars//10)).median()

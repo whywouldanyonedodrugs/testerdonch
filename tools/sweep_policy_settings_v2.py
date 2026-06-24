@@ -321,6 +321,9 @@ except Exception:
 
 out_dir = Path(os.environ["DONCH_OUT_DIR"]).resolve()
 signals_dir = Path(os.environ["DONCH_SIGNALS_DIR"]).resolve()
+parquet_dir = Path(os.environ["DONCH_PARQUET_DIR"]).resolve() if os.environ.get("DONCH_PARQUET_DIR") else None
+parquet_1m_dir = Path(os.environ["DONCH_PARQUET_1M_DIR"]).resolve() if os.environ.get("DONCH_PARQUET_1M_DIR") else None
+parquet_1m_fallback_dir = Path(os.environ["DONCH_PARQUET_1M_FALLBACK_DIR"]).resolve() if os.environ.get("DONCH_PARQUET_1M_FALLBACK_DIR") else None
 start = os.environ["DONCH_START"]
 end = os.environ["DONCH_END"]
 overrides = json.loads(os.environ["DONCH_OVERRIDES_JSON"])
@@ -328,6 +331,12 @@ overrides = json.loads(os.environ["DONCH_OVERRIDES_JSON"])
 # IMPORTANT: set these as Path objects (backtester uses .glob() and Path / "file" ops)
 setattr(cfg, "RESULTS_DIR", out_dir)
 setattr(cfg, "SIGNALS_DIR", signals_dir)
+if parquet_dir is not None:
+    setattr(cfg, "PARQUET_DIR", parquet_dir)
+if parquet_1m_dir is not None:
+    setattr(cfg, "PARQUET_1M_DIR", parquet_1m_dir)
+if parquet_1m_fallback_dir is not None:
+    setattr(cfg, "PARQUET_1M_FALLBACK_DIR", parquet_1m_fallback_dir)
 
 # Also set common alternative names if they exist (safe no-ops otherwise)
 for k in ("SIGNALS_PATH",):
@@ -365,10 +374,16 @@ def run_backtest_subprocess(
 ) -> Tuple[int, str]:
     run_dir.mkdir(parents=True, exist_ok=True)
 
+    cfg = import_cfg()
     env = os.environ.copy()
     env["DONCH_REPO_ROOT"] = str(REPO_ROOT)
     env["DONCH_OUT_DIR"] = str(run_dir.resolve())
     env["DONCH_SIGNALS_DIR"] = str(signals_dir.resolve())
+    env["DONCH_PARQUET_DIR"] = str(Path(getattr(cfg, "PARQUET_DIR", REPO_ROOT / "parquet")).resolve())
+    if hasattr(cfg, "PARQUET_1M_DIR"):
+        env["DONCH_PARQUET_1M_DIR"] = str(Path(getattr(cfg, "PARQUET_1M_DIR")).resolve())
+    if hasattr(cfg, "PARQUET_1M_FALLBACK_DIR"):
+        env["DONCH_PARQUET_1M_FALLBACK_DIR"] = str(Path(getattr(cfg, "PARQUET_1M_FALLBACK_DIR")).resolve())
     env["DONCH_START"] = start
     env["DONCH_END"] = end
     env["DONCH_OVERRIDES_JSON"] = json.dumps(overrides, sort_keys=True)

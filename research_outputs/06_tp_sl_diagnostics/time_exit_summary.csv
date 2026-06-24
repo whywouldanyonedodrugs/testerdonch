@@ -1,9 +1,0 @@
-metric,value
-n_time,1462.0
-mean_pnl_R_time,0.8759791091397986
-pnl_R_time_q50,0.7306322739439125
-pnl_R_time_q25,0.08695780923364696
-pnl_R_time_q75,1.5837585813574302
-time_exit_winrate_pnlR_gt_0,0.7790697674418605
-hours_in_trade_time_q50,72.0
-hours_in_trade_time_q90,72.0

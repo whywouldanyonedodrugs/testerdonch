@@ -7,7 +7,7 @@ import config as cfg
 # --- Config ---
 BT_TRADES_PATH = Path("results/trades.csv")
 SIGNALS_DIR = Path("signals")
-PARQUET_DIR = Path("parquet")
+PARQUET_DIR = Path("/opt/parquet/5m")
 
 def load_zombies():
     # Load trades and filter for those identified as Zombies in previous steps

@@ -147,7 +147,7 @@ def compute_daily_regime_snapshot(
 
     # Trend regime (TMA + ATR bands)
     tma = triangular_moving_average(close, int(ma_period))
-    atr_d = ta.atr(df_use, int(atr_period)).reindex(df_use.index, method="ffill")
+    atr_d = ta.atr(df_use, int(atr_period)).reindex(df_use.index)
 
     upper = tma + float(atr_mult) * atr_d
     lower = tma - float(atr_mult) * atr_d
@@ -155,7 +155,7 @@ def compute_daily_regime_snapshot(
     trend = pd.Series(index=df_use.index, dtype="object")
     trend.loc[close > upper] = "BULL"
     trend.loc[close < lower] = "BEAR"
-    trend = trend.ffill().bfill()
+    trend = trend.ffill()
 
     # Snapshot at last fully-closed day
     last_idx = df_use.index[-1]
@@ -166,7 +166,7 @@ def compute_daily_regime_snapshot(
     combined = f"{str(tr_last)}_{str(vr_last)}"
     code = REGIME_CODE_MAP.get(combined, None)
 
-    if code is None or not np.isfinite(float(vpl_last)):
+    if pd.isna(tr_last) or code is None or not np.isfinite(float(vpl_last)):
         raise ValueError(f"Daily regime snapshot not fully defined (combined={combined}, vol_prob={vpl_last})")
 
     return {

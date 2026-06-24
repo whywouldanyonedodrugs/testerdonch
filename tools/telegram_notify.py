@@ -4,6 +4,8 @@ from __future__ import annotations
 import json
 import os
 import socket
+import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -17,9 +19,34 @@ TOKEN_ENV = "DONCH_TG_BOT_TOKEN"
 CHAT_ENV = "DONCH_TG_CHAT_ID"
 MAX_MSG_LEN = 3500
 
+TOKEN_ENV_ALIASES = (
+    "DONCH_TG_BOT_TOKEN",
+    "DONCH_TG_TOKEN",
+    "DONCH_TELEGRAM_BOT_TOKEN",
+    "TG_BOT_TOKEN",
+    "TELEGRAM_BOT_TOKEN",
+    "BOT_TOKEN",
+)
+CHAT_ENV_ALIASES = (
+    "DONCH_TG_CHAT_ID",
+    "DONCH_CHAT_ID",
+    "DONCH_TELEGRAM_CHAT_ID",
+    "TG_CHAT_ID",
+    "TELEGRAM_CHAT_ID",
+    "CHAT_ID",
+)
+
 
 def _safe(value: Optional[str]) -> str:
     return (value or "").strip()
+
+
+def _first_env(names: tuple[str, ...]) -> str:
+    for n in names:
+        v = _safe(os.environ.get(n))
+        if v:
+            return v
+    return ""
 
 
 def _clip(msg: str) -> str:
@@ -91,6 +118,23 @@ def send_telegram_message(token: str, chat_id: str, text: str, timeout_sec: floa
     _post_json(_api_url(tok, "sendMessage"), payload, timeout_sec=timeout_sec)
 
 
+def _log_send_failure(run_label: str, title: str, err: Exception) -> None:
+    ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%SZ")
+    line = f"[tg-notify] send_failed utc={ts} run_label={run_label} title={title} err={type(err).__name__}: {err}"
+    try:
+        print(line, file=sys.stderr, flush=True)
+    except Exception:
+        pass
+    path = _safe(os.environ.get("DONCH_TG_FAIL_LOG"))
+    if path:
+        try:
+            Path(path).expanduser().resolve().parent.mkdir(parents=True, exist_ok=True)
+            with Path(path).expanduser().resolve().open("a", encoding="utf-8") as f:
+                f.write(line + "\n")
+        except Exception:
+            pass
+
+
 @dataclass
 class TelegramNotifier:
     token: str
@@ -109,8 +153,8 @@ class TelegramNotifier:
         chat_attr: str = "tg_chat_id",
         auto_chat_attr: str = "tg_auto_chat",
     ) -> "TelegramNotifier":
-        tok = _safe(getattr(args, token_attr, "")) or _safe(os.environ.get(TOKEN_ENV))
-        cid = _safe(getattr(args, chat_attr, "")) or _safe(os.environ.get(CHAT_ENV))
+        tok = _safe(getattr(args, token_attr, "")) or _first_env(TOKEN_ENV_ALIASES)
+        cid = _safe(getattr(args, chat_attr, "")) or _first_env(CHAT_ENV_ALIASES)
         auto_chat = bool(getattr(args, auto_chat_attr, False))
         if tok and (not cid) and auto_chat:
             cid = _safe(discover_chat_id(tok) or "")
@@ -144,8 +188,15 @@ class TelegramNotifier:
         msg = f"[{self.run_label}] {title}\nUTC: {ts}\nHost: {host}\nCWD: {cwd}"
         if body.strip():
             msg += f"\n\n{body.strip()}"
-        try:
-            send_telegram_message(self.token, self.chat_id, msg)
-            return True
-        except (urllib.error.URLError, TimeoutError, OSError, RuntimeError, ValueError):
-            return False
+        last_err: Optional[Exception] = None
+        for attempt in range(3):
+            try:
+                send_telegram_message(self.token, self.chat_id, msg)
+                return True
+            except (urllib.error.URLError, TimeoutError, OSError, RuntimeError, ValueError) as exc:
+                last_err = exc
+                if attempt < 2:
+                    time.sleep(1.0 + attempt)
+        if last_err is not None:
+            _log_send_failure(self.run_label, title, last_err)
+        return False

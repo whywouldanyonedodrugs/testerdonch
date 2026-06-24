@@ -106,6 +106,40 @@ def _normalize_timestamp_column(df: pd.DataFrame) -> Optional[pd.DatetimeIndex]:
 
 # ---------------- Symbol discovery ----------------
 
+def resolve_symbol_parquet_path(symbol: str, root: Path) -> Optional[Path]:
+    """
+    Resolve a symbol parquet beneath a root.
+    Prefer the canonical flat-file path and fall back to a recursive lookup for
+    partitioned or archived layouts.
+    """
+    root = Path(root)
+    exact = root / f"{symbol}.parquet"
+    if exact.exists():
+        return exact
+    if not root.exists():
+        return None
+    matches = list(root.rglob(f"{symbol}.parquet"))
+    return matches[0] if matches else None
+
+def resolve_intrabar_1m_path(symbol: str) -> Optional[Path]:
+    """
+    Resolve a symbol's 1m parquet from the shared lake.
+    Contract: prefer the hot store, then fall back to the cold 1m lake.
+    """
+    roots: list[Path] = []
+    primary = Path(cfg.PARQUET_1M_DIR)
+    fallback = Path(getattr(cfg, "PARQUET_1M_FALLBACK_DIR", primary))
+
+    for root in (primary, fallback):
+        if root not in roots:
+            roots.append(root)
+
+    for root in roots:
+        path = resolve_symbol_parquet_path(symbol, root)
+        if path is not None:
+            return path
+    return None
+
 def get_symbols_from_file() -> list[str]:
     """
     Universe:
@@ -167,13 +201,10 @@ def load_parquet_data(symbol: str,
       - Returns a DataFrame indexed by tz-aware UTC 'timestamp'
     """
     # Locate file
-    p = Path(cfg.PARQUET_DIR) / f"{symbol}.parquet"
-    if not p.exists():
-        alts = list(Path(cfg.PARQUET_DIR).rglob(f"{symbol}.parquet"))
-        if not alts:
-            print(f"[load_parquet_data] {symbol}: parquet not found under {cfg.PARQUET_DIR}")
-            return pd.DataFrame()
-        p = alts[0]
+    p = resolve_symbol_parquet_path(symbol, Path(cfg.PARQUET_DIR))
+    if p is None:
+        print(f"[load_parquet_data] {symbol}: parquet not found under {cfg.PARQUET_DIR}")
+        return pd.DataFrame()
 
     # Compute columns to read (add one time-like column if needed)
     try:

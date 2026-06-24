@@ -117,9 +117,7 @@ def compute_daily_combined_regime(conf: DailyRegimeConfig | None = None) -> pd.D
     if df5.empty:
         return pd.DataFrame(columns=["trend_regime", "vol_regime", "vol_prob_low", "regime", "regime_code"])
 
-    daily_ohlc_full = df5.resample("1D").agg(
-        {"open": "first", "high": "max", "low": "min", "close": "last"}
-    ).dropna()
+    daily_ohlc_full = resample_ohlcv(df5, "1D")[["open", "high", "low", "close"]].dropna()
 
     daily_full = pd.DataFrame(index=daily_ohlc_full.index)
     daily_full["close"] = daily_ohlc_full["close"]
@@ -181,8 +179,7 @@ def compute_daily_combined_regime(conf: DailyRegimeConfig | None = None) -> pd.D
     # 3) Trend via TMA + Keltner (computed on FULL range, then sliced)
     # -------------------------
     tma_full = triangular_moving_average(daily_full["close"], int(c.ma_period))
-    atr_full = ta.atr(daily_ohlc_full, length=int(c.atr_period))
-    atr_full = atr_full.reindex(daily_full.index, method="ffill")
+    atr_full = ta.atr(daily_ohlc_full, length=int(c.atr_period)).reindex(daily_full.index)
 
     upper_full = tma_full + c.atr_mult * atr_full
     lower_full = tma_full - c.atr_mult * atr_full
@@ -190,7 +187,7 @@ def compute_daily_combined_regime(conf: DailyRegimeConfig | None = None) -> pd.D
     trend_full = pd.Series(index=daily_full.index, dtype="object")
     trend_full[daily_full["close"] > upper_full] = "BULL"
     trend_full[daily_full["close"] < lower_full] = "BEAR"
-    trend_full = trend_full.ffill().bfill()
+    trend_full = trend_full.ffill()
 
     daily["trend_regime"] = trend_full.reindex(daily.index)
 

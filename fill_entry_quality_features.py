@@ -7,7 +7,7 @@ import pandas as pd
 
 import config as cfg
 from shared_utils import load_parquet_data
-from indicators import resample_ohlcv, atr
+from indicators import atr, donchian_upper_days_no_lookahead, map_to_left_index, resample_ohlcv
 
 
 def compute_entry_quality_panel(df5: pd.DataFrame) -> pd.DataFrame:
@@ -40,13 +40,11 @@ def compute_entry_quality_panel(df5: pd.DataFrame) -> pd.DataFrame:
     # ATR(1h) mapped to 5m
     df1h = resample_ohlcv(df5, "1h")
     atr1h = atr(df1h, int(getattr(cfg, "ATR_LEN", 14)))
-    atr1h_5m = atr1h.reindex(idx, method="ffill")
+    atr1h_5m = map_to_left_index(idx, atr1h)
 
     # days_since_prev_break vs daily Donch upper
     N = int(getattr(cfg, "DON_N_DAYS", 20))
-    daily_high = df5["high"].resample("1D").max().dropna()
-    don_daily = daily_high.rolling(N, min_periods=N).max().shift(1)
-    don_5m = don_daily.reindex(idx, method="ffill")
+    don_5m = pd.Series(donchian_upper_days_no_lookahead(df5["high"], N), index=idx)
 
     touch = (df5["high"] >= don_5m)
     touch_time = pd.Series(idx.where(touch), index=idx)
@@ -149,6 +147,7 @@ def main():
             right_on="timestamp",
             direction="backward",
             allow_exact_matches=True,
+            tolerance=pd.Timedelta("5min"),
         ).sort_values("_idx")
 
         for c in ["days_since_prev_break", "consolidation_range_atr", "prior_1d_ret", "rv_3d"]:

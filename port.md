@@ -27,10 +27,11 @@ Universe → RS/liq filter → Regime gate → Daily Donch breakout + Volume spi
 ## 2) Data contracts & directories
 
 ```
-parquet/          # 5-minute OHLCV per symbol (UTC); required columns: timestamp, open, high, low, close, volume
-parquet_1m/       # optional 1-minute OHLCV per symbol (UTC) for intrabar resolution
-signals/          # generated candidate entries (parquet)
-results/          # backtests, equity, aggregates; meta outputs live under results/meta/*
+/opt/parquet/5m          # canonical shared 5-minute OHLCV per symbol (UTC); required columns: timestamp, open, high, low, close, volume
+/opt/parquet/1m_hot      # canonical shared primary 1-minute OHLCV store for intrabar resolution
+/opt/parquet/1m          # canonical shared fallback 1-minute OHLCV store when the hot store is missing a symbol
+signals/                 # generated candidate entries (parquet)
+results/                 # backtests, equity, aggregates; meta outputs live under results/meta/*
 ```
 
 **Timestamps**: tz-aware UTC. All merges/joins must coerce to UTC.

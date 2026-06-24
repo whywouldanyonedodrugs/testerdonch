@@ -4,12 +4,17 @@ from __future__ import annotations
 import argparse
 import ast
 import json
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+from feature_registry import registry_feature_names, registry_rows_by_test_type
 
 
 @dataclass(frozen=True)
@@ -162,6 +167,166 @@ def check_merge_asof_contract(path: Path, require_tolerance: bool) -> List[Viola
     return violations
 
 
+def check_htf_resample_contract(indicators_path: Path) -> List[Violation]:
+    """
+    Static guard: resample_ohlcv and MACD-TF resampling must use close-labeled bins.
+    """
+    violations: List[Violation] = []
+    rel = _rel_or_abs(indicators_path)
+    src = indicators_path.read_text(encoding="utf-8")
+    tree = ast.parse(src, filename=str(indicators_path))
+
+    for fn_name in ("resample_ohlcv", "macd_histogram_tf"):
+        seg = _function_segment(src, tree, fn_name)
+        if not seg:
+            violations.append(
+                Violation(
+                    code="HTF_FN_MISSING",
+                    message=f"required function not found: {fn_name}",
+                    file=rel,
+                    line=0,
+                )
+            )
+            continue
+        if 'label="right"' not in seg or 'closed="right"' not in seg:
+            violations.append(
+                Violation(
+                    code="HTF_RESAMPLE_LABEL",
+                    message=f"{fn_name} must use resample(..., label='right', closed='right')",
+                    file=rel,
+                    line=0,
+                )
+            )
+    return violations
+
+
+def check_no_left_labeled_resample(path: Path) -> List[Violation]:
+    violations: List[Violation] = []
+    src = path.read_text(encoding="utf-8")
+    rel = _rel_or_abs(path)
+    if 'label="left"' in src or "label='left'" in src:
+        violations.append(
+            Violation(
+                code="LEFT_LABELLED_RESAMPLE",
+                message="active decision-time code must not use label='left' resampling",
+                file=rel,
+                line=0,
+            )
+        )
+    if 'closed="left"' in src or "closed='left'" in src:
+        violations.append(
+            Violation(
+                code="LEFT_CLOSED_RESAMPLE",
+                message="active decision-time code must not use closed='left' resampling",
+                file=rel,
+                line=0,
+            )
+        )
+    return violations
+
+
+def check_no_inline_ffill_alignment(path: Path) -> List[Violation]:
+    violations: List[Violation] = []
+    src = path.read_text(encoding="utf-8")
+    rel = _rel_or_abs(path)
+    if 'method="ffill"' in src or "method='ffill'" in src:
+        violations.append(
+            Violation(
+                code="INLINE_FFILL_ALIGNMENT",
+                message="active decision-time code must use canonical point-in-time helpers instead of inline reindex(..., method='ffill')",
+                file=rel,
+                line=0,
+            )
+        )
+    if ".ffill().bfill()" in src:
+        violations.append(
+            Violation(
+                code="FFILL_BFILL_LEAK",
+                message="active decision-time code must not backfill from future values",
+                file=rel,
+                line=0,
+            )
+        )
+    return violations
+
+
+def _load_manifest_features(path: Path) -> Tuple[List[str], List[str]]:
+    obj = json.loads(path.read_text(encoding="utf-8"))
+    feats = obj.get("features", obj)
+    if not isinstance(feats, dict):
+        return [], []
+    num = list(feats.get("numeric_cols") or feats.get("num_cols") or [])
+    cat = list(feats.get("cat_cols") or [])
+    return num, cat
+
+
+def check_feature_registry_contract(repo_root: Path) -> List[Violation]:
+    violations: List[Violation] = []
+    reg_names = set(registry_feature_names())
+    rows_by_test = registry_rows_by_test_type()
+    rel = "feature_registry.py"
+
+    for required in (
+        "decision_bar_close",
+        "htf_last_closed",
+        "daily_snapshot",
+        "truncation_equivalence",
+        "exogenous_publish",
+        "derived_from_causal",
+        "trade_history",
+        "same_timestamp_cross_sectional",
+    ):
+        if not rows_by_test.get(required):
+            violations.append(
+                Violation(
+                    code="FEATURE_REGISTRY_TESTTYPE",
+                    message=f"feature registry missing required test_type bucket: {required}",
+                    file=rel,
+                    line=0,
+                )
+            )
+
+    manifest_paths = [
+        repo_root / "research_outputs" / "07_deployment_artifacts" / "feature_manifest.json",
+        repo_root / "research_outputs_rs30" / "07_deployment_artifacts" / "feature_manifest.json",
+    ]
+    for mp in manifest_paths:
+        if not mp.exists():
+            continue
+        num, cat = _load_manifest_features(mp)
+        missing = sorted(set(num + cat) - reg_names)
+        if missing:
+            violations.append(
+                Violation(
+                    code="FEATURE_REGISTRY_MISSING",
+                    message=f"registry missing manifest features from {mp.name}: {missing[:10]}",
+                    file=rel,
+                    line=0,
+                )
+            )
+
+    extra_required = {
+        "recent_winrate_20",
+        "recent_winrate_50",
+        "recent_winrate_ewm_20",
+        "asset4h_share_at_timestamp",
+        "liq30_eqw_ret_72h",
+        "liq30_pos_share_24h",
+        "liq30_new_20d_high_share",
+    }
+    missing_extra = sorted(extra_required - reg_names)
+    if missing_extra:
+        violations.append(
+            Violation(
+                code="FEATURE_REGISTRY_ACTIVE_GAP",
+                message=f"registry missing active non-manifest features: {missing_extra}",
+                file=rel,
+                line=0,
+            )
+        )
+    return violations
+
+
 def run_checks(repo_root: Path) -> Dict[str, object]:
     violations: List[Violation] = []
 
@@ -170,9 +335,10 @@ def run_checks(repo_root: Path) -> Dict[str, object]:
 
     merge_specs = [
         ("backtester.py", True),
-        ("fill_entry_quality_features.py", False),
-        ("backfill_trade_features.py", False),
+        ("fill_entry_quality_features.py", True),
+        ("backfill_trade_features.py", True),
         ("pull.py", False),
+        ("tools/run_v3_frozen_oos.py", True),
     ]
     for rel, req_tol in merge_specs:
         p = (repo_root / rel).resolve()
@@ -188,9 +354,43 @@ def run_checks(repo_root: Path) -> Dict[str, object]:
             continue
         violations.extend(check_merge_asof_contract(p, require_tolerance=req_tol))
 
+    indicators_path = (repo_root / "indicators.py").resolve()
+    if indicators_path.exists():
+        violations.extend(check_htf_resample_contract(indicators_path))
+    else:
+        violations.append(
+            Violation(
+                code="FILE_MISSING",
+                message="required file missing: indicators.py",
+                file="indicators.py",
+                line=0,
+            )
+        )
+
+    violations.extend(check_feature_registry_contract(repo_root))
+
+    left_label_specs = [
+        "backtester.py",
+        "backtester_b_gemin.py",
+        "live/live_trader.py",
+        "live/regime_features.py",
+        "live/feature_builder.py",
+        "fill_entry_quality_features.py",
+        "scout.py",
+        "backfill_trade_features.py",
+        "regime_detector.py",
+        "tools/run_v3_frozen_oos.py",
+    ]
+    for rel in left_label_specs:
+        p = (repo_root / rel).resolve()
+        if not p.exists():
+            continue
+        violations.extend(check_no_left_labeled_resample(p))
+        violations.extend(check_no_inline_ffill_alignment(p))
+
     report = {
         "status": "ok" if not violations else "fail",
-        "checked_files": ["regime_detector.py"] + [x[0] for x in merge_specs],
+        "checked_files": ["regime_detector.py", "indicators.py", "feature_registry.py"] + [x[0] for x in merge_specs] + left_label_specs,
         "violation_count": len(violations),
         "violations": [
             {"code": v.code, "message": v.message, "file": v.file, "line": int(v.line)}

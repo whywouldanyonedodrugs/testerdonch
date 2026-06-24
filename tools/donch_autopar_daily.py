@@ -102,7 +102,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--end", default="", help="UTC end override.")
     p.add_argument("--window-days", type=int, default=3, help="Fallback window if start/end are not inferable.")
 
-    p.add_argument("--parquet-dir", default="/opt/fader2/parquet")
+    p.add_argument("--parquet-dir", default="/opt/parquet/5m")
     p.add_argument("--parquet-1m-dir", default="")
     p.add_argument("--model-dir", default="results/offline_releases/20260209_meta_release_v2_live_safe/meta_export_pstar_042")
     p.add_argument("--python", default=sys.executable)

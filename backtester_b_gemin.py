@@ -16,9 +16,9 @@ import pyarrow.parquet as pq
 from typing import Optional, Tuple
 
 import config as cfg
-from indicators import resample_ohlcv, atr
+from indicators import resample_ohlcv, atr, map_to_left_index
 from bt_intrabar import resolve_first_touch_1m
-from shared_utils import load_parquet_data
+from shared_utils import load_parquet_data, resolve_intrabar_1m_path
 
 
 
@@ -1300,7 +1300,7 @@ class Backtester:
         if tf:
             dft = resample_ohlcv(df, str(tf))
             atr_tf = atr(dft, int(getattr(cfg, "ATR_LEN", 14)))
-            df["atr_pre"] = atr_tf.reindex(df.index, method="ffill")
+            df["atr_pre"] = map_to_left_index(df.index, atr_tf)
         else:
             df["atr_pre"] = atr(df, int(getattr(cfg, "ATR_LEN", 14)))
 
@@ -1662,8 +1662,8 @@ class Backtester:
         if cached is not None:
             return cached
 
-        p = cfg.PARQUET_1M_DIR / f"{sym}.parquet"
-        if not p.exists():
+        p = resolve_intrabar_1m_path(sym)
+        if p is None:
             return None
 
         df = pd.read_parquet(p)

@@ -5,12 +5,14 @@ import os
 
 # --- Project paths
 PROJECT_ROOT = Path(__file__).resolve().parent
-PARQUET_DIR = PROJECT_ROOT / "parquet"        # 5m OHLCV (SYMBOL.parquet)
-PARQUET_1M_DIR = PROJECT_ROOT / "parquet_1m"  # optional 1m intrabar
+PARQUET_DIR = Path("/opt/parquet/5m")         # canonical shared 5m OHLCV lake
+PARQUET_1M_DIR = Path("/opt/parquet/1m_hot")  # canonical shared 1m hot store
+PARQUET_1M_FALLBACK_DIR = Path("/opt/parquet/1m")
 SIGNALS_DIR = PROJECT_ROOT / "signals"
 RESULTS_DIR = PROJECT_ROOT / "results"
 SYMBOLS_FILE = PROJECT_ROOT / "symbols.txt"
-for p in (PARQUET_DIR, PARQUET_1M_DIR, SIGNALS_DIR, RESULTS_DIR): p.mkdir(parents=True, exist_ok=True)
+for p in (SIGNALS_DIR, RESULTS_DIR):
+    p.mkdir(parents=True, exist_ok=True)
 
 # --- Execution window
 START_DATE: str | None = "2023-01-01"
@@ -281,5 +283,29 @@ META_MODEL_DIR = RESULTS_DIR / "meta_export"
 # --- Additional ETH 4h MACD regime overlay (slope-based) ---
 REGIME_SLOPE_FILTER_ENABLED: bool = False   # turn this ON to gate by slope
 REGIME_SLOPE_MIN: float = 0.0             # require macd_hist_slope >= this at entry
+
+# --- Risk-on determinant rule (default keeps legacy behavior) ---
+# legacy: regime_up & btc_trend_up & (~btc_vol_high)
+# legacy_and_sent_beta: legacy + sent_beta_risk_on >= RISK_ON_SENT_BETA_MIN
+# legacy_and_sent_composite: legacy + composite(sent_*) >= RISK_ON_SENT_COMPOSITE_MIN
+# legacy_and_sent_beta_funding: legacy + beta threshold + funding_z threshold
+# sent_beta_only / sent_composite_only: sentiment-driven variants for research only
+# sent_beta_funding_only: regime_up + beta threshold + funding_z threshold
+RISK_ON_RULE_MODE: str = "legacy"
+RISK_ON_SENT_BETA_MIN: float = 0.0
+RISK_ON_SENT_COMPOSITE_MIN: float = 0.0
+RISK_ON_SENT_FUNDING_Z_MIN: float = -1e9
+RISK_ON_SENT_FAIL_OPEN: bool = False
+
+# Legacy risk_on rule controls (defaults preserve current behavior)
+RISK_ON_REQUIRE_ETH_REGIME: bool = True
+RISK_ON_REQUIRE_BTC_TREND: bool = True
+RISK_ON_REQUIRE_BTC_VOL_LOW: bool = True
+RISK_ON_LEGACY_MIN_FAVORABLE: int | None = None  # None => require all enabled components
+RISK_ON_BTC_TREND_MIN: float = 0.0
+RISK_ON_BTC_VOL_HI_MULT: float = 1.0
+
+# Optional hard block for risk_on==0 candidates (used for controlled audits)
+RISK_OFF_BLOCK_WHEN_OFF: bool = False
 
 META_STRICT_SCHEMA = True

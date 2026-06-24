@@ -6,7 +6,7 @@ import config as cfg
 
 # --- Config ---
 LIVE_TRADES_PATH = Path("results/livetrading.csv")
-PARQUET_DIR = Path("parquet")
+PARQUET_DIR = Path("/opt/parquet/5m")
 
 def load_live_trades():
     if not LIVE_TRADES_PATH.exists():

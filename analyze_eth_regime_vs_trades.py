@@ -25,7 +25,7 @@ def _load_trades(results_dir: Path) -> pd.DataFrame:
 
 
 def _load_eth_ohlcv() -> pd.DataFrame:
-    parq_dir = getattr(cfg, "PARQUET_DIR", Path("parquet"))
+    parq_dir = getattr(cfg, "PARQUET_DIR", Path("/opt/parquet/5m"))
     regime_asset = getattr(cfg, "REGIME_ASSET", "ETHUSDT")
     path = Path(parq_dir) / f"{regime_asset}.parquet"
 

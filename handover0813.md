@@ -11,8 +11,8 @@
 
 ## Data model & folders 📁
 
-  * `parquet/` — Primary OHLCV bars (5-minute) per symbol; must include a `timestamp` column (UTC) or `DatetimeIndex` (UTC).
-  * `parquet_1m/` — Optional 1-minute bars for intrabar SL/TP sequencing.
+  * `/opt/parquet/5m/` — Primary shared OHLCV bars (5-minute) per symbol; must include a `timestamp` column (UTC) or `DatetimeIndex` (UTC).
+  * `/opt/parquet/1m_hot/` with fallback `/opt/parquet/1m/` — Optional shared 1-minute bars for intrabar SL/TP sequencing.
   * `signals/` — Generated entry candidates (`signals_*.parquet`).
   * `results/` — Backtests (`trades.csv|parquet`, `equity.csv|parquet`, aggregates) and meta-model outputs (`results/meta/*`).
 

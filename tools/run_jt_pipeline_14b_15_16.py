@@ -67,6 +67,7 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--jt016-max-variants", type=int, default=24)
     p.add_argument("--jt016-top-k", type=int, default=3)
     p.add_argument("--jt016-scout-workers", type=int, default=2)
+    p.add_argument("--post-rebuild-equity", action=argparse.BooleanOptionalAction, default=True)
 
     p.add_argument("--tg-bot-token", default="")
     p.add_argument("--tg-chat-id", default="")
@@ -252,6 +253,86 @@ def main() -> int:
                 f"returncode=0\nelapsed_min={dt_min:.1f}\nlog={stage_log}"
             ),
         )
+
+        # Post-stage repair: after JT-016, rebuild equity curves from trades for all variants.
+        if name == "jt016" and bool(a.post_rebuild_equity):
+            eq_run_root = results_dir / "jt016_entry_sweeps" / f"{rid}_jt016"
+            eq_log = root / "logs" / f"{idx:02d}_jt016_equity_rebuild.log"
+            eq_cmd = [
+                sys.executable,
+                str(REPO_ROOT / "tools" / "rebuild_equity_curves.py"),
+                "--run-root",
+                str(eq_run_root),
+                "--no-skip-incomplete",
+                "--write-parquet",
+                "--tg-auto-chat",
+            ]
+            if str(a.tg_bot_token).strip():
+                eq_cmd += ["--tg-bot-token", str(a.tg_bot_token).strip()]
+            if str(a.tg_chat_id).strip():
+                eq_cmd += ["--tg-chat-id", str(a.tg_chat_id).strip()]
+
+            notifier.send(
+                "STAGE_START",
+                body=(
+                    f"pipeline_run_id={rid}\nstage=post_jt016_equity_rebuild\n"
+                    f"log={eq_log}\nrun_root={eq_run_root}"
+                ),
+            )
+            eq_t0 = time.time()
+            eq_rc = _run_cmd(eq_cmd, eq_log)
+            eq_dt = (time.time() - eq_t0) / 60.0
+            stage_status.append(
+                {
+                    "stage": "jt016_equity_rebuild",
+                    "returncode": int(eq_rc),
+                    "elapsed_min": float(eq_dt),
+                    "log": str(eq_log),
+                }
+            )
+            if eq_rc != 0:
+                (root / "_STAGE.json").write_text(
+                    json.dumps(
+                        {
+                            "stage_index": idx,
+                            "stage_name": "jt016_equity_rebuild",
+                            "status": "failed",
+                            "returncode": int(eq_rc),
+                            "elapsed_min": float(eq_dt),
+                            "log": str(eq_log),
+                        },
+                        indent=2,
+                    ),
+                    encoding="utf-8",
+                )
+                (root / "pipeline_status.json").write_text(
+                    json.dumps(
+                        {
+                            "pipeline_run_id": rid,
+                            "status": "failed",
+                            "failed_stage": "jt016_equity_rebuild",
+                            "stage_status": stage_status,
+                        },
+                        indent=2,
+                    ),
+                    encoding="utf-8",
+                )
+                notifier.send(
+                    "FAILED",
+                    body=(
+                        f"pipeline_run_id={rid}\nfailed_stage=jt016_equity_rebuild\n"
+                        f"returncode={eq_rc}\nelapsed_min={eq_dt:.1f}\nlog={eq_log}"
+                    ),
+                )
+                print(str(root))
+                return int(eq_rc)
+            notifier.send(
+                "STAGE_DONE",
+                body=(
+                    f"pipeline_run_id={rid}\nstage=post_jt016_equity_rebuild\n"
+                    f"returncode=0\nelapsed_min={eq_dt:.1f}\nlog={eq_log}"
+                ),
+            )
 
     total_min = (time.time() - t_all) / 60.0
     final = {
