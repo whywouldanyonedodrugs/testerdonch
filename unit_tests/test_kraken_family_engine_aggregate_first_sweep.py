@@ -1518,6 +1518,8 @@ class KrakenFamilyEngineAggregateFirstSweepTests(unittest.TestCase):
                     "venue": "kraken",
                     "start_ts": f"2025-01-0{i + 1}T00:00:00Z",
                     "end_ts": f"2025-01-0{i + 1}T23:59:59Z",
+                    "rankable_pre_holdout": True,
+                    "contains_protected_period": False,
                     "funding_type": "exact",
                 }
             paths = {"funding": funding_dir, "rankable_file_authority": authority}
@@ -2682,6 +2684,18 @@ class KrakenFamilyEngineAggregateFirstSweepTests(unittest.TestCase):
                     base = np.linspace(100, 101, len(ts))
                 bars = pd.DataFrame({"time": ts, "open": base, "high": base + 1, "low": base - 1, "close": base, "volume": 1000.0})
                 bars.to_parquet(sym_dir / "bars_20250101T000000.parquet", index=False)
+            manifests = root / "manifests"
+            manifests.mkdir()
+            pd.DataFrame([{
+                "dataset": "historical_trade_candles_5m",
+                "symbol": sym,
+                "parquet_path": str(trade_root / sym / "bars_20250101T000000.parquet"),
+                "status": "downloaded",
+                "chunk_start": "2025-01-01T00:00:00Z",
+                "chunk_end": "2025-01-05T00:00:00Z",
+                "rankable_pre_holdout": True,
+                "contains_protected_period": False,
+            } for sym in symbols]).to_csv(manifests / "synthetic_download_manifest.csv", index=False)
             panel = pd.DataFrame({
                 "symbol": symbols,
                 "start_ts": ["2025-01-01T00:00:00Z"] * 3,
@@ -2828,6 +2842,8 @@ class KrakenFamilyEngineAggregateFirstSweepTests(unittest.TestCase):
                     "venue": "kraken",
                     "start_ts": "2025-01-01T00:00:00Z",
                     "end_ts": "2025-01-03T00:00:00Z",
+                    "rankable_pre_holdout": True,
+                    "contains_protected_period": False,
                 }
             }
             base = self.candidate("liquid_continuation_breakout_engine", "liquid_continuation")

@@ -3,6 +3,7 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 import pandas as pd
@@ -40,6 +41,8 @@ class RankableLoaderBoundaryTests(unittest.TestCase):
             "venue": venue,
             "start_ts": start,
             "end_ts": end,
+            "rankable_pre_holdout": True,
+            "contains_protected_period": False,
             "funding_type": "exact",
         }
 
@@ -238,6 +241,107 @@ class RankableLoaderBoundaryTests(unittest.TestCase):
             self.assertEqual(reader.call_count, 1)
             self.assertEqual(downstream.call_count, 1)
             self.assertEqual(len(downstream.call_args.args[0]), 1)
+
+    @staticmethod
+    def _reader_rows(*, ohlcv: bool) -> pd.DataFrame:
+        rows = [
+            {"timestamp": "2022-12-31T23:55:00Z", "close": 1.0, "venue": "kraken", "venue_symbol": "PF_TESTUSD"},
+            {"timestamp": "2024-01-01T00:00:00Z", "close": 2.0, "venue": "bybit", "venue_symbol": "BYBIT:TESTUSDT"},
+            {"timestamp": "2024-01-01T00:05:00Z", "close": 3.0, "venue": "kraken", "venue_symbol": "PF_TESTUSD"},
+        ]
+        if ohlcv:
+            for row in rows:
+                row.update({"open": row["close"], "high": row["close"] + 1, "low": row["close"] - 0.5, "volume": 1})
+        return pd.DataFrame(rows)
+
+    @staticmethod
+    def _projecting_reader(frame: pd.DataFrame):
+        def read(_path: Path, columns=None) -> pd.DataFrame:
+            if columns is None:
+                return frame.copy()
+            missing = set(columns) - set(frame.columns)
+            if missing:
+                raise ValueError(f"missing synthetic columns: {sorted(missing)}")
+            return frame[list(columns)].copy()
+        return read
+
+    @staticmethod
+    def _call_remaining_reader(name: str, paths: dict) -> pd.DataFrame:
+        start = pd.Timestamp("2022-01-01T00:00:00Z")
+        if name == "signal":
+            return sweep.load_symbol_signal_bars(paths, "PF_TESTUSD", start, TRAIN_END)
+        if name == "rank":
+            return sweep.load_symbol_rank_close_window(paths, "PF_TESTUSD", start, TRAIN_END)
+        if name == "a1":
+            return sweep.a1_load_symbol_bars_window(paths, "PF_TESTUSD", start, TRAIN_END)
+        raise AssertionError(name)
+
+    def test_remaining_readers_reject_unrankable_files_before_payload_reader(self):
+        authorities = {
+            "protected": self._authority(start="2026-01-01T00:00:00Z", end="2026-01-02T00:00:00Z"),
+            "mixed": self._authority(purpose="mixed_rankable_protected"),
+            "unknown": None,
+        }
+        for reader_name in ["signal", "rank", "a1"]:
+            for label, authority in authorities.items():
+                with self.subTest(reader=reader_name, authority=label), tempfile.TemporaryDirectory() as td:
+                    root = Path(td)
+                    path = root / "trade/PF_TESTUSD/20250101T000000_fixture.parquet"
+                    path.parent.mkdir(parents=True)
+                    path.touch()
+                    paths = self._paths(root, path, authority)
+                    payload_reader = mock.Mock(side_effect=self._projecting_reader(self._reader_rows(ohlcv=reader_name == "a1")))
+                    downstream = mock.Mock()
+                    with mock.patch.object(sweep.pd, "read_parquet", payload_reader):
+                        with self.assertRaisesRegex(RuntimeError, "rankable file authority"):
+                            downstream(self._call_remaining_reader(reader_name, paths))
+                    self.assertEqual(payload_reader.call_count, 0)
+                    self.assertEqual(downstream.call_count, 0)
+
+    def test_remaining_readers_filter_pretrain_and_non_kraken_rows_before_downstream(self):
+        for reader_name in ["signal", "rank", "a1"]:
+            with self.subTest(reader=reader_name), tempfile.TemporaryDirectory() as td:
+                root = Path(td)
+                path = root / "trade/PF_TESTUSD/20220101T000000_fixture.parquet"
+                path.parent.mkdir(parents=True)
+                path.touch()
+                paths = self._paths(root, path, self._authority(start="2022-01-01T00:00:00Z"))
+                payload_reader = mock.Mock(side_effect=self._projecting_reader(self._reader_rows(ohlcv=reader_name == "a1")))
+                downstream = mock.Mock()
+                with mock.patch.object(sweep.pd, "read_parquet", payload_reader):
+                    downstream(self._call_remaining_reader(reader_name, paths))
+                self.assertGreaterEqual(payload_reader.call_count, 1)
+                self.assertEqual(downstream.call_count, 1)
+                consumed = downstream.call_args.args[0]
+                self.assertEqual(consumed["ts"].tolist(), [pd.Timestamp("2024-01-01T00:05:00Z")])
+
+    def test_data_paths_binds_existing_manifest_authority_for_remaining_readers(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            file_path = root / "parquet/historical_trade_candles_5m/PF_TESTUSD/20230101T000000_fixture.parquet"
+            file_path.parent.mkdir(parents=True)
+            file_path.touch()
+            manifest = root / "manifests/synthetic_download_manifest.csv"
+            manifest.parent.mkdir(parents=True)
+            pd.DataFrame([{
+                "dataset": "historical_trade_candles_5m",
+                "symbol": "PF_TESTUSD",
+                "parquet_path": f"/stale/acquisition/root/{file_path.name}",
+                "status": "downloaded",
+                "chunk_start": "2023-01-01T00:00:00Z",
+                "chunk_end": "2026-01-01T00:00:00Z",
+                "rankable_pre_holdout": True,
+                "contains_protected_period": False,
+            }]).to_csv(manifest, index=False)
+            ctx = SimpleNamespace(args=SimpleNamespace(kraken_data_root=str(root)))
+            paths = sweep.data_paths(ctx)
+            self.assertIn(str(file_path), paths["rankable_file_authority"])
+            payload_reader = mock.Mock(side_effect=self._projecting_reader(self._reader_rows(ohlcv=True).tail(1)))
+            with mock.patch.object(sweep.pd, "read_parquet", payload_reader):
+                for reader_name in ["signal", "rank", "a1"]:
+                    with self.subTest(reader=reader_name):
+                        frame = self._call_remaining_reader(reader_name, paths)
+                        self.assertEqual(len(frame), 1)
 
 
 if __name__ == "__main__":

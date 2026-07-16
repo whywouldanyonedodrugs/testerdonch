@@ -2581,6 +2581,7 @@ _PIT_POLICY_SYMBOLS_CACHE: dict[tuple[str, str, str, str, str, str], tuple[str, 
 _RANK_TOP_N_DECISION_CACHE: dict[tuple[str, str, str, str, str, int, int, str], tuple[str, ...]] = {}
 _RANK_SYMBOL_BARS_CACHE: dict[tuple[str, str, str, str], pd.DataFrame] = {}
 _PANEL_MANIFEST_CACHE: dict[str, pd.DataFrame] = {}
+_RANKABLE_FILE_AUTHORITY_CACHE: dict[str, dict[str, dict[str, Any]]] = {}
 
 
 class MemoryGuardStop(SystemExit):
@@ -2724,19 +2725,8 @@ def memory_guard_check(ctx: Context, *, stage: str, processed: int, total: int, 
     raise MemoryGuardStop(0)
 
 
-def local_data_paths_from_root(root_value: Any) -> dict[str, Path]:
-    root = resolve_path(str(root_value or DEFAULT_KRAKEN_DATA_ROOT))
-    return {
-        "root": root,
-        "trade_5m": root / "parquet/historical_trade_candles_5m",
-        "mark_5m": root / "parquet/historical_mark_candles_5m",
-        "alt_trade": root / "parquet/trade",
-        "alt_mark": root / "parquet/mark",
-        "funding": root / "parquet/funding",
-        "instruments": root / "parquet/instruments",
-        "manifests": root / "manifests",
-        "qc": root / "qc",
-    }
+def local_data_paths_from_root(root_value: Any) -> dict[str, Any]:
+    return data_paths(SimpleNamespace(args=SimpleNamespace(kraken_data_root=str(root_value or DEFAULT_KRAKEN_DATA_ROOT))))
 
 
 def ts_utc(ts: Any) -> pd.Timestamp:
@@ -3981,9 +3971,49 @@ def run_stage(ctx: Context, stage: str, fn) -> None:
     ctx.notifier.send("Kraken aggregate engine stage completed", f"stage={stage}\nrun_root={ctx.run_root}")
 
 
-def data_paths(ctx: Context) -> dict[str, Path]:
+def rankable_file_authority_from_manifests(paths: Mapping[str, Path]) -> dict[str, dict[str, Any]]:
+    manifests = paths["manifests"]
+    cache_key = str(manifests.resolve())
+    cached = _RANKABLE_FILE_AUTHORITY_CACHE.get(cache_key)
+    if cached is not None:
+        return dict(cached)
+    dataset_bases = {
+        "historical_trade_candles_5m": paths["trade_5m"],
+        "historical_mark_candles_5m": paths["mark_5m"],
+    }
+    authorities: dict[str, dict[str, Any]] = {}
+    for manifest in sorted(manifests.glob("*download_manifest.csv")) if manifests.exists() else []:
+        with manifest.open(newline="", encoding="utf-8") as handle:
+            for row in csv.DictReader(handle):
+                base = dataset_bases.get(str(row.get("dataset", "")))
+                symbol = str(row.get("symbol", ""))
+                parquet_name = Path(str(row.get("parquet_path", ""))).name
+                if base is None or not symbol or not parquet_name or str(row.get("status", "")) != "downloaded":
+                    continue
+                path = base / symbol / parquet_name
+                authority = {
+                    "purpose": "rankable_research",
+                    "venue": "kraken",
+                    "start_ts": str(row.get("chunk_start", "")),
+                    "end_ts": str(row.get("chunk_end", "")),
+                    "end_ts_exclusive": True,
+                    "rankable_pre_holdout": str(row.get("rankable_pre_holdout", "")),
+                    "contains_protected_period": str(row.get("contains_protected_period", "")),
+                    "authority_manifest": str(manifest),
+                }
+                existing = authorities.get(str(path))
+                comparable = {k: v for k, v in authority.items() if k != "authority_manifest"}
+                existing_comparable = {k: v for k, v in (existing or {}).items() if k != "authority_manifest"}
+                if existing is not None and existing_comparable != comparable:
+                    raise RuntimeError(f"conflicting rankable file authority metadata: {path}")
+                authorities[str(path)] = authority
+    _RANKABLE_FILE_AUTHORITY_CACHE[cache_key] = dict(authorities)
+    return authorities
+
+
+def data_paths(ctx: Context) -> dict[str, Any]:
     root = resolve_path(ctx.args.kraken_data_root)
-    return {
+    paths: dict[str, Any] = {
         "root": root,
         "trade_5m": root / "parquet/historical_trade_candles_5m",
         "mark_5m": root / "parquet/historical_mark_candles_5m",
@@ -3994,6 +4024,8 @@ def data_paths(ctx: Context) -> dict[str, Path]:
         "manifests": root / "manifests",
         "qc": root / "qc",
     }
+    paths["rankable_file_authority"] = rankable_file_authority_from_manifests(paths)
+    return paths
 
 
 def find_symbol_files(base: Path, symbol: str) -> list[Path]:
@@ -4095,12 +4127,13 @@ def assert_rankable_file_authority(
     if str(authority.get("venue", "")).lower() != "kraken":
         raise RuntimeError(f"rankable file authority venue rejected: {path}")
     contains_protected = str(authority.get("contains_protected_period", "false")).strip().lower() in {"true", "1"}
-    rankable_pre_holdout = str(authority.get("rankable_pre_holdout", "true")).strip().lower() in {"true", "1"}
+    rankable_pre_holdout = str(authority.get("rankable_pre_holdout", "false")).strip().lower() in {"true", "1"}
     if contains_protected or not rankable_pre_holdout:
         raise RuntimeError(f"rankable file authority status rejected: {path}")
     start = pd.to_datetime(authority.get("start_ts"), utc=True, errors="coerce")
     end = pd.to_datetime(authority.get("end_ts"), utc=True, errors="coerce")
-    if pd.isna(start) or pd.isna(end) or start > end or end >= PROTECTED_TS:
+    end_exclusive = str(authority.get("end_ts_exclusive", "false")).strip().lower() in {"true", "1"}
+    if pd.isna(start) or pd.isna(end) or start > end or end > PROTECTED_TS or (end == PROTECTED_TS and not end_exclusive):
         raise RuntimeError(f"rankable file authority interval rejected: {path}")
     if funding and str(authority.get("funding_type", "")) != "exact":
         raise RuntimeError(f"rankable file authority funding type rejected: {path}")
@@ -4218,17 +4251,21 @@ def load_symbol_bars(paths: Mapping[str, Any], symbol: str, start: pd.Timestamp,
     return trade
 
 
-def load_symbol_signal_bars(paths: Mapping[str, Path], symbol: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
-    files = pre_holdout_files(find_symbol_files(paths["trade_5m"], symbol) or find_symbol_files(paths["alt_trade"], symbol))
+def load_symbol_signal_bars(paths: Mapping[str, Any], symbol: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+    files = find_symbol_files(paths["trade_5m"], symbol) or find_symbol_files(paths["alt_trade"], symbol)
     frames = []
     for p in files:
+        assert_rankable_file_authority(paths, p)
         df = pd.DataFrame()
         for time_col in ("time", "timestamp"):
-            try:
-                df = pd.read_parquet(p, columns=[time_col, "close"])
+            for venue_cols in (["venue", "venue_symbol"], ["venue_symbol"], []):
+                try:
+                    df = pd.read_parquet(p, columns=[time_col, "close", *venue_cols])
+                    break
+                except Exception:
+                    df = pd.DataFrame()
+            if not df.empty:
                 break
-            except Exception:
-                df = pd.DataFrame()
         if df.empty:
             continue
         time_col = "time" if "time" in df.columns else ("timestamp" if "timestamp" in df.columns else None)
@@ -4236,7 +4273,8 @@ def load_symbol_signal_bars(paths: Mapping[str, Path], symbol: str, start: pd.Ti
             continue
         df = df.copy()
         df["ts"] = parse_time_ms_or_iso(df[time_col])
-        df = df[(df["ts"] >= start) & (df["ts"] <= end) & (df["ts"] < PROTECTED_TS)]
+        df = rankable_kraken_rows(df, symbol)
+        df = df[(df["ts"] >= max(start, RANKABLE_TRAIN_START)) & (df["ts"] <= end) & (df["ts"] < PROTECTED_TS)]
         if df.empty:
             continue
         df["close"] = pd.to_numeric(df["close"], errors="coerce")
@@ -4480,7 +4518,7 @@ def symbol_files_for_window(files: Sequence[Path], start: pd.Timestamp, end: pd.
     start = ts_utc(start)
     end = ts_utc(end)
     out: list[Path] = []
-    for p in pre_holdout_files(files):
+    for p in files:
         chunk_ts = file_chunk_start_ts(p)
         if chunk_ts is None:
             out.append(p)
@@ -4492,25 +4530,32 @@ def symbol_files_for_window(files: Sequence[Path], start: pd.Timestamp, end: pd.
     return out
 
 
-def load_symbol_rank_close_window(paths: Mapping[str, Path], symbol: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+def load_symbol_rank_close_window(paths: Mapping[str, Any], symbol: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
     files = find_symbol_files(paths["trade_5m"], symbol) or find_symbol_files(paths["alt_trade"], symbol)
     frames: list[pd.DataFrame] = []
     for p in symbol_files_for_window(files, start, end):
-        try:
-            try:
-                df = pd.read_parquet(p, columns=["time", "close"])
-                time_col = "time"
-            except Exception:
-                df = pd.read_parquet(p, columns=["timestamp", "close"])
-                time_col = "timestamp"
-        except Exception:
+        assert_rankable_file_authority(paths, p)
+        df = pd.DataFrame()
+        time_col = ""
+        for candidate_time_col in ("time", "timestamp"):
+            for venue_cols in (["venue", "venue_symbol"], ["venue_symbol"], []):
+                try:
+                    df = pd.read_parquet(p, columns=[candidate_time_col, "close", *venue_cols])
+                    time_col = candidate_time_col
+                    break
+                except Exception:
+                    df = pd.DataFrame()
+            if not df.empty:
+                break
+        if df.empty or not time_col:
             continue
         if time_col not in df.columns or "close" not in df.columns:
             continue
-        work = df[[time_col, "close"]].copy()
+        work = df.copy()
         work["ts"] = parse_time_ms_or_iso(work[time_col])
         work["close"] = pd.to_numeric(work["close"], errors="coerce")
-        work = work[(work["ts"] >= start) & (work["ts"] < end) & (work["ts"] < PROTECTED_TS)].dropna(subset=["ts", "close"])
+        work = rankable_kraken_rows(work, symbol)
+        work = work[(work["ts"] >= max(start, RANKABLE_TRAIN_START)) & (work["ts"] < end) & (work["ts"] < PROTECTED_TS)].dropna(subset=["ts", "close"])
         if not work.empty:
             frames.append(work[["ts", "close"]])
     if not frames:
@@ -25643,27 +25688,30 @@ def a1_completed_frame_from_cache(symbol_frames: Mapping[str, pd.DataFrame], sym
     return out
 
 
-def a1_load_symbol_bars_window(paths: Mapping[str, Path], symbol: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+def a1_load_symbol_bars_window(paths: Mapping[str, Any], symbol: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
     files = symbol_files_for_window(find_symbol_files(paths["trade_5m"], symbol) or find_symbol_files(paths["alt_trade"], symbol), start, end)
     frames: list[pd.DataFrame] = []
     for p in files:
+        assert_rankable_file_authority(paths, p)
         df = pd.DataFrame()
         time_col = ""
-        for cols, candidate_time_col in [
-            (["time", "open", "high", "low", "close", "volume"], "time"),
-            (["timestamp", "open", "high", "low", "close", "volume"], "timestamp"),
-        ]:
-            try:
-                df = pd.read_parquet(p, columns=cols)
-                time_col = candidate_time_col
+        for candidate_time_col in ("time", "timestamp"):
+            base_cols = [candidate_time_col, "open", "high", "low", "close", "volume"]
+            for venue_cols in (["venue", "venue_symbol"], ["venue_symbol"], []):
+                try:
+                    df = pd.read_parquet(p, columns=[*base_cols, *venue_cols])
+                    time_col = candidate_time_col
+                    break
+                except Exception:
+                    df = pd.DataFrame()
+            if not df.empty:
                 break
-            except Exception:
-                df = pd.DataFrame()
         if df.empty or not time_col:
             continue
         work = df.copy()
         work["ts"] = parse_time_ms_or_iso(work[time_col])
-        work = work[(work["ts"] >= start) & (work["ts"] <= end) & (work["ts"] < PROTECTED_TS)]
+        work = rankable_kraken_rows(work, symbol)
+        work = work[(work["ts"] >= max(start, RANKABLE_TRAIN_START)) & (work["ts"] <= end) & (work["ts"] < PROTECTED_TS)]
         if work.empty:
             continue
         for col in ["open", "high", "low", "close", "volume"]:

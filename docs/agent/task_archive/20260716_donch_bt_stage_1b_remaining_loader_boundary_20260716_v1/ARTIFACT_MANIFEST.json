@@ -1,0 +1,115 @@
+{
+  "files": [
+    {
+      "bytes": 668,
+      "path": "CHANGED_FILES.md",
+      "sha256": "d4c0d54c5767f9245de0a219cced5e6ff9699554b2729f6fb4beced571222449"
+    },
+    {
+      "bytes": 1184,
+      "path": "COMMANDS_AND_RESULTS.md",
+      "sha256": "3cae6c2dabe41e1d8e4eb6d9e2203c1f92b17fd39e51c97ca27f3030db25997a"
+    },
+    {
+      "bytes": 527,
+      "path": "COMPLETION.md",
+      "sha256": "1142c3ae9f07323ba40bca21d88c566ee66b6a273c84008535cf2decf5831db3"
+    },
+    {
+      "bytes": 842,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "sha256": "0e22cb6ac0a735e3964852377ea6a9accaef7b1cc28b14a2a7148a7cd7f5ef6a"
+    },
+    {
+      "bytes": 325,
+      "path": "NEXT_ACTION.md",
+      "sha256": "c8ba87d0c327b1caa375bbd6b37dbbf2e108e40af10924895eee093c6ddaa15b"
+    },
+    {
+      "bytes": 2469,
+      "path": "PLAN.md",
+      "sha256": "55aae50519d420b6e56205a2ef77daa0a7b3b4d14c85c216f25cfb8a6f926395"
+    },
+    {
+      "bytes": 919,
+      "path": "REVIEW.md",
+      "sha256": "76e6ac074fc307cc8022a1112f32d8f1a5e64a69d47dea5fcfd43a674b612fb6"
+    },
+    {
+      "bytes": 6051,
+      "path": "TASK_SPEC.md",
+      "sha256": "757301c639304b3b6505d5b2415923193e526d88245703e0985f8ef520beb499"
+    },
+    {
+      "bytes": 892,
+      "path": "VALIDATION.md",
+      "sha256": "d68717ab2c5375133ed0ec77b02909251accf26d194a66453cc296b6514841f2"
+    },
+    {
+      "bytes": 1941,
+      "path": "readiness_rerun/ARTIFACT_MANIFEST.json",
+      "sha256": "e05cd09874eaf8d190882f204179eaf66c13f057631d2d6193c112e51042a1eb"
+    },
+    {
+      "bytes": 918,
+      "path": "readiness_rerun/COMMANDS_AND_RESULTS.md",
+      "sha256": "8985a67b0bbe2da78e0e5e15699ab79101a94ad70bddc46f369b5a70c605e367"
+    },
+    {
+      "bytes": 307,
+      "path": "readiness_rerun/COMPLETION.md",
+      "sha256": "687eef9ffa3cfc51d45211301f208d931c57883351ffe197c48a63b5caf90c65"
+    },
+    {
+      "bytes": 629,
+      "path": "readiness_rerun/DECISIONS_AND_PROGRESS.md",
+      "sha256": "b73c433e2a9dc8721c0804252dba702bce8c21e9d50f7b5495ddaeece5c1056a"
+    },
+    {
+      "bytes": 3627,
+      "path": "readiness_rerun/DONCH_ARCHIVE_CONTEXT.md",
+      "sha256": "e4ba920727a19379637b901bae81ca13b09359848ad73cab9bc9476e024509ce"
+    },
+    {
+      "bytes": 9596,
+      "path": "readiness_rerun/FIRST_WAVE_DEPENDENCY_MATRIX.csv",
+      "sha256": "d1ff153b781249c716d477d6a9fd6d184a94d1759dc6b59c096022d6b61e5bb9"
+    },
+    {
+      "bytes": 3389,
+      "path": "readiness_rerun/FIRST_WAVE_READINESS_REPORT.md",
+      "sha256": "a14185dab44f0f1df447aa23071c3a9177ee2f6dc43e2ecdb412e38d20c28fa6"
+    },
+    {
+      "bytes": 1261,
+      "path": "readiness_rerun/NEXT_TASK_RECOMMENDATION.md",
+      "sha256": "428a53faa82d639223dc7a87c6ab23f31970ee1f17adc4929c07e23eefe05075"
+    },
+    {
+      "bytes": 1243,
+      "path": "readiness_rerun/PACKAGE_PROTOCOL_STATUS.md",
+      "sha256": "bc1a7ff947a46c3d64fd86caa5e48256156c40219e353f6ed5d4ebcd9dbd78fa"
+    },
+    {
+      "bytes": 288,
+      "path": "readiness_rerun/PLAN.md",
+      "sha256": "80b8e51314da0f97e7564ac8e5fdd08beba6e0cf0a8df5ebcec9204625bd3d90"
+    },
+    {
+      "bytes": 1436,
+      "path": "readiness_rerun/PROTECTED_BOUNDARY_VERIFICATION.md",
+      "sha256": "ead72590e2df7651111908940f80684361129bfbeb432cb195fc6ceaf6720b3f"
+    },
+    {
+      "bytes": 523,
+      "path": "readiness_rerun/REVIEW.md",
+      "sha256": "f1f70cf6eec766a3ab03f2c25ebc1f9da71bbd1ae425ce5390bf7bfd98cf1d07"
+    },
+    {
+      "bytes": 16988,
+      "path": "readiness_rerun/TASK_SPEC.md",
+      "sha256": "cf620acb86ab0a83e7966ed26dbb4a358132265271e65486203d75d9c63a68af"
+    }
+  ],
+  "generated_utc": "2026-07-16T00:00:00Z"
+}
