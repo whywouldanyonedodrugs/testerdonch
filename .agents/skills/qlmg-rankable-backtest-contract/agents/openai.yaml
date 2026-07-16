@@ -1,0 +1,4 @@
+interface:
+  display_name: "QLMG Rankable Backtest Contract"
+  short_description: "Enforce contracts for rankable QLMG research"
+  default_prompt: "Use $qlmg-rankable-backtest-contract to check a proposed rankable research task."

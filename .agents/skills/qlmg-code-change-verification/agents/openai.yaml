@@ -1,0 +1,4 @@
+interface:
+  display_name: "QLMG Code Change Verification"
+  short_description: "Verify QLMG code changes with repo evidence"
+  default_prompt: "Use $qlmg-code-change-verification to verify a bounded backtester change."

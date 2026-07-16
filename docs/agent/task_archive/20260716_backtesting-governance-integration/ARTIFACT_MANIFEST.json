@@ -1,0 +1,243 @@
+{
+  "archive_root": "docs/agent/task_archive/20260716_backtesting-governance-integration",
+  "entries": [
+    {
+      "bytes": 809,
+      "path": "ARCHIVED_SOURCE_LINK_POLICY.md",
+      "purpose": "reconciliation_and_recovery_summary",
+      "sha256": "10b22b68ebca1fc2afc4c74ca76508babf2052dc1afbc13daee466bae46ef7ca"
+    },
+    {
+      "bytes": 1811,
+      "path": "CHANGED_FILES.md",
+      "purpose": "handoff_and_completion_record",
+      "sha256": "dbebbcc97e4751fa19b055cf8bbddb0e62342379f8ac60b45807281ec6afd576"
+    },
+    {
+      "bytes": 4743,
+      "path": "COMMANDS_AND_RESULTS.md",
+      "purpose": "commands_and_validation_record",
+      "sha256": "aa9d7085eb994942553936a4fcb3c0966a3be34c6f7c5379f1a1d89751c10920"
+    },
+    {
+      "bytes": 1590,
+      "path": "COMPLETION.md",
+      "purpose": "handoff_and_completion_record",
+      "sha256": "a463819ad6e07c6616c9ae17ae63f596c70b166fe1b2bbaf3513207c72bce559"
+    },
+    {
+      "bytes": 2527,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "purpose": "plan_progress_and_decision_log",
+      "sha256": "45fd238f66c7381d41d7e64de2c9d9d4f7bd0440520384dde1314f4fbefb3de1"
+    },
+    {
+      "bytes": 1126,
+      "path": "DRIVE_IDENTIFIER_RETENTION.md",
+      "purpose": "reconciliation_and_recovery_summary",
+      "sha256": "97955c9f3fd8fc3546bbe7efef8c8b2408d0357bf1b7ed6d696bbf6f0623a957"
+    },
+    {
+      "bytes": 530,
+      "path": "NEXT_ACTION.md",
+      "purpose": "handoff_and_completion_record",
+      "sha256": "aa93e7dcfcc09b05fb2962bf5e966701d20db70fcea9ea895947475f9427dccb"
+    },
+    {
+      "bytes": 3699,
+      "path": "PLAN.md",
+      "purpose": "plan_progress_and_decision_log",
+      "sha256": "fbd1821837e270f40d321a5a48c1aa3b17b1bfaf98ef7be19a38ca248ceae9f6"
+    },
+    {
+      "bytes": 1795,
+      "path": "RECOVERY_SUMMARY.md",
+      "purpose": "reconciliation_and_recovery_summary",
+      "sha256": "d267e830939ebdcf47f14276bd443d4c45d0315ee9251c1b5958a74328687355"
+    },
+    {
+      "bytes": 1612,
+      "path": "REMOTE_HANDOFF.md",
+      "purpose": "remote_handoff_record",
+      "sha256": "57ffdbc7ad82593e73243bbec114f88eb3fffa661fd078aef89e484beae5b85e"
+    },
+    {
+      "bytes": 2102,
+      "path": "REVIEW.md",
+      "purpose": "independent_review_record",
+      "sha256": "931130742b46355facaa1a26e95a2d0711164f2308d905d3739a013847ddbf3d"
+    },
+    {
+      "bytes": 12457,
+      "path": "TASK_SPEC.md",
+      "purpose": "exact_received_task_specification",
+      "sha256": "dd5aadf72213f7df3c8f5deb66be20b28cc020b38d1df21406b5ae46307b4cb6"
+    },
+    {
+      "bytes": 2182,
+      "path": "VALIDATION.md",
+      "purpose": "commands_and_validation_record",
+      "sha256": "399a2f2f3b669c0b44a88bfc3b2d62dc6f515f3e3791c52f0d09bebf2961d8a3"
+    },
+    {
+      "bytes": 5220,
+      "path": "diff/GOVERNANCE_DIFF_NAME_STATUS.txt",
+      "purpose": "changed_file_inventory_and_patch_reference",
+      "sha256": "bf80f4e4b0832ccf9b91a64875441ec4610daf8c27c3e7bdca5051d5e2724ac4"
+    },
+    {
+      "bytes": 4183,
+      "path": "diff/GOVERNANCE_DIFF_STAT.txt",
+      "purpose": "changed_file_inventory_and_patch_reference",
+      "sha256": "32812153b2ec018bc933ba05ebce70250cfee9233500b06985d117e0b8ed7c7b"
+    },
+    {
+      "bytes": 478632,
+      "path": "diff/GOVERNANCE_INTEGRATION.patch",
+      "purpose": "changed_file_inventory_and_patch_reference",
+      "sha256": "45e3b4e1ac864f3bfcb08afd43b7355b0bc4e5aba50ea4c5ae1340a824b748d9"
+    },
+    {
+      "bytes": 168,
+      "path": "diff/GOVERNANCE_INTEGRATION.patch.sha256",
+      "purpose": "changed_file_inventory_and_patch_reference",
+      "sha256": "b6b7cb3c71f654efdcad4e4a3d2f04f5396e43206ad3daea0d25ea6769bebfca"
+    },
+    {
+      "bytes": 13503,
+      "path": "received/BACKTESTING_AGENT_HARNESS_MANIFEST.json",
+      "purpose": "approved_package_and_context_provenance",
+      "sha256": "e11d6655593921ad43c9f375ee164b52ffc0a2d4c7267173ab9f3f958a8de208"
+    },
+    {
+      "bytes": 14118,
+      "path": "received/BACKTESTING_AGENT_HARNESS_REPORT.md",
+      "purpose": "approved_package_and_context_provenance",
+      "sha256": "52263d0350a66629c36f3f671bfc2cc8eeec7ae801a4fa76fe335008c09730c7"
+    },
+    {
+      "bytes": 8992,
+      "path": "received/BACKTESTING_AGENT_OPERATING_AND_ARCHIVE_INSTRUCTIONS.md",
+      "purpose": "approved_package_and_context_provenance",
+      "sha256": "75765e8d96ecdf3905f5caafff7437c81bf53266939493ddcfd92d9f86e6ca57"
+    },
+    {
+      "bytes": 11586,
+      "path": "received/BACKTESTING_AGENT_TASK_SPEC_20260716.md",
+      "purpose": "approved_package_and_context_provenance",
+      "sha256": "c45c77396545ba3b238ea2f8726224e5e7ce3f07becb21f8e5fb8dec5de5b048"
+    },
+    {
+      "bytes": 5815,
+      "path": "received/DONCH_LIVE_PROJECT_STATE_AFTER_REPLACEMENT_20260716.md",
+      "purpose": "approved_package_and_context_provenance",
+      "sha256": "e5603b8b37dfe0624e72b97a808deebe078b9cd8b0c6b0b5956a4de872f84699"
+    },
+    {
+      "bytes": 6323,
+      "path": "received/DONCH_PROJECT_INSTRUCTIONS_COMPACT.md",
+      "purpose": "approved_package_and_context_provenance",
+      "sha256": "d984413b55cdc32b839eb1d610fd0837b84f52dbc50a89467c69b2631aa1d000"
+    },
+    {
+      "bytes": 32818,
+      "path": "received/DONCH_PROJECT_INSTRUCTIONS_FULL.md",
+      "purpose": "approved_package_and_context_provenance",
+      "sha256": "ad1a2ca0fe1919f47e9c8aa5d32a1fb719e199a0770a918b3b23e7a6f41ce15d"
+    },
+    {
+      "bytes": 6016,
+      "path": "received/DONCH_TO_BACKTESTING_TASK_ARCHIVE_TEMPLATE.md",
+      "purpose": "approved_package_and_context_provenance",
+      "sha256": "a8a7d05346e1eb314404c3f3af9e86e90c608cb0e3c383819c9298e4040facbd"
+    },
+    {
+      "bytes": 8084,
+      "path": "received/PACKAGE_CONTENT_MANIFEST.json",
+      "purpose": "approved_package_and_context_provenance",
+      "sha256": "baeba8fba502d1d296a276a7abacee99c31cdc48a07a911606bc46426f7ba798"
+    },
+    {
+      "bytes": 1693,
+      "path": "received/README_FIRST.md",
+      "purpose": "approved_package_and_context_provenance",
+      "sha256": "447971659eb86a51303ae39580370e5ae14f56f96669b61ae1ff06ad45d76c87"
+    },
+    {
+      "bytes": 3718,
+      "path": "received/TRANSFER_MANIFEST.json",
+      "purpose": "approved_package_and_context_provenance",
+      "sha256": "e4303604943ed34d4b630225f579aa8ccb93add6b3f3a2371cc38a966abf1786"
+    },
+    {
+      "bytes": 1565,
+      "path": "recovery_records/CLEAN_CLONE_PATCH_APPLY_VALIDATION.md",
+      "purpose": "dirty_checkout_recovery_evidence",
+      "sha256": "9aa7522139a0c3c1d9cf3c235167041f3d4df26521b35b49f255f8f06d0425cf"
+    },
+    {
+      "bytes": 122518,
+      "path": "recovery_records/RECOVERY_MANIFEST.json",
+      "purpose": "dirty_checkout_recovery_evidence",
+      "sha256": "4298c44952057de78cacd4125a4f8e8b557c8340153fa4b58294a90e4489bbc6"
+    },
+    {
+      "bytes": 4477,
+      "path": "recovery_records/RECOVERY_VALIDATION.json",
+      "purpose": "dirty_checkout_recovery_evidence",
+      "sha256": "0df9161389202d19095c9ca031a1d3435082f6f7fbe2b35eaa395fbe96002415"
+    },
+    {
+      "bytes": 352,
+      "path": "recovery_records/RECOVERY_VALIDATION.md",
+      "purpose": "dirty_checkout_recovery_evidence",
+      "sha256": "3a40a445eb962ab677b524a81cabe5bce04866b2902dce3fc69bf945e341fda9"
+    },
+    {
+      "bytes": 37671,
+      "path": "recovery_records/UNTRACKED_MANIFEST.json",
+      "purpose": "dirty_checkout_recovery_evidence",
+      "sha256": "ef5b317ccc63083c1a5a9f8ffcdca25978554388edecb5dab13e764d80581645"
+    },
+    {
+      "bytes": 135,
+      "path": "recovery_records/git_remote_v_redacted.txt",
+      "purpose": "dirty_checkout_recovery_evidence",
+      "sha256": "5d761073c0bf6345113ca32d01e629e12dabe97644196c352e51099ccb769b32"
+    },
+    {
+      "bytes": 7686,
+      "path": "recovery_records/git_staged_name_status.txt",
+      "purpose": "dirty_checkout_recovery_evidence",
+      "sha256": "85411249f1df41f2fd0c448ff30ad801d87bedd35b1fddd8aae2ccc33fe01b1a"
+    },
+    {
+      "bytes": 28603,
+      "path": "recovery_records/git_status_porcelain_v2_before.txt",
+      "purpose": "dirty_checkout_recovery_evidence",
+      "sha256": "704aecb0a4457fbafac6dcf6d927e61dcba24de34b70095664c926b359307251"
+    },
+    {
+      "bytes": 13350,
+      "path": "recovery_records/git_status_short_before.txt",
+      "purpose": "dirty_checkout_recovery_evidence",
+      "sha256": "2ba44459454e1628b7db0e0ffccde57b8f5c81d321b21e83499fc79ae94d31a7"
+    },
+    {
+      "bytes": 164,
+      "path": "recovery_records/git_unstaged_name_status.txt",
+      "purpose": "dirty_checkout_recovery_evidence",
+      "sha256": "bd3682a4f260ac09452c0c55d8c578c3882851cebbf954318949c21aa3ec9b2d"
+    }
+  ],
+  "entry_count": 38,
+  "generated_utc": "2026-07-16T15:58:59.710675+00:00",
+  "manifest_self": {
+    "path": "ARTIFACT_MANIFEST.json",
+    "sha256_status": "not_embedded_recursive_self_hash"
+  },
+  "repository_root": "/opt/testerdonch-agent-governance-20260716",
+  "schema_version": "1.0",
+  "source_base_commit": "404cd207085406e2dc9e19bbae7558392c750c95",
+  "task_branch": "agent-governance/backtesting-harness-20260716"
+}

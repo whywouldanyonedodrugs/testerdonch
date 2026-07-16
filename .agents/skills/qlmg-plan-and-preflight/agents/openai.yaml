@@ -1,0 +1,4 @@
+interface:
+  display_name: "QLMG Plan and Preflight"
+  short_description: "Plan QLMG work before changing files"
+  default_prompt: "Use $qlmg-plan-and-preflight to prepare a safe repository plan."

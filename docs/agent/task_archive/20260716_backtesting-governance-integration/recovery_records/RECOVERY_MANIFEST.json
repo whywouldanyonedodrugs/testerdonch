@@ -1,0 +1,3632 @@
+{
+  "artifacts": [
+    {
+      "bytes": 27299355,
+      "path": "STAGED.patch",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "baf8b348f79954d7ddc4806eb27f9363d295245cd04208f20abab56ad7325f9a"
+    },
+    {
+      "bytes": 90190,
+      "path": "UNSTAGED.patch",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "8498edfb19086847855d93a4a77cf993e6969061868aa837b04a6e1282932a43"
+    },
+    {
+      "bytes": 37186544,
+      "path": "committed_refs.bundle",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "29f20e45fe085652f45602a160998a201b246881c9b82ea1864037fd824c2058"
+    },
+    {
+      "bytes": 5,
+      "path": "logs/git_branch.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "6403203dd5a0867eb14d104ee8a73730bd72dd9ad92e78d996a6dba0a5dcfc01"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/git_bundle_create.stderr.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/git_bundle_create.stdout.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/git_conflict_names.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/git_conflicts_unmerged.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 41,
+      "path": "logs/git_head.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "0101f8b5f27992a5f51b2b96f0fd8e7da090fd4aae024cc4a995b55c4bd2c3fc"
+    },
+    {
+      "bytes": 49,
+      "path": "logs/git_head_subject.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "b6c441d7c6156a840e1f35fae990ec36058e9be92c1ea12d9fc66cb584338942"
+    },
+    {
+      "bytes": 107745894,
+      "path": "logs/git_ignored_exclude_standard_z.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "2a7b13e3140b24c7dc7169e9a01ea86cfa4395eaa77d7f0f42f3de5b8ec71f54"
+    },
+    {
+      "bytes": 13465,
+      "path": "logs/git_ignored_summary.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "782dd27b10d8f826e7af5dc5c64e68fa21e8b6aefbd32aa1051239411c97059b"
+    },
+    {
+      "bytes": 85,
+      "path": "logs/git_lfs_version.stderr.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "302b332a974ed6cfda4e8f7b77a61b4f1d86a81fefcc92ffb6a348fbaffdac2d"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/git_lfs_version.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 5175,
+      "path": "logs/git_others_exclude_standard_z.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "88b867264581f1aa94d322a9af41a00aabc842984fc1bb5ecfed9d9bd63c895e"
+    },
+    {
+      "bytes": 135,
+      "path": "logs/git_remote_v_raw.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "6f517ef019d87c8ee0a2ee1487d5756078fcc88adb4d18d230c224379c627169"
+    },
+    {
+      "bytes": 135,
+      "path": "logs/git_remote_v_redacted.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "5d761073c0bf6345113ca32d01e629e12dabe97644196c352e51099ccb769b32"
+    },
+    {
+      "bytes": 17,
+      "path": "logs/git_root.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "73325315bf6202cc58c5f1b3c42e1b8bbdcf3d336ccf69aae6fa08d037b9dc1a"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/git_sparse_checkout.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 7686,
+      "path": "logs/git_staged_name_status.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "85411249f1df41f2fd0c448ff30ad801d87bedd35b1fddd8aae2ccc33fe01b1a"
+    },
+    {
+      "bytes": 8181,
+      "path": "logs/git_staged_numstat.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "f98bec6ab2570c815050d7c9a928850a6be4df8136ae58114f8beac67901dc52"
+    },
+    {
+      "bytes": 10038,
+      "path": "logs/git_staged_summary.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "befc1dde595b42da157d22f140e3b6d9ac9aa39afa4930279753ca170ab05828"
+    },
+    {
+      "bytes": 28603,
+      "path": "logs/git_status_porcelain_v2_before.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "704aecb0a4457fbafac6dcf6d927e61dcba24de34b70095664c926b359307251"
+    },
+    {
+      "bytes": 13350,
+      "path": "logs/git_status_short_before.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "2ba44459454e1628b7db0e0ffccde57b8f5c81d321b21e83499fc79ae94d31a7"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/git_submodule_status_recursive.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 164,
+      "path": "logs/git_unstaged_name_status.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "bd3682a4f260ac09452c0c55d8c578c3882851cebbf954318949c21aa3ec9b2d"
+    },
+    {
+      "bytes": 179,
+      "path": "logs/git_unstaged_numstat.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "ed8e64678800e431a4a318d69b70ef592c3f6f1e932d15917e873ac92ecae108"
+    },
+    {
+      "bytes": 0,
+      "path": "logs/git_unstaged_summary.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 96,
+      "path": "logs/git_worktree_list.txt",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "400e0e076b3692d9221e59d624f8040a03b01bf02f09047358159ff620de9b35"
+    },
+    {
+      "bytes": 75744,
+      "path": "untracked_safe_copies/research_inputs/QLMG_Project_Master_Continuity_Brief_2026-07-16_rev7.md",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "61bad4579ef59099be26d1c288a355d26dec9974384a42db4194e0452ec8ab24"
+    },
+    {
+      "bytes": 179332,
+      "path": "untracked_safe_copies/research_inputs/catdb.md",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "2d3adf417c8ef088275ac607edd4b7a422e5db6ec21e09597363088f2e0a5906"
+    },
+    {
+      "bytes": 109670,
+      "path": "untracked_safe_copies/research_inputs/nyse_hours_calendars_20260715.html",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "6385a2a07313aee09c5f28a6d5df2931e0a617252b4c833b2aeeafdad4e44cac"
+    },
+    {
+      "bytes": 49676,
+      "path": "untracked_safe_copies/tools/build_qlmg_external_review_package.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "1185e1d9225893839c5aecd9ac69ff54704e84538def644ac49fadead9d693a6"
+    },
+    {
+      "bytes": 12438,
+      "path": "untracked_safe_copies/tools/build_qlmg_reduced_review_package.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "574009eca597214cb80ee48a307f1a164dad3828a0e2804f3f8087371f89b855"
+    },
+    {
+      "bytes": 15345,
+      "path": "untracked_safe_copies/tools/finalize_kraken_a1_canonical_50shard.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "f5a8cccfc7b3f414104dafe75e81fe3d49af78f4905dd5ddd8da5060aedbb948"
+    },
+    {
+      "bytes": 15831,
+      "path": "untracked_safe_copies/tools/kraken_a1_balanced_50.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "b83c51ca5af32d011a9b83642586618c409266ac1e924edce216443440996a8b"
+    },
+    {
+      "bytes": 25551,
+      "path": "untracked_safe_copies/tools/kraken_a1_full_streaming_reducer.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "b77c9aaabfcc8db4dbc179ba874a34391ac3038319760c3b2a755f1ab21529da"
+    },
+    {
+      "bytes": 41014,
+      "path": "untracked_safe_copies/tools/kraken_a1_targeted_materialization.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "067379571429bb3cf37c5edbcbe2bb639776851ab31844e518ffadb0e468a18b"
+    },
+    {
+      "bytes": 17395,
+      "path": "untracked_safe_copies/tools/kraken_funding_imputation.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "9cf73ddb48c59c7c66621a74f78ad80a86d2b3df236a3aa735db18647d74560a"
+    },
+    {
+      "bytes": 13026,
+      "path": "untracked_safe_copies/tools/kraken_shared_funding_consumer.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "f3d73523ee62c572a6c9fdeed93cc8bace704dc9fa4c213628775c02a37d56cb"
+    },
+    {
+      "bytes": 13656,
+      "path": "untracked_safe_copies/tools/qlmg_signal_state_contract.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "b1731fb71acaa080888eeb9dddc9f445ab7618edc03f252ac65710ecacfefc33"
+    },
+    {
+      "bytes": 3057,
+      "path": "untracked_safe_copies/tools/recompute_package_metrics.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "cc7c039c5e08734a0c43babefa4706d249e80f7871cbf597fe852b9a64d44de3"
+    },
+    {
+      "bytes": 27921,
+      "path": "untracked_safe_copies/tools/run_kraken_a1_control_context_adjudication.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "a49acffa1f9e501f83aa3602a02969ebf438c4f0343f36bc5a80a07d8bb513f4"
+    },
+    {
+      "bytes": 12805,
+      "path": "untracked_safe_copies/tools/run_kraken_a1_full_180shard.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "6172dbb7a2d3f6d66947464732f3f626272a46642a26e851b2021bc7d5246070"
+    },
+    {
+      "bytes": 19869,
+      "path": "untracked_safe_copies/tools/run_kraken_a1_funding_corrected_balanced_50shard.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "bb7a432e3585aa4041f80dd79121790118bc551cc33cf7b6e8c9663b1072e519"
+    },
+    {
+      "bytes": 24972,
+      "path": "untracked_safe_copies/tools/run_kraken_a1_funding_corrected_balanced_50shard_canonical.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "06a948b2728894c4987ec61230243995e55b558dfb104394fba9990bd9eaa051"
+    },
+    {
+      "bytes": 18014,
+      "path": "untracked_safe_copies/tools/run_kraken_a1_selected_key_hash_repair.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "374ce59d03a369e6e313c55490da2c885f09534f86f3d940662c846fb8981500"
+    },
+    {
+      "bytes": 42968,
+      "path": "untracked_safe_copies/tools/run_kraken_a1_survivor_preflight.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "06332bb7dc8100b5bf30cfff228465aaf136493c93116f18237047da34c42430"
+    },
+    {
+      "bytes": 44321,
+      "path": "untracked_safe_copies/tools/run_kraken_backside_blowoff_short_screen.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "0c6632c1cbd6f98dd2cd7a430043abffabcfca90d8de9e19f9ec26ed3da48240"
+    },
+    {
+      "bytes": 34390,
+      "path": "untracked_safe_copies/tools/run_kraken_backside_blowoff_signal_state_repaired.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "21270b4ee895fa251d737e4b08413ff054e4f09c8a915e5bbb9179117dcb4735"
+    },
+    {
+      "bytes": 83012,
+      "path": "untracked_safe_copies/tools/run_kraken_btc_led_delayed_alt_diffusion_long_screen.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "6e03d4cc427ccf38f28d879b9cfc91eb44080740590c04fb55c8560567f70d68"
+    },
+    {
+      "bytes": 23579,
+      "path": "untracked_safe_copies/tools/run_kraken_c2_audited_v21_preflight.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "015a5fd7a4e68d472a128b03c6afe0de1d4e1058c6775f168c7f8e4c341e2bbc"
+    },
+    {
+      "bytes": 21787,
+      "path": "untracked_safe_copies/tools/run_kraken_c2_authoritative_rebuild.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "abc15c2145b0ceb52c6124c149062bb738d3dc614eda1204f3a8c5d92bccff08"
+    },
+    {
+      "bytes": 18433,
+      "path": "untracked_safe_copies/tools/run_kraken_c2_contract_preflight.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "0a688582a7d5d21cf41ec3b0d98c505935a161eae908857025de76997b274625"
+    },
+    {
+      "bytes": 28033,
+      "path": "untracked_safe_copies/tools/run_kraken_c2_event_anchor_canary.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "4d5230f5d1edee10c49fac2fef56a9bd945e77c8b1da2b6110ed99fa84c06b52"
+    },
+    {
+      "bytes": 41535,
+      "path": "untracked_safe_copies/tools/run_kraken_c2_sample_limited_economic_tranche.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "d17d56edf9a34bc99138006e3fe5082b575ad5b69574a2ec103e108dadb9767b"
+    },
+    {
+      "bytes": 18752,
+      "path": "untracked_safe_copies/tools/run_kraken_c2_shock_episode_budget_repair.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "d9fcc95832e2377c9dbe9149853778aada6faf69bbcc3a6b13622e2f22cfafd6"
+    },
+    {
+      "bytes": 65754,
+      "path": "untracked_safe_copies/tools/run_kraken_close_confirmed_breakout_retest_long_screen_v2.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "36dd23e75550887a7a9f6b4ff8a6ecc697a8a7e3f75361d2b2e4e53db4dc336e"
+    },
+    {
+      "bytes": 22445,
+      "path": "untracked_safe_copies/tools/run_kraken_cross_family_repair_campaign_closure.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "4fc148f238dbcb8a75c35adb589a0539c25528007e74abcbe95bbd607cbb659e"
+    },
+    {
+      "bytes": 26336,
+      "path": "untracked_safe_copies/tools/run_kraken_cross_family_signal_state_repair_campaign.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "04d8629c5c56880115f77cf5f2503a9f8ed958062ea26939538fca538edae53d"
+    },
+    {
+      "bytes": 56921,
+      "path": "untracked_safe_copies/tools/run_kraken_delayed_flush_reclaim_long_screen.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "3ced8ba999142a481522d07014be5ed887a44b1a6758f2e23c46297efed844d7"
+    },
+    {
+      "bytes": 41524,
+      "path": "untracked_safe_copies/tools/run_kraken_delayed_flush_reclaim_signal_state_repair.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "e1a5c59058d3ec0fc068506113f685dee2f7a7042d35de736e7fd7cc011c4e3e"
+    },
+    {
+      "bytes": 70724,
+      "path": "untracked_safe_copies/tools/run_kraken_failed_breakdown_squeeze_reclaim_long_screen.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "e02d988e7dce5a2ca15335070f88720fc5f520cba0cb5b1634957223975f2922"
+    },
+    {
+      "bytes": 22859,
+      "path": "untracked_safe_copies/tools/run_kraken_lfbs_021_canonical_episode_adjudication.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "50086ae57f03683f889ebf083af134cc5d844a832814effe0a5cab8f8eabfa95"
+    },
+    {
+      "bytes": 24089,
+      "path": "untracked_safe_copies/tools/run_kraken_lfbs_021_frozen_2023_presample_confirmation.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "efe9c2dec482265b0f8cdb9d5a965acefc696b1dbcff53f084d900e8b1d457e4"
+    },
+    {
+      "bytes": 42118,
+      "path": "untracked_safe_copies/tools/run_kraken_lfbs_signal_state_repaired_lineage.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "d9d180405403b0ff2f72ba31045b8bc1f1f60e5e4d2500c4903307c868a0bef2"
+    },
+    {
+      "bytes": 52060,
+      "path": "untracked_safe_copies/tools/run_kraken_liquid_failed_breakout_short_screen.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "122249af7b4c7abc212dace537e0266c03ec89dd8992ef996252ad67699300d5"
+    },
+    {
+      "bytes": 27450,
+      "path": "untracked_safe_copies/tools/run_kraken_prior_high_v2_canonical_scan.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "b94a84b89eabb9808c8039359d4307c7a0e62a87f25714e8b168a5001f5de6f0"
+    },
+    {
+      "bytes": 28422,
+      "path": "untracked_safe_copies/tools/run_kraken_prior_high_v2_control_matching_repair.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "932312c45c8c2cafb7ca102d7a05ddd48553c65329ce23db94d7d74f6c387e65"
+    },
+    {
+      "bytes": 31573,
+      "path": "untracked_safe_copies/tools/run_kraken_prior_high_v2_full_targeted.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "f3dc9ab4add4caf8d33867e0b4142b0e2d01c1d6132063076cc77288062667a4"
+    },
+    {
+      "bytes": 32670,
+      "path": "untracked_safe_copies/tools/run_kraken_prior_high_v2_materialization_profile.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "ecd78b46864f54c58fd109128c90ccf2bfc5739b963e6980cb4ca5c67399711a"
+    },
+    {
+      "bytes": 29579,
+      "path": "untracked_safe_copies/tools/run_kraken_prior_high_v2_survivor_preflight.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "bbb0190ed771a3cf10ecdda3f71244aafd37f3ab84fcec6c1e318708fe47abb0"
+    },
+    {
+      "bytes": 83212,
+      "path": "untracked_safe_copies/tools/run_kraken_relative_strength_breakout_vs_btc_screen.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "4de4404420942f3fd0a89d16aca4926a8e4816e4d8c58b1a79dfdb99a1b95f67"
+    },
+    {
+      "bytes": 28520,
+      "path": "untracked_safe_copies/tools/run_kraken_rfbs_010_train_only_stability_review.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "ac253cfda3f25af3ed637fa3d5f9e97d1548803d1ea57ae57d54901d7d1bca70"
+    },
+    {
+      "bytes": 35737,
+      "path": "untracked_safe_copies/tools/run_kraken_rfbs_control_overlap_materialization.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "b4ab10cdf9c6b5ff9ff7c2b06364cc8b718373beebd129e05b03798206d1eb2e"
+    },
+    {
+      "bytes": 34997,
+      "path": "untracked_safe_copies/tools/run_kraken_rfbs_signal_state_repaired.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "741fcc6de6b072c86b2c6f9204ca0b998532b4afc198de4a0d83aa04d8fffb3e"
+    },
+    {
+      "bytes": 8202,
+      "path": "untracked_safe_copies/tools/run_kraken_rfbs_signal_state_repaired_materialization.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "2d1b7b33f2f81cd3ee18f6c3fd058940b5daae3d42def75f4c24a0af956aa205"
+    },
+    {
+      "bytes": 54025,
+      "path": "untracked_safe_copies/tools/run_kraken_riskoff_failed_bounce_short_screen.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "370843f387705b35a85440f373884b81843661b6314596b40d362c7b4243af12"
+    },
+    {
+      "bytes": 84662,
+      "path": "untracked_safe_copies/tools/run_kraken_session_open_range_resolution.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "bed996d797e1599db3776e3f91dc78011aa61350444a059067338fa6f8005bd7"
+    },
+    {
+      "bytes": 21047,
+      "path": "untracked_safe_copies/tools/run_kraken_shared_funding_consumer_rescore.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "d03b2470800dd6d78a7a832ab7be74d3e2e3cd5617ab1e9a549bb4b0b791795c"
+    },
+    {
+      "bytes": 24511,
+      "path": "untracked_safe_copies/tools/run_kraken_shared_funding_imputation_model.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "a4bff4d9e9ee8e9f330bd8285b095e1e0c03f4cc2c0b07d39bcae2236f37068f"
+    },
+    {
+      "bytes": 79992,
+      "path": "untracked_safe_copies/tools/run_kraken_strong_close_session_handoff_continuation.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "12611f295643c9ef7fb5508f4b8359a7b2529413c9b7674dfbc66d8ca4dc593d"
+    },
+    {
+      "bytes": 14435,
+      "path": "untracked_safe_copies/tools/run_kraken_tsmom_reopened_forensics.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "0dfe5e3719530288fcfb7b7b3368d2d7e880d6b1011e35abe4328c45712a50e7"
+    },
+    {
+      "bytes": 3270,
+      "path": "untracked_safe_copies/tools/watch_kraken_a1_full_180.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "03eb836f70f76be1907f30c6235a0de71d6aedf6e9642643a1ba2f8d2fa47276"
+    },
+    {
+      "bytes": 4999,
+      "path": "untracked_safe_copies/tools/watch_kraken_backside_blowoff_short.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "4bf3afa9090581fa2cc26184e4fba90eabd274c0db33a715e6b36ff780c8398e"
+    },
+    {
+      "bytes": 4739,
+      "path": "untracked_safe_copies/tools/watch_kraken_btc_led_delayed_alt_diffusion.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "a8e929725bb4cd92b83784f625cc9668d309695d74fe80baf823204cd35366e0"
+    },
+    {
+      "bytes": 4684,
+      "path": "untracked_safe_copies/tools/watch_kraken_close_confirmed_breakout_retest_long_v2.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "4dc7a5b1053665c1c52aa98c92651f0e3f790e7c967a2cb02fae5f859755b059"
+    },
+    {
+      "bytes": 4528,
+      "path": "untracked_safe_copies/tools/watch_kraken_delayed_flush_reclaim_long.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "ae75f1af7292b0f0e4a4b092f883551f076a77e49b06a516b09fb0b048625ad3"
+    },
+    {
+      "bytes": 4597,
+      "path": "untracked_safe_copies/tools/watch_kraken_delayed_flush_reclaim_signal_state_repair.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "e249a7105ac72cca241531cf2da692c7c8066144d47da1ac8808afb2928389e5"
+    },
+    {
+      "bytes": 4801,
+      "path": "untracked_safe_copies/tools/watch_kraken_failed_breakdown_squeeze_reclaim_long.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "226cce9f966db9dcbefd15dc34817388e621a911a41e455a3bba89c9b8ea60a4"
+    },
+    {
+      "bytes": 5360,
+      "path": "untracked_safe_copies/tools/watch_kraken_lfbs_signal_state_repaired_lineage.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "e1cc6406026d202e06dbedbbb321d696a04332a062203feeb50ed2b13e803708"
+    },
+    {
+      "bytes": 3924,
+      "path": "untracked_safe_copies/tools/watch_kraken_liquid_failed_breakout_short.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "92070f37de7b6ff452b9f2ce68a02d80ccede5341e9c5ea5d676ae67da014d17"
+    },
+    {
+      "bytes": 4270,
+      "path": "untracked_safe_copies/tools/watch_kraken_prior_high_v2_scan.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "205f6369d388d1f6cba178bd1b3cb8f21b349902cffcdfc9983ab4bb9a0a0797"
+    },
+    {
+      "bytes": 4807,
+      "path": "untracked_safe_copies/tools/watch_kraken_relative_strength_breakout_vs_btc.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "069fb853c5264818aa3e2660f4ceb961bb7035193e922b09ec6a58461c3ff4a6"
+    },
+    {
+      "bytes": 4920,
+      "path": "untracked_safe_copies/tools/watch_kraken_session_open_range_resolution.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "571382572456922379dc8b9f3e38aec6267be10d5ef9b9a7bc81552c0b621d59"
+    },
+    {
+      "bytes": 4834,
+      "path": "untracked_safe_copies/tools/watch_kraken_strong_close_session_handoff_continuation.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "94336237cde50a235e3a906f2b2dc040c286e3cab16854bb04af716834127ffc"
+    },
+    {
+      "bytes": 4437,
+      "path": "untracked_safe_copies/tools/watch_prior_high_control_repair.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "2eec26b3f76cdfe5639361f09f9a03800e44ab11097d56c009868b54090d789a"
+    },
+    {
+      "bytes": 4778,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_backside_blowoff_short_screen.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "ca64182e3b9d8a8f0dc259169ad27c4a2655f638182a7133c296e9d291721840"
+    },
+    {
+      "bytes": 7156,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_backside_blowoff_signal_state_repaired.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "d29d2c9df04fd02ad7ec54d9ce24aae0f247b049331f9daa0392e273a8c23c8a"
+    },
+    {
+      "bytes": 9771,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_btc_led_delayed_alt_diffusion_long_screen.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "0b51245ac3d5b1eb35edccc8e24b2d4f484a6c6079a9db9a89273c94ef8a9a76"
+    },
+    {
+      "bytes": 1687,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_c2_audited_v21_preflight.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "5c89a9e3c9f094e7d883abd7da7f1ebdf3b7c77bfa0f7d2758becaf51982a134"
+    },
+    {
+      "bytes": 1295,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_c2_authoritative_rebuild.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "b1b2bf5cb24a9698230fe8835c0fd590c6e053e4bc55b17361e0839d947a5fd9"
+    },
+    {
+      "bytes": 821,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_c2_contract_preflight.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "d2982ef828caf3bedb13bea8956f3556b45213691593709bf88e9868ed588826"
+    },
+    {
+      "bytes": 1866,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_c2_event_anchor_canary.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "7bdce8c5fb04179b2c29fe1115a34173ea199188020750f1293b97c92275633b"
+    },
+    {
+      "bytes": 2236,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_c2_sample_limited_economic_tranche.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "c1903ffbb4fda299a789fa4ceaeb2d8bd0ae70a7b5cd87e117e6b59d8c2e190e"
+    },
+    {
+      "bytes": 2461,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_c2_shock_episode_budget_repair.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "68d530e63f85513c1b6d107bde169b2cbc91bd6baa8850dd820a0df85f34d8ce"
+    },
+    {
+      "bytes": 6588,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_close_confirmed_breakout_retest_long_screen_v2.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "5bae31310b02871bb1bc7fc203b6542e9ff28bcdc632ca1bd0b7dbbb2cfd36e5"
+    },
+    {
+      "bytes": 1751,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_cross_family_repair_campaign_closure.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "5375f8e9c5e2435be178d7b76a630b8d300b9e640f4d3930a671901a3eaddac5"
+    },
+    {
+      "bytes": 7344,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_delayed_flush_reclaim_long_screen.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "a8e25f89b29a5421790af71c957f31b59b8b6595fc6c637173f63f3203a37291"
+    },
+    {
+      "bytes": 6725,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_delayed_flush_reclaim_signal_state_repair.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "235502770b479c20434d182710b5839309f3088bf48d3700420c0683eecd6cd7"
+    },
+    {
+      "bytes": 8552,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_failed_breakdown_squeeze_reclaim_long_screen.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "579176f5be087fffd770eed708927ae4e304ea228b70a226d28e580b88a5a0c4"
+    },
+    {
+      "bytes": 1603,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_lfbs_021_canonical_episode_adjudication.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "8b25b82cd79dd344c55f422e1185d3fe1ae0a66719d551f63d3c1c018732cc6a"
+    },
+    {
+      "bytes": 3125,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_lfbs_021_frozen_2023_presample_confirmation.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "2aebb85738ec69ded6a66286a272851abac4f32093e36116784b0ec16644210a"
+    },
+    {
+      "bytes": 7048,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_lfbs_signal_state_repaired_lineage.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "63975e5e9e6bdcc68cbc107afe76904c835f2965afa6a4253090ad7c116d4ca4"
+    },
+    {
+      "bytes": 7957,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_liquid_failed_breakout_short_screen.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "7d522037ca43cc93bd5b64ff98eaa87059bcc5013df95ded42a012dffa91169d"
+    },
+    {
+      "bytes": 9096,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_relative_strength_breakout_vs_btc_screen.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "66f8cf15fd9d1b15038e023363b567a43b23cffbbc4d99c581fc07ddeefcb1b5"
+    },
+    {
+      "bytes": 1571,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_rfbs_010_train_only_stability_review.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "50729a21e15e99c58ac7b6865d890c5eae428d7879378e278e30c900a930b651"
+    },
+    {
+      "bytes": 5763,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_rfbs_control_overlap_materialization.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "21f9ca2b92d86fdd7dee4b0119f600dc5a539176a7bdb63ec848394e6601fb67"
+    },
+    {
+      "bytes": 5854,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_rfbs_signal_state_repaired.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "010a65cb45db83807a9aebe0ba2abe6ec4e1d6416821049171612409421953b8"
+    },
+    {
+      "bytes": 6948,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_riskoff_failed_bounce_short_screen.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "5f5ef62641048d9e6514fb85e318065efd6d9b9e323af1441894df777b481765"
+    },
+    {
+      "bytes": 7771,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_session_open_range_resolution.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "4947265ef9da383dc40f06e1bbf9aa4741cd65adfa0b3dff7c6c521149dcd28d"
+    },
+    {
+      "bytes": 8466,
+      "path": "untracked_safe_copies/unit_tests/test_kraken_strong_close_session_handoff_continuation.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "690d141122b48f8ded8113c4a0b4c632431e10f7913f330b04b6789206b3206e"
+    },
+    {
+      "bytes": 1905,
+      "path": "untracked_safe_copies/unit_tests/test_prior_high_v2_canonical_scan.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "81110736fee06c85efaef557b2224aa35da86e99c3b1671fa611a482a85c19e6"
+    },
+    {
+      "bytes": 4356,
+      "path": "untracked_safe_copies/unit_tests/test_prior_high_v2_survivor_preflight.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "37599ca472ef20b50a133c3d703d4832af6b925c90593173dafe896fc766f967"
+    },
+    {
+      "bytes": 11156,
+      "path": "untracked_safe_copies/unit_tests/test_qlmg_signal_state_contract.py",
+      "purpose": "dirty_checkout_recovery_record",
+      "sha256": "f46ca23d0f84ac7a7c0af48512ac0d7370fe16fcc9abd8a171fc0c2f6bdf6fc2"
+    },
+    {
+      "bytes": 37671,
+      "path": "UNTRACKED_MANIFEST.json",
+      "purpose": "dirty_checkout_recovery_manifest",
+      "sha256": "ef5b317ccc63083c1a5a9f8ffcdca25978554388edecb5dab13e764d80581645"
+    },
+    {
+      "bytes": 214574,
+      "path": "IGNORED_METADATA_SAMPLE.json",
+      "purpose": "dirty_checkout_recovery_manifest",
+      "sha256": "5c4ecf1c080f764748f9ecb1825f893c25fabd5a6474d68fc839b6879d3e45ee"
+    }
+  ],
+  "commands": {
+    "STAGED.patch": {
+      "args": [
+        "git",
+        "diff",
+        "--cached",
+        "--binary",
+        "--full-index"
+      ],
+      "bytes": 27299355,
+      "path": "STAGED.patch",
+      "returncode": 0
+    },
+    "UNSTAGED.patch": {
+      "args": [
+        "git",
+        "diff",
+        "--binary",
+        "--full-index"
+      ],
+      "bytes": 90190,
+      "path": "UNSTAGED.patch",
+      "returncode": 0
+    },
+    "git_branch": {
+      "args": [
+        "git",
+        "rev-parse",
+        "--abbrev-ref",
+        "HEAD"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_branch.txt"
+    },
+    "git_bundle_create": {
+      "args": [
+        "git",
+        "bundle",
+        "create",
+        "/tmp/codex_governance_20260716/recovery/dirty_checkout_recovery_20260716T153648Z/committed_refs.bundle",
+        "--all"
+      ],
+      "path": "committed_refs.bundle",
+      "returncode": 0
+    },
+    "git_conflict_names": {
+      "args": [
+        "git",
+        "diff",
+        "--name-only",
+        "--diff-filter=U"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_conflict_names.txt"
+    },
+    "git_conflicts_unmerged": {
+      "args": [
+        "git",
+        "ls-files",
+        "-u"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_conflicts_unmerged.txt"
+    },
+    "git_head": {
+      "args": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_head.txt"
+    },
+    "git_head_subject": {
+      "args": [
+        "git",
+        "show",
+        "-s",
+        "--format=%H %s",
+        "HEAD"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_head_subject.txt"
+    },
+    "git_ignored_exclude_standard_z": {
+      "args": [
+        "git",
+        "ls-files",
+        "--others",
+        "--ignored",
+        "--exclude-standard",
+        "-z"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_ignored_exclude_standard_z.txt"
+    },
+    "git_ignored_summary": {
+      "args": [
+        "git",
+        "status",
+        "--ignored",
+        "--short"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_ignored_summary.txt"
+    },
+    "git_lfs_version": {
+      "args": [
+        "git",
+        "lfs",
+        "version"
+      ],
+      "returncode": 1,
+      "stderr_path": "logs/git_lfs_version.stderr.txt",
+      "stdout_path": "logs/git_lfs_version.txt"
+    },
+    "git_others_exclude_standard_z": {
+      "args": [
+        "git",
+        "ls-files",
+        "--others",
+        "--exclude-standard",
+        "-z"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_others_exclude_standard_z.txt"
+    },
+    "git_remote_v_redacted": {
+      "args": [
+        "git",
+        "remote",
+        "-v",
+        "| redacted"
+      ],
+      "returncode": 0,
+      "stdout_path": "logs/git_remote_v_redacted.txt"
+    },
+    "git_root": {
+      "args": [
+        "git",
+        "rev-parse",
+        "--show-toplevel"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_root.txt"
+    },
+    "git_sparse_checkout": {
+      "args": [
+        "git",
+        "config",
+        "--get",
+        "core.sparseCheckout"
+      ],
+      "returncode": 1,
+      "stderr_path": null,
+      "stdout_path": "logs/git_sparse_checkout.txt"
+    },
+    "git_staged_name_status": {
+      "args": [
+        "git",
+        "diff",
+        "--cached",
+        "--name-status",
+        "--find-renames"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_staged_name_status.txt"
+    },
+    "git_staged_numstat": {
+      "args": [
+        "git",
+        "diff",
+        "--cached",
+        "--numstat"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_staged_numstat.txt"
+    },
+    "git_staged_summary": {
+      "args": [
+        "git",
+        "diff",
+        "--cached",
+        "--summary"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_staged_summary.txt"
+    },
+    "git_status_porcelain_v2_before": {
+      "args": [
+        "git",
+        "status",
+        "--porcelain=v2",
+        "--branch",
+        "--untracked-files=all"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_status_porcelain_v2_before.txt"
+    },
+    "git_status_short_before": {
+      "args": [
+        "git",
+        "status",
+        "--short",
+        "--branch",
+        "--untracked-files=all"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_status_short_before.txt"
+    },
+    "git_submodule_status_recursive": {
+      "args": [
+        "git",
+        "submodule",
+        "status",
+        "--recursive"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_submodule_status_recursive.txt"
+    },
+    "git_unstaged_name_status": {
+      "args": [
+        "git",
+        "diff",
+        "--name-status",
+        "--find-renames"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_unstaged_name_status.txt"
+    },
+    "git_unstaged_numstat": {
+      "args": [
+        "git",
+        "diff",
+        "--numstat"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_unstaged_numstat.txt"
+    },
+    "git_unstaged_summary": {
+      "args": [
+        "git",
+        "diff",
+        "--summary"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_unstaged_summary.txt"
+    },
+    "git_worktree_list": {
+      "args": [
+        "git",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "returncode": 0,
+      "stderr_path": null,
+      "stdout_path": "logs/git_worktree_list.txt"
+    }
+  },
+  "dirty_counts": {
+    "ignored": 0,
+    "ordinary_changed": 139,
+    "renamed_or_copied": 0,
+    "staged_entries": 139,
+    "unmerged": 0,
+    "unstaged_entries": 4,
+    "untracked": 96
+  },
+  "generated_utc": "2026-07-16T15:37:07.544223+00:00",
+  "ignored_files_metadata_only_count": 598854,
+  "ignored_files_metadata_only_sample": [
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100600",
+      "path": ".telegram.env",
+      "size": 98
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/bin/Activate.ps1",
+      "size": 9033
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/bin/activate",
+      "size": 2034
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/bin/activate.csh",
+      "size": 920
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/bin/activate.fish",
+      "size": 2195
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/bin/f2py",
+      "size": 234
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/bin/fonttools",
+      "size": 235
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/bin/normalizer",
+      "size": 251
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/bin/numba",
+      "size": 206
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/bin/pip",
+      "size": 239
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/bin/pip3",
+      "size": 239
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/bin/pip3.12",
+      "size": 239
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/bin/plotly_get_chrome",
+      "size": 261
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/bin/pyftmerge",
+      "size": 232
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/bin/pyftsubset",
+      "size": 233
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": true,
+      "mode": "0o120777",
+      "path": ".venv/bin/python",
+      "size": 7
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": true,
+      "mode": "0o120777",
+      "path": ".venv/bin/python3",
+      "size": 16
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": true,
+      "mode": "0o120777",
+      "path": ".venv/bin/python3.12",
+      "size": 7
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/bin/tabulate",
+      "size": 227
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/bin/tqdm",
+      "size": 225
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/bin/ttx",
+      "size": 230
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/bin/wsdump",
+      "size": 234
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/AES.py",
+      "size": 9029
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/AES.pyi",
+      "size": 3619
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/ARC2.py",
+      "size": 7010
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/ARC2.pyi",
+      "size": 985
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/ARC4.py",
+      "size": 5116
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/ARC4.pyi",
+      "size": 422
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/Blowfish.py",
+      "size": 5964
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/Blowfish.pyi",
+      "size": 1021
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/CAST.py",
+      "size": 6071
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/CAST.pyi",
+      "size": 986
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/ChaCha20.py",
+      "size": 10839
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/ChaCha20.pyi",
+      "size": 773
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/ChaCha20_Poly1305.py",
+      "size": 11521
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/ChaCha20_Poly1305.pyi",
+      "size": 1079
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/DES.py",
+      "size": 5947
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/DES.pyi",
+      "size": 966
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/DES3.py",
+      "size": 6925
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/DES3.pyi",
+      "size": 1036
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/PKCS1_OAEP.py",
+      "size": 8552
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/PKCS1_OAEP.pyi",
+      "size": 1179
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/PKCS1_v1_5.py",
+      "size": 7019
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/PKCS1_v1_5.pyi",
+      "size": 686
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/Salsa20.py",
+      "size": 6349
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/Salsa20.pyi",
+      "size": 744
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_ARC4.abi3.so",
+      "size": 21032
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_EKSBlowfish.py",
+      "size": 5205
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_EKSBlowfish.pyi",
+      "size": 266
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_Salsa20.abi3.so",
+      "size": 27016
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/__init__.py",
+      "size": 3590
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/__init__.pyi",
+      "size": 0
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_chacha20.abi3.so",
+      "size": 30624
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_cbc.py",
+      "size": 10888
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_cbc.pyi",
+      "size": 687
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_ccm.py",
+      "size": 25279
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_ccm.pyi",
+      "size": 1670
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_cfb.py",
+      "size": 10721
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_cfb.pyi",
+      "size": 727
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_ctr.py",
+      "size": 15812
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_ctr.pyi",
+      "size": 800
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_eax.py",
+      "size": 14453
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_eax.pyi",
+      "size": 1545
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_ecb.py",
+      "size": 8309
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_ecb.pyi",
+      "size": 592
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_gcm.py",
+      "size": 21297
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_gcm.pyi",
+      "size": 1541
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_kw.py",
+      "size": 4446
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_kwp.py",
+      "size": 3935
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_ocb.py",
+      "size": 19935
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_ocb.pyi",
+      "size": 1231
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_ofb.py",
+      "size": 10209
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_ofb.pyi",
+      "size": 691
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_openpgp.py",
+      "size": 7053
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_openpgp.pyi",
+      "size": 556
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_siv.py",
+      "size": 13977
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_mode_siv.pyi",
+      "size": 1261
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_pkcs1_decode.abi3.so",
+      "size": 56536
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_pkcs1_oaep_decode.py",
+      "size": 1824
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_raw_aes.abi3.so",
+      "size": 106808
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_raw_aesni.abi3.so",
+      "size": 106384
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_raw_arc2.abi3.so",
+      "size": 46464
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_raw_blowfish.abi3.so",
+      "size": 78640
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_raw_cast.abi3.so",
+      "size": 57408
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_raw_cbc.abi3.so",
+      "size": 23000
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_raw_cfb.abi3.so",
+      "size": 26864
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_raw_ctr.abi3.so",
+      "size": 31336
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_raw_des.abi3.so",
+      "size": 71560
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_raw_des3.abi3.so",
+      "size": 72520
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_raw_ecb.abi3.so",
+      "size": 19016
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_raw_eksblowfish.abi3.so",
+      "size": 181192
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_raw_ocb.abi3.so",
+      "size": 45856
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Cipher/_raw_ofb.abi3.so",
+      "size": 22128
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/BLAKE2b.py",
+      "size": 9423
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/BLAKE2b.pyi",
+      "size": 906
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/BLAKE2s.py",
+      "size": 9429
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/BLAKE2s.pyi",
+      "size": 739
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/CMAC.py",
+      "size": 10504
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/CMAC.pyi",
+      "size": 822
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/HMAC.py",
+      "size": 8145
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/HMAC.pyi",
+      "size": 624
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/KMAC128.py",
+      "size": 5949
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/KMAC128.pyi",
+      "size": 903
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/KMAC256.py",
+      "size": 2906
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/KMAC256.pyi",
+      "size": 226
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/KangarooTwelve.py",
+      "size": 7170
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/KangarooTwelve.pyi",
+      "size": 572
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/MD2.py",
+      "size": 6111
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/MD2.pyi",
+      "size": 492
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/MD4.py",
+      "size": 6582
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/MD4.pyi",
+      "size": 532
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/MD5.py",
+      "size": 6618
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/MD5.pyi",
+      "size": 492
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/Poly1305.py",
+      "size": 8074
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/Poly1305.pyi",
+      "size": 665
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/RIPEMD.py",
+      "size": 1199
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/RIPEMD.pyi",
+      "size": 94
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/RIPEMD160.py",
+      "size": 6398
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/RIPEMD160.pyi",
+      "size": 516
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA.py",
+      "size": 1148
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA.pyi",
+      "size": 161
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA1.py",
+      "size": 6690
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA1.pyi",
+      "size": 536
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA224.py",
+      "size": 6901
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA224.pyi",
+      "size": 544
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA256.py",
+      "size": 6897
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA256.pyi",
+      "size": 612
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA384.py",
+      "size": 6899
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA384.pyi",
+      "size": 544
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA3_224.py",
+      "size": 6179
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA3_224.pyi",
+      "size": 605
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA3_256.py",
+      "size": 6179
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA3_256.pyi",
+      "size": 605
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA3_384.py",
+      "size": 6274
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA3_384.pyi",
+      "size": 605
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA3_512.py",
+      "size": 6131
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA3_512.pyi",
+      "size": 605
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA512.py",
+      "size": 7720
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHA512.pyi",
+      "size": 622
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHAKE128.py",
+      "size": 5257
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHAKE128.pyi",
+      "size": 477
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHAKE256.py",
+      "size": 5258
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/SHAKE256.pyi",
+      "size": 477
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/TupleHash128.py",
+      "size": 4752
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/TupleHash128.pyi",
+      "size": 666
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/TupleHash256.py",
+      "size": 2832
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/TupleHash256.pyi",
+      "size": 144
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/TurboSHAKE128.py",
+      "size": 3835
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/TurboSHAKE128.pyi",
+      "size": 574
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/TurboSHAKE256.py",
+      "size": 757
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/TurboSHAKE256.pyi",
+      "size": 306
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/_BLAKE2b.abi3.so",
+      "size": 27424
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/_BLAKE2s.abi3.so",
+      "size": 26952
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/_MD2.abi3.so",
+      "size": 23192
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/_MD4.abi3.so",
+      "size": 27192
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/_MD5.abi3.so",
+      "size": 32008
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/_RIPEMD160.abi3.so",
+      "size": 60728
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/_SHA1.abi3.so",
+      "size": 72064
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/_SHA224.abi3.so",
+      "size": 45768
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/_SHA256.abi3.so",
+      "size": 45832
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/_SHA384.abi3.so",
+      "size": 54160
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/_SHA512.abi3.so",
+      "size": 54200
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/__init__.py",
+      "size": 2939
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/__init__.pyi",
+      "size": 2028
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/_ghash_clmul.abi3.so",
+      "size": 58376
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/_ghash_portable.abi3.so",
+      "size": 25024
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/_keccak.abi3.so",
+      "size": 41632
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/_poly1305.abi3.so",
+      "size": 33424
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/cSHAKE128.py",
+      "size": 6363
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/cSHAKE128.pyi",
+      "size": 499
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/cSHAKE256.py",
+      "size": 2202
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/cSHAKE256.pyi",
+      "size": 231
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/keccak.py",
+      "size": 7543
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Hash/keccak.pyi",
+      "size": 741
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/IO/PEM.py",
+      "size": 7037
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/IO/PEM.pyi",
+      "size": 303
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/IO/PKCS8.py",
+      "size": 7811
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/IO/PKCS8.pyi",
+      "size": 600
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/IO/_PBES.py",
+      "size": 19931
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/IO/_PBES.pyi",
+      "size": 755
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/IO/__init__.py",
+      "size": 1540
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Math/Numbers.py",
+      "size": 2108
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Math/Numbers.pyi",
+      "size": 82
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Math/Primality.py",
+      "size": 11371
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Math/Primality.pyi",
+      "size": 823
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Math/_IntegerBase.py",
+      "size": 11269
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Math/_IntegerBase.pyi",
+      "size": 3743
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Math/_IntegerCustom.py",
+      "size": 5731
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Math/_IntegerCustom.pyi",
+      "size": 135
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Math/_IntegerGMP.py",
+      "size": 27869
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Math/_IntegerGMP.pyi",
+      "size": 78
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Math/_IntegerNative.py",
+      "size": 11324
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Math/_IntegerNative.pyi",
+      "size": 81
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Math/__init__.py",
+      "size": 0
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100755",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Math/_modexp.abi3.so",
+      "size": 220424
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Protocol/DH.py",
+      "size": 5620
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Protocol/DH.pyi",
+      "size": 705
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Protocol/HPKE.py",
+      "size": 16958
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Protocol/KDF.py",
+      "size": 22373
+    },
+    {
+      "class": "ignored_metadata_only",
+      "is_dir": false,
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": ".venv/lib/python3.12/site-packages/Crypto/Protocol/KDF.pyi",
+      "size": 2152
+    }
+  ],
+  "original_branch": "main",
+  "original_head": "404cd207085406e2dc9e19bbae7558392c750c95",
+  "original_head_subject": "404cd207085406e2dc9e19bbae7558392c750c95 Cleanup",
+  "policies": {
+    "destructive_git_commands_used": false,
+    "original_checkout_mutated": false,
+    "protected_outcome_content_read": false,
+    "secret_bearing_files_copied": false,
+    "stash_used_as_only_copy": false
+  },
+  "remote_redaction": "remote URLs redacted before archival",
+  "repository_root": "/opt/testerdonch",
+  "schema_version": "1.0",
+  "untracked_files": [
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/research_inputs/QLMG_Project_Master_Continuity_Brief_2026-07-16_rev7.md",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "research_inputs/QLMG_Project_Master_Continuity_Brief_2026-07-16_rev7.md",
+      "sha256": "61bad4579ef59099be26d1c288a355d26dec9974384a42db4194e0452ec8ab24",
+      "size": 75744
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/research_inputs/catdb.md",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "research_inputs/catdb.md",
+      "sha256": "2d3adf417c8ef088275ac607edd4b7a422e5db6ec21e09597363088f2e0a5906",
+      "size": 179332
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/research_inputs/nyse_hours_calendars_20260715.html",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "research_inputs/nyse_hours_calendars_20260715.html",
+      "sha256": "6385a2a07313aee09c5f28a6d5df2931e0a617252b4c833b2aeeafdad4e44cac",
+      "size": 109670
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/build_qlmg_external_review_package.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/build_qlmg_external_review_package.py",
+      "sha256": "1185e1d9225893839c5aecd9ac69ff54704e84538def644ac49fadead9d693a6",
+      "size": 49676
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/build_qlmg_reduced_review_package.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/build_qlmg_reduced_review_package.py",
+      "sha256": "574009eca597214cb80ee48a307f1a164dad3828a0e2804f3f8087371f89b855",
+      "size": 12438
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/finalize_kraken_a1_canonical_50shard.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/finalize_kraken_a1_canonical_50shard.py",
+      "sha256": "f5a8cccfc7b3f414104dafe75e81fe3d49af78f4905dd5ddd8da5060aedbb948",
+      "size": 15345
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/kraken_a1_balanced_50.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/kraken_a1_balanced_50.py",
+      "sha256": "b83c51ca5af32d011a9b83642586618c409266ac1e924edce216443440996a8b",
+      "size": 15831
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/kraken_a1_full_streaming_reducer.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/kraken_a1_full_streaming_reducer.py",
+      "sha256": "b77c9aaabfcc8db4dbc179ba874a34391ac3038319760c3b2a755f1ab21529da",
+      "size": 25551
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/kraken_a1_targeted_materialization.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/kraken_a1_targeted_materialization.py",
+      "sha256": "067379571429bb3cf37c5edbcbe2bb639776851ab31844e518ffadb0e468a18b",
+      "size": 41014
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/kraken_funding_imputation.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/kraken_funding_imputation.py",
+      "sha256": "9cf73ddb48c59c7c66621a74f78ad80a86d2b3df236a3aa735db18647d74560a",
+      "size": 17395
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/kraken_shared_funding_consumer.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/kraken_shared_funding_consumer.py",
+      "sha256": "f3d73523ee62c572a6c9fdeed93cc8bace704dc9fa4c213628775c02a37d56cb",
+      "size": 13026
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/qlmg_signal_state_contract.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/qlmg_signal_state_contract.py",
+      "sha256": "b1731fb71acaa080888eeb9dddc9f445ab7618edc03f252ac65710ecacfefc33",
+      "size": 13656
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/recompute_package_metrics.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/recompute_package_metrics.py",
+      "sha256": "cc7c039c5e08734a0c43babefa4706d249e80f7871cbf597fe852b9a64d44de3",
+      "size": 3057
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_a1_control_context_adjudication.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_a1_control_context_adjudication.py",
+      "sha256": "a49acffa1f9e501f83aa3602a02969ebf438c4f0343f36bc5a80a07d8bb513f4",
+      "size": 27921
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_a1_full_180shard.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_a1_full_180shard.py",
+      "sha256": "6172dbb7a2d3f6d66947464732f3f626272a46642a26e851b2021bc7d5246070",
+      "size": 12805
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_a1_funding_corrected_balanced_50shard.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_a1_funding_corrected_balanced_50shard.py",
+      "sha256": "bb7a432e3585aa4041f80dd79121790118bc551cc33cf7b6e8c9663b1072e519",
+      "size": 19869
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_a1_funding_corrected_balanced_50shard_canonical.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_a1_funding_corrected_balanced_50shard_canonical.py",
+      "sha256": "06a948b2728894c4987ec61230243995e55b558dfb104394fba9990bd9eaa051",
+      "size": 24972
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_a1_selected_key_hash_repair.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_a1_selected_key_hash_repair.py",
+      "sha256": "374ce59d03a369e6e313c55490da2c885f09534f86f3d940662c846fb8981500",
+      "size": 18014
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_a1_survivor_preflight.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_a1_survivor_preflight.py",
+      "sha256": "06332bb7dc8100b5bf30cfff228465aaf136493c93116f18237047da34c42430",
+      "size": 42968
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_backside_blowoff_short_screen.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_backside_blowoff_short_screen.py",
+      "sha256": "0c6632c1cbd6f98dd2cd7a430043abffabcfca90d8de9e19f9ec26ed3da48240",
+      "size": 44321
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_backside_blowoff_signal_state_repaired.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_backside_blowoff_signal_state_repaired.py",
+      "sha256": "21270b4ee895fa251d737e4b08413ff054e4f09c8a915e5bbb9179117dcb4735",
+      "size": 34390
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_btc_led_delayed_alt_diffusion_long_screen.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_btc_led_delayed_alt_diffusion_long_screen.py",
+      "sha256": "6e03d4cc427ccf38f28d879b9cfc91eb44080740590c04fb55c8560567f70d68",
+      "size": 83012
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_c2_audited_v21_preflight.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_c2_audited_v21_preflight.py",
+      "sha256": "015a5fd7a4e68d472a128b03c6afe0de1d4e1058c6775f168c7f8e4c341e2bbc",
+      "size": 23579
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_c2_authoritative_rebuild.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_c2_authoritative_rebuild.py",
+      "sha256": "abc15c2145b0ceb52c6124c149062bb738d3dc614eda1204f3a8c5d92bccff08",
+      "size": 21787
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_c2_contract_preflight.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_c2_contract_preflight.py",
+      "sha256": "0a688582a7d5d21cf41ec3b0d98c505935a161eae908857025de76997b274625",
+      "size": 18433
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_c2_event_anchor_canary.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_c2_event_anchor_canary.py",
+      "sha256": "4d5230f5d1edee10c49fac2fef56a9bd945e77c8b1da2b6110ed99fa84c06b52",
+      "size": 28033
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_c2_sample_limited_economic_tranche.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_c2_sample_limited_economic_tranche.py",
+      "sha256": "d17d56edf9a34bc99138006e3fe5082b575ad5b69574a2ec103e108dadb9767b",
+      "size": 41535
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_c2_shock_episode_budget_repair.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_c2_shock_episode_budget_repair.py",
+      "sha256": "d9fcc95832e2377c9dbe9149853778aada6faf69bbcc3a6b13622e2f22cfafd6",
+      "size": 18752
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_close_confirmed_breakout_retest_long_screen_v2.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_close_confirmed_breakout_retest_long_screen_v2.py",
+      "sha256": "36dd23e75550887a7a9f6b4ff8a6ecc697a8a7e3f75361d2b2e4e53db4dc336e",
+      "size": 65754
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_cross_family_repair_campaign_closure.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_cross_family_repair_campaign_closure.py",
+      "sha256": "4fc148f238dbcb8a75c35adb589a0539c25528007e74abcbe95bbd607cbb659e",
+      "size": 22445
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_cross_family_signal_state_repair_campaign.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_cross_family_signal_state_repair_campaign.py",
+      "sha256": "04d8629c5c56880115f77cf5f2503a9f8ed958062ea26939538fca538edae53d",
+      "size": 26336
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_delayed_flush_reclaim_long_screen.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_delayed_flush_reclaim_long_screen.py",
+      "sha256": "3ced8ba999142a481522d07014be5ed887a44b1a6758f2e23c46297efed844d7",
+      "size": 56921
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_delayed_flush_reclaim_signal_state_repair.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_delayed_flush_reclaim_signal_state_repair.py",
+      "sha256": "e1a5c59058d3ec0fc068506113f685dee2f7a7042d35de736e7fd7cc011c4e3e",
+      "size": 41524
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_failed_breakdown_squeeze_reclaim_long_screen.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_failed_breakdown_squeeze_reclaim_long_screen.py",
+      "sha256": "e02d988e7dce5a2ca15335070f88720fc5f520cba0cb5b1634957223975f2922",
+      "size": 70724
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_lfbs_021_canonical_episode_adjudication.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_lfbs_021_canonical_episode_adjudication.py",
+      "sha256": "50086ae57f03683f889ebf083af134cc5d844a832814effe0a5cab8f8eabfa95",
+      "size": 22859
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_lfbs_021_frozen_2023_presample_confirmation.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_lfbs_021_frozen_2023_presample_confirmation.py",
+      "sha256": "efe9c2dec482265b0f8cdb9d5a965acefc696b1dbcff53f084d900e8b1d457e4",
+      "size": 24089
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_lfbs_signal_state_repaired_lineage.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_lfbs_signal_state_repaired_lineage.py",
+      "sha256": "d9d180405403b0ff2f72ba31045b8bc1f1f60e5e4d2500c4903307c868a0bef2",
+      "size": 42118
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_liquid_failed_breakout_short_screen.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_liquid_failed_breakout_short_screen.py",
+      "sha256": "122249af7b4c7abc212dace537e0266c03ec89dd8992ef996252ad67699300d5",
+      "size": 52060
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_prior_high_v2_canonical_scan.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_prior_high_v2_canonical_scan.py",
+      "sha256": "b94a84b89eabb9808c8039359d4307c7a0e62a87f25714e8b168a5001f5de6f0",
+      "size": 27450
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_prior_high_v2_control_matching_repair.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_prior_high_v2_control_matching_repair.py",
+      "sha256": "932312c45c8c2cafb7ca102d7a05ddd48553c65329ce23db94d7d74f6c387e65",
+      "size": 28422
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_prior_high_v2_full_targeted.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_prior_high_v2_full_targeted.py",
+      "sha256": "f3dc9ab4add4caf8d33867e0b4142b0e2d01c1d6132063076cc77288062667a4",
+      "size": 31573
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_prior_high_v2_materialization_profile.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_prior_high_v2_materialization_profile.py",
+      "sha256": "ecd78b46864f54c58fd109128c90ccf2bfc5739b963e6980cb4ca5c67399711a",
+      "size": 32670
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_prior_high_v2_survivor_preflight.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_prior_high_v2_survivor_preflight.py",
+      "sha256": "bbb0190ed771a3cf10ecdda3f71244aafd37f3ab84fcec6c1e318708fe47abb0",
+      "size": 29579
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_relative_strength_breakout_vs_btc_screen.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_relative_strength_breakout_vs_btc_screen.py",
+      "sha256": "4de4404420942f3fd0a89d16aca4926a8e4816e4d8c58b1a79dfdb99a1b95f67",
+      "size": 83212
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_rfbs_010_train_only_stability_review.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_rfbs_010_train_only_stability_review.py",
+      "sha256": "ac253cfda3f25af3ed637fa3d5f9e97d1548803d1ea57ae57d54901d7d1bca70",
+      "size": 28520
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_rfbs_control_overlap_materialization.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_rfbs_control_overlap_materialization.py",
+      "sha256": "b4ab10cdf9c6b5ff9ff7c2b06364cc8b718373beebd129e05b03798206d1eb2e",
+      "size": 35737
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_rfbs_signal_state_repaired.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_rfbs_signal_state_repaired.py",
+      "sha256": "741fcc6de6b072c86b2c6f9204ca0b998532b4afc198de4a0d83aa04d8fffb3e",
+      "size": 34997
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_rfbs_signal_state_repaired_materialization.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_rfbs_signal_state_repaired_materialization.py",
+      "sha256": "2d1b7b33f2f81cd3ee18f6c3fd058940b5daae3d42def75f4c24a0af956aa205",
+      "size": 8202
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_riskoff_failed_bounce_short_screen.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_riskoff_failed_bounce_short_screen.py",
+      "sha256": "370843f387705b35a85440f373884b81843661b6314596b40d362c7b4243af12",
+      "size": 54025
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_session_open_range_resolution.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_session_open_range_resolution.py",
+      "sha256": "bed996d797e1599db3776e3f91dc78011aa61350444a059067338fa6f8005bd7",
+      "size": 84662
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_shared_funding_consumer_rescore.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_shared_funding_consumer_rescore.py",
+      "sha256": "d03b2470800dd6d78a7a832ab7be74d3e2e3cd5617ab1e9a549bb4b0b791795c",
+      "size": 21047
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_shared_funding_imputation_model.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_shared_funding_imputation_model.py",
+      "sha256": "a4bff4d9e9ee8e9f330bd8285b095e1e0c03f4cc2c0b07d39bcae2236f37068f",
+      "size": 24511
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_strong_close_session_handoff_continuation.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_strong_close_session_handoff_continuation.py",
+      "sha256": "12611f295643c9ef7fb5508f4b8359a7b2529413c9b7674dfbc66d8ca4dc593d",
+      "size": 79992
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/run_kraken_tsmom_reopened_forensics.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/run_kraken_tsmom_reopened_forensics.py",
+      "sha256": "0dfe5e3719530288fcfb7b7b3368d2d7e880d6b1011e35abe4328c45712a50e7",
+      "size": 14435
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/watch_kraken_a1_full_180.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/watch_kraken_a1_full_180.py",
+      "sha256": "03eb836f70f76be1907f30c6235a0de71d6aedf6e9642643a1ba2f8d2fa47276",
+      "size": 3270
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/watch_kraken_backside_blowoff_short.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/watch_kraken_backside_blowoff_short.py",
+      "sha256": "4bf3afa9090581fa2cc26184e4fba90eabd274c0db33a715e6b36ff780c8398e",
+      "size": 4999
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/watch_kraken_btc_led_delayed_alt_diffusion.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/watch_kraken_btc_led_delayed_alt_diffusion.py",
+      "sha256": "a8e929725bb4cd92b83784f625cc9668d309695d74fe80baf823204cd35366e0",
+      "size": 4739
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/watch_kraken_close_confirmed_breakout_retest_long_v2.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/watch_kraken_close_confirmed_breakout_retest_long_v2.py",
+      "sha256": "4dc7a5b1053665c1c52aa98c92651f0e3f790e7c967a2cb02fae5f859755b059",
+      "size": 4684
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/watch_kraken_delayed_flush_reclaim_long.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/watch_kraken_delayed_flush_reclaim_long.py",
+      "sha256": "ae75f1af7292b0f0e4a4b092f883551f076a77e49b06a516b09fb0b048625ad3",
+      "size": 4528
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/watch_kraken_delayed_flush_reclaim_signal_state_repair.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/watch_kraken_delayed_flush_reclaim_signal_state_repair.py",
+      "sha256": "e249a7105ac72cca241531cf2da692c7c8066144d47da1ac8808afb2928389e5",
+      "size": 4597
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/watch_kraken_failed_breakdown_squeeze_reclaim_long.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/watch_kraken_failed_breakdown_squeeze_reclaim_long.py",
+      "sha256": "226cce9f966db9dcbefd15dc34817388e621a911a41e455a3bba89c9b8ea60a4",
+      "size": 4801
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/watch_kraken_lfbs_signal_state_repaired_lineage.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/watch_kraken_lfbs_signal_state_repaired_lineage.py",
+      "sha256": "e1cc6406026d202e06dbedbbb321d696a04332a062203feeb50ed2b13e803708",
+      "size": 5360
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/watch_kraken_liquid_failed_breakout_short.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/watch_kraken_liquid_failed_breakout_short.py",
+      "sha256": "92070f37de7b6ff452b9f2ce68a02d80ccede5341e9c5ea5d676ae67da014d17",
+      "size": 3924
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/watch_kraken_prior_high_v2_scan.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/watch_kraken_prior_high_v2_scan.py",
+      "sha256": "205f6369d388d1f6cba178bd1b3cb8f21b349902cffcdfc9983ab4bb9a0a0797",
+      "size": 4270
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/watch_kraken_relative_strength_breakout_vs_btc.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/watch_kraken_relative_strength_breakout_vs_btc.py",
+      "sha256": "069fb853c5264818aa3e2660f4ceb961bb7035193e922b09ec6a58461c3ff4a6",
+      "size": 4807
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/watch_kraken_session_open_range_resolution.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/watch_kraken_session_open_range_resolution.py",
+      "sha256": "571382572456922379dc8b9f3e38aec6267be10d5ef9b9a7bc81552c0b621d59",
+      "size": 4920
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/watch_kraken_strong_close_session_handoff_continuation.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/watch_kraken_strong_close_session_handoff_continuation.py",
+      "sha256": "94336237cde50a235e3a906f2b2dc040c286e3cab16854bb04af716834127ffc",
+      "size": 4834
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/tools/watch_prior_high_control_repair.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "tools/watch_prior_high_control_repair.py",
+      "sha256": "2eec26b3f76cdfe5639361f09f9a03800e44ab11097d56c009868b54090d789a",
+      "size": 4437
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_backside_blowoff_short_screen.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_backside_blowoff_short_screen.py",
+      "sha256": "ca64182e3b9d8a8f0dc259169ad27c4a2655f638182a7133c296e9d291721840",
+      "size": 4778
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_backside_blowoff_signal_state_repaired.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_backside_blowoff_signal_state_repaired.py",
+      "sha256": "d29d2c9df04fd02ad7ec54d9ce24aae0f247b049331f9daa0392e273a8c23c8a",
+      "size": 7156
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_btc_led_delayed_alt_diffusion_long_screen.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_btc_led_delayed_alt_diffusion_long_screen.py",
+      "sha256": "0b51245ac3d5b1eb35edccc8e24b2d4f484a6c6079a9db9a89273c94ef8a9a76",
+      "size": 9771
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_c2_audited_v21_preflight.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_c2_audited_v21_preflight.py",
+      "sha256": "5c89a9e3c9f094e7d883abd7da7f1ebdf3b7c77bfa0f7d2758becaf51982a134",
+      "size": 1687
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_c2_authoritative_rebuild.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_c2_authoritative_rebuild.py",
+      "sha256": "b1b2bf5cb24a9698230fe8835c0fd590c6e053e4bc55b17361e0839d947a5fd9",
+      "size": 1295
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_c2_contract_preflight.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_c2_contract_preflight.py",
+      "sha256": "d2982ef828caf3bedb13bea8956f3556b45213691593709bf88e9868ed588826",
+      "size": 821
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_c2_event_anchor_canary.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_c2_event_anchor_canary.py",
+      "sha256": "7bdce8c5fb04179b2c29fe1115a34173ea199188020750f1293b97c92275633b",
+      "size": 1866
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_c2_sample_limited_economic_tranche.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_c2_sample_limited_economic_tranche.py",
+      "sha256": "c1903ffbb4fda299a789fa4ceaeb2d8bd0ae70a7b5cd87e117e6b59d8c2e190e",
+      "size": 2236
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_c2_shock_episode_budget_repair.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_c2_shock_episode_budget_repair.py",
+      "sha256": "68d530e63f85513c1b6d107bde169b2cbc91bd6baa8850dd820a0df85f34d8ce",
+      "size": 2461
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_close_confirmed_breakout_retest_long_screen_v2.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_close_confirmed_breakout_retest_long_screen_v2.py",
+      "sha256": "5bae31310b02871bb1bc7fc203b6542e9ff28bcdc632ca1bd0b7dbbb2cfd36e5",
+      "size": 6588
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_cross_family_repair_campaign_closure.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_cross_family_repair_campaign_closure.py",
+      "sha256": "5375f8e9c5e2435be178d7b76a630b8d300b9e640f4d3930a671901a3eaddac5",
+      "size": 1751
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_delayed_flush_reclaim_long_screen.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_delayed_flush_reclaim_long_screen.py",
+      "sha256": "a8e25f89b29a5421790af71c957f31b59b8b6595fc6c637173f63f3203a37291",
+      "size": 7344
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_delayed_flush_reclaim_signal_state_repair.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_delayed_flush_reclaim_signal_state_repair.py",
+      "sha256": "235502770b479c20434d182710b5839309f3088bf48d3700420c0683eecd6cd7",
+      "size": 6725
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_failed_breakdown_squeeze_reclaim_long_screen.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_failed_breakdown_squeeze_reclaim_long_screen.py",
+      "sha256": "579176f5be087fffd770eed708927ae4e304ea228b70a226d28e580b88a5a0c4",
+      "size": 8552
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_lfbs_021_canonical_episode_adjudication.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_lfbs_021_canonical_episode_adjudication.py",
+      "sha256": "8b25b82cd79dd344c55f422e1185d3fe1ae0a66719d551f63d3c1c018732cc6a",
+      "size": 1603
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_lfbs_021_frozen_2023_presample_confirmation.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_lfbs_021_frozen_2023_presample_confirmation.py",
+      "sha256": "2aebb85738ec69ded6a66286a272851abac4f32093e36116784b0ec16644210a",
+      "size": 3125
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_lfbs_signal_state_repaired_lineage.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_lfbs_signal_state_repaired_lineage.py",
+      "sha256": "63975e5e9e6bdcc68cbc107afe76904c835f2965afa6a4253090ad7c116d4ca4",
+      "size": 7048
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_liquid_failed_breakout_short_screen.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_liquid_failed_breakout_short_screen.py",
+      "sha256": "7d522037ca43cc93bd5b64ff98eaa87059bcc5013df95ded42a012dffa91169d",
+      "size": 7957
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_relative_strength_breakout_vs_btc_screen.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_relative_strength_breakout_vs_btc_screen.py",
+      "sha256": "66f8cf15fd9d1b15038e023363b567a43b23cffbbc4d99c581fc07ddeefcb1b5",
+      "size": 9096
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_rfbs_010_train_only_stability_review.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_rfbs_010_train_only_stability_review.py",
+      "sha256": "50729a21e15e99c58ac7b6865d890c5eae428d7879378e278e30c900a930b651",
+      "size": 1571
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_rfbs_control_overlap_materialization.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_rfbs_control_overlap_materialization.py",
+      "sha256": "21f9ca2b92d86fdd7dee4b0119f600dc5a539176a7bdb63ec848394e6601fb67",
+      "size": 5763
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_rfbs_signal_state_repaired.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_rfbs_signal_state_repaired.py",
+      "sha256": "010a65cb45db83807a9aebe0ba2abe6ec4e1d6416821049171612409421953b8",
+      "size": 5854
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_riskoff_failed_bounce_short_screen.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_riskoff_failed_bounce_short_screen.py",
+      "sha256": "5f5ef62641048d9e6514fb85e318065efd6d9b9e323af1441894df777b481765",
+      "size": 6948
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_session_open_range_resolution.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_session_open_range_resolution.py",
+      "sha256": "4947265ef9da383dc40f06e1bbf9aa4741cd65adfa0b3dff7c6c521149dcd28d",
+      "size": 7771
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_kraken_strong_close_session_handoff_continuation.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_kraken_strong_close_session_handoff_continuation.py",
+      "sha256": "690d141122b48f8ded8113c4a0b4c632431e10f7913f330b04b6789206b3206e",
+      "size": 8466
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_prior_high_v2_canonical_scan.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_prior_high_v2_canonical_scan.py",
+      "sha256": "81110736fee06c85efaef557b2224aa35da86e99c3b1671fa611a482a85c19e6",
+      "size": 1905
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_prior_high_v2_survivor_preflight.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_prior_high_v2_survivor_preflight.py",
+      "sha256": "37599ca472ef20b50a133c3d703d4832af6b925c90593173dafe896fc766f967",
+      "size": 4356
+    },
+    {
+      "capture_decision": "copied_safe_text",
+      "class": "untracked",
+      "copy_path": "untracked_safe_copies/unit_tests/test_qlmg_signal_state_contract.py",
+      "is_symlink": false,
+      "mode": "0o100644",
+      "path": "unit_tests/test_qlmg_signal_state_contract.py",
+      "sha256": "f46ca23d0f84ac7a7c0af48512ac0d7370fe16fcc9abd8a171fc0c2f6bdf6fc2",
+      "size": 11156
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0",
+  "generated_utc": "2026-07-16T15:17:55.006236+00:00",
+  "status": "ready_for_upload",
+  "approved_destination": {
+    "folder_name": "DONCH_AGENT_TRANSFER_20260716",
+    "folder_id": "1eWdmin0E7QKYJ5AvFcpRmvvDG3YiWlBz",
+    "folder_url": "https://drive.google.com/drive/folders/1eWdmin0E7QKYJ5AvFcpRmvvDG3YiWlBz",
+    "collision_policy": "unique_names_only_no_overwrite"
+  },
+  "closed_zip": {
+    "path": "qlmg_backtesting-agent-governance-handoff_20260716_v01.zip",
+    "bytes": 106041,
+    "sha256": "fc06159e5caee52e3d5a0521601d31c9fb9fc8c0300a63ecab052b17cd4fbae2",
+    "member_count_including_internal_manifest": 31,
+    "internal_manifest_sha256": "baeba8fba502d1d296a276a7abacee99c31cdc48a07a911606bc46426f7ba798",
+    "validation": "pass_all_members_size_and_sha256_no_pdf_no_duplicate_no_path_traversal"
+  },
+  "outer_files": [
+    {
+      "path": "README_FIRST.md",
+      "bytes": 1693,
+      "sha256": "447971659eb86a51303ae39580370e5ae14f56f96669b61ae1ff06ad45d76c87"
+    },
+    {
+      "path": "BACKTESTING_AGENT_TASK_SPEC_20260716.md",
+      "bytes": 11586,
+      "sha256": "c45c77396545ba3b238ea2f8726224e5e7ce3f07becb21f8e5fb8dec5de5b048"
+    },
+    {
+      "path": "qlmg_backtesting-agent-governance-handoff_20260716_v01.zip",
+      "bytes": 106041,
+      "sha256": "fc06159e5caee52e3d5a0521601d31c9fb9fc8c0300a63ecab052b17cd4fbae2"
+    },
+    {
+      "path": "qlmg_backtesting-agent-governance-handoff_20260716_v01.zip.sha256",
+      "bytes": 125,
+      "sha256": "6d9416778366f7465a55d84a5563bd21e5f61e260fb51a4134e09cfac21b7086"
+    }
+  ],
+  "source_authorities": [
+    {
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\DONCH_RESEARCH_REORGANIZATION_20260716\\05_backtesting_agent_harness\\BACKTESTING_AGENT_HARNESS_MANIFEST.json",
+      "bytes": 13503,
+      "sha256": "e11d6655593921ad43c9f375ee164b52ffc0a2d4c7267173ab9f3f958a8de208"
+    },
+    {
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\DONCH_RESEARCH_REORGANIZATION_20260716\\07_donch_project_instructions\\DONCH_PROJECT_INSTRUCTIONS_FULL.md",
+      "bytes": 32818,
+      "sha256": "ad1a2ca0fe1919f47e9c8aa5d32a1fb719e199a0770a918b3b23e7a6f41ce15d"
+    },
+    {
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\DONCH_RESEARCH_REORGANIZATION_20260716\\07_donch_project_instructions\\DONCH_PROJECT_INSTRUCTIONS_COMPACT.md",
+      "bytes": 6323,
+      "sha256": "d984413b55cdc32b839eb1d610fd0837b84f52dbc50a89467c69b2631aa1d000"
+    },
+    {
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\DONCH_RESEARCH_REORGANIZATION_20260716\\07_donch_project_instructions\\BACKTESTING_AGENT_OPERATING_AND_ARCHIVE_INSTRUCTIONS.md",
+      "bytes": 8992,
+      "sha256": "75765e8d96ecdf3905f5caafff7437c81bf53266939493ddcfd92d9f86e6ca57"
+    },
+    {
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\DONCH_RESEARCH_REORGANIZATION_20260716\\07_donch_project_instructions\\DONCH_TO_BACKTESTING_TASK_ARCHIVE_TEMPLATE.md",
+      "bytes": 6016,
+      "sha256": "a8a7d05346e1eb314404c3f3af9e86e90c608cb0e3c383819c9298e4040facbd"
+    },
+    {
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\DONCH_RESEARCH_REORGANIZATION_20260716\\04_local_archive_index\\DONCH_LIVE_PROJECT_STATE_AFTER_REPLACEMENT_20260716.md",
+      "bytes": 5815,
+      "sha256": "e5603b8b37dfe0624e72b97a808deebe078b9cd8b0c6b0b5956a4de872f84699"
+    }
+  ],
+  "safety": {
+    "repository_applied": false,
+    "remote_repository_modified": false,
+    "economic_runs_launched": false,
+    "protected_outcomes_inspected": false,
+    "pushes_or_merges": false,
+    "pdf_files": 0
+  },
+  "manifest_self": {
+    "path": "TRANSFER_MANIFEST.json",
+    "bytes": 3718,
+    "sha256": null,
+    "sha256_status": "not_embedded"
+  }
+}

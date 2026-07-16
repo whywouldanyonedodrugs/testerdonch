@@ -1,0 +1,23 @@
+[
+  {
+    "command": "git apply --check STAGED.patch",
+    "note": "checked against dirty original; may fail if patch context already applied in worktree",
+    "returncode": 1,
+    "stderr": "error: code: already exists in working directory\nerror: docs/A1 sweep plan.md: already exists in working directory\nerror: docs/optimisation_plan.md: already exists in working directory\nerror: research_inputs/Point In Time Sector Seeds for Crypto Perpetual Theme Ignition-1.pdf: already exists in working directory\nerror: research_inputs/Post-Catalyst Continuation Base Catalyst Database-1.pdf: already exists in working directory\nerror: research_inputs/QLMG Crypto Perpetual Futures vs Stocks for Systematic Strategy Testing-1.pdf: already exists in working directory\nerror: research_inputs/QLMG Cryptocurrency Momentum, Reversal, Funding, Open Interest, and Liquidation Cascades-1.pdf: already exists in working directory\nerror: research_inputs/QLMG Cryptocurrency Momentum, Reversal, Perpetuals, Open Interest, and Liquidation Cascades-1.pdf: already exists in working directory\nerror: research_inputs/QLMG Historical Crypto Perpetual Setups From 2020 Through Mid 2026-1.pdf: already exists in working directory\nerror: research_inputs/QLMG Historical Crypto Perpetual Setups From 2020 Through Mid 2026-2.pdf: already exists in working directory\nerror: research_inputs/QLMG Robust Backtest Protocol for Qullamaggie-Inspired Crypto Perpetual Strategies-1.pdf: already exists in working directory\nerror: research_inputs/QLMG Rulebook for Kristjan Qullamaggie Kullam\u00e4gi Public Trading Setups-1.pdf: already exists in working directory\nerror: research_inputs/QLMG Simple Alpha Hypotheses for Bybit USDT Perpetuals-1.pdf: already exists in working directory\nerror: research_inputs/QLMG Taxonomy of Crypto Catalysts Analogous to Stock Episodic Pivots-1.pdf: already exists in working directory\nerror: research_inputs/QLMG_Hypothesis_Library_2026-07-01.xlsx: already exists in working directory\nerror: research_inputs/RES Designing Less Depth-Sensitive Crypto Perp Tests-2.pdf: already exists in working directory\nerror: research_inputs/RES Liquid Universe Continuation Strategies for Crypto Perpetual Futu"
+  },
+  {
+    "command": "git apply --check UNSTAGED.patch",
+    "note": "checked against dirty original; may fail if patch context already applied in worktree",
+    "returncode": 1,
+    "stderr": "error: the patch applies to 'code' (59ec0a632a8b8b6b82b284fea6f24f2b8e3aead6), which does not match the current contents.\nerror: code: patch does not apply\nerror: patch failed: tools/qlmg_evidence_contracts.py:24\nerror: tools/qlmg_evidence_contracts.py: patch does not apply\nerror: patch failed: tools/run_kraken_family_engine_aggregate_first_sweep.py:167\nerror: tools/run_kraken_family_engine_aggregate_first_sweep.py: patch does not apply\nerror: patch failed: unit_tests/test_kraken_family_engine_aggregate_first_sweep.py:12\nerror: unit_tests/test_kraken_family_engine_aggregate_first_sweep.py: patch does not apply\n"
+  },
+  {
+    "command": "git bundle verify committed_refs.bundle",
+    "returncode": 0,
+    "stderr": "/tmp/codex_governance_20260716/recovery/dirty_checkout_recovery_20260716T153648Z/committed_refs.bundle is okay\n",
+    "stdout": "The bundle contains these 10 refs:\n85e214eff65acd1881906ae118619fdafa29548a refs/codex/turn-diffs/checkpoints/b6f9f2dcb00436a2e941ed34ad04c2c216c7a622cb33e8625356048ce77317c4/4c03f0191d4ed47782849c64a274479ce29e9251378ea9be5ed8d88d25ac846e/1784121703952/d565f1ec-f92c-466e-95c4-d9c9ebf4d22e\n404cd207085406e2dc9e19bbae7558392c750c95 refs/heads/main\nf4b585fd287b43d7179287127f2d513b11c4ff52 refs/remotes/origin/codex/add-4h-macd-feature-set\nd125e4b9e1b7d421344e826311405808b06567e0 refs/remotes/origin/codex/add-temperature-scaling-implementation\n27c400434960cb988793c40393c66a40afee64c8 refs/remotes/origin/codex/add-temperature-scaling-implementation-s7gh6t\nd293e17e4cdf342499b69a28569974f56cf170dc refs/remotes/origin/codex/check-parquet-files-for-cutoff-issue\n404cd207085406e2dc9e19bbae7558392c750c95 refs/remotes/origin/main\n37fa0e3b0556ee93632b2967799a4aee93f073b9 refs/remotes/origin/master\n49b0fecafab9d7e0b39870eb24a5ef615380de69 refs/stash\n404cd207085406e2dc9e19bbae7558392c750c95 HEAD\nThe bundle records a complete history.\nThe bundle uses this hash algorithm: sha1\n"
+  },
+  {
+    "recovery_manifest_sha256": "4298c44952057de78cacd4125a4f8e8b557c8340153fa4b58294a90e4489bbc6"
+  }
+]

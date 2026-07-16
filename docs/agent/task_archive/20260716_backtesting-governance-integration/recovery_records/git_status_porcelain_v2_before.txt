@@ -1,0 +1,239 @@
+# branch.oid 404cd207085406e2dc9e19bbae7558392c750c95
+# branch.head main
+# branch.upstream origin/main
+# branch.ab +0 -0
+1 AM N... 000000 100755 100755 0000000000000000000000000000000000000000 cc3c16e68362f247b5c420209efe37c5a9c12f5e code
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 8cc48378722ce81da43aa0771b907043f95106b4 docs/A1 sweep plan.md
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 382bd8c9e5dae2252cb21aa8e97b3f84ca7d9da6 docs/optimisation_plan.md
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 7ea2e8f28594afaa71dbed8e58fe79e74bc5a701 research_inputs/Point In Time Sector Seeds for Crypto Perpetual Theme Ignition-1.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 aa524af17e5f3865fd3ceb56a4238bba2cfe0e5b research_inputs/Post-Catalyst Continuation Base Catalyst Database-1.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 6d0e3415d4e9d7492ccb1583520ec668f20b285c research_inputs/QLMG Crypto Perpetual Futures vs Stocks for Systematic Strategy Testing-1.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 8c254961f3c13dbae0c079ee088f551b9131d739 research_inputs/QLMG Cryptocurrency Momentum, Reversal, Funding, Open Interest, and Liquidation Cascades-1.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 4e7f0937d56f1493ec51ce79cdd5e786bac67ef2 research_inputs/QLMG Cryptocurrency Momentum, Reversal, Perpetuals, Open Interest, and Liquidation Cascades-1.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 266b0d380b3fcac01d64d365a53ef35d7bda14de research_inputs/QLMG Historical Crypto Perpetual Setups From 2020 Through Mid 2026-1.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 266b0d380b3fcac01d64d365a53ef35d7bda14de research_inputs/QLMG Historical Crypto Perpetual Setups From 2020 Through Mid 2026-2.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 8dcd7ebd6b02091514f1203b68f66789cf8cffed research_inputs/QLMG Robust Backtest Protocol for Qullamaggie-Inspired Crypto Perpetual Strategies-1.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 3b3e44dbe9ca863ed2a6925abd24f684d63d4a79 "research_inputs/QLMG Rulebook for Kristjan Qullamaggie Kullam\303\244gi Public Trading Setups-1.pdf"
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 6904ed1bdd6268889829288b1a0df53a3414358b research_inputs/QLMG Simple Alpha Hypotheses for Bybit USDT Perpetuals-1.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 51c4c906bb0adbe3bb2867e962c468ce8684a031 research_inputs/QLMG Taxonomy of Crypto Catalysts Analogous to Stock Episodic Pivots-1.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 323fe6674c53d7471ff0244a181536e1770de15b research_inputs/QLMG_Hypothesis_Library_2026-07-01.xlsx
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 6977ae11571f9d8d6246eaf3d2bc7e787adde4df research_inputs/RES Designing Less Depth-Sensitive Crypto Perp Tests-2.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 66be4162e3a42c1e90fd03f50ccdcc89f6877184 research_inputs/RES Liquid Universe Continuation Strategies for Crypto Perpetual Futures-1.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 0fa9c5c4c2651e2bce1dc7e2535393fb6db6a961 research_inputs/RES Point-in-Time Regime Framework for Crypto Perpetual Futures-1.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 1ad5ffc664325b6b4136310c99a4fd36ce334f68 research_inputs/RES Research Base for Liquid-Sector Episodic Pivots and Post-Catalyst Continuation-1.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 abe578cb74453567aa1620f4f5100fe979cecfbb research_inputs/RES2 Crypto Perpetual Futures Alpha Hypothesis Catalogue.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 ec6079b59f6383c6bcb898185d91e21497d8b6dd research_inputs/RES2 Crypto Perpetual Practitioner Alpha Map.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 fb3abac68563e0e50ff3b2582c4a4cafe3624bfa research_inputs/RES2 No-Vendor Roadmap for Testing Crypto Perpetual Alpha Hypotheses.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 233df18351db550468f4d92df648a665cc63bf64 research_inputs/RES2 Public-Data Crypto Perpetual Alpha Hypotheses.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 36b617123075b30faadad7864ae3594afe450e83 research_inputs/RES2 Regime Map for Crypto Perpetual Alpha.pdf
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 d06ea0c0d1d0516f6bc2979dfdce93ca0edc6782 research_inputs/point_in_time_sector_seeds.md
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 42bb8edeb47b4ef91a3a6f61d599a39e6d93933d research_inputs/post_catalyst_c2_database.md
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 14b97fc515cf5619ea4fceb579911f8ae82a12ee research_inputs/testmanual.txt
+1 M. N... 100644 100644 100644 ad403d596e9b57e685392ffe4adf6e52bc6912d7 a50d4ccdb40c21e05f20328643e50fc453c907d9 tools/donch_autopar_daily.py
+1 M. N... 100644 100644 100644 938756b3cc36ed227889afb98551b220c8656c05 9dd6b23ba25b0fe3196ed4c835a8fa8295be17a0 tools/donch_autopar_pull_and_run.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 1207363a05e73b924ba51359bd60614765028ee0 tools/kraken_aggregate_cache_layer.py
+1 AM N... 000000 100755 100755 0000000000000000000000000000000000000000 69e8d6f107892e5ed431ca5307aa405c0eab6a29 tools/qlmg_evidence_contracts.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 d1a549b6aa88b23579360c459985d309a9d9c706 tools/qlmg_markdown_seed_parser.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 a9aed45316827c533fca6b9441f9669ce44e2820 tools/qlmg_match_feature_builder.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 27c18847261a5964b341038ccb2515c3c84f4847 tools/qlmg_real_controls.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 587f8ee53c2572c54667c64586cb71622d2fd61c tools/qlmg_regime_stack.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 5d32d83eb5c5f17f50814dc380aaa5abb054da70 tools/qlmg_screening_core.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 03f8adcaff488ea6ca5e40abc79e12fa0344ac0a tools/qlmg_short_event_generators.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 f2a80c358fcba484c960ff78fa7a0ca5272157c4 tools/qlmg_strategy_contracts.py
+1 AM N... 000000 100755 100755 0000000000000000000000000000000000000000 1e3031f554409da8f32df6d25ab1f93d1b423892 tools/run_kraken_family_engine_aggregate_first_sweep.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 cda9f886b6e2d453614281596d7345d8074b04c6 tools/run_kraken_family_engine_aggregate_first_sweep_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 f60178b7141c538c339fc913d0336a92b87c7627 tools/run_kraken_full_coverage_signal_tape_sweep.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 ce868c170e003d0a2354acf3308596f1e403da71 tools/run_kraken_full_coverage_signal_tape_sweep_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 01ede75b16cb950af6d82e1c7a50916a1938fa2a tools/run_kraken_gated_full_hypothesis_sweep.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 0cb3d730044b09450567ad4f1dda822866291de6 tools/run_kraken_gated_full_hypothesis_sweep_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 7d0d02928725d4199576108e50273e62cd60f9d0 tools/run_kraken_hypothesis_sweep_readiness.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 a19c1ac2e07422d7b506ba9b5c0a9de0147d3707 tools/run_kraken_hypothesis_sweep_readiness_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 7a74359def988975ef8633fc18e9e30bca2b2edd tools/run_kraken_k0_data_foundation.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 89789288b23441be0930b70e589e259a548f3a1d tools/run_kraken_k0_data_foundation_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 a9c3f51183e0eceb3215df791c5022ddbafbf421 tools/run_kraken_readiness_repair.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 e1f5a80d9dab8f7a92dd8e21671990426d078b5f tools/run_kraken_readiness_repair_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 7920d02e2fbd81377bac1a6e32295920533b4f69 tools/run_qlmg_alpha_discovery_marathon.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 12080dc36c261b9a4021e0520c022f4475a32109 tools/run_qlmg_alpha_discovery_marathon_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 9d86450cbec15e801d8546e9e0e8e34099b2127a tools/run_qlmg_b1_c2_ledger_quality_a3_failure_audit.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 f0e7e39a5de2d919ecf6ecc2da4c3dcdfe26cb66 tools/run_qlmg_b1_c2_ledger_quality_a3_failure_audit_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 dda59588394e4141cb3f7af8133a392205e8046b tools/run_qlmg_best_effort_proxy_execution_sim.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 7e48419b189b09b0006f99d982439a83746e6a46 tools/run_qlmg_best_effort_proxy_execution_sim_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 35c8854c673f9690d85748252f315910136ff1ee tools/run_qlmg_brutal_no_depth_stress.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 f3b82b625e01a49e766c69f72ea00630672c031b tools/run_qlmg_brutal_no_depth_stress_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 2d9a1e1ccf31d6efb90a4d496231ce369bf777a0 tools/run_qlmg_bybit_historical_execution_data_route.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 95a82556635a1ade950ff88e74102047a7202b7c tools/run_qlmg_bybit_historical_execution_data_route_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 176d6d88fb80fa61bacaf3e0572195efc2ed8984 tools/run_qlmg_corrected_event_level_development_sweep.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 a85b1e1a979e619068c0056605cd595cde30d11a tools/run_qlmg_corrected_event_level_development_sweep_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 44d8c760f473280968dfd69fd79cc8d5babec6d3 tools/run_qlmg_d1_narrow_validation.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 ab35bc2d7ae1bdb373c3dbaded36b7d02dc5910f tools/run_qlmg_d1_narrow_validation_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 eb7f3ae5dbe10d0909dd3521b48252c501cef69a tools/run_qlmg_d4_liquidation_execution_audit.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 dd3c0588f931589827a0445f28641c7eba5393b5 tools/run_qlmg_d4_liquidation_execution_audit_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 c8b42cc5c59a72db8971463880d85ae1be655b46 tools/run_qlmg_d4_survivability_redesign.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 e77f79c2acb004c016e52d8f39f2e726f236cde5 tools/run_qlmg_d4_survivability_redesign_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 9ec1bff870a405e44b9aaa87bf1320f8e756116e tools/run_qlmg_engine_and_first_screen.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 6a66b6ced55bf6886a5843c563ebb3ee6c3215ae tools/run_qlmg_evidence_integrity_corrected_sweep.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 702ed2ea1fa2014ce8200583d124f949d70dda2c tools/run_qlmg_evidence_integrity_corrected_sweep_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 04134f5260ac745f917fde5b03da72e9a3b4ebb2 tools/run_qlmg_evidence_remediation_family_repair.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 87f26948913fffbc253e9a5c54f64ec1c90ec4c2 tools/run_qlmg_evidence_remediation_family_repair_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 36b27dc18f319ccbef8403c94ed7362965f4d533 tools/run_qlmg_execution_depth_pilot.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 16517d6840ca4b520ae2683a6c5182cb1135f502 tools/run_qlmg_execution_depth_pilot_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 63ae41e4bc30fd3cbe7fc5dd328c2ae2d9a23e0d tools/run_qlmg_f1_g1_short_unblock.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 acc3ee1c22bbb1de78dbeb5ababcaa2747528c20 tools/run_qlmg_f1_g1_short_unblock_tmux.sh
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 64b8d15c6285d956e385226911c634e2b21042d2 tools/run_qlmg_global_result_invalidation_audit.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 56b890b1d7f07b5ca4d810bc0703e8330a5f7fd8 tools/run_qlmg_integrated_abcx_development.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 1d13202742f9b9b80ff29de50bbaf3034b994120 tools/run_qlmg_integrated_abcx_development_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 8c972f21dfcd623092027121215b5b9424a1cac6 tools/run_qlmg_liquid_regime_strategy_research.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 631bca4fb3805bc9b752b46e2ee0b4274ee41228 tools/run_qlmg_liquid_regime_strategy_research_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 4db4be8f11b368280b3dd03ff06655cad73b2aab tools/run_qlmg_listing_generic_full_event_replay.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 7c61ce76513b5bd49fed5a40126e30c6d7bc0ae5 tools/run_qlmg_listing_generic_full_event_replay_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 0244442816ce708b475f1d64f28ef8c5c66cbb80 tools/run_qlmg_mechanical_qa_evidence_contract.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 e6cae64252ed6db30237908779be4822cfea617a tools/run_qlmg_mechanical_qa_evidence_contract_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 71f82bdb80ab1c31f2f6225af6799db114b3da71 tools/run_qlmg_no_vendor_progress_run.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 f2507878dcfc7cdb5e82900fd18589d85bce1295 tools/run_qlmg_no_vendor_progress_run_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 f8ef0809148aeab8c455c8b4b69ade79710f9908 tools/run_qlmg_no_vendor_progress_v2.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 8e2e57f5e16a32d2bee38043ad9272519224c54f tools/run_qlmg_no_vendor_progress_v2_tmux.sh
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 ac061617f2caa3f47ba3ef71948c43058ee93313 tools/run_qlmg_path_diagnostics_exit_surface.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 580510483cd138eee52914618ea6578d1c35cf49 tools/run_qlmg_real_control_rebuild.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 bca76f45fa8d032c9537f6faad17e23d804de9c8 tools/run_qlmg_regime_stack_and_smart_sweep.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 4827c2a2d07d8a734579d52beaad1748c6283ac1 tools/run_qlmg_regime_stack_and_smart_sweep_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 fa95c7ee4b082c4e124ea32230a585c8f1fcc6e1 tools/run_qlmg_simple_alpha_liqsafe_development.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 a4df162a3781128bab09261cb2d0846297a51138 tools/run_qlmg_simple_alpha_liqsafe_development_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 3837a4ce5b83f4421113942e14e1ed728b6e1da7 tools/run_qlmg_simple_alpha_plus_d4.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 5f301c66c8d2fae9e9832bd26926d77bea379dbd tools/run_qlmg_simple_alpha_plus_d4_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 ae247ef9317d0dd294b0e1c14139d9364fd802f4 tools/run_qlmg_targeted_1m_data_pilot.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 b86e511da04671662169bc4aae351a429111e1c5 tools/run_qlmg_targeted_1m_data_pilot_tmux.sh
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 eb70d7ce7a872bff1d73b7c96c1c69022628360e tools/run_qlmg_targeted_execution_data_replay.py
+1 A. N... 000000 100755 100755 0000000000000000000000000000000000000000 95b24722e2cf3b94318fbdf971646e88d82855ec tools/run_qlmg_targeted_execution_data_replay_tmux.sh
+1 M. N... 100644 100644 100644 d746f5beb2f598116a71899e5b8d47682610d9d9 97dbb67b82cbba10d7ceb1a8770bb70cb7092c97 tools/telegram_notify.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 db5e5e8e8341b708820290b3857930028b089bdc unit_tests/fixtures/wave001_duplicate_translation_reproducer.json
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 0c8c93a1c9c11d7079c9b06c996ab099827f5a49 unit_tests/fixtures/wave001_parameter_loss_reproducer.json
+1 AM N... 000000 100644 100644 0000000000000000000000000000000000000000 07e2bfadffdff72212271887330119aeb7f6a154 unit_tests/test_kraken_family_engine_aggregate_first_sweep.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 2ad5298eca5ece69a405d879021aeab8f7e9805d unit_tests/test_kraken_full_coverage_signal_tape_sweep.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 05329b499a53fee5dfb6ae74b320f272b0038754 unit_tests/test_kraken_gated_full_hypothesis_sweep.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 b928450bb94d7917690867b99d53aebb97333f3d unit_tests/test_kraken_hypothesis_sweep_readiness.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 a52f216aefc92a998e16bfd02315f686e4d8e2a8 unit_tests/test_kraken_k0_data_foundation.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 5e2aedef9ff6421cae264e8917552346fcfd4dfa unit_tests/test_kraken_readiness_repair.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 b91743c2a178e0e6ffff1a0c69283a3f2a0dcde7 unit_tests/test_qlmg_alpha_discovery_marathon.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 ff20a3bed4042cb2882e9ff1a47b0565b39ba4ae unit_tests/test_qlmg_b1_c2_ledger_quality_a3_failure_audit.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 a42dfa5e31b8c50ae1f25fea68316d0827eae091 unit_tests/test_qlmg_best_effort_proxy_execution_sim.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 4b6356e1fa138bf191c256395eaaad7e8b67ebc4 unit_tests/test_qlmg_brutal_no_depth_stress.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 ad0bba3dbce12a02a37472fe8c293da16cf9461b unit_tests/test_qlmg_bybit_historical_execution_data_route.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 0964e87b589b8abd2f02724d7ebf40ee4512ca6d unit_tests/test_qlmg_corrected_event_level_development_sweep.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 1ad0fbe5cf1435ad4497dc1b8db1bd7009458d1e unit_tests/test_qlmg_d1_narrow_validation.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 1c00200c1c8bf5044f0f66c54d3f8ebbea0613b8 unit_tests/test_qlmg_d4_liquidation_execution_audit.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 55956242e6181142e585ad163e2757e82fade0e5 unit_tests/test_qlmg_d4_survivability_redesign.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 2c3444cedf4940b5bc90399f476ffb0a875d2bcb unit_tests/test_qlmg_engine_and_first_screen.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 9dbf25d822d2e04479494be6609371eb06e00e0f unit_tests/test_qlmg_evidence_integrity_corrected_sweep.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 27f66d41bbdfba849c8c934519d9dc1bee28a53c unit_tests/test_qlmg_evidence_remediation_family_repair.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 b1127dc06d160d4a74b29e77c440337dbe2efd16 unit_tests/test_qlmg_execution_depth_pilot.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 5bb8567c159b8ec38b553233c2672e3852fd72db unit_tests/test_qlmg_f1_g1_short_unblock.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 90d4e62c7128346d5dc76be0d178938ca8ef88b3 unit_tests/test_qlmg_integrated_abcx_development.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 47fe3d1f8249ec44c0d466f063f0e47f6fd47cea unit_tests/test_qlmg_liquid_regime_strategy_research.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 153908888055b39dceeabeed355cfbe5c6abae61 unit_tests/test_qlmg_listing_generic_full_event_replay.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 2650e6cefe05f860f91464e2d195473301268e9a unit_tests/test_qlmg_match_feature_builder.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 c7e7104842ed59e538395de25e56a74057e2d4d5 unit_tests/test_qlmg_mechanical_qa_evidence_contract.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 9d46ef247a60032c5900bcba763d99c8f5cbaa26 unit_tests/test_qlmg_no_vendor_progress_run.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 827f0da88b93f5941376c315c38efba98ffe5fc4 unit_tests/test_qlmg_no_vendor_progress_v2.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 7da084c5453a7ae1bfc741b683c5583b58f36dff unit_tests/test_qlmg_path_diagnostics_exit_surface.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 9e2a68529dc58a09ecf51f57935060e2e16bf876 unit_tests/test_qlmg_real_controls.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 b28fe1983ca4c4e9f8f8f555e7bccc1865fcc80a unit_tests/test_qlmg_regime_stack_and_smart_sweep.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 2fca569e38e71ffb6a2f8bc40d851dd755bacacf unit_tests/test_qlmg_simple_alpha_liqsafe_development.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 21fc72b71d6a3e70efb2fe19c5080b478ebd8cfc unit_tests/test_qlmg_simple_alpha_plus_d4.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 c0b3fce0a62ceb0ab5f7ac48f87d53e46cc754a3 unit_tests/test_qlmg_targeted_1m_data_pilot.py
+1 A. N... 000000 100644 100644 0000000000000000000000000000000000000000 5d251126a71f43be8925c4959be9256e96bb7ce5 unit_tests/test_qlmg_targeted_execution_data_replay.py
+? research_inputs/QLMG_Project_Master_Continuity_Brief_2026-07-16_rev7.md
+? research_inputs/catdb.md
+? research_inputs/nyse_hours_calendars_20260715.html
+? tools/build_qlmg_external_review_package.py
+? tools/build_qlmg_reduced_review_package.py
+? tools/finalize_kraken_a1_canonical_50shard.py
+? tools/kraken_a1_balanced_50.py
+? tools/kraken_a1_full_streaming_reducer.py
+? tools/kraken_a1_targeted_materialization.py
+? tools/kraken_funding_imputation.py
+? tools/kraken_shared_funding_consumer.py
+? tools/qlmg_signal_state_contract.py
+? tools/recompute_package_metrics.py
+? tools/run_kraken_a1_control_context_adjudication.py
+? tools/run_kraken_a1_full_180shard.py
+? tools/run_kraken_a1_funding_corrected_balanced_50shard.py
+? tools/run_kraken_a1_funding_corrected_balanced_50shard_canonical.py
+? tools/run_kraken_a1_selected_key_hash_repair.py
+? tools/run_kraken_a1_survivor_preflight.py
+? tools/run_kraken_backside_blowoff_short_screen.py
+? tools/run_kraken_backside_blowoff_signal_state_repaired.py
+? tools/run_kraken_btc_led_delayed_alt_diffusion_long_screen.py
+? tools/run_kraken_c2_audited_v21_preflight.py
+? tools/run_kraken_c2_authoritative_rebuild.py
+? tools/run_kraken_c2_contract_preflight.py
+? tools/run_kraken_c2_event_anchor_canary.py
+? tools/run_kraken_c2_sample_limited_economic_tranche.py
+? tools/run_kraken_c2_shock_episode_budget_repair.py
+? tools/run_kraken_close_confirmed_breakout_retest_long_screen_v2.py
+? tools/run_kraken_cross_family_repair_campaign_closure.py
+? tools/run_kraken_cross_family_signal_state_repair_campaign.py
+? tools/run_kraken_delayed_flush_reclaim_long_screen.py
+? tools/run_kraken_delayed_flush_reclaim_signal_state_repair.py
+? tools/run_kraken_failed_breakdown_squeeze_reclaim_long_screen.py
+? tools/run_kraken_lfbs_021_canonical_episode_adjudication.py
+? tools/run_kraken_lfbs_021_frozen_2023_presample_confirmation.py
+? tools/run_kraken_lfbs_signal_state_repaired_lineage.py
+? tools/run_kraken_liquid_failed_breakout_short_screen.py
+? tools/run_kraken_prior_high_v2_canonical_scan.py
+? tools/run_kraken_prior_high_v2_control_matching_repair.py
+? tools/run_kraken_prior_high_v2_full_targeted.py
+? tools/run_kraken_prior_high_v2_materialization_profile.py
+? tools/run_kraken_prior_high_v2_survivor_preflight.py
+? tools/run_kraken_relative_strength_breakout_vs_btc_screen.py
+? tools/run_kraken_rfbs_010_train_only_stability_review.py
+? tools/run_kraken_rfbs_control_overlap_materialization.py
+? tools/run_kraken_rfbs_signal_state_repaired.py
+? tools/run_kraken_rfbs_signal_state_repaired_materialization.py
+? tools/run_kraken_riskoff_failed_bounce_short_screen.py
+? tools/run_kraken_session_open_range_resolution.py
+? tools/run_kraken_shared_funding_consumer_rescore.py
+? tools/run_kraken_shared_funding_imputation_model.py
+? tools/run_kraken_strong_close_session_handoff_continuation.py
+? tools/run_kraken_tsmom_reopened_forensics.py
+? tools/watch_kraken_a1_full_180.py
+? tools/watch_kraken_backside_blowoff_short.py
+? tools/watch_kraken_btc_led_delayed_alt_diffusion.py
+? tools/watch_kraken_close_confirmed_breakout_retest_long_v2.py
+? tools/watch_kraken_delayed_flush_reclaim_long.py
+? tools/watch_kraken_delayed_flush_reclaim_signal_state_repair.py
+? tools/watch_kraken_failed_breakdown_squeeze_reclaim_long.py
+? tools/watch_kraken_lfbs_signal_state_repaired_lineage.py
+? tools/watch_kraken_liquid_failed_breakout_short.py
+? tools/watch_kraken_prior_high_v2_scan.py
+? tools/watch_kraken_relative_strength_breakout_vs_btc.py
+? tools/watch_kraken_session_open_range_resolution.py
+? tools/watch_kraken_strong_close_session_handoff_continuation.py
+? tools/watch_prior_high_control_repair.py
+? unit_tests/test_kraken_backside_blowoff_short_screen.py
+? unit_tests/test_kraken_backside_blowoff_signal_state_repaired.py
+? unit_tests/test_kraken_btc_led_delayed_alt_diffusion_long_screen.py
+? unit_tests/test_kraken_c2_audited_v21_preflight.py
+? unit_tests/test_kraken_c2_authoritative_rebuild.py
+? unit_tests/test_kraken_c2_contract_preflight.py
+? unit_tests/test_kraken_c2_event_anchor_canary.py
+? unit_tests/test_kraken_c2_sample_limited_economic_tranche.py
+? unit_tests/test_kraken_c2_shock_episode_budget_repair.py
+? unit_tests/test_kraken_close_confirmed_breakout_retest_long_screen_v2.py
+? unit_tests/test_kraken_cross_family_repair_campaign_closure.py
+? unit_tests/test_kraken_delayed_flush_reclaim_long_screen.py
+? unit_tests/test_kraken_delayed_flush_reclaim_signal_state_repair.py
+? unit_tests/test_kraken_failed_breakdown_squeeze_reclaim_long_screen.py
+? unit_tests/test_kraken_lfbs_021_canonical_episode_adjudication.py
+? unit_tests/test_kraken_lfbs_021_frozen_2023_presample_confirmation.py
+? unit_tests/test_kraken_lfbs_signal_state_repaired_lineage.py
+? unit_tests/test_kraken_liquid_failed_breakout_short_screen.py
+? unit_tests/test_kraken_relative_strength_breakout_vs_btc_screen.py
+? unit_tests/test_kraken_rfbs_010_train_only_stability_review.py
+? unit_tests/test_kraken_rfbs_control_overlap_materialization.py
+? unit_tests/test_kraken_rfbs_signal_state_repaired.py
+? unit_tests/test_kraken_riskoff_failed_bounce_short_screen.py
+? unit_tests/test_kraken_session_open_range_resolution.py
+? unit_tests/test_kraken_strong_close_session_handoff_continuation.py
+? unit_tests/test_prior_high_v2_canonical_scan.py
+? unit_tests/test_prior_high_v2_survivor_preflight.py
+? unit_tests/test_qlmg_signal_state_contract.py

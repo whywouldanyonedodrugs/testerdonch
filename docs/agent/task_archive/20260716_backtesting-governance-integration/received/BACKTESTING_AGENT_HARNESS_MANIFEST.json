@@ -1,0 +1,332 @@
+{
+  "schema_version": "1.1",
+  "generated_utc": "2026-07-16T15:17:53.503040+00:00",
+  "state_reconciled_utc": "2026-07-16T15:17:53.503040+00:00",
+  "package_status": "ready_for_remote_agent_reconciliation",
+  "package_root": "G:\\My Drive\\01 Trading\\Donch review\\DONCH_RESEARCH_REORGANIZATION_20260716\\05_backtesting_agent_harness",
+  "target_repository": {
+    "expected_root": "/opt/testerdonch",
+    "verification": "verified_read_only_vscode",
+    "basis": "Read-only VS Code Remote SSH inspection verified the open Git repository at /opt/testerdonch."
+  },
+  "observed_repository_state": {
+    "branch": "main",
+    "pending_changes": 239,
+    "staged_changes_minimum": 139,
+    "commit": "unavailable",
+    "remotes": "unavailable",
+    "supported_commands": "unavailable",
+    "direct_application": "blocked_dirty_checkout"
+  },
+  "scope": {
+    "ready_to_apply_tree": true,
+    "repository_applied": false,
+    "remote_repository_accessed": true,
+    "remote_repository_access_mode": "read_only_vscode",
+    "remote_repository_modified": false,
+    "repository_commands_invented": false,
+    "config_toml_created": false,
+    "economic_runs_launched": false,
+    "google_drive_uploads": false,
+    "git_pushes_or_merges": false,
+    "protected_outcomes_inspected_by_harness_build": false,
+    "task_wide_schema_preflight_exception_disclosed": true,
+    "dirty_repository_recovery_required": true,
+    "dirty_repository_recovery_procedure_included": true,
+    "human_technical_administration_required": false,
+    "google_drive_upload_scope": "recorded_separately_in_transfer_manifest"
+  },
+  "evidence_sources": [
+    {
+      "role": "user_master_prompt",
+      "path": "C:\\Users\\riman\\.codex\\attachments\\d3693171-c466-47fd-8d05-6d5f875a7e89\\pasted-text.txt",
+      "bytes": 41131,
+      "sha256": "a9246507a14796bea9f2881efe32b74333a6cb7dd679f26d680241c09a70aee9"
+    },
+    {
+      "role": "backtesting_audit",
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\backtesterreport.md",
+      "bytes": 25726,
+      "sha256": "028b348b76eee261d11fe42d134e842132bad2abac889678cd0c5b6951b0050a"
+    },
+    {
+      "role": "master_continuity_brief_rev7",
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\QLMG_Project_Master_Continuity_Brief_2026-07-16_rev7.md",
+      "bytes": 75744,
+      "sha256": "61bad4579ef59099be26d1c288a355d26dec9974384a42db4194e0452ec8ab24"
+    },
+    {
+      "role": "review_decision_summary",
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\Review packs\\qlmg_external_review_full_20260716_v1\\phase_kraken_all_tested_hypotheses_external_review_package_20260716_v1\\decision_summary.json",
+      "bytes": 2259,
+      "sha256": "6be1f66233730aed6e884f7f5760aa78a440626f3fc522c0ee3d783a9231b6a2"
+    },
+    {
+      "role": "review_package_manifest",
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\Review packs\\qlmg_external_review_full_20260716_v1\\phase_kraken_all_tested_hypotheses_external_review_package_20260716_v1\\package_manifest.csv",
+      "bytes": 49279,
+      "sha256": "8b7f8ffcebade79ef5bcda31c4c5119da9626db44d332558745be5916e48ada8"
+    },
+    {
+      "role": "review_package_hashes",
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\Review packs\\qlmg_external_review_full_20260716_v1\\phase_kraken_all_tested_hypotheses_external_review_package_20260716_v1\\package_sha256.json",
+      "bytes": 50098,
+      "sha256": "2661a555172b5fd602dce58a5a106c6a7ca5de5cd4417613d7437e6923f00221"
+    },
+    {
+      "role": "review_secret_scan",
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\Review packs\\qlmg_external_review_full_20260716_v1\\phase_kraken_all_tested_hypotheses_external_review_package_20260716_v1\\redaction_and_secret_scan.md",
+      "bytes": 138,
+      "sha256": "f0e278673b63fc459e4e7b574abfaab8c0e9a2e696edb3ab4b7b6efb2dc53d7c"
+    },
+    {
+      "role": "review_environment",
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\Review packs\\qlmg_external_review_full_20260716_v1\\phase_kraken_all_tested_hypotheses_external_review_package_20260716_v1\\engineering\\environment_manifest.json",
+      "bytes": 1284,
+      "sha256": "c39d19cf4e54bcb3142d70cd2b357474aeb33037ee1d874eb9d1b29405526d25"
+    },
+    {
+      "role": "review_test_matrix",
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\Review packs\\qlmg_external_review_full_20260716_v1\\phase_kraken_all_tested_hypotheses_external_review_package_20260716_v1\\engineering\\test_execution_matrix.csv",
+      "bytes": 1490,
+      "sha256": "ffe3e1af77cb719cd1d996bcb7f3568bb1bac954ffb84dcd7ec86a70109d4329"
+    },
+    {
+      "role": "review_reproducibility",
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\Review packs\\qlmg_external_review_full_20260716_v1\\phase_kraken_all_tested_hypotheses_external_review_package_20260716_v1\\engineering\\reproducibility_matrix.csv",
+      "bytes": 11462,
+      "sha256": "9232e4b632149ae1033119af0aeff3ec09ee8931cf5af8427808a18b121a457b"
+    },
+    {
+      "role": "review_authority_registry",
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\Review packs\\qlmg_external_review_full_20260716_v1\\phase_kraken_all_tested_hypotheses_external_review_package_20260716_v1\\registry\\authoritative_run_registry.csv",
+      "bytes": 11462,
+      "sha256": "9232e4b632149ae1033119af0aeff3ec09ee8931cf5af8427808a18b121a457b"
+    },
+    {
+      "role": "review_supersession_map",
+      "path": "G:\\My Drive\\01 Trading\\Donch review\\Review packs\\qlmg_external_review_full_20260716_v1\\phase_kraken_all_tested_hypotheses_external_review_package_20260716_v1\\registry\\root_supersession_map.csv",
+      "bytes": 1671,
+      "sha256": "bc9467b5ec6531ea93820f39bf2f8ffac46806100b1229f982e8cb4407e7d6d0"
+    }
+  ],
+  "skills": [
+    {
+      "name": "qlmg-plan-and-preflight",
+      "initializer": "C:\\Users\\riman\\.codex\\skills\\.system\\skill-creator\\scripts\\init_skill.py",
+      "initialized": true,
+      "validator": "C:\\Users\\riman\\.codex\\skills\\.system\\skill-creator\\scripts\\quick_validate.py",
+      "validation": "pass",
+      "optional_resource_directories": []
+    },
+    {
+      "name": "qlmg-code-change-verification",
+      "initializer": "C:\\Users\\riman\\.codex\\skills\\.system\\skill-creator\\scripts\\init_skill.py",
+      "initialized": true,
+      "validator": "C:\\Users\\riman\\.codex\\skills\\.system\\skill-creator\\scripts\\quick_validate.py",
+      "validation": "pass",
+      "optional_resource_directories": []
+    },
+    {
+      "name": "qlmg-rankable-backtest-contract",
+      "initializer": "C:\\Users\\riman\\.codex\\skills\\.system\\skill-creator\\scripts\\init_skill.py",
+      "initialized": true,
+      "validator": "C:\\Users\\riman\\.codex\\skills\\.system\\skill-creator\\scripts\\quick_validate.py",
+      "validation": "pass",
+      "optional_resource_directories": []
+    },
+    {
+      "name": "qlmg-review-package-verification",
+      "initializer": "C:\\Users\\riman\\.codex\\skills\\.system\\skill-creator\\scripts\\init_skill.py",
+      "initialized": true,
+      "validator": "C:\\Users\\riman\\.codex\\skills\\.system\\skill-creator\\scripts\\quick_validate.py",
+      "validation": "pass",
+      "optional_resource_directories": []
+    }
+  ],
+  "checks": [
+    {
+      "name": "skill_creator_quick_validate",
+      "result": "pass",
+      "count": 4
+    },
+    {
+      "name": "required_structure",
+      "result": "pass",
+      "ready_files": 20,
+      "skills": 4,
+      "eval_files": 4,
+      "root_and_agent_docs": 8
+    },
+    {
+      "name": "skill_eval_prompt_counts",
+      "result": "pass",
+      "minimum_positive": 3,
+      "minimum_negative": 3
+    },
+    {
+      "name": "markdown_relative_links",
+      "result": "pass",
+      "markdown_files_checked": 16
+    },
+    {
+      "name": "template_todo_scan",
+      "result": "pass"
+    },
+    {
+      "name": "policy_assertions",
+      "result": "pass",
+      "required_terms": 18
+    },
+    {
+      "name": "config_safety",
+      "result": "pass",
+      "config_toml_created": 0
+    },
+    {
+      "name": "patch_apply_check",
+      "result": "pass",
+      "files": 20,
+      "git_core_autocrlf": false
+    },
+    {
+      "name": "patch_roundtrip_sha256",
+      "result": "pass",
+      "files": 20
+    }
+  ],
+  "remote_handoff_prerequisites": [
+    "explicit upload authorization",
+    "exact Google Drive remote and folder",
+    "confirmed authorized write identity without credential disclosure",
+    "collision and overwrite policy",
+    "closed local ZIP with manifest and SHA-256 checks",
+    "remote content hash or documented round-trip verification"
+  ],
+  "files": [
+    {
+      "path": "BACKTESTING_AGENT_HARNESS_DIFF.patch",
+      "bytes": 79893,
+      "sha256": "e2700938b638a328c26b44bac562ca2126d692779d8023dd585ca7febbc75365"
+    },
+    {
+      "path": "BACKTESTING_AGENT_HARNESS_REPORT.md",
+      "bytes": 14118,
+      "sha256": "52263d0350a66629c36f3f671bfc2cc8eeec7ae801a4fa76fe335008c09730c7"
+    },
+    {
+      "path": "ready_to_apply/.agents/skills/qlmg-code-change-verification/SKILL.md",
+      "bytes": 3297,
+      "sha256": "acf66f3a304c2bf35a27f4e1fecedd4e791b45a5ecbda252efffe1baa755c419"
+    },
+    {
+      "path": "ready_to_apply/.agents/skills/qlmg-code-change-verification/agents/openai.yaml",
+      "bytes": 220,
+      "sha256": "15d38fa61630998b1910624ef5eb585cec79f427fa36e1ed6a1fa26be09e5109"
+    },
+    {
+      "path": "ready_to_apply/.agents/skills/qlmg-plan-and-preflight/SKILL.md",
+      "bytes": 3853,
+      "sha256": "43c9403cd5b89a2b050c3494d0e199b0a633e891142bde7fdb1adb0867536dd5"
+    },
+    {
+      "path": "ready_to_apply/.agents/skills/qlmg-plan-and-preflight/agents/openai.yaml",
+      "bytes": 197,
+      "sha256": "ce5a892498c2dacd5793a6ce84f6120e05a6b9678ef6ac9d90d253c9917c5ae8"
+    },
+    {
+      "path": "ready_to_apply/.agents/skills/qlmg-rankable-backtest-contract/SKILL.md",
+      "bytes": 4253,
+      "sha256": "ddfc6cec61eff6fbe6f4c62cc61b0289b4883963e40b0ee8595aba70afb37d35"
+    },
+    {
+      "path": "ready_to_apply/.agents/skills/qlmg-rankable-backtest-contract/agents/openai.yaml",
+      "bytes": 230,
+      "sha256": "a2b60a7fb0293ac8c90eb493013a85efef1044d096a5597f0d5eb5d71f69ab32"
+    },
+    {
+      "path": "ready_to_apply/.agents/skills/qlmg-review-package-verification/SKILL.md",
+      "bytes": 4459,
+      "sha256": "149d8b58510d68a643a1b290e55826ff3aa973e5c18b6d5e8c983d02618869f3"
+    },
+    {
+      "path": "ready_to_apply/.agents/skills/qlmg-review-package-verification/agents/openai.yaml",
+      "bytes": 243,
+      "sha256": "881e2abd95fd4b65ebef8e0681759fc2c60651f2b031542d549c85fa5baafdaf"
+    },
+    {
+      "path": "ready_to_apply/AGENTS.md",
+      "bytes": 10695,
+      "sha256": "6f4d4a37e577a833fba5a89ca0eed39c570bce7d80908fc99eb109e3933bcaab"
+    },
+    {
+      "path": "ready_to_apply/docs/agent/CODE_REVIEW.md",
+      "bytes": 3184,
+      "sha256": "f23237e82ed454b657c73c70cc2437c2951dd080b9f8543696d859872a584a81"
+    },
+    {
+      "path": "ready_to_apply/docs/agent/DATA_AND_PROTECTED_PERIOD_RULES.md",
+      "bytes": 4120,
+      "sha256": "9d2926796aa392c3842aa821d4df1cede02b257b09f6e74f30b0790425324f48"
+    },
+    {
+      "path": "ready_to_apply/docs/agent/DIRTY_REPOSITORY_RECOVERY.md",
+      "bytes": 7580,
+      "sha256": "47dd4cfbf61cfce722ee2c04f1f6caa87bc9f58c8aab8529df062f40d3120715"
+    },
+    {
+      "path": "ready_to_apply/docs/agent/EXECUTION_PLAN_TEMPLATE.md",
+      "bytes": 3594,
+      "sha256": "db571d54fc01f1170adbce5a30ff5f7dc0150dc02e3674fc138e33a8580a0f51"
+    },
+    {
+      "path": "ready_to_apply/docs/agent/KNOWN_FAILURE_PATTERNS.md",
+      "bytes": 5098,
+      "sha256": "150094a4083e65c88bd96d75920eaaca54a0b78f1ce2e0e75f34c3fb2a88eba1"
+    },
+    {
+      "path": "ready_to_apply/docs/agent/REPOSITORY_MAP.md",
+      "bytes": 4559,
+      "sha256": "baced833cfdf386f20874ec07d77d35915309b28b8d45b5b389f4ef3c3e96af7"
+    },
+    {
+      "path": "ready_to_apply/docs/agent/RUN_AND_ARTIFACT_CONTRACT.md",
+      "bytes": 7170,
+      "sha256": "e8e933254a4def75680cf7dd8d8f04d21fdbca7bceac55a7f069d77e517422fc"
+    },
+    {
+      "path": "ready_to_apply/skill_evals/qlmg-code-change-verification.md",
+      "bytes": 2485,
+      "sha256": "5e7ca3237aaf2e129420d481d88110b911979a11d75bcfac6c850d4bfb00b1b9"
+    },
+    {
+      "path": "ready_to_apply/skill_evals/qlmg-plan-and-preflight.md",
+      "bytes": 3161,
+      "sha256": "05935d4d52e0d885e18bc23dfbcddd93548403cf34c574b5719a6bd19dc71989"
+    },
+    {
+      "path": "ready_to_apply/skill_evals/qlmg-rankable-backtest-contract.md",
+      "bytes": 2720,
+      "sha256": "c5b9bc9b2b5a26126a93f0a909bf091b99a7b455ece3ad75afd7c0b2eafa408f"
+    },
+    {
+      "path": "ready_to_apply/skill_evals/qlmg-review-package-verification.md",
+      "bytes": 2803,
+      "sha256": "b23197d913e304eeed3e8e5d93837db9c56b81baa64abdc6138bb21db8662c82"
+    }
+  ],
+  "file_count": 22,
+  "manifest_self": {
+    "path": "BACKTESTING_AGENT_HARNESS_MANIFEST.json",
+    "bytes": 13503,
+    "sha256": null,
+    "sha256_status": "not_embedded",
+    "reason": "An exact hash of a file cannot be embedded in that same file without a recursive fixed-point problem. Hash this manifest externally after transfer."
+  },
+  "approved_transfer_destination": {
+    "folder_name": "DONCH_AGENT_TRANSFER_20260716",
+    "folder_id": "1eWdmin0E7QKYJ5AvFcpRmvvDG3YiWlBz",
+    "folder_url": "https://drive.google.com/drive/folders/1eWdmin0E7QKYJ5AvFcpRmvvDG3YiWlBz",
+    "collision_policy": "unique_names_only_no_overwrite"
+  }
+}

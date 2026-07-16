@@ -1,0 +1,196 @@
+{
+  "schema_version": "1.0",
+  "generated_utc": "2026-07-16T15:17:54.716709+00:00",
+  "package_name": "qlmg_backtesting-agent-governance-handoff_20260716_v01.zip",
+  "package_status": "ready_for_remote_agent_reconciliation",
+  "member_count_excluding_this_manifest": 30,
+  "entries": [
+    {
+      "path": "BACKTESTING_AGENT_TASK_SPEC_20260716.md",
+      "bytes": 11586,
+      "sha256": "c45c77396545ba3b238ea2f8726224e5e7ce3f07becb21f8e5fb8dec5de5b048",
+      "purpose": "authorized_task_specification"
+    },
+    {
+      "path": "README_FIRST.md",
+      "bytes": 1693,
+      "sha256": "447971659eb86a51303ae39580370e5ae14f56f96669b61ae1ff06ad45d76c87",
+      "purpose": "read_first"
+    },
+    {
+      "path": "donch_project_instructions/BACKTESTING_AGENT_OPERATING_AND_ARCHIVE_INSTRUCTIONS.md",
+      "bytes": 8992,
+      "sha256": "75765e8d96ecdf3905f5caafff7437c81bf53266939493ddcfd92d9f86e6ca57",
+      "purpose": "donch_authority_and_archive_context"
+    },
+    {
+      "path": "donch_project_instructions/DONCH_PROJECT_INSTRUCTIONS_COMPACT.md",
+      "bytes": 6323,
+      "sha256": "d984413b55cdc32b839eb1d610fd0837b84f52dbc50a89467c69b2631aa1d000",
+      "purpose": "donch_authority_and_archive_context"
+    },
+    {
+      "path": "donch_project_instructions/DONCH_PROJECT_INSTRUCTIONS_FULL.md",
+      "bytes": 32818,
+      "sha256": "ad1a2ca0fe1919f47e9c8aa5d32a1fb719e199a0770a918b3b23e7a6f41ce15d",
+      "purpose": "donch_authority_and_archive_context"
+    },
+    {
+      "path": "donch_project_instructions/DONCH_TO_BACKTESTING_TASK_ARCHIVE_TEMPLATE.md",
+      "bytes": 6016,
+      "sha256": "a8a7d05346e1eb314404c3f3af9e86e90c608cb0e3c383819c9298e4040facbd",
+      "purpose": "donch_authority_and_archive_context"
+    },
+    {
+      "path": "donch_project_state/DONCH_LIVE_PROJECT_STATE_AFTER_REPLACEMENT_20260716.md",
+      "bytes": 5815,
+      "sha256": "e5603b8b37dfe0624e72b97a808deebe078b9cd8b0c6b0b5956a4de872f84699",
+      "purpose": "verified_live_project_state"
+    },
+    {
+      "path": "harness/BACKTESTING_AGENT_HARNESS_DIFF.patch",
+      "bytes": 79893,
+      "sha256": "e2700938b638a328c26b44bac562ca2126d692779d8023dd585ca7febbc75365",
+      "purpose": "ready_to_apply_patch"
+    },
+    {
+      "path": "harness/BACKTESTING_AGENT_HARNESS_MANIFEST.json",
+      "bytes": 13503,
+      "sha256": "e11d6655593921ad43c9f375ee164b52ffc0a2d4c7267173ab9f3f958a8de208",
+      "purpose": "harness_integrity_manifest"
+    },
+    {
+      "path": "harness/BACKTESTING_AGENT_HARNESS_REPORT.md",
+      "bytes": 14118,
+      "sha256": "52263d0350a66629c36f3f671bfc2cc8eeec7ae801a4fa76fe335008c09730c7",
+      "purpose": "harness_status_and_validation_report"
+    },
+    {
+      "path": "harness/ready_to_apply/.agents/skills/qlmg-code-change-verification/SKILL.md",
+      "bytes": 3297,
+      "sha256": "acf66f3a304c2bf35a27f4e1fecedd4e791b45a5ecbda252efffe1baa755c419",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/.agents/skills/qlmg-code-change-verification/agents/openai.yaml",
+      "bytes": 220,
+      "sha256": "15d38fa61630998b1910624ef5eb585cec79f427fa36e1ed6a1fa26be09e5109",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/.agents/skills/qlmg-plan-and-preflight/SKILL.md",
+      "bytes": 3853,
+      "sha256": "43c9403cd5b89a2b050c3494d0e199b0a633e891142bde7fdb1adb0867536dd5",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/.agents/skills/qlmg-plan-and-preflight/agents/openai.yaml",
+      "bytes": 197,
+      "sha256": "ce5a892498c2dacd5793a6ce84f6120e05a6b9678ef6ac9d90d253c9917c5ae8",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/.agents/skills/qlmg-rankable-backtest-contract/SKILL.md",
+      "bytes": 4253,
+      "sha256": "ddfc6cec61eff6fbe6f4c62cc61b0289b4883963e40b0ee8595aba70afb37d35",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/.agents/skills/qlmg-rankable-backtest-contract/agents/openai.yaml",
+      "bytes": 230,
+      "sha256": "a2b60a7fb0293ac8c90eb493013a85efef1044d096a5597f0d5eb5d71f69ab32",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/.agents/skills/qlmg-review-package-verification/SKILL.md",
+      "bytes": 4459,
+      "sha256": "149d8b58510d68a643a1b290e55826ff3aa973e5c18b6d5e8c983d02618869f3",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/.agents/skills/qlmg-review-package-verification/agents/openai.yaml",
+      "bytes": 243,
+      "sha256": "881e2abd95fd4b65ebef8e0681759fc2c60651f2b031542d549c85fa5baafdaf",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/AGENTS.md",
+      "bytes": 10695,
+      "sha256": "6f4d4a37e577a833fba5a89ca0eed39c570bce7d80908fc99eb109e3933bcaab",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/docs/agent/CODE_REVIEW.md",
+      "bytes": 3184,
+      "sha256": "f23237e82ed454b657c73c70cc2437c2951dd080b9f8543696d859872a584a81",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/docs/agent/DATA_AND_PROTECTED_PERIOD_RULES.md",
+      "bytes": 4120,
+      "sha256": "9d2926796aa392c3842aa821d4df1cede02b257b09f6e74f30b0790425324f48",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/docs/agent/DIRTY_REPOSITORY_RECOVERY.md",
+      "bytes": 7580,
+      "sha256": "47dd4cfbf61cfce722ee2c04f1f6caa87bc9f58c8aab8529df062f40d3120715",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/docs/agent/EXECUTION_PLAN_TEMPLATE.md",
+      "bytes": 3594,
+      "sha256": "db571d54fc01f1170adbce5a30ff5f7dc0150dc02e3674fc138e33a8580a0f51",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/docs/agent/KNOWN_FAILURE_PATTERNS.md",
+      "bytes": 5098,
+      "sha256": "150094a4083e65c88bd96d75920eaaca54a0b78f1ce2e0e75f34c3fb2a88eba1",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/docs/agent/REPOSITORY_MAP.md",
+      "bytes": 4559,
+      "sha256": "baced833cfdf386f20874ec07d77d35915309b28b8d45b5b389f4ef3c3e96af7",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/docs/agent/RUN_AND_ARTIFACT_CONTRACT.md",
+      "bytes": 7170,
+      "sha256": "e8e933254a4def75680cf7dd8d8f04d21fdbca7bceac55a7f069d77e517422fc",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/skill_evals/qlmg-code-change-verification.md",
+      "bytes": 2485,
+      "sha256": "5e7ca3237aaf2e129420d481d88110b911979a11d75bcfac6c850d4bfb00b1b9",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/skill_evals/qlmg-plan-and-preflight.md",
+      "bytes": 3161,
+      "sha256": "05935d4d52e0d885e18bc23dfbcddd93548403cf34c574b5719a6bd19dc71989",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/skill_evals/qlmg-rankable-backtest-contract.md",
+      "bytes": 2720,
+      "sha256": "c5b9bc9b2b5a26126a93f0a909bf091b99a7b455ece3ad75afd7c0b2eafa408f",
+      "purpose": "proposed_repository_governance_file"
+    },
+    {
+      "path": "harness/ready_to_apply/skill_evals/qlmg-review-package-verification.md",
+      "bytes": 2803,
+      "sha256": "b23197d913e304eeed3e8e5d93837db9c56b81baa64abdc6138bb21db8662c82",
+      "purpose": "proposed_repository_governance_file"
+    }
+  ],
+  "safety": {
+    "pdf_files": 0,
+    "economic_run_authorized": false,
+    "protected_outcome_inspection_authorized": false,
+    "push_or_merge_authorized": false,
+    "original_dirty_checkout_mutation_authorized": false
+  }
+}

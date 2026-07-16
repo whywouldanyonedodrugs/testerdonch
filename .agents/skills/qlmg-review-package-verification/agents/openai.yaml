@@ -1,0 +1,4 @@
+interface:
+  display_name: "QLMG Review Package Verification"
+  short_description: "Verify and hand off QLMG review packages"
+  default_prompt: "Use $qlmg-review-package-verification to validate a review bundle and its handoff prerequisites."

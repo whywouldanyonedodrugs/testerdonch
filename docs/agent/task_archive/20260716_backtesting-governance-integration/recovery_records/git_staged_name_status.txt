@@ -1,0 +1,139 @@
+A	code
+A	docs/A1 sweep plan.md
+A	docs/optimisation_plan.md
+A	research_inputs/Point In Time Sector Seeds for Crypto Perpetual Theme Ignition-1.pdf
+A	research_inputs/Post-Catalyst Continuation Base Catalyst Database-1.pdf
+A	research_inputs/QLMG Crypto Perpetual Futures vs Stocks for Systematic Strategy Testing-1.pdf
+A	research_inputs/QLMG Cryptocurrency Momentum, Reversal, Funding, Open Interest, and Liquidation Cascades-1.pdf
+A	research_inputs/QLMG Cryptocurrency Momentum, Reversal, Perpetuals, Open Interest, and Liquidation Cascades-1.pdf
+A	research_inputs/QLMG Historical Crypto Perpetual Setups From 2020 Through Mid 2026-1.pdf
+A	research_inputs/QLMG Historical Crypto Perpetual Setups From 2020 Through Mid 2026-2.pdf
+A	research_inputs/QLMG Robust Backtest Protocol for Qullamaggie-Inspired Crypto Perpetual Strategies-1.pdf
+A	"research_inputs/QLMG Rulebook for Kristjan Qullamaggie Kullam\303\244gi Public Trading Setups-1.pdf"
+A	research_inputs/QLMG Simple Alpha Hypotheses for Bybit USDT Perpetuals-1.pdf
+A	research_inputs/QLMG Taxonomy of Crypto Catalysts Analogous to Stock Episodic Pivots-1.pdf
+A	research_inputs/QLMG_Hypothesis_Library_2026-07-01.xlsx
+A	research_inputs/RES Designing Less Depth-Sensitive Crypto Perp Tests-2.pdf
+A	research_inputs/RES Liquid Universe Continuation Strategies for Crypto Perpetual Futures-1.pdf
+A	research_inputs/RES Point-in-Time Regime Framework for Crypto Perpetual Futures-1.pdf
+A	research_inputs/RES Research Base for Liquid-Sector Episodic Pivots and Post-Catalyst Continuation-1.pdf
+A	research_inputs/RES2 Crypto Perpetual Futures Alpha Hypothesis Catalogue.pdf
+A	research_inputs/RES2 Crypto Perpetual Practitioner Alpha Map.pdf
+A	research_inputs/RES2 No-Vendor Roadmap for Testing Crypto Perpetual Alpha Hypotheses.pdf
+A	research_inputs/RES2 Public-Data Crypto Perpetual Alpha Hypotheses.pdf
+A	research_inputs/RES2 Regime Map for Crypto Perpetual Alpha.pdf
+A	research_inputs/point_in_time_sector_seeds.md
+A	research_inputs/post_catalyst_c2_database.md
+A	research_inputs/testmanual.txt
+M	tools/donch_autopar_daily.py
+M	tools/donch_autopar_pull_and_run.py
+A	tools/kraken_aggregate_cache_layer.py
+A	tools/qlmg_evidence_contracts.py
+A	tools/qlmg_markdown_seed_parser.py
+A	tools/qlmg_match_feature_builder.py
+A	tools/qlmg_real_controls.py
+A	tools/qlmg_regime_stack.py
+A	tools/qlmg_screening_core.py
+A	tools/qlmg_short_event_generators.py
+A	tools/qlmg_strategy_contracts.py
+A	tools/run_kraken_family_engine_aggregate_first_sweep.py
+A	tools/run_kraken_family_engine_aggregate_first_sweep_tmux.sh
+A	tools/run_kraken_full_coverage_signal_tape_sweep.py
+A	tools/run_kraken_full_coverage_signal_tape_sweep_tmux.sh
+A	tools/run_kraken_gated_full_hypothesis_sweep.py
+A	tools/run_kraken_gated_full_hypothesis_sweep_tmux.sh
+A	tools/run_kraken_hypothesis_sweep_readiness.py
+A	tools/run_kraken_hypothesis_sweep_readiness_tmux.sh
+A	tools/run_kraken_k0_data_foundation.py
+A	tools/run_kraken_k0_data_foundation_tmux.sh
+A	tools/run_kraken_readiness_repair.py
+A	tools/run_kraken_readiness_repair_tmux.sh
+A	tools/run_qlmg_alpha_discovery_marathon.py
+A	tools/run_qlmg_alpha_discovery_marathon_tmux.sh
+A	tools/run_qlmg_b1_c2_ledger_quality_a3_failure_audit.py
+A	tools/run_qlmg_b1_c2_ledger_quality_a3_failure_audit_tmux.sh
+A	tools/run_qlmg_best_effort_proxy_execution_sim.py
+A	tools/run_qlmg_best_effort_proxy_execution_sim_tmux.sh
+A	tools/run_qlmg_brutal_no_depth_stress.py
+A	tools/run_qlmg_brutal_no_depth_stress_tmux.sh
+A	tools/run_qlmg_bybit_historical_execution_data_route.py
+A	tools/run_qlmg_bybit_historical_execution_data_route_tmux.sh
+A	tools/run_qlmg_corrected_event_level_development_sweep.py
+A	tools/run_qlmg_corrected_event_level_development_sweep_tmux.sh
+A	tools/run_qlmg_d1_narrow_validation.py
+A	tools/run_qlmg_d1_narrow_validation_tmux.sh
+A	tools/run_qlmg_d4_liquidation_execution_audit.py
+A	tools/run_qlmg_d4_liquidation_execution_audit_tmux.sh
+A	tools/run_qlmg_d4_survivability_redesign.py
+A	tools/run_qlmg_d4_survivability_redesign_tmux.sh
+A	tools/run_qlmg_engine_and_first_screen.py
+A	tools/run_qlmg_evidence_integrity_corrected_sweep.py
+A	tools/run_qlmg_evidence_integrity_corrected_sweep_tmux.sh
+A	tools/run_qlmg_evidence_remediation_family_repair.py
+A	tools/run_qlmg_evidence_remediation_family_repair_tmux.sh
+A	tools/run_qlmg_execution_depth_pilot.py
+A	tools/run_qlmg_execution_depth_pilot_tmux.sh
+A	tools/run_qlmg_f1_g1_short_unblock.py
+A	tools/run_qlmg_f1_g1_short_unblock_tmux.sh
+A	tools/run_qlmg_global_result_invalidation_audit.py
+A	tools/run_qlmg_integrated_abcx_development.py
+A	tools/run_qlmg_integrated_abcx_development_tmux.sh
+A	tools/run_qlmg_liquid_regime_strategy_research.py
+A	tools/run_qlmg_liquid_regime_strategy_research_tmux.sh
+A	tools/run_qlmg_listing_generic_full_event_replay.py
+A	tools/run_qlmg_listing_generic_full_event_replay_tmux.sh
+A	tools/run_qlmg_mechanical_qa_evidence_contract.py
+A	tools/run_qlmg_mechanical_qa_evidence_contract_tmux.sh
+A	tools/run_qlmg_no_vendor_progress_run.py
+A	tools/run_qlmg_no_vendor_progress_run_tmux.sh
+A	tools/run_qlmg_no_vendor_progress_v2.py
+A	tools/run_qlmg_no_vendor_progress_v2_tmux.sh
+A	tools/run_qlmg_path_diagnostics_exit_surface.py
+A	tools/run_qlmg_real_control_rebuild.py
+A	tools/run_qlmg_regime_stack_and_smart_sweep.py
+A	tools/run_qlmg_regime_stack_and_smart_sweep_tmux.sh
+A	tools/run_qlmg_simple_alpha_liqsafe_development.py
+A	tools/run_qlmg_simple_alpha_liqsafe_development_tmux.sh
+A	tools/run_qlmg_simple_alpha_plus_d4.py
+A	tools/run_qlmg_simple_alpha_plus_d4_tmux.sh
+A	tools/run_qlmg_targeted_1m_data_pilot.py
+A	tools/run_qlmg_targeted_1m_data_pilot_tmux.sh
+A	tools/run_qlmg_targeted_execution_data_replay.py
+A	tools/run_qlmg_targeted_execution_data_replay_tmux.sh
+M	tools/telegram_notify.py
+A	unit_tests/fixtures/wave001_duplicate_translation_reproducer.json
+A	unit_tests/fixtures/wave001_parameter_loss_reproducer.json
+A	unit_tests/test_kraken_family_engine_aggregate_first_sweep.py
+A	unit_tests/test_kraken_full_coverage_signal_tape_sweep.py
+A	unit_tests/test_kraken_gated_full_hypothesis_sweep.py
+A	unit_tests/test_kraken_hypothesis_sweep_readiness.py
+A	unit_tests/test_kraken_k0_data_foundation.py
+A	unit_tests/test_kraken_readiness_repair.py
+A	unit_tests/test_qlmg_alpha_discovery_marathon.py
+A	unit_tests/test_qlmg_b1_c2_ledger_quality_a3_failure_audit.py
+A	unit_tests/test_qlmg_best_effort_proxy_execution_sim.py
+A	unit_tests/test_qlmg_brutal_no_depth_stress.py
+A	unit_tests/test_qlmg_bybit_historical_execution_data_route.py
+A	unit_tests/test_qlmg_corrected_event_level_development_sweep.py
+A	unit_tests/test_qlmg_d1_narrow_validation.py
+A	unit_tests/test_qlmg_d4_liquidation_execution_audit.py
+A	unit_tests/test_qlmg_d4_survivability_redesign.py
+A	unit_tests/test_qlmg_engine_and_first_screen.py
+A	unit_tests/test_qlmg_evidence_integrity_corrected_sweep.py
+A	unit_tests/test_qlmg_evidence_remediation_family_repair.py
+A	unit_tests/test_qlmg_execution_depth_pilot.py
+A	unit_tests/test_qlmg_f1_g1_short_unblock.py
+A	unit_tests/test_qlmg_integrated_abcx_development.py
+A	unit_tests/test_qlmg_liquid_regime_strategy_research.py
+A	unit_tests/test_qlmg_listing_generic_full_event_replay.py
+A	unit_tests/test_qlmg_match_feature_builder.py
+A	unit_tests/test_qlmg_mechanical_qa_evidence_contract.py
+A	unit_tests/test_qlmg_no_vendor_progress_run.py
+A	unit_tests/test_qlmg_no_vendor_progress_v2.py
+A	unit_tests/test_qlmg_path_diagnostics_exit_surface.py
+A	unit_tests/test_qlmg_real_controls.py
+A	unit_tests/test_qlmg_regime_stack_and_smart_sweep.py
+A	unit_tests/test_qlmg_simple_alpha_liqsafe_development.py
+A	unit_tests/test_qlmg_simple_alpha_plus_d4.py
+A	unit_tests/test_qlmg_targeted_1m_data_pilot.py
+A	unit_tests/test_qlmg_targeted_execution_data_replay.py
