@@ -1,0 +1,151 @@
+{
+  "archive_root": "docs/agent/task_archive/20260716_donch_bt_first_wave_readiness_20260716_v1",
+  "branch": "main",
+  "capture_accessed": false,
+  "economic_run_launched": false,
+  "entries": [
+    {
+      "bytes": 2528,
+      "path": "COMMANDS_AND_RESULTS.md",
+      "purpose": "readiness_audit_record",
+      "sha256": "a85227c17657ab90fcb94d18160512e225787efb3961258fd74b6e4979c6fdee"
+    },
+    {
+      "bytes": 835,
+      "path": "COMPLETION.md",
+      "purpose": "readiness_audit_record",
+      "sha256": "f21eb9fbdea5a17b6e2997aaf01cdc6bcebd785fc7c01b117968702fcd3d3e1f"
+    },
+    {
+      "bytes": 1617,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "purpose": "readiness_audit_record",
+      "sha256": "1f1dfc9a1b7db71803720b30729dc0a0ccf361c379b7e65229b6b7405d4bba15"
+    },
+    {
+      "bytes": 3627,
+      "path": "DONCH_ARCHIVE_CONTEXT.md",
+      "purpose": "received_task_and_archive_context",
+      "sha256": "e4ba920727a19379637b901bae81ca13b09359848ad73cab9bc9476e024509ce"
+    },
+    {
+      "bytes": 7630,
+      "path": "FIRST_WAVE_DEPENDENCY_MATRIX.csv",
+      "purpose": "machine_readable_readiness_matrix",
+      "sha256": "0b49688cbef8bbaf2b0d1bde4b6fd3883bca325cd6dea8217a6b891e1fc46e2f"
+    },
+    {
+      "bytes": 4380,
+      "path": "FIRST_WAVE_READINESS_REPORT.md",
+      "purpose": "readiness_audit_record",
+      "sha256": "cdedeeadcb4613151ff0817d1eb9f2d1e17c872d1293e28257a2bf19773a505e"
+    },
+    {
+      "bytes": 1946,
+      "path": "NEXT_TASK_RECOMMENDATION.md",
+      "purpose": "readiness_audit_record",
+      "sha256": "0c0cf96ca81f22c95812d0acc1aedabec378627023ad06d510c40e9c3627e630"
+    },
+    {
+      "bytes": 2406,
+      "path": "PACKAGE_PROTOCOL_STATUS.md",
+      "purpose": "readiness_audit_record",
+      "sha256": "70f687df7370e9ce2d1ecce35cb8919cd626ca46d6bdda95213938c6645fa938"
+    },
+    {
+      "bytes": 690,
+      "path": "PLAN.md",
+      "purpose": "readiness_audit_record",
+      "sha256": "f7863ad16ef40cb61afc3b329a9303410c9d2a6ef382c1f3292898721b527521"
+    },
+    {
+      "bytes": 2465,
+      "path": "PROTECTED_BOUNDARY_VERIFICATION.md",
+      "purpose": "readiness_audit_record",
+      "sha256": "b76b54fa897b061592387902bbda5ab51e6e211d8c99a2af4c980858f44dc97c"
+    },
+    {
+      "bytes": 973,
+      "path": "REVIEW.md",
+      "purpose": "readiness_audit_record",
+      "sha256": "beed4880ddab9daedddac38628cc56ae8cdd99d7f3945b1c00a3de7d7503a2fc"
+    },
+    {
+      "bytes": 16988,
+      "path": "TASK_SPEC.md",
+      "purpose": "received_task_and_archive_context",
+      "sha256": "cf620acb86ab0a83e7966ed26dbb4a358132265271e65486203d75d9c63a68af"
+    },
+    {
+      "bytes": 857,
+      "path": "received/README_TRANSFER.md",
+      "purpose": "authority_transfer_metadata",
+      "sha256": "1d858807e1106bf1f24ea99714f505871c2fbdd599f50d1154d60ef922794da7"
+    },
+    {
+      "bytes": 3368,
+      "path": "received/TRANSFER_MANIFEST.json",
+      "purpose": "authority_transfer_metadata",
+      "sha256": "3146316d813129d0c9e72e5637452f62f8b31153eab4aa785e8eb8f955cdf0dd"
+    },
+    {
+      "bytes": 8168,
+      "path": "received/authority/01_AUTHORITY_QLMG_Operating_Contract_2026-07-16.md",
+      "purpose": "verified_authority_source",
+      "sha256": "cc7556ae37ba17391e64b8fc9026e118b40c575597967b78bf2e39e8dfe3f379"
+    },
+    {
+      "bytes": 9739,
+      "path": "received/authority/02_STATE_Master_Continuity_Brief_2026-07-16_rev8.md",
+      "purpose": "verified_authority_source",
+      "sha256": "eff5cfce197e50ba19830545747adf9c423c6f57c6b4ce2afd80614a38613cda"
+    },
+    {
+      "bytes": 9588,
+      "path": "received/authority/03_STATE_Current_Research_Decisions_2026-07-16.md",
+      "purpose": "verified_authority_source",
+      "sha256": "e8482c77a2974914dbc1b3ad30a5972c97273f7d61f5ffc16308a555a97ac0b7"
+    },
+    {
+      "bytes": 347739,
+      "path": "received/authority/04_REGISTRY_Hypothesis_and_Family_Status_2026-07-16.csv",
+      "purpose": "verified_authority_source",
+      "sha256": "f5cebfea208905cfd8714389568a15329e5165ae1326f06fbd5610780e318b53"
+    },
+    {
+      "bytes": 11300,
+      "path": "received/authority/05_REGISTRY_Kraken_Data_and_Evidence_Capability_2026-07-16.csv",
+      "purpose": "verified_authority_source",
+      "sha256": "d4a197e31c048542eae7d5d03b4964e5866da2d8bdd4250198de580692c54244"
+    },
+    {
+      "bytes": 10638,
+      "path": "received/authority/12_MANUAL_Test_and_Evidence_Standards_2026-07-16.md",
+      "purpose": "verified_authority_source",
+      "sha256": "f1fe267aaf416ec219ec09130a8c52ac11acaafce32c2d991f4c8f2157fa1544"
+    },
+    {
+      "bytes": 6156,
+      "path": "received/authority/13_GUIDE_Backtest_Claims_and_Review_2026-07-16.md",
+      "purpose": "verified_authority_source",
+      "sha256": "ea46a7b09369e2e5f1f2e8c5f9a09a8e57fa8bd66b55abc88c415c69b17bdab3"
+    },
+    {
+      "bytes": 60397,
+      "path": "received/authority/QLMG_Next_Research_Plan_2026-07-16_v1.md",
+      "purpose": "verified_authority_source",
+      "sha256": "00065c0770984b716c42dc4a0affa3e87b8051ca6aac100e6ee270d0f876f91a"
+    }
+  ],
+  "entry_count": 22,
+  "generated_utc": "2026-07-16T19:01:19.364625+00:00",
+  "governance_commit": "8cf3e227105fd7626445d27c8caf4c28bccc2ecb",
+  "manifest_self": {
+    "path": "ARTIFACT_MANIFEST.json",
+    "sha256_status": "not_embedded_recursive_self_hash"
+  },
+  "protected_outcomes_inspected": false,
+  "repository_root": "/opt/testerdonch",
+  "schema_version": 1,
+  "task_id": "donch_bt_first_wave_readiness_20260716_v1"
+}

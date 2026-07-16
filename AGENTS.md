@@ -12,6 +12,20 @@ This repository is governed as a historical Kraken backtesting and research proj
 - Use [docs/agent/CODE_REVIEW.md](docs/agent/CODE_REVIEW.md) for review tasks.
 - Use [docs/agent/KNOWN_FAILURE_PATTERNS.md](docs/agent/KNOWN_FAILURE_PATTERNS.md) before changing event generation, controls, or accounting.
 
+## Simplicity and surgical scope
+
+Choose the smallest compliant change that satisfies the current acceptance criteria.
+
+- Do not add a framework, abstraction, configuration option, registry, or document unless the current task requires it.
+- Every changed line and generated artifact must trace directly to the task objective or a binding safety requirement.
+- Do not repair adjacent defects, perform unrelated cleanup, or prepare speculative future functionality.
+- If a guard and focused tests solve the problem, stop there.
+- If the task expands materially, split it and request approval for the new scope.
+- Scale plans, archives, reviews, and completion reports to the task. Small fixes require small records.
+- Simplicity never overrides protected-data, authorization, evidence, or rollback boundaries.
+
+Before completion, ask: “Would a senior engineer consider this solution unnecessarily elaborate?” If yes, simplify it.
+
 ## Hard Boundaries
 
 - Active venue: Kraken only.

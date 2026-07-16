@@ -1,0 +1,65 @@
+{
+  "economic_run_authorized": false,
+  "files": [
+    {
+      "authority_note": "use according to the authority stated inside the file; machine contracts remain higher",
+      "bytes": 60397,
+      "filename": "QLMG_Next_Research_Plan_2026-07-16_v1.md",
+      "purpose": "controlling source for first-wave readiness verification",
+      "sha256": "00065c0770984b716c42dc4a0affa3e87b8051ca6aac100e6ee270d0f876f91a"
+    },
+    {
+      "authority_note": "use according to the authority stated inside the file; machine contracts remain higher",
+      "bytes": 8168,
+      "filename": "01_AUTHORITY_QLMG_Operating_Contract_2026-07-16.md",
+      "purpose": "controlling source for first-wave readiness verification",
+      "sha256": "cc7556ae37ba17391e64b8fc9026e118b40c575597967b78bf2e39e8dfe3f379"
+    },
+    {
+      "authority_note": "use according to the authority stated inside the file; machine contracts remain higher",
+      "bytes": 9739,
+      "filename": "02_STATE_Master_Continuity_Brief_2026-07-16_rev8.md",
+      "purpose": "controlling source for first-wave readiness verification",
+      "sha256": "eff5cfce197e50ba19830545747adf9c423c6f57c6b4ce2afd80614a38613cda"
+    },
+    {
+      "authority_note": "use according to the authority stated inside the file; machine contracts remain higher",
+      "bytes": 9588,
+      "filename": "03_STATE_Current_Research_Decisions_2026-07-16.md",
+      "purpose": "controlling source for first-wave readiness verification",
+      "sha256": "e8482c77a2974914dbc1b3ad30a5972c97273f7d61f5ffc16308a555a97ac0b7"
+    },
+    {
+      "authority_note": "use according to the authority stated inside the file; machine contracts remain higher",
+      "bytes": 347739,
+      "filename": "04_REGISTRY_Hypothesis_and_Family_Status_2026-07-16.csv",
+      "purpose": "controlling source for first-wave readiness verification",
+      "sha256": "f5cebfea208905cfd8714389568a15329e5165ae1326f06fbd5610780e318b53"
+    },
+    {
+      "authority_note": "use according to the authority stated inside the file; machine contracts remain higher",
+      "bytes": 11300,
+      "filename": "05_REGISTRY_Kraken_Data_and_Evidence_Capability_2026-07-16.csv",
+      "purpose": "controlling source for first-wave readiness verification",
+      "sha256": "d4a197e31c048542eae7d5d03b4964e5866da2d8bdd4250198de580692c54244"
+    },
+    {
+      "authority_note": "use according to the authority stated inside the file; machine contracts remain higher",
+      "bytes": 10638,
+      "filename": "12_MANUAL_Test_and_Evidence_Standards_2026-07-16.md",
+      "purpose": "controlling source for first-wave readiness verification",
+      "sha256": "f1fe267aaf416ec219ec09130a8c52ac11acaafce32c2d991f4c8f2157fa1544"
+    },
+    {
+      "authority_note": "use according to the authority stated inside the file; machine contracts remain higher",
+      "bytes": 6156,
+      "filename": "13_GUIDE_Backtest_Claims_and_Review_2026-07-16.md",
+      "purpose": "controlling source for first-wave readiness verification",
+      "sha256": "ea46a7b09369e2e5f1f2e8c5f9a09a8e57fa8bd66b55abc88c415c69b17bdab3"
+    }
+  ],
+  "generated_utc": "2026-07-16T17:45:06.106735+00:00",
+  "package_name": "DONCH_First_Wave_Authority_Transfer_20260716_v1",
+  "protected_outcome_access_authorized": false,
+  "purpose": "bounded authority-source transfer for first-wave readiness verification"
+}
