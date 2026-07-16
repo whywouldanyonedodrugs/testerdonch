@@ -1,0 +1,244 @@
+{
+  "branch": "fix/rankable-loader-boundary-20260716",
+  "capture_accessed": false,
+  "data_acquisition_performed": false,
+  "economic_run_launched": false,
+  "entries": [
+    {
+      "authority_status": "verified_local",
+      "bytes": 1062,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/CHANGED_FILES.md",
+      "provenance": "received_task_or_task_execution",
+      "purpose": "task_archive_record",
+      "sha256": "dbd796ea287439801a4038110ba7d4e3c6b761fe87055201c7c0b97f0ca0ce79"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 1571,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/COMMANDS_AND_RESULTS.md",
+      "provenance": "received_task_or_task_execution",
+      "purpose": "task_archive_record",
+      "sha256": "e5222a504e46e5f42e222f34d2d1e50ea42310e988f84f7b16197a9f439178ce"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 794,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/COMPLETION.md",
+      "provenance": "received_task_or_task_execution",
+      "purpose": "task_archive_record",
+      "sha256": "c4817bfaf1a23acdf3fa21a2b59d8ebf7a4a335b659e169c5e028444dc213646"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 1665,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/DECISIONS_AND_PROGRESS.md",
+      "provenance": "received_task_or_task_execution",
+      "purpose": "task_archive_record",
+      "sha256": "4e98e642b99ca15f88918aeefc8e30728ba4d0453138a4523ab0d2a7290523fe"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 3293,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/DEFECT_REPRODUCTION.md",
+      "provenance": "received_task_or_task_execution",
+      "purpose": "task_archive_record",
+      "sha256": "9415728857ee7ffd0ae7b59412cde447cb122aab0c49c35427524fb02f39d445"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 1023,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/DONCH_ARCHIVE_CONTEXT.md",
+      "provenance": "received_task_or_task_execution",
+      "purpose": "task_archive_record",
+      "sha256": "067b8b70f6aa8ca0ab1ef3ca1b58139b7d8f391df3ff488c694353e1f8262aad"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 519,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/NEXT_ACTION.md",
+      "provenance": "received_task_or_task_execution",
+      "purpose": "task_archive_record",
+      "sha256": "56ea6df7dea814e0ef82f3f447413d91c1ce6237c2bf0ec22e142fa7766a8ed1"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 9376,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/PLAN.md",
+      "provenance": "received_task_or_task_execution",
+      "purpose": "task_archive_record",
+      "sha256": "841ed1b184766ba2f3c2a5307f7e9cb338df6d4df4b4b86fd3e9d0f6c53ad742"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 1103,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/READINESS_RERUN_REPORT.md",
+      "provenance": "received_task_or_task_execution",
+      "purpose": "task_archive_record",
+      "sha256": "0c1597be872a603301d111f3ced18b648372929c206a0318ae493f04eff402c6"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 1609,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/REVIEW.md",
+      "provenance": "received_task_or_task_execution",
+      "purpose": "task_archive_record",
+      "sha256": "e724a8389edc85b9afa3e83f52a37cffd8720988b33ca7c461398a7fcd103e75"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 16194,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/TASK_SPEC.md",
+      "provenance": "received_task_or_task_execution",
+      "purpose": "task_archive_record",
+      "sha256": "a6f1986180cdbbd7fc3da9f54faeb2c1fad14e1bc33cc2bd8bb424871bf99313"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 1591,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/VALIDATION.md",
+      "provenance": "received_task_or_task_execution",
+      "purpose": "task_archive_record",
+      "sha256": "620a2467483677e514bd84cd2208ecaad5ca949c2a7df52f1d46e993f06c3644"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 3530,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/readiness_rerun/ARTIFACT_MANIFEST.json",
+      "provenance": "outcome_free_repository_audit",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "8be4eee93720648d26053a054b22c68781dd7ea464ce5371e4dbf4d24432a719"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 1095,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/readiness_rerun/COMMANDS_AND_RESULTS.md",
+      "provenance": "outcome_free_repository_audit",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "10c02376530d9ba9c4c89f16bdc57191f58113f3859d62aed008da06938c385a"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 598,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/readiness_rerun/COMPLETION.md",
+      "provenance": "outcome_free_repository_audit",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "0ead939a262e71c406de25e3a2d7cdd6880c0138db9bc6f24e051bd083824670"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 709,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/readiness_rerun/DECISIONS_AND_PROGRESS.md",
+      "provenance": "outcome_free_repository_audit",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "8b5106adf6319efb50f2ee86d4562f7d3cc8670166861257d0fa63a03b6521fb"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 3627,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/readiness_rerun/DONCH_ARCHIVE_CONTEXT.md",
+      "provenance": "outcome_free_repository_audit",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "e4ba920727a19379637b901bae81ca13b09359848ad73cab9bc9476e024509ce"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 9635,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/readiness_rerun/FIRST_WAVE_DEPENDENCY_MATRIX.csv",
+      "provenance": "outcome_free_repository_audit",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "8231f9ee76e32f9d8360491770f724e0c01b4c74027dc3232ee570d90971129b"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 8769,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/readiness_rerun/FIRST_WAVE_READINESS_REPORT.md",
+      "provenance": "outcome_free_repository_audit",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "caae3bde02a5f375152f1260bbcc6471397936f7a9d03a67ae4e1b1e49e462af"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 1156,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/readiness_rerun/NEXT_TASK_RECOMMENDATION.md",
+      "provenance": "outcome_free_repository_audit",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "644008d3d9962a1c0b693bee02ef5517463041d35b8bf591f7c1cb0e304c0035"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 1180,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/readiness_rerun/PACKAGE_PROTOCOL_STATUS.md",
+      "provenance": "outcome_free_repository_audit",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "0d9e860496d8f9ce0867ac2b3f7bfc883ae1f9f1b95f76abc3fa6a18f4140674"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 376,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/readiness_rerun/PLAN.md",
+      "provenance": "outcome_free_repository_audit",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "f5e0a397dd2ea5aa004be189cb0d454d0f5b7829c5d94b72e5a802de1b036706"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 2107,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/readiness_rerun/PROTECTED_BOUNDARY_VERIFICATION.md",
+      "provenance": "outcome_free_repository_audit",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "4a4e0cdf1d9cd850dead240b51f727f21f40d58a162289fe7df8f4e4e4dda544"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 581,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/readiness_rerun/REVIEW.md",
+      "provenance": "outcome_free_repository_audit",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "18e26a920bcda696eaac66953d5a2c754fc1880b686ee461e34cd77de15ca6f9"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 16988,
+      "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/readiness_rerun/TASK_SPEC.md",
+      "provenance": "outcome_free_repository_audit",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "cf620acb86ab0a83e7966ed26dbb4a358132265271e65486203d75d9c63a68af"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 2264428,
+      "path": "tools/run_kraken_family_engine_aggregate_first_sweep.py",
+      "provenance": "task_patch",
+      "purpose": "production_loader_boundary_repair",
+      "sha256": "99fa8cce1cfb5f9ac88deb379d4edc40cd7f49e6c673d2adf7dffa949e67f9c5"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 299572,
+      "path": "unit_tests/test_kraken_family_engine_aggregate_first_sweep.py",
+      "provenance": "task_patch",
+      "purpose": "synthetic_regression_test",
+      "sha256": "9da941f45795c16357da9dd9836059c8a50eeb6984ea503c30e8100ad9baf486"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 12104,
+      "path": "unit_tests/test_rankable_loader_boundary.py",
+      "provenance": "task_patch",
+      "purpose": "synthetic_regression_test",
+      "sha256": "3b94448de1d4c26369304a77d5a0da9b9667f56114114bb8f510a54544db1d4e"
+    }
+  ],
+  "entry_count": 28,
+  "generated_utc": "2026-07-16T19:44:47.686231+00:00",
+  "manifest_self": {
+    "path": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/ARTIFACT_MANIFEST.json",
+    "sha256_status": "not_embedded_recursive_self_hash"
+  },
+  "path_basis": "repository_root",
+  "protected_outcomes_inspected": false,
+  "repository_root": "/opt/testerdonch",
+  "schema_version": 1,
+  "starting_commit": "992e7928d0dd948c0bb3f3fc3c74b1095648df1b",
+  "task_id": "donch_bt_loader_boundary_repair_20260716_v1"
+}

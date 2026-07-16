@@ -4077,6 +4077,48 @@ def pre_holdout_files(files: Sequence[Path]) -> list[Path]:
     return [p for p in files if not is_protected_chunk_file(p)]
 
 
+RANKABLE_TRAIN_START = pd.Timestamp("2023-01-01T00:00:00Z")
+
+
+def assert_rankable_file_authority(
+    paths: Mapping[str, Any],
+    path: Path,
+    *,
+    funding: bool = False,
+) -> None:
+    authorities = paths.get("rankable_file_authority")
+    authority = authorities.get(str(path)) if isinstance(authorities, Mapping) else None
+    if not isinstance(authority, Mapping):
+        raise RuntimeError(f"rankable file authority missing or unprovable: {path}")
+    if str(authority.get("purpose", "")) != "rankable_research":
+        raise RuntimeError(f"rankable file authority purpose rejected: {path}")
+    if str(authority.get("venue", "")).lower() != "kraken":
+        raise RuntimeError(f"rankable file authority venue rejected: {path}")
+    contains_protected = str(authority.get("contains_protected_period", "false")).strip().lower() in {"true", "1"}
+    rankable_pre_holdout = str(authority.get("rankable_pre_holdout", "true")).strip().lower() in {"true", "1"}
+    if contains_protected or not rankable_pre_holdout:
+        raise RuntimeError(f"rankable file authority status rejected: {path}")
+    start = pd.to_datetime(authority.get("start_ts"), utc=True, errors="coerce")
+    end = pd.to_datetime(authority.get("end_ts"), utc=True, errors="coerce")
+    if pd.isna(start) or pd.isna(end) or start > end or end >= PROTECTED_TS:
+        raise RuntimeError(f"rankable file authority interval rejected: {path}")
+    if funding and str(authority.get("funding_type", "")) != "exact":
+        raise RuntimeError(f"rankable file authority funding type rejected: {path}")
+
+
+def rankable_kraken_rows(df: pd.DataFrame, symbol: str) -> pd.DataFrame:
+    keep = pd.Series(True, index=df.index)
+    if "venue" in df.columns:
+        keep &= df["venue"].astype(str).str.lower().eq("kraken")
+    if "venue_symbol" in df.columns:
+        keep &= df["venue_symbol"].astype(str).eq(symbol)
+    return df.loc[keep]
+
+
+def explicit_true_rows(values: pd.Series) -> pd.Series:
+    return values.astype(str).str.strip().str.lower().isin({"true", "1"})
+
+
 def list_symbols(paths: Mapping[str, Path], max_symbols: int = 0) -> list[str]:
     syms: set[str] = set()
     for base in [paths["trade_5m"], paths["alt_trade"]]:
@@ -4091,12 +4133,13 @@ def list_symbols(paths: Mapping[str, Path], max_symbols: int = 0) -> list[str]:
     return out[:max_symbols] if max_symbols else out
 
 
-def load_funding(paths: Mapping[str, Path], symbol: str, end: pd.Timestamp) -> pd.DataFrame:
-    files = pre_holdout_files(find_symbol_files(paths["funding"], symbol))
+def load_funding(paths: Mapping[str, Any], symbol: str, end: pd.Timestamp) -> pd.DataFrame:
+    files = find_symbol_files(paths["funding"], symbol)
     if not files:
         return pd.DataFrame(columns=["timestamp", "fundingRate"])
     frames = []
     for p in files:
+        assert_rankable_file_authority(paths, p, funding=True)
         try:
             df = pd.read_parquet(p)
         except Exception:
@@ -4104,14 +4147,20 @@ def load_funding(paths: Mapping[str, Path], symbol: str, end: pd.Timestamp) -> p
         if "timestamp" in df.columns:
             df = df.copy()
             df["timestamp"] = pd.to_datetime(df["timestamp"], utc=True, errors="coerce")
-            frames.append(df[df["timestamp"] < min(PROTECTED_TS, end + pd.Timedelta(days=1))])
+            df = rankable_kraken_rows(df, symbol)
+            if "funding_exact" in df.columns:
+                df = df[explicit_true_rows(df["funding_exact"])]
+            if "funding_imputed" in df.columns:
+                df = df[~explicit_true_rows(df["funding_imputed"])]
+            frames.append(df[(df["timestamp"] >= RANKABLE_TRAIN_START) & (df["timestamp"] < min(PROTECTED_TS, end + pd.Timedelta(days=1)))])
     return pd.concat(frames, ignore_index=True).drop_duplicates() if frames else pd.DataFrame(columns=["timestamp", "fundingRate"])
 
 
-def load_symbol_bars(paths: Mapping[str, Path], symbol: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
-    files = pre_holdout_files(find_symbol_files(paths["trade_5m"], symbol) or find_symbol_files(paths["alt_trade"], symbol))
+def load_symbol_bars(paths: Mapping[str, Any], symbol: str, start: pd.Timestamp, end: pd.Timestamp) -> pd.DataFrame:
+    files = find_symbol_files(paths["trade_5m"], symbol) or find_symbol_files(paths["alt_trade"], symbol)
     frames = []
     for p in files:
+        assert_rankable_file_authority(paths, p)
         try:
             df = pd.read_parquet(p)
         except Exception:
@@ -4121,21 +4170,23 @@ def load_symbol_bars(paths: Mapping[str, Path], symbol: str, start: pd.Timestamp
             continue
         df = df.copy()
         df["ts"] = parse_time_ms_or_iso(df[time_col])
-        df = df[(df["ts"] >= start) & (df["ts"] <= end) & (df["ts"] < PROTECTED_TS)]
+        df = rankable_kraken_rows(df, symbol)
+        df = df[(df["ts"] >= max(start, RANKABLE_TRAIN_START)) & (df["ts"] <= end) & (df["ts"] < PROTECTED_TS)]
         if df.empty:
             continue
         for c in ["open", "high", "low", "close", "volume"]:
             if c in df.columns:
                 df[c] = pd.to_numeric(df[c], errors="coerce")
-        keep = [c for c in ["ts", "open", "high", "low", "close", "volume", "venue_symbol", "source_url", "chunk_start_utc", "chunk_end_utc"] if c in df.columns]
+        keep = [c for c in ["ts", "open", "high", "low", "close", "volume", "venue", "venue_symbol", "source_url", "chunk_start_utc", "chunk_end_utc"] if c in df.columns]
         frames.append(df[keep])
     if not frames:
         return pd.DataFrame()
     trade = pd.concat(frames, ignore_index=True).dropna(subset=["ts", "open", "high", "low", "close"])
     trade = trade.sort_values("ts").drop_duplicates("ts", keep="last").reset_index(drop=True)
-    mark_files = pre_holdout_files(find_symbol_files(paths["mark_5m"], symbol) or find_symbol_files(paths["alt_mark"], symbol))
+    mark_files = find_symbol_files(paths["mark_5m"], symbol) or find_symbol_files(paths["alt_mark"], symbol)
     mark_frames = []
     for p in mark_files:
+        assert_rankable_file_authority(paths, p)
         try:
             m = pd.read_parquet(p)
         except Exception:
@@ -4145,7 +4196,8 @@ def load_symbol_bars(paths: Mapping[str, Path], symbol: str, start: pd.Timestamp
             continue
         m = m.copy()
         m["ts"] = parse_time_ms_or_iso(m[time_col])
-        m = m[(m["ts"] >= start) & (m["ts"] <= end) & (m["ts"] < PROTECTED_TS)]
+        m = rankable_kraken_rows(m, symbol)
+        m = m[(m["ts"] >= max(start, RANKABLE_TRAIN_START)) & (m["ts"] <= end) & (m["ts"] < PROTECTED_TS)]
         if m.empty:
             continue
         for c in ["open", "high", "low", "close"]:

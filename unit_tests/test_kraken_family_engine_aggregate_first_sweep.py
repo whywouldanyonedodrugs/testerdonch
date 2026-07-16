@@ -1507,12 +1507,20 @@ class KrakenFamilyEngineAggregateFirstSweepTests(unittest.TestCase):
             root = Path(td)
             funding_dir = root / "parquet/funding"
             funding_dir.mkdir(parents=True)
+            authority = {}
             for i in range(5):
                 pd.DataFrame([{
                     "timestamp": f"2025-01-0{i + 1}T00:00:00Z",
                     "fundingRate": i + 1,
-                }]).to_parquet(funding_dir / f"PF_XBTUSD_2025010{i + 1}T000000.parquet", index=False)
-            paths = {"funding": funding_dir}
+                }]).to_parquet(path := funding_dir / f"PF_XBTUSD_2025010{i + 1}T000000.parquet", index=False)
+                authority[str(path)] = {
+                    "purpose": "rankable_research",
+                    "venue": "kraken",
+                    "start_ts": f"2025-01-0{i + 1}T00:00:00Z",
+                    "end_ts": f"2025-01-0{i + 1}T23:59:59Z",
+                    "funding_type": "exact",
+                }
+            paths = {"funding": funding_dir, "rankable_file_authority": authority}
             out = sweep.load_funding(paths, "PF_XBTUSD", pd.Timestamp("2025-01-31", tz="UTC"))
             self.assertEqual(len(out), 5)
             self.assertEqual(float(out["fundingRate"].sum()), 15.0)
@@ -2812,7 +2820,16 @@ class KrakenFamilyEngineAggregateFirstSweepTests(unittest.TestCase):
             bars = self.bars(420).rename(columns={"ts": "time"})
             sym_dir = data_root / "parquet/historical_trade_candles_5m/PF_XBTUSD"
             sym_dir.mkdir(parents=True)
-            bars.to_parquet(sym_dir / "PF_XBTUSD_20250101T000000.parquet", index=False)
+            bar_path = sym_dir / "PF_XBTUSD_20250101T000000.parquet"
+            bars.to_parquet(bar_path, index=False)
+            authority = {
+                str(bar_path): {
+                    "purpose": "rankable_research",
+                    "venue": "kraken",
+                    "start_ts": "2025-01-01T00:00:00Z",
+                    "end_ts": "2025-01-03T00:00:00Z",
+                }
+            }
             base = self.candidate("liquid_continuation_breakout_engine", "liquid_continuation")
             rows = []
             for i, threshold in enumerate([0.001, 0.002, 0.003]):
@@ -2848,8 +2865,13 @@ class KrakenFamilyEngineAggregateFirstSweepTests(unittest.TestCase):
             for p in [legacy_ctx.run_root, memory_ctx.run_root]:
                 for rel in ["coarse", "audit", "performance", "resources", "interruptions"]:
                     (p / rel).mkdir(parents=True, exist_ok=True)
-            legacy_agg, _, _ = sweep.aggregate_candidates_to_dir(legacy_ctx, candidates, legacy_ctx.run_root / "coarse")
-            mem_agg, _, _ = sweep.aggregate_candidates_to_dir(memory_ctx, candidates, memory_ctx.run_root / "coarse")
+            original_data_paths = sweep.data_paths
+            try:
+                sweep.data_paths = lambda ctx: {**original_data_paths(ctx), "rankable_file_authority": authority}
+                legacy_agg, _, _ = sweep.aggregate_candidates_to_dir(legacy_ctx, candidates, legacy_ctx.run_root / "coarse")
+                mem_agg, _, _ = sweep.aggregate_candidates_to_dir(memory_ctx, candidates, memory_ctx.run_root / "coarse")
+            finally:
+                sweep.data_paths = original_data_paths
             legacy = legacy_agg.sort_values("candidate_definition_id").reset_index(drop=True)
             mem = mem_agg.sort_values("candidate_definition_id").reset_index(drop=True)
             self.assertEqual(legacy["events"].astype(int).tolist(), mem["events"].astype(int).tolist())

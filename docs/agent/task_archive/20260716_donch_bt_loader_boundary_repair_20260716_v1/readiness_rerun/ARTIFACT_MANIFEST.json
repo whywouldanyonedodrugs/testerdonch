@@ -1,0 +1,100 @@
+{
+  "archive_root": "docs/agent/task_archive/20260716_donch_bt_loader_boundary_repair_20260716_v1/readiness_rerun",
+  "economic_run_launched": false,
+  "entries": [
+    {
+      "authority_status": "verified_local",
+      "bytes": 1095,
+      "path": "COMMANDS_AND_RESULTS.md",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "10c02376530d9ba9c4c89f16bdc57191f58113f3859d62aed008da06938c385a"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 598,
+      "path": "COMPLETION.md",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "0ead939a262e71c406de25e3a2d7cdd6880c0138db9bc6f24e051bd083824670"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 709,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "8b5106adf6319efb50f2ee86d4562f7d3cc8670166861257d0fa63a03b6521fb"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 3627,
+      "path": "DONCH_ARCHIVE_CONTEXT.md",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "e4ba920727a19379637b901bae81ca13b09359848ad73cab9bc9476e024509ce"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 9635,
+      "path": "FIRST_WAVE_DEPENDENCY_MATRIX.csv",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "8231f9ee76e32f9d8360491770f724e0c01b4c74027dc3232ee570d90971129b"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 8769,
+      "path": "FIRST_WAVE_READINESS_REPORT.md",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "caae3bde02a5f375152f1260bbcc6471397936f7a9d03a67ae4e1b1e49e462af"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 1156,
+      "path": "NEXT_TASK_RECOMMENDATION.md",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "644008d3d9962a1c0b693bee02ef5517463041d35b8bf591f7c1cb0e304c0035"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 1180,
+      "path": "PACKAGE_PROTOCOL_STATUS.md",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "0d9e860496d8f9ce0867ac2b3f7bfc883ae1f9f1b95f76abc3fa6a18f4140674"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 376,
+      "path": "PLAN.md",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "f5e0a397dd2ea5aa004be189cb0d454d0f5b7829c5d94b72e5a802de1b036706"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 2107,
+      "path": "PROTECTED_BOUNDARY_VERIFICATION.md",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "4a4e0cdf1d9cd850dead240b51f727f21f40d58a162289fe7df8f4e4e4dda544"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 581,
+      "path": "REVIEW.md",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "18e26a920bcda696eaac66953d5a2c754fc1880b686ee461e34cd77de15ca6f9"
+    },
+    {
+      "authority_status": "verified_local",
+      "bytes": 16988,
+      "path": "TASK_SPEC.md",
+      "purpose": "first_wave_readiness_rerun",
+      "sha256": "cf620acb86ab0a83e7966ed26dbb4a358132265271e65486203d75d9c63a68af"
+    }
+  ],
+  "entry_count": 12,
+  "generated_utc": "2026-07-16T19:43:05.003455+00:00",
+  "manifest_self": {
+    "path": "ARTIFACT_MANIFEST.json",
+    "sha256_status": "not_embedded_recursive_self_hash"
+  },
+  "protected_outcomes_inspected": false,
+  "schema_version": 1,
+  "starting_commit": "992e7928d0dd948c0bb3f3fc3c74b1095648df1b",
+  "task_id": "donch_bt_first_wave_readiness_20260716_v1_rerun"
+}
