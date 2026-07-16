@@ -1,0 +1,5 @@
+HTTP/2 200
+date: Thu, 16 Jul 2026 20:10:36 GMT
+content-type: application/json
+x-archive-orig-date: Thu, 09 Oct 2025 23:07:47 GMT
+memento-datetime: Thu, 09 Oct 2025 23:07:47 GMT

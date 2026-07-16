@@ -1,0 +1,1 @@
+https://web.archive.org/cdx/search/cdx?url=futures.kraken.com%2Fderivatives%2Fapi%2Fv3%2Finstruments&from=2023&to=2025&output=json&filter=statuscode%3A200&filter=mimetype%3Aapplication%2Fjson&fl=timestamp%2Coriginal%2Cstatuscode%2Cdigest%2Clength

@@ -1,0 +1,42 @@
+{
+  "cohort_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "cohort_version": "kraken_u2_anchor_v1_20260716",
+  "contracts_considered": 2,
+  "contracts_included": 0,
+  "economic_outputs_computed": false,
+  "files": [
+    {
+      "bytes": 6662,
+      "path": "U2_LIFECYCLE_SOURCE_LEDGER.csv",
+      "sha256": "710865160ac04145d0944740f5eb53b0c67da9f3544df74f258de2ad88645309"
+    },
+    {
+      "bytes": 7974,
+      "path": "U2_INSTRUMENT_LIFECYCLE_AUTHORITY.csv",
+      "sha256": "8e174a9e503fe04b3fee6a42100db9c6d0686479116bb5c1ad7098426660b233"
+    },
+    {
+      "bytes": 443,
+      "path": "U2_ANCHOR_COHORT.csv",
+      "sha256": "6bc9c4fd4eb812be12b9cffa39b3001fe5edaca2563b3153b22c3faca7f13690"
+    },
+    {
+      "bytes": 1300,
+      "path": "U2_EXCLUSIONS_AND_UNCERTAINTY.csv",
+      "sha256": "a6c883cc0b52f67147a9146e38b4d11c4059007c2c7dfd302ae2e2783ab3870e"
+    },
+    {
+      "bytes": 1410,
+      "path": "U2_COVERAGE_AND_CLAIM_BOUNDARY.md",
+      "sha256": "2a4e83d25d1126da8228844beed1ed59015972f681f87d3657f6df50a176cf5e"
+    },
+    {
+      "bytes": 655,
+      "path": "U2_VALIDATION_REPORT.md",
+      "sha256": "a2ba494a7fbd64f921afe0f8dccef78fe3ed66b15f15fd5aac4d85dd02dac4de"
+    }
+  ],
+  "manifest_self_hash_excluded": true,
+  "protected_outcomes_opened": false,
+  "task_id": "donch_bt_stage_2a_u2_lifecycle_20260716_v1"
+}

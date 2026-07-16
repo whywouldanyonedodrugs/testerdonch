@@ -1,0 +1,11 @@
+[["timestamp","original","statuscode","digest","length"],
+["20230413210742","https://futures.kraken.com/derivatives/api/v3/instruments","200","6UGRYSTPEL6LOKNIVRWTTJR3EUCXLBST","5037"],
+["20230701061827","https://futures.kraken.com/derivatives/api/v3/instruments","200","MFPHHERL2ZHRUC7XO5VDDVJ4RDVZNS2B","5193"],
+["20231102093221","https://futures.kraken.com/derivatives/api/v3/instruments","200","B7TVJRAUAPRVHTQTHMKE3DKLKSKKA24D","5903"],
+["20231223162435","https://futures.kraken.com/derivatives/api/v3/instruments","200","BNDJEHKL4IEZUO7L5EKYMQZLGJIYVC3S","6013"],
+["20240209103603","https://futures.kraken.com/derivatives/api/v3/instruments","200","VV2SD5ON44DZGTCE3NRXIEOOOZCLM5WJ","6116"],
+["20240216004334","https://futures.kraken.com/derivatives/api/v3/instruments","200","6GDRO2GZSDG4ECLC7IVLM5MBSU75BYHW","6131"],
+["20240228024527","https://futures.kraken.com/derivatives/api/v3/instruments","200","KW7V7PQHO2SBTAYXACI4PXNXC3DB3ZPN","6213"],
+["20240315021202","https://futures.kraken.com/derivatives/api/v3/instruments","200","YEAOEDVMWBVPKRPHXKL5S4JOSDIWTUGQ","6436"],
+["20240613001339","https://futures.kraken.com/derivatives/api/v3/instruments","200","IOL73RLQHXB6UACL2BR37MQT7G2DZGZG","8193"],
+["20251009230747","https://futures.kraken.com/derivatives/api/v3/instruments","200","VGTJ2GXNTOECJJCM3JGFJIZWVJYAFSB4","28342"]]
