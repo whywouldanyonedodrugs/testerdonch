@@ -167,12 +167,18 @@ A1_COMPRESSION_PRODUCTION_SHARDED_AGGREGATE_PHASE_PROFILE = "a1_compression_prod
 A1_COMPRESSION_PRODUCTION_SHARDED_AGGREGATE_RUN_ID = "phase_kraken_a1_compression_production_sharded_aggregate_20260709_v1"
 A1_COMPRESSION_FUNDING_POLICY_UNIVERSE_REPAIR_PHASE_PROFILE = "a1_compression_funding_policy_universe_repair_20260709_v1"
 A1_COMPRESSION_FUNDING_POLICY_UNIVERSE_REPAIR_RUN_ID = "phase_kraken_a1_compression_funding_policy_universe_repair_20260709_v1"
+A1_COMPRESSION_TARGETED_MATERIALIZATION_CONTROLS_PHASE_PROFILE = "a1_compression_targeted_materialization_controls_stress_20260712_v1"
+A1_COMPRESSION_TARGETED_MATERIALIZATION_CONTROLS_RUN_ID = "phase_kraken_a1_compression_targeted_materialization_controls_stress_20260712_v1"
 TSMOM_V6_TARGETED_MATERIALIZATION_PROFILE_PHASE_PROFILE = "tsmom_v6_targeted_materialization_profile_20260708_v1"
 TSMOM_V6_TARGETED_MATERIALIZATION_PROFILE_RUN_ID = "phase_kraken_tsmom_v6_targeted_materialization_profile_20260708_v1"
 TSMOM_V6_TARGETED_MATERIALIZATION_CONTROLS_PHASE_PROFILE = "tsmom_v6_targeted_materialization_controls_stress_20260708_v1"
 TSMOM_V6_TARGETED_MATERIALIZATION_CONTROLS_RUN_ID = "phase_kraken_tsmom_v6_targeted_materialization_controls_stress_20260708_v1"
 PRIOR_HIGH_EXIT_BINDING_REPAIR_PHASE_PROFILE = "prior_high_exit_binding_repair_20260705_v1"
 PRIOR_HIGH_EXIT_BINDING_REPAIR_RUN_ID = "phase_kraken_prior_high_exit_binding_repair_20260705_v1"
+PRIOR_HIGH_V2_TARGETED_MATERIALIZATION_PROFILE_PHASE_PROFILE = "prior_high_reclaim_v2_targeted_materialization_profile_20260712_v1"
+PRIOR_HIGH_V2_TARGETED_MATERIALIZATION_PROFILE_RUN_ID = "phase_kraken_prior_high_reclaim_v2_targeted_materialization_profile_20260712_v1"
+PRIOR_HIGH_V2_TARGETED_MATERIALIZATION_PROFILE_V2_PHASE_PROFILE = "prior_high_reclaim_v2_targeted_materialization_profile_20260712_v2"
+PRIOR_HIGH_V2_TARGETED_MATERIALIZATION_PROFILE_V2_RUN_ID = "phase_kraken_prior_high_reclaim_v2_targeted_materialization_profile_20260712_v2"
 DEFAULT_SEED = 20260703
 DEFAULT_HYPOTHESIS_LIBRARY = REPO / "research_inputs/QLMG_Hypothesis_Library_2026-07-01.xlsx"
 DEFAULT_RESEARCH_INPUT_DIR = REPO / "research_inputs"
@@ -682,6 +688,16 @@ A1_COMPRESSION_PRODUCTION_SHARDED_AGGREGATE_STAGES = (
     "compact-review-bundle",
 )
 A1_COMPRESSION_FUNDING_POLICY_UNIVERSE_REPAIR_STAGES = A1_COMPRESSION_PRODUCTION_SHARDED_AGGREGATE_STAGES
+A1_COMPRESSION_TARGETED_MATERIALIZATION_CONTROLS_STAGES = (
+    "preflight-and-source-freeze",
+    "a1-compression-targeted-lineage-gate",
+    "a1-compression-targeted-materialization",
+    "a1-compression-targeted-controls",
+    "a1-compression-targeted-stress",
+    "a1-compression-targeted-decision",
+    "decision-report",
+    "compact-review-bundle",
+)
 TSMOM_V6_TARGETED_MATERIALIZATION_PROFILE_STAGES = (
     "preflight-and-source-freeze",
     "tsmom-v6-targeted-materialization-profile-dry-run",
@@ -711,6 +727,18 @@ PRIOR_HIGH_EXIT_BINDING_REPAIR_STAGES = (
     "mechanical-canary-rerun",
     "non-smoke-launch-readiness-check",
     "tests",
+    "decision-report",
+    "compact-review-bundle",
+)
+PRIOR_HIGH_V2_TARGETED_MATERIALIZATION_PROFILE_STAGES = (
+    "preflight-and-source-freeze",
+    "prior-high-v2-targeted-materialization-profile-dry-run",
+    "decision-report",
+    "compact-review-bundle",
+)
+PRIOR_HIGH_V2_TARGETED_MATERIALIZATION_PROFILE_V2_STAGES = (
+    "preflight-and-source-freeze",
+    "prior-high-v2-targeted-materialization-profile-v2-dry-run",
     "decision-report",
     "compact-review-bundle",
 )
@@ -1046,6 +1074,12 @@ PHASE_PROFILES = {
         "prior_benchmark_root": RESULTS_ROOT / "phase_kraken_exact_funding_coverage_acquisition_audit_20260709_v1",
         "description": "A1/H06/H12/H13 bounded funding-policy and universe-binding repair rerun. It executes only the first 10-shard economic pack after moving missing-funding proxy to stress-only and idempotently binding PIT universe labels.",
     },
+    A1_COMPRESSION_TARGETED_MATERIALIZATION_CONTROLS_PHASE_PROFILE: {
+        "run_id": A1_COMPRESSION_TARGETED_MATERIALIZATION_CONTROLS_RUN_ID,
+        "stages": A1_COMPRESSION_TARGETED_MATERIALIZATION_CONTROLS_STAGES,
+        "prior_benchmark_root": RESULTS_ROOT / "phase_kraken_a1_compression_survivor_materialization_preflight_20260712_v1",
+        "description": "A1/H06/H12/H13 train-only targeted materialization, real-control construction, and stress for the frozen duplicate- and regime-aware shortlist. No validation, holdout, TSMOM, prior-high standalone, broad sweep, or live-prep.",
+    },
     TSMOM_V6_TARGETED_MATERIALIZATION_PROFILE_PHASE_PROFILE: {
         "run_id": TSMOM_V6_TARGETED_MATERIALIZATION_PROFILE_RUN_ID,
         "stages": TSMOM_V6_TARGETED_MATERIALIZATION_PROFILE_STAGES,
@@ -1064,6 +1098,18 @@ PHASE_PROFILES = {
         "prior_benchmark_root": RESULTS_ROOT / "phase_kraken_uncapped_tier1_two_family_sweep_20260705_v1_20260705_152943",
         "description": "Repair-only prior-high executable exit binding, mechanical canary, and two-family launch gate.",
     },
+    PRIOR_HIGH_V2_TARGETED_MATERIALIZATION_PROFILE_PHASE_PROFILE: {
+        "run_id": PRIOR_HIGH_V2_TARGETED_MATERIALIZATION_PROFILE_RUN_ID,
+        "stages": PRIOR_HIGH_V2_TARGETED_MATERIALIZATION_PROFILE_STAGES,
+        "prior_benchmark_root": RESULTS_ROOT / "phase_kraken_prior_high_reclaim_v2_materialization_preflight_20260712_v1",
+        "description": "Prior-high/reclaim v2 targeted-materialization lineage and profile dry-run for the frozen duplicate-aware shortlist. This registered profile launches no materialization, controls, validation, holdout, A1, TSMOM, broad sweep, or live-prep.",
+    },
+    PRIOR_HIGH_V2_TARGETED_MATERIALIZATION_PROFILE_V2_PHASE_PROFILE: {
+        "run_id": PRIOR_HIGH_V2_TARGETED_MATERIALIZATION_PROFILE_V2_RUN_ID,
+        "stages": PRIOR_HIGH_V2_TARGETED_MATERIALIZATION_PROFILE_V2_STAGES,
+        "prior_benchmark_root": RESULTS_ROOT / "phase_kraken_prior_high_reclaim_v2_materialization_preflight_20260712_v1",
+        "description": "Prior-high/reclaim v2 targeted materialization implementation and three-definition dry run for nine frozen entry clusters and eleven economic variants. Full materialization, validation, holdout, A1, TSMOM, broad sweeps, and live-prep are not launched.",
+    },
     "aggregate_first_repair_20260702_v1": {
         "run_id": "phase_kraken_family_engine_aggregate_first_repair_20260702_v1",
         "stages": LEGACY_REPAIR_STAGES,
@@ -1071,7 +1117,7 @@ PHASE_PROFILES = {
         "description": "Legacy aggregate-first repair profile retained for reproducibility.",
     },
 }
-STAGES = tuple(dict.fromkeys((*LEGACY_REPAIR_STAGES, *VECTORIZED_PRIORITY_REPAIR_STAGES, *VECTORIZED_PRIORITY_REPAIR_V2_STAGES, *ENGINE_WAVE_V0_TRANCHE_STAGES, *STRUCTURAL_REPAIR_STAGES, *STAT_PROTOCOL_REPAIR_STAGES, *P1_PROTOCOL_REPAIR_STAGES, *TSMOM_P1_CANARY_HARNESS_REPAIR_STAGES, *TSMOM_CANARY_RUNTIME_FUTILITY_REPAIR_STAGES, *GATE_ACCOUNTING_REPAIR_STAGES, *TSMOM_CANDIDATE_SET_AUDIT_REDESIGN_STAGES, *TSMOM_REDESIGNED_EXECUTION_BINDING_AUDIT_STAGES, *TSMOM_REDESIGNED_BINDING_REPAIR_STAGES, *TSMOM_UNIVERSE_BINDING_REPAIR_V2_STAGES, *TSMOM_FAST_MECHANICAL_EVENT_SEMANTICS_REPAIR_STAGES, *TSMOM_ULTRA_LINEAGE_FUTILITY_TRIAGE_STAGES, *TSMOM_STANDARD_V4_AGG_PRETRIAGE_STAGES, *UNCAPPED_TWO_FAMILY_STAGES, *REPAIRED_TWO_FAMILY_STAGES, *MEMORY_THROUGHPUT_REPAIR_STAGES, *MEMORYSAFE_TWO_FAMILY_STAGES, *CACHE_ACCELERATION_FOUNDATION_STAGES, *ACTIVE_BOUNDARY_CACHE_SHADOW_STAGES, *V6_SETUP_STREAMING_MEMORY_REPAIR_STAGES, *REPRESENTATIVE_V6_CACHE_EXACTNESS_STAGES, *TSMOM_V6_ACCELERATED_AGGREGATE_STAGES, *TSMOM_V6_CACHE_PERFORMANCE_REPAIR_STAGES, *TSMOM_V6_ACCELERATED_FULL_AGGREGATE_STAGES, *TSMOM_SEMANTIC_CACHE_CONTRACT_REPAIR_STAGES, *TSMOM_CALENDAR_UNIVERSE_CACHE_BUILDER_STAGES, *TSMOM_RANK_TOPN_CACHE_BUILDER_STAGES, *TSMOM_MASK_SELECTED_KEY_BUILDER_STAGES, *TSMOM_OUTCOME_GROUPED_AGGREGATE_STAGES, *TSMOM_END_TO_END_SCALING_BENCHMARK_STAGES, *FULL_TSMOM_V6_CACHE_DRY_RUN_STAGES, *FULL_TSMOM_V6_AGGREGATE_STAGES, *A1_COMPRESSION_BINDING_CACHE_DRY_RUN_STAGES, *A1_COMPRESSION_MECHANICAL_CANARY_STAGES, *A1_COMPRESSION_FULL_TRAIN_AGGREGATE_STAGES, *A1_COMPRESSION_SEMANTIC_CACHE_REPAIR_STAGES, *A1_COMPRESSION_FULL_TRAIN_CACHE_DRY_RUN_STAGES, *A1_COMPRESSION_TRUE_STREAMING_CACHE_REPAIR_STAGES, *A1_COMPRESSION_PARENT_GATE_HOTPATH_REPAIR_STAGES, *A1_COMPRESSION_SELECTED_KEY_COMPILER_REPAIR_STAGES, *A1_COMPRESSION_FEATURE_MASK_COMPILER_REPAIR_STAGES, *A1_COMPRESSION_PRODUCTION_SHARDED_AGGREGATE_STAGES, *A1_COMPRESSION_FUNDING_POLICY_UNIVERSE_REPAIR_STAGES, *TSMOM_V6_TARGETED_MATERIALIZATION_PROFILE_STAGES, *TSMOM_V6_TARGETED_MATERIALIZATION_CONTROLS_STAGES, *PRIOR_HIGH_EXIT_BINDING_REPAIR_STAGES, "all")))
+STAGES = tuple(dict.fromkeys((*LEGACY_REPAIR_STAGES, *VECTORIZED_PRIORITY_REPAIR_STAGES, *VECTORIZED_PRIORITY_REPAIR_V2_STAGES, *ENGINE_WAVE_V0_TRANCHE_STAGES, *STRUCTURAL_REPAIR_STAGES, *STAT_PROTOCOL_REPAIR_STAGES, *P1_PROTOCOL_REPAIR_STAGES, *TSMOM_P1_CANARY_HARNESS_REPAIR_STAGES, *TSMOM_CANARY_RUNTIME_FUTILITY_REPAIR_STAGES, *GATE_ACCOUNTING_REPAIR_STAGES, *TSMOM_CANDIDATE_SET_AUDIT_REDESIGN_STAGES, *TSMOM_REDESIGNED_EXECUTION_BINDING_AUDIT_STAGES, *TSMOM_REDESIGNED_BINDING_REPAIR_STAGES, *TSMOM_UNIVERSE_BINDING_REPAIR_V2_STAGES, *TSMOM_FAST_MECHANICAL_EVENT_SEMANTICS_REPAIR_STAGES, *TSMOM_ULTRA_LINEAGE_FUTILITY_TRIAGE_STAGES, *TSMOM_STANDARD_V4_AGG_PRETRIAGE_STAGES, *UNCAPPED_TWO_FAMILY_STAGES, *REPAIRED_TWO_FAMILY_STAGES, *MEMORY_THROUGHPUT_REPAIR_STAGES, *MEMORYSAFE_TWO_FAMILY_STAGES, *CACHE_ACCELERATION_FOUNDATION_STAGES, *ACTIVE_BOUNDARY_CACHE_SHADOW_STAGES, *V6_SETUP_STREAMING_MEMORY_REPAIR_STAGES, *REPRESENTATIVE_V6_CACHE_EXACTNESS_STAGES, *TSMOM_V6_ACCELERATED_AGGREGATE_STAGES, *TSMOM_V6_CACHE_PERFORMANCE_REPAIR_STAGES, *TSMOM_V6_ACCELERATED_FULL_AGGREGATE_STAGES, *TSMOM_SEMANTIC_CACHE_CONTRACT_REPAIR_STAGES, *TSMOM_CALENDAR_UNIVERSE_CACHE_BUILDER_STAGES, *TSMOM_RANK_TOPN_CACHE_BUILDER_STAGES, *TSMOM_MASK_SELECTED_KEY_BUILDER_STAGES, *TSMOM_OUTCOME_GROUPED_AGGREGATE_STAGES, *TSMOM_END_TO_END_SCALING_BENCHMARK_STAGES, *FULL_TSMOM_V6_CACHE_DRY_RUN_STAGES, *FULL_TSMOM_V6_AGGREGATE_STAGES, *A1_COMPRESSION_BINDING_CACHE_DRY_RUN_STAGES, *A1_COMPRESSION_MECHANICAL_CANARY_STAGES, *A1_COMPRESSION_FULL_TRAIN_AGGREGATE_STAGES, *A1_COMPRESSION_SEMANTIC_CACHE_REPAIR_STAGES, *A1_COMPRESSION_FULL_TRAIN_CACHE_DRY_RUN_STAGES, *A1_COMPRESSION_TRUE_STREAMING_CACHE_REPAIR_STAGES, *A1_COMPRESSION_PARENT_GATE_HOTPATH_REPAIR_STAGES, *A1_COMPRESSION_SELECTED_KEY_COMPILER_REPAIR_STAGES, *A1_COMPRESSION_FEATURE_MASK_COMPILER_REPAIR_STAGES, *A1_COMPRESSION_PRODUCTION_SHARDED_AGGREGATE_STAGES, *A1_COMPRESSION_FUNDING_POLICY_UNIVERSE_REPAIR_STAGES, *A1_COMPRESSION_TARGETED_MATERIALIZATION_CONTROLS_STAGES, *TSMOM_V6_TARGETED_MATERIALIZATION_PROFILE_STAGES, *TSMOM_V6_TARGETED_MATERIALIZATION_CONTROLS_STAGES, *PRIOR_HIGH_EXIT_BINDING_REPAIR_STAGES, *PRIOR_HIGH_V2_TARGETED_MATERIALIZATION_PROFILE_STAGES, *PRIOR_HIGH_V2_TARGETED_MATERIALIZATION_PROFILE_V2_STAGES, "all")))
 
 RANKABLE_LANES = {
     "kraken_tier1_ready",
@@ -2526,6 +2572,7 @@ def interval_end_series(frame: pd.DataFrame, fallback_start: pd.Series | None = 
 
 
 _PARENT_GATE_CACHE: dict[tuple[str, str, str, str, str], pd.DataFrame] = {}
+_PRIOR_HIGH_VWAP_CACHE: dict[tuple[int, int, str, str, str], pd.DataFrame] = {}
 _FIND_SYMBOL_FILES_CACHE: dict[tuple[str, str], tuple[Path, ...]] = {}
 _PIT_LIQUIDITY_RANKING_CACHE: dict[tuple[str, ...], pd.DataFrame] = {}
 _PIT_LIQUIDITY_CHUNK_META_CACHE: dict[tuple[str, str], dict[str, dict[str, Any]]] = {}
@@ -2742,8 +2789,15 @@ def evaluate_parent_regime_gate(candidate: Mapping[str, Any], bars: pd.DataFrame
     gate = str(candidate.get("parent_regime_gate", "") or "").strip()
     if not gate or gate == "all_context_diagnostic":
         return {"allowed": True, "cap": "", "skip_reason": "", "btc_ref_ts": "", "eth_ref_ts": "", "feature_source_ts": str(decision_ts), "btc_trend_value": "", "eth_trend_value": "", "missing_action": "", "source_ts_lte_decision": True, "status": "no_parent_gate"}
-    start = pd.to_datetime(bars["ts"], utc=True, errors="coerce").min() if "ts" in bars.columns and not bars.empty else ts_utc(decision_ts) - pd.Timedelta(days=120)
-    end = pd.to_datetime(bars["ts"], utc=True, errors="coerce").max() if "ts" in bars.columns and not bars.empty else ts_utc(decision_ts)
+    # Full-window candidates share one parent-state table. Deriving this range
+    # from each traded symbol's lifecycle fragments the cache and repeatedly
+    # reloads BTC/ETH history without changing point-in-time gate semantics.
+    configured_start = pd.to_datetime(candidate.get("run_start_ts"), utc=True, errors="coerce")
+    configured_end = pd.to_datetime(candidate.get("run_end_ts"), utc=True, errors="coerce")
+    bars_start = pd.to_datetime(bars["ts"], utc=True, errors="coerce").min() if "ts" in bars.columns and not bars.empty else pd.NaT
+    bars_end = pd.to_datetime(bars["ts"], utc=True, errors="coerce").max() if "ts" in bars.columns and not bars.empty else pd.NaT
+    start = configured_start if pd.notna(configured_start) else (bars_start if pd.notna(bars_start) else ts_utc(decision_ts) - pd.Timedelta(days=120))
+    end = configured_end if pd.notna(configured_end) else (bars_end if pd.notna(bars_end) else ts_utc(decision_ts))
     btc = latest_parent_gate_row(load_parent_gate_frame(candidate, "PF_XBTUSD", start, end), decision_ts)
     eth = latest_parent_gate_row(load_parent_gate_frame(candidate, "PF_ETHUSD", start, end), decision_ts)
     if btc is None or eth is None or pd.isna(btc.get("sma_40d")) or pd.isna(eth.get("sma_40d")) or pd.isna(btc.get("ret_20d")) or pd.isna(eth.get("ret_20d")):
@@ -2961,6 +3015,14 @@ def prior_high_structure_level(candidate: Mapping[str, Any], bars: pd.DataFrame,
 def prior_high_vwap_series(bars: pd.DataFrame, vwap_type: str, anchor_ts: pd.Timestamp | None = None) -> pd.DataFrame:
     if bars.empty:
         return pd.DataFrame(columns=["ts", "vwap"])
+    vtype = str(vwap_type or "daily").lower()
+    first_ts = str(bars["ts"].iloc[0]) if "ts" in bars.columns and len(bars) else ""
+    last_ts = str(bars["ts"].iloc[-1]) if "ts" in bars.columns and len(bars) else ""
+    cache_key = (id(bars), len(bars), first_ts, last_ts, vtype)
+    if vtype != "anchored":
+        cached = _PRIOR_HIGH_VWAP_CACHE.get(cache_key)
+        if isinstance(cached, pd.DataFrame):
+            return cached
     work = bars[["ts", "high", "low", "close", "volume"]].copy()
     work["ts"] = pd.to_datetime(work["ts"], utc=True, errors="coerce")
     for col in ["high", "low", "close", "volume"]:
@@ -2968,7 +3030,6 @@ def prior_high_vwap_series(bars: pd.DataFrame, vwap_type: str, anchor_ts: pd.Tim
     work = work.dropna(subset=["ts", "high", "low", "close"]).sort_values("ts")
     work["volume"] = work["volume"].fillna(0.0)
     work["typical"] = (work["high"] + work["low"] + work["close"]) / 3.0
-    vtype = str(vwap_type or "daily").lower()
     if vtype == "anchored" and anchor_ts is not None:
         mask = work["ts"] >= ts_utc(anchor_ts)
         grp = pd.Series(0, index=work.index)
@@ -2983,7 +3044,12 @@ def prior_high_vwap_series(bars: pd.DataFrame, vwap_type: str, anchor_ts: pd.Tim
     work["cum_pv"] = pv.groupby(work["_grp"]).cumsum()
     work["cum_vol"] = work["volume"].replace(0, np.nan).groupby(work["_grp"]).cumsum()
     work["vwap"] = work["cum_pv"] / work["cum_vol"]
-    return work[["ts", "vwap"]].dropna()
+    result = work[["ts", "vwap"]].dropna()
+    if vtype != "anchored":
+        if len(_PRIOR_HIGH_VWAP_CACHE) >= 32:
+            _PRIOR_HIGH_VWAP_CACHE.pop(next(iter(_PRIOR_HIGH_VWAP_CACHE)))
+        _PRIOR_HIGH_VWAP_CACHE[cache_key] = result
+    return result
 
 
 def prior_high_latest_vwap(bars: pd.DataFrame, decision_ts: pd.Timestamp, vwap_type: str, anchor_ts: pd.Timestamp | None = None) -> tuple[float, str]:
@@ -3083,7 +3149,7 @@ def prior_high_exit_plan(candidate: Mapping[str, Any], bars: pd.DataFrame, addr:
     low_close = high_close
     structure_level = safe_float(structure.get("structure_level"), np.nan)
     vwap_type = str(candidate.get("vwap_type", candidate.get("vwap_mode", "")) or "").strip().lower()
-    vwap_value, vwap_ts = prior_high_latest_vwap(bars.iloc[:max(entry_i, 1)].copy(), decision_ts, vwap_type or "daily")
+    vwap_value, vwap_ts = prior_high_latest_vwap(bars, decision_ts, vwap_type or "daily")
     vwap_filter_pass = True
     if vwap_type:
         if direction == "long":
@@ -3099,6 +3165,8 @@ def prior_high_exit_plan(candidate: Mapping[str, Any], bars: pd.DataFrame, addr:
             "vwap_value": vwap_value,
             "vwap_feature_source_ts": vwap_ts,
         }
+    bar_ts = pd.to_datetime(bars["ts"], utc=True, errors="coerce")
+    bar_ts_ns = bar_ts.astype("int64").to_numpy()
     for _, srow in signal_after.iterrows():
         close = safe_float(srow.get("close"), np.nan)
         source_ts = ts_utc(srow.get("source_ts"))
@@ -3110,7 +3178,7 @@ def prior_high_exit_plan(candidate: Mapping[str, Any], bars: pd.DataFrame, addr:
             trail_hit = close < trail_level
             structure_level_eff = structure_level + structure_buffer * atr_value
             structure_hit = math.isfinite(structure_level_eff) and close < structure_level_eff
-            vwap_now, vwap_now_ts = prior_high_latest_vwap(bars[bars["ts"] <= source_ts].copy(), source_ts, vwap_type or "daily", anchor_ts=decision_ts if vwap_type == "anchored" else None)
+            vwap_now, vwap_now_ts = prior_high_latest_vwap(bars, source_ts, vwap_type or "daily", anchor_ts=decision_ts if vwap_type == "anchored" else None)
             vwap_hit = bool(vwap_type and math.isfinite(vwap_now) and close < vwap_now)
         else:
             low_close = min(low_close, close)
@@ -3118,13 +3186,14 @@ def prior_high_exit_plan(candidate: Mapping[str, Any], bars: pd.DataFrame, addr:
             trail_hit = close > trail_level
             structure_level_eff = structure_level - structure_buffer * atr_value
             structure_hit = math.isfinite(structure_level_eff) and close > structure_level_eff
-            vwap_now, vwap_now_ts = prior_high_latest_vwap(bars[bars["ts"] <= source_ts].copy(), source_ts, vwap_type or "daily", anchor_ts=decision_ts if vwap_type == "anchored" else None)
+            vwap_now, vwap_now_ts = prior_high_latest_vwap(bars, source_ts, vwap_type or "daily", anchor_ts=decision_ts if vwap_type == "anchored" else None)
             vwap_hit = bool(vwap_type and math.isfinite(vwap_now) and close > vwap_now)
-        exec_rows = bars[pd.to_datetime(bars["ts"], utc=True, errors="coerce") > source_ts]
-        if exec_rows.empty:
+        exec_pos = int(np.searchsorted(bar_ts_ns, ts_utc(source_ts).value, side="right"))
+        if exec_pos >= len(bars):
             continue
-        exec_idx = int(exec_rows.index[0])
-        exec_price = safe_float(exec_rows.iloc[0].get("open"), np.nan)
+        exec_idx = int(bars.index[exec_pos])
+        exec_row = bars.iloc[exec_pos]
+        exec_price = safe_float(exec_row.get("open"), np.nan)
         if not math.isfinite(exec_price) or exec_price <= 0:
             continue
         if trail_hit:
@@ -3137,7 +3206,7 @@ def prior_high_exit_plan(candidate: Mapping[str, Any], bars: pd.DataFrame, addr:
                 adverse_sort=-side_sign * exec_price,
                 fields={
                     "atr_trailing_triggered": True,
-                    "atr_trailing_exit_ts": str(pd.Timestamp(exec_rows.iloc[0]["ts"])),
+                    "atr_trailing_exit_ts": str(pd.Timestamp(exec_row["ts"])),
                     "atr_trailing_exit_price": exec_price,
                     "trailing_reference_close": high_close if direction == "long" else low_close,
                     "atr_trailing_level": trail_level,
@@ -3154,7 +3223,7 @@ def prior_high_exit_plan(candidate: Mapping[str, Any], bars: pd.DataFrame, addr:
                 adverse_sort=-side_sign * exec_price,
                 fields={
                     "structure_stop_triggered": True,
-                    "structure_stop_exit_ts": str(pd.Timestamp(exec_rows.iloc[0]["ts"])),
+                    "structure_stop_exit_ts": str(pd.Timestamp(exec_row["ts"])),
                     "structure_stop_exit_price": exec_price,
                 },
             ))
@@ -3168,7 +3237,7 @@ def prior_high_exit_plan(candidate: Mapping[str, Any], bars: pd.DataFrame, addr:
                 adverse_sort=-side_sign * exec_price,
                 fields={
                     "vwap_exit_triggered": True,
-                    "vwap_exit_ts": str(pd.Timestamp(exec_rows.iloc[0]["ts"])),
+                    "vwap_exit_ts": str(pd.Timestamp(exec_row["ts"])),
                     "vwap_exit_price": exec_price,
                     "vwap_value": vwap_now,
                     "vwap_feature_source_ts": vwap_now_ts,
@@ -26728,6 +26797,8 @@ def a1_outcome_event_from_selected(defn: Mapping[str, Any], selected: Mapping[st
         "candidate_definition_id": str(defn.get("candidate_definition_id", "")),
         "candidate_symbol_id": str(selected.get("candidate_symbol_id", f"{defn.get('candidate_definition_id')}::{selected.get('symbol')}")),
         "candidate_identity_hash": str(selected.get("candidate_identity_hash", "")),
+        "selected_key_policy_hash": str(selected.get("selected_key_policy_hash", defn.get("selected_key_policy_hash", ""))),
+        "selected_key_policy_contract_version": A1_SELECTED_KEY_POLICY_CONTRACT_VERSION,
         "symbol": str(selected.get("symbol", selected.get("symbol_id", ""))),
         "symbol_id": str(selected.get("symbol_id", selected.get("symbol", ""))),
         "definition_lane": str(defn.get("definition_lane", "")),
@@ -27103,6 +27174,52 @@ def a1_grouped_aggregate_summary(ledger: pd.DataFrame) -> pd.DataFrame:
             "funding_boundary_count_proxy": int(pd.to_numeric(g.get("funding_boundary_count_proxy", pd.Series(dtype=float)), errors="coerce").fillna(0).sum()),
             "label_cap_reason": ";".join(sorted(set(";".join(g.get("label_cap_reason", pd.Series(dtype=str)).dropna().astype(str)).split(";")) - {""})),
             "aggregate_evidence_label": "train_only_aggregate_diagnostic_level_1_2_capped_not_validation",
+        })
+    return pd.DataFrame(rows)
+
+
+def a1_zero_event_diagnostic_aggregate(definitions: pd.DataFrame, reason: str) -> pd.DataFrame:
+    """Represent a valid empty diagnostic spec without fabricating economic events."""
+    rows: list[dict[str, Any]] = []
+    for _, definition in definitions.iterrows():
+        cap_reasons = [
+            str(definition.get("label_cap_reason", "")),
+            "short_diagnostic" if str(definition.get("definition_lane", "")) == "short_diagnostic" else "",
+            "oi_omitted_or_sidecar_cap" if str(definition.get("oi_handling", "")) == "omitted_or_sidecar_cap" else "",
+        ]
+        rows.append({
+            "candidate_definition_id": str(definition.get("candidate_definition_id", "")),
+            "definition_lane": str(definition.get("definition_lane", "")),
+            "exit_policy_id": str(definition.get("exit_policy_id", "")),
+            "exit_class": str(definition.get("exit_class", "")),
+            "side": str(definition.get("side", "")),
+            "events": 0,
+            "active_symbols": 0,
+            "active_months": 0,
+            "raw_gross_R": 0.0,
+            "raw_fee_R": 0.0,
+            "raw_funding_R": 0.0,
+            "raw_slippage_R": 0.0,
+            "raw_net_R": 0.0,
+            "scaled_gross_R": 0.0,
+            "scaled_fee_R": 0.0,
+            "scaled_funding_R": 0.0,
+            "scaled_slippage_R": 0.0,
+            "scaled_net_R": 0.0,
+            "gross_R": 0.0,
+            "fees_R": 0.0,
+            "funding_R": 0.0,
+            "slippage_R": 0.0,
+            "net_R": 0.0,
+            "mean_net_R": 0.0,
+            "median_net_R": 0.0,
+            "top_1pct_net_R_share": 0.0,
+            "funding_boundary_count_exact": 0,
+            "funding_boundary_count_proxy": 0,
+            "label_cap_reason": ";".join(sorted({x for x in cap_reasons if x and x.lower() not in {"nan", "none"}})),
+            "aggregate_evidence_label": "train_only_diagnostic_no_eligible_events_not_economic_evidence",
+            "aggregate_status": "not_scored_no_eligible_events",
+            "invalid_reason": reason,
         })
     return pd.DataFrame(rows)
 
@@ -28471,61 +28588,68 @@ def a1_build_true_streaming_cache_dry_run(
     }
 
 
-A1_SELECTED_KEY_EXCLUDE_PREFIXES = (
-    "exit_",
-    "atr_",
-    "structure_",
-    "vwap_",
-    "same_bar_",
-    "stop_fill_",
+A1_SELECTED_KEY_POLICY_CONTRACT_VERSION = "a1_selected_key_policy_v2_20260711"
+A1_SELECTED_KEY_POLICY_FIELDS = (
+    "definition_lane", "side", "decision_timeframe", "execution_timeframe", "bar_timeframe",
+    "universe_policy", "universe_policy_hash", "top_major_target_size", "tier_ab_target_size",
+    "leader_rank_metric", "rank_metric", "rank_lookback_days", "leader_top_n", "rank_top_n",
+    "tie_policy", "rank_policy_hash", "parent_regime_gate", "parent_gate_policy_hash",
+    "regime_policy_hash", "funding_gate", "funding_gate_policy_hash", "funding_policy_hash",
+    "prior_high_proximity_filter", "prior_high_role", "impulse_required", "impulse_lookback_days",
+    "impulse_return_threshold", "base_window_days", "pullback_max_pct", "path_smoothness_metric",
+    "path_smoothness_threshold", "compression_required", "rv_reference_days",
+    "rv_percentile_threshold", "box_width_atr_max", "range_slope_abs_max",
+    "contraction_legs_required", "final_contraction_ratio_max", "breakout_trigger",
+    "current_bar_reference_policy", "entry_policy_version", "entry_policy_hash",
+    "compression_policy_hash",
 )
-A1_SELECTED_KEY_EXCLUDE_FIELDS = {
-    "candidate_definition_id",
-    "definition_id",
-    "parameter_vector_json",
-    "parameter_vector_hash",
-    "parameter_contract_version",
-    "manifest_status",
-    "family_engine_id",
-    "archetype",
-    "exit_policy_id",
-    "exit_class",
-    "exit_template",
-    "stop_template",
-    "hold_value",
-    "hold_unit",
-    "hold_interval",
-    "time_stop_days",
-    "atr_stop_mult",
-    "atr_trail_mult",
-    "trail_type",
-    "ema_sma_trail",
-    "partial_exit_policy",
-    "run_start_ts",
-    "run_end_ts",
-    "kraken_data_root",
-    "pit_panel_manifest_path",
+A1_SELECTED_KEY_BOOL_FIELDS = {"impulse_required", "compression_required"}
+A1_SELECTED_KEY_INT_FIELDS = {
+    "top_major_target_size", "tier_ab_target_size", "rank_lookback_days", "leader_top_n",
+    "rank_top_n", "impulse_lookback_days", "base_window_days", "rv_reference_days",
+    "contraction_legs_required",
+}
+A1_SELECTED_KEY_FLOAT_FIELDS = {
+    "impulse_return_threshold", "pullback_max_pct", "path_smoothness_threshold",
+    "rv_percentile_threshold", "box_width_atr_max", "range_slope_abs_max",
+    "final_contraction_ratio_max",
 }
 
 
-def a1_selected_key_policy_payload(defn: Mapping[str, Any]) -> dict[str, str]:
-    """Entry/selection policy payload; exit and outcome fields are intentionally excluded."""
-    payload: dict[str, str] = {}
-    for key in sorted(defn):
-        if key in A1_SELECTED_KEY_EXCLUDE_FIELDS:
-            continue
-        if any(str(key).startswith(prefix) for prefix in A1_SELECTED_KEY_EXCLUDE_PREFIXES):
-            continue
-        val = defn.get(key, "")
-        if isinstance(val, float) and math.isnan(val):
-            val = ""
-        payload[str(key)] = "" if val is None else str(val)
-    return payload
+def a1_canonical_policy_value(field: str, value: Any) -> Any:
+    if value is None or value is pd.NA:
+        return None
+    try:
+        if bool(pd.isna(value)):
+            return None
+    except (TypeError, ValueError):
+        pass
+    if field in A1_SELECTED_KEY_BOOL_FIELDS:
+        return parse_bool_value(value, default=False)
+    if field in A1_SELECTED_KEY_INT_FIELDS:
+        number = safe_float(value, np.nan)
+        return int(number) if math.isfinite(number) else None
+    if field in A1_SELECTED_KEY_FLOAT_FIELDS:
+        number = safe_float(value, np.nan)
+        return float(format(number, ".15g")) if math.isfinite(number) else None
+    if isinstance(value, pd.Timestamp):
+        return ts_utc(value).isoformat()
+    return str(value).strip()
+
+
+def a1_selected_key_policy_payload(defn: Mapping[str, Any]) -> dict[str, Any]:
+    """Canonical selection-only policy; runtime, outcome, exit and existing hash fields are absent."""
+    payload = {field: a1_canonical_policy_value(field, defn.get(field)) for field in A1_SELECTED_KEY_POLICY_FIELDS}
+    payload["cache_contract_version"] = A1_SELECTED_KEY_POLICY_CONTRACT_VERSION
+    payload["protected_train_boundary"] = ts_utc(PROTECTED_TS).isoformat()
+    payload["signal_semantics"] = "completed_close_current_reference_windows_shifted_1_next_5m_open"
+    return dict(sorted(payload.items()))
 
 
 def a1_selected_key_policy_hash(defn: Mapping[str, Any]) -> str:
     payload = a1_selected_key_policy_payload(defn)
-    return a1_policy_hash("selected_key_policy_v1", json.dumps(payload, sort_keys=True, separators=(",", ":")), n=32)
+    canonical_json = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False)
+    return a1_policy_hash(A1_SELECTED_KEY_POLICY_CONTRACT_VERSION, canonical_json, n=32)
 
 
 def a1_selected_key_dedup_audit(manifest: pd.DataFrame, ctx: Context) -> pd.DataFrame:
@@ -28807,6 +28931,7 @@ def a1_build_selected_key_compiler_dry_run(
                             "parent_gate_policy_hash": str(fd.get("parent_gate_policy_hash", "")),
                             "funding_gate_policy_hash": str(fd.get("funding_gate_policy_hash", "")),
                             "selected_key_policy_hash": spec_hash,
+                            "selected_key_policy_contract_version": A1_SELECTED_KEY_POLICY_CONTRACT_VERSION,
                             "event_semantics_version": "a1_compression_selected_key_v1",
                             "input_manifest_hash": input_manifest_hash,
                             "train_window_hash": train_window_hash,
@@ -28997,6 +29122,7 @@ def a1_build_feature_mask_compiler_dry_run(
     leak_violations = 0
     static_topn_failures = 0
     protected_decision_violations = 0
+    funding_gate_count_rows: list[dict[str, Any]] = []
     max_open_buffer_rows = 0
     peak_rss = current_rss_bytes()
 
@@ -29049,6 +29175,9 @@ def a1_build_feature_mask_compiler_dry_run(
         spec_selected_count = 0
         spec_decision_count = 0
         spec_feature_masks_built = 0
+        spec_pre_funding_gate = 0
+        spec_post_funding_gate = 0
+        funding_status_counts: dict[str, int] = defaultdict(int)
         for _, w in windows.iterrows():
             window_id = str(w["window_id"])
             decisions = a1_decision_timestamps_for_window(w.to_dict(), timeframe)
@@ -29165,7 +29294,13 @@ def a1_build_feature_mask_compiler_dry_run(
                     for ft in feature_times:
                         if ts_utc(ft) > decision:
                             leak_violations += 1
-                    if not (signal_pass and bool(parent.get("allowed", False)) and bool(funding_gate.get("allowed", False))):
+                    signal_parent_pass = signal_pass and bool(parent.get("allowed", False))
+                    if signal_parent_pass:
+                        spec_pre_funding_gate += 1
+                        funding_status_counts[str(funding_gate.get("status", "unknown"))] += 1
+                        if bool(funding_gate.get("allowed", False)):
+                            spec_post_funding_gate += 1
+                    if not (signal_parent_pass and bool(funding_gate.get("allowed", False))):
                         continue
                     for fd in fanout_defs:
                         cap_reasons = [x for x in [
@@ -29198,6 +29333,7 @@ def a1_build_feature_mask_compiler_dry_run(
                             "candidate_symbol_id": f"{cid}::{sym}",
                             "candidate_identity_hash": identity_hash,
                             "selected_key_policy_hash": spec_hash,
+                            "selected_key_policy_contract_version": A1_SELECTED_KEY_POLICY_CONTRACT_VERSION,
                             "feature_spec_hash": feature_spec_hash,
                             "entry_spec_id": fd.get("entry_spec_id", ""),
                             "exit_policy_id": fd.get("exit_policy_id", ""),
@@ -29219,6 +29355,21 @@ def a1_build_feature_mask_compiler_dry_run(
                         raise RuntimeError(f"A1 feature-mask compiler exceeded open shard/buffer row limit: {max_open_buffer_rows}")
                     if len(selected_rows) >= flush_threshold:
                         flush_selected(reason=f"{label}_selected_buffer_flush")
+        funding_gate_count_rows.append({
+            "benchmark_label": label,
+            "selected_key_policy_hash": spec_hash,
+            "definition_lane": str(d.get("definition_lane", "")),
+            "funding_gate": str(d.get("funding_gate", "")),
+            "fanout_definition_count": len(fanout_defs),
+            "pre_funding_gate_signal_parent_rows": spec_pre_funding_gate,
+            "post_funding_gate_selected_key_rows": spec_post_funding_gate,
+            "pre_funding_gate_definition_event_rows": spec_pre_funding_gate * len(fanout_defs),
+            "post_funding_gate_definition_event_rows": spec_post_funding_gate * len(fanout_defs),
+            "funding_gate_blocked_rows": spec_pre_funding_gate - spec_post_funding_gate,
+            "funding_gate_status_distribution": json.dumps(funding_status_counts, sort_keys=True),
+            "counts_are_pre_outcome_event_addresses": True,
+            "status": "pass",
+        })
         specs_done += 1
         elapsed = time.time() - t0
         timing_rows.append({
@@ -29275,6 +29426,8 @@ def a1_build_feature_mask_compiler_dry_run(
     write_csv(ctx.run_root / f"cache/{output_prefix}_feature_spec_manifest.csv", spec_rows)
     write_csv(ctx.run_root / f"cache/{output_prefix}_feature_mask_manifest.csv", feature_mask_manifest_rows)
     write_csv(ctx.run_root / f"cache/{output_prefix}_selected_key_spec_manifest.csv", spec_rows)
+    funding_gate_count_path = ctx.run_root / f"gates/{output_prefix}_funding_gate_pre_post_event_counts.csv"
+    write_csv(funding_gate_count_path, funding_gate_count_rows)
     append_csv(ctx.run_root / "performance/feature_mask_compiler_timing.csv", timing_rows)
     return {
         "label": label,
@@ -29292,6 +29445,7 @@ def a1_build_feature_mask_compiler_dry_run(
         "shard_count": int(shard_count),
         "max_open_buffer_rows": int(max_open_buffer_rows),
         "runtime_gate_stopped": bool(runtime_gate_stopped),
+        "funding_gate_count_path": str(funding_gate_count_path),
         "selected_manifests": selected_manifests,
     }
 
@@ -29301,8 +29455,9 @@ def a1_feature_mask_repair_root() -> Path:
 
 
 def a1_feature_mask_source_selected_keys(root: Path) -> pd.DataFrame:
-    shard_dir = root / "cache/balanced_32_feature_mask_selected_event_key_shards"
-    frames = [read_csv_safe(p) for p in sorted(shard_dir.glob("balanced_32_feature_mask_selected_event_key_part_*.csv"))]
+    preferred = root / "cache/balanced_32_feature_mask_selected_event_key_shards"
+    shard_dirs = [preferred] if preferred.exists() else sorted((root / "cache").glob("*_selected_event_key_shards"))
+    frames = [read_csv_safe(p) for shard_dir in shard_dirs for p in sorted(shard_dir.glob("*_selected_event_key_part_*.csv"))]
     frames = [f for f in frames if not f.empty]
     return pd.concat(frames, ignore_index=True, sort=False) if frames else pd.DataFrame()
 
@@ -29344,13 +29499,14 @@ def a1_build_full_shard_plan(ctx: Context, manifest: pd.DataFrame, feature_root:
     grouped["prior_selected_event_rows"] = pd.to_numeric(grouped["prior_selected_event_rows"], errors="coerce").fillna(0).astype(int)
     grouped["shard_id"] = grouped.apply(lambda r: f"a1shard_{safe_filename(str(r['definition_lane']))}_{safe_filename(str(r['entry_spec_id']))}_{safe_filename(str(r['selected_key_policy_hash']))[:10]}", axis=1)
     grouped["shard_status"] = "planned"
+    grouped["selected_key_policy_contract_version"] = A1_SELECTED_KEY_POLICY_CONTRACT_VERSION
     grouped["first_pack"] = False
     grouped["first_pack_role"] = ""
     grouped["selection_basis"] = "full_manifest_selected_key_policy_hash_group"
     cols = [
         "shard_id", "selected_key_policy_hash", "feature_spec_hash", "definition_lane", "entry_spec_id",
         "definition_count", "exit_policy_count", "candidate_definition_ids", "exit_policy_ids",
-        "prior_selected_event_rows", "first_pack", "first_pack_role", "selection_basis", "shard_status",
+        "prior_selected_event_rows", "selected_key_policy_contract_version", "first_pack", "first_pack_role", "selection_basis", "shard_status",
     ]
     return grouped[cols].sort_values(["definition_lane", "entry_spec_id", "selected_key_policy_hash"], kind="mergesort").reset_index(drop=True)
 
@@ -29462,7 +29618,7 @@ def a1_shard_selected_key_hash_consistency(shard_id: str, selected_keys: pd.Data
         {"shard_id": shard_id, "source": "selected_key_hash", "selected_event_key_hash": selected_hash, "matches": bool(selected_hash), "status": "pass" if selected_hash else "fail"},
         {"shard_id": shard_id, "source": "selected_key_manifest_column", "selected_event_key_hash": selected_manifest.get("selected_event_key_hash", ""), "matches": str(selected_manifest.get("selected_event_key_hash", "")) == selected_hash, "status": "pass" if str(selected_manifest.get("selected_event_key_hash", "")) == selected_hash else "fail"},
         {"shard_id": shard_id, "source": "selected_key_manifest_policy_fields", "selected_event_key_hash": policy_fields.get("selected_event_key_hash", ""), "matches": str(policy_fields.get("selected_event_key_hash", "")) == selected_hash, "status": "pass" if str(policy_fields.get("selected_event_key_hash", "")) == selected_hash else "fail"},
-        {"shard_id": shard_id, "source": "selected_key_rows", "selected_event_key_hash": ";".join(row_hashes), "matches": row_hashes == [selected_hash], "status": "pass" if row_hashes == [selected_hash] else "fail"},
+        {"shard_id": shard_id, "source": "selected_key_rows", "selected_event_key_hash": ";".join(row_hashes) if row_hashes else selected_hash, "matches": row_hashes == [selected_hash] if len(selected_keys) else bool(selected_hash), "status": "pass" if (row_hashes == [selected_hash] if len(selected_keys) else bool(selected_hash)) else "fail"},
     ]
 
 
@@ -29495,8 +29651,18 @@ def a1_execute_economic_shard(ctx: Context, *, shard_row: Mapping[str, Any], def
     if selected_raw.empty:
         zero_reason = "no_selected_events_after_signal_parent_funding_gates_for_shard"
         selected_hash = stable_hash(shard_id, zero_reason, n=64)
-        selected_keys = pd.DataFrame()
+        selected_keys = pd.DataFrame(columns=[
+            "candidate_definition_id", "candidate_symbol_id", "candidate_identity_hash", "symbol_id", "symbol",
+            "parameter_vector_hash", "definition_lane", "decision_ts", "entry_policy", "feature_available_ts",
+            "label_cap_reason", "selected_key_policy_hash", "selected_event_keys_hash", "selected_event_keys_frozen",
+        ])
     else:
+        row_policy_hashes = set(selected_raw.get("selected_key_policy_hash", pd.Series(dtype=str)).dropna().astype(str))
+        if row_policy_hashes != {spec_hash}:
+            raise RuntimeError(
+                f"selected-key policy lineage mismatch before outcome build: shard={shard_id} "
+                f"plan={spec_hash} rows={sorted(row_policy_hashes)}"
+            )
         selected_keys, selected_hash = a1_hash_selected_keys_frame(selected_raw)
         zero_reason = ""
     selected_key_start_ts = utc_now()
@@ -29504,7 +29670,7 @@ def a1_execute_economic_shard(ctx: Context, *, shard_row: Mapping[str, Any], def
         cache_class="selected_event_key",
         df=selected_keys,
         sort_keys=[c for c in ["candidate_identity_hash", "symbol_id", "decision_ts"] if c in selected_keys.columns],
-        policy_fields={"family": "a1_compression", "shard_id": shard_id, "selected_key_policy_hash": spec_hash, "selected_event_key_hash": selected_hash},
+        policy_fields={"family": "a1_compression", "shard_id": shard_id, "selected_key_policy_hash": spec_hash, "selected_key_policy_contract_version": A1_SELECTED_KEY_POLICY_CONTRACT_VERSION, "selected_event_key_hash": selected_hash},
         input_manifest_hash=a1_manifest_hash(),
         data_hash=stable_hash(resolve_path(ctx.args.kraken_data_root), ctx.start, ctx.end, n=32),
         protected_train_boundary=str(PROTECTED_TS),
@@ -29512,6 +29678,7 @@ def a1_execute_economic_shard(ctx: Context, *, shard_row: Mapping[str, Any], def
         path=f"aggregate_shards/{shard_id}/selected_keys.csv",
     )
     selected_manifest["status"] = validate_semantic_cache_manifest(selected_manifest).get("status", "fail")
+    selected_manifest["selected_key_policy_contract_version"] = A1_SELECTED_KEY_POLICY_CONTRACT_VERSION
     write_csv(tmp_dir / "selected_keys.csv", selected_keys)
     write_csv(tmp_dir / "selected_key_manifest.csv", [{**selected_manifest, "policy_fields": json.dumps(selected_manifest.get("policy_fields", {}), sort_keys=True), "canonical_sort_keys": ";".join(selected_manifest.get("canonical_sort_keys", []))}])
     selected_key_freeze_ts = utc_now()
@@ -29542,13 +29709,17 @@ def a1_execute_economic_shard(ctx: Context, *, shard_row: Mapping[str, Any], def
             if peak_rss >= 8 * 1024**3:
                 raise RuntimeError(f"A1 sharded aggregate RSS hard stop before kernel OOM: shard={shard_id} rss={peak_rss}")
     ledger = pd.DataFrame(ledger_rows)
-    if not ledger.empty:
-        parquet_safe_frame(ledger).to_parquet(tmp_dir / "outcome_events.parquet", index=False, compression="zstd")
+    if ledger.empty:
+        ledger = pd.DataFrame(columns=[
+            "event_id", "event_key", "candidate_definition_id", "definition_lane", "exit_policy_id",
+            "selected_key_policy_hash", "symbol", "decision_ts", "entry_ts", "exit_ts", "label_cap_reason",
+        ])
+    parquet_safe_frame(ledger).to_parquet(tmp_dir / "outcome_events.parquet", index=False, compression="zstd")
     outcome_manifest = semantic_cache_manifest(
         cache_class="interval_outcome",
         df=ledger,
         sort_keys=[c for c in ["candidate_definition_id", "symbol", "decision_ts", "event_id"] if c in ledger.columns],
-        policy_fields={"family": "a1_compression", "shard_id": shard_id, "selected_key_policy_hash": spec_hash, "scope": "first_pack_shard_only"},
+        policy_fields={"family": "a1_compression", "shard_id": shard_id, "selected_key_policy_hash": spec_hash, "selected_key_policy_contract_version": A1_SELECTED_KEY_POLICY_CONTRACT_VERSION, "scope": "shard_only"},
         input_manifest_hash=a1_manifest_hash(),
         data_hash=stable_hash(resolve_path(ctx.args.kraken_data_root), ctx.start, ctx.end, n=32),
         protected_train_boundary=str(PROTECTED_TS),
@@ -29556,8 +29727,15 @@ def a1_execute_economic_shard(ctx: Context, *, shard_row: Mapping[str, Any], def
         path=f"aggregate_shards/{shard_id}/outcome_events.parquet",
     )
     outcome_manifest["status"] = validate_semantic_cache_manifest(outcome_manifest).get("status", "fail")
+    outcome_manifest["selected_key_policy_contract_version"] = A1_SELECTED_KEY_POLICY_CONTRACT_VERSION
     write_csv(tmp_dir / "outcome_cache_manifest.csv", [{**outcome_manifest, "policy_fields": json.dumps(outcome_manifest.get("policy_fields", {}), sort_keys=True), "canonical_sort_keys": ";".join(outcome_manifest.get("canonical_sort_keys", []))}])
-    aggregate = a1_grouped_aggregate_summary(ledger)
+    zero_event_diagnostic = (
+        bool(zero_reason)
+        and not definitions.empty
+        and definitions.get("definition_lane", pd.Series(dtype=str)).astype(str).eq("short_diagnostic").all()
+        and not definitions.get("rankable", pd.Series(True, index=definitions.index)).map(lambda value: parse_bool_value(value, default=True)).any()
+    )
+    aggregate = a1_zero_event_diagnostic_aggregate(definitions, zero_reason) if zero_event_diagnostic else a1_grouped_aggregate_summary(ledger)
     aggregate_path = tmp_dir / "aggregate.csv"
     write_csv(aggregate_path, aggregate)
     aggregate_for_hash = read_csv_safe(aggregate_path)
@@ -29566,7 +29744,11 @@ def a1_execute_economic_shard(ctx: Context, *, shard_row: Mapping[str, Any], def
     for col in protected_cols:
         ts = pd.to_datetime(ledger.get(col, pd.Series(dtype=str)), utc=True, errors="coerce") if not ledger.empty else pd.Series(dtype="datetime64[ns, UTC]")
         protected_violations += int((ts >= PROTECTED_TS).sum()) if len(ts) else 0
-    cap_labels = sorted(set(";".join(selected_keys.get("label_cap_reason", pd.Series(dtype=str)).dropna().astype(str)).split(";")) - {""}) if not selected_keys.empty else []
+    if not selected_keys.empty:
+        cap_labels = sorted(set(";".join(selected_keys.get("label_cap_reason", pd.Series(dtype=str)).dropna().astype(str)).split(";")) - {""})
+    else:
+        definition_caps = definitions.get("label_cap_reason", pd.Series(dtype=str)).dropna().astype(str).tolist()
+        cap_labels = sorted((set(";".join(definition_caps).split(";")) | ({"short_diagnostic"} if zero_event_diagnostic else set()) | ({"oi_omitted_or_sidecar_cap"} if definitions.get("oi_handling", pd.Series(dtype=str)).astype(str).eq("omitted_or_sidecar_cap").any() else set())) - {""})
     if len(selected_keys) == 0 and not zero_reason:
         zero_reason = "selected_key_cache_empty_without_reason"
     if aggregate.empty and not zero_reason:
@@ -29574,12 +29756,15 @@ def a1_execute_economic_shard(ctx: Context, *, shard_row: Mapping[str, Any], def
     selected_hash_rows = a1_shard_selected_key_hash_consistency(shard_id, selected_keys, selected_manifest, selected_hash)
     selected_hash_pass = all(str(r.get("status")) == "pass" for r in selected_hash_rows)
     aggregate_hash = canonical_frame_hash(aggregate_for_hash, sort_keys=[c for c in ["candidate_definition_id", "exit_policy_id"] if c in aggregate_for_hash.columns]) if not aggregate_for_hash.empty else stable_hash("empty_a1_shard_aggregate", n=64)
-    shard_status = "complete" if len(selected_keys) > 0 and not aggregate.empty and selected_hash_pass and protected_violations == 0 and outcome_manifest["status"] == "pass" and selected_manifest["status"] == "pass" else "blocked"
+    economic_rows_present = len(selected_keys) > 0 and not aggregate.empty
+    precise_empty_diagnostic = zero_event_diagnostic and len(aggregate) == len(definitions) and len(definitions) == 8
+    shard_status = "complete" if (economic_rows_present or precise_empty_diagnostic) and selected_hash_pass and protected_violations == 0 and outcome_manifest["status"] == "pass" and selected_manifest["status"] == "pass" else "blocked"
     shard_manifest = {
         "shard_id": shard_id,
         "status": shard_status,
-        "reason": "" if shard_status == "complete" else zero_reason or "shard_gate_failed",
+        "reason": zero_reason if precise_empty_diagnostic else ("" if shard_status == "complete" else zero_reason or "shard_gate_failed"),
         "selected_key_policy_hash": spec_hash,
+        "selected_key_policy_contract_version": A1_SELECTED_KEY_POLICY_CONTRACT_VERSION,
         "feature_spec_hash": str(shard_row.get("feature_spec_hash", "")),
         "definition_lane": str(shard_row.get("definition_lane", "")),
         "entry_spec_id": str(shard_row.get("entry_spec_id", "")),
@@ -29588,6 +29773,7 @@ def a1_execute_economic_shard(ctx: Context, *, shard_row: Mapping[str, Any], def
         "selected_event_count": int(len(selected_keys)),
         "outcome_event_count": int(len(ledger)),
         "aggregate_rows": int(len(aggregate)),
+        "zero_event_diagnostic": bool(precise_empty_diagnostic),
         "selected_event_key_hash": selected_hash,
         "selected_key_manifest_status": selected_manifest["status"],
         "outcome_cache_manifest_status": outcome_manifest["status"],
@@ -31582,7 +31768,60 @@ def stage_tsmom_v6_targeted_materialization_profile_dry_run(ctx: Context) -> Non
         "ts_utc": utc_now(),
     }
     write_json(ctx.run_root / "decision_summary.json", summary)
+
+
+def stage_prior_high_v2_targeted_materialization_profile_dry_run(ctx: Context) -> None:
+    from tools.run_kraken_prior_high_v2_survivor_preflight import validate_registered_materialization_profile
+
+    validate_registered_materialization_profile(ctx)
+
+
+def stage_prior_high_v2_targeted_materialization_profile_v2_dry_run(ctx: Context) -> None:
+    from tools.run_kraken_prior_high_v2_materialization_profile import run_registered_profile
+
+    run_registered_profile(ctx)
     write_status(ctx, summary["status"], "tsmom-v6-targeted-materialization-profile-dry-run")
+
+
+def stage_a1_compression_targeted_lineage_gate(ctx: Context) -> None:
+    from tools import kraken_a1_targeted_materialization as targeted
+
+    lineage = targeted.validate_lineage(ctx, write=True)
+    if not lineage["pass"]:
+        raise RuntimeError(f"A1 targeted materialization lineage gate failed: {lineage['failures']} failures")
+    write_status(ctx, "complete", "a1-compression-targeted-lineage-gate")
+
+
+def stage_a1_compression_targeted_materialization(ctx: Context) -> None:
+    from tools import kraken_a1_targeted_materialization as targeted
+
+    summary = targeted.run_all(ctx)
+    if summary.get("status") != "complete":
+        raise RuntimeError("A1 targeted materialization/controls/stress did not complete")
+    write_status(ctx, "complete", "a1-compression-targeted-materialization")
+
+
+def stage_a1_compression_targeted_controls(ctx: Context) -> None:
+    required = [ctx.run_root / "controls/control_match_coverage.csv", ctx.run_root / "controls/control_comparison_summary.csv", ctx.run_root / "controls/control_ledgers/control_ledger.parquet"]
+    missing = [str(path) for path in required if not path.exists()]
+    if missing:
+        raise RuntimeError("A1 targeted real-control artifacts missing: " + "; ".join(missing))
+    write_status(ctx, "complete", "a1-compression-targeted-controls")
+
+
+def stage_a1_compression_targeted_stress(ctx: Context) -> None:
+    required = [ctx.run_root / "stress/funding_slippage_summary.csv", ctx.run_root / "forensics/top_event_dependency.csv", ctx.run_root / "forensics/paired_exit_comparison.csv"]
+    missing = [str(path) for path in required if not path.exists()]
+    if missing:
+        raise RuntimeError("A1 targeted stress/forensic artifacts missing: " + "; ".join(missing))
+    write_status(ctx, "complete", "a1-compression-targeted-stress")
+
+
+def stage_a1_compression_targeted_decision(ctx: Context) -> None:
+    summary = read_json(ctx.run_root / "decision_summary.json", {})
+    if summary.get("status") != "complete":
+        raise RuntimeError("A1 targeted candidate decision is absent or blocked")
+    write_status(ctx, "complete", "a1-compression-targeted-decision")
 
 
 def stage_tsmom_v6_targeted_lineage_gate(ctx: Context) -> None:
@@ -31997,7 +32236,7 @@ def stage_tests(ctx: Context) -> None:
 
 
 def stage_decision(ctx: Context) -> None:
-    if getattr(getattr(ctx, "args", None), "phase_profile", "") in {A1_COMPRESSION_BINDING_CACHE_DRY_RUN_PHASE_PROFILE, A1_COMPRESSION_MECHANICAL_CANARY_PHASE_PROFILE, A1_COMPRESSION_FULL_TRAIN_AGGREGATE_PHASE_PROFILE, A1_COMPRESSION_SEMANTIC_CACHE_REPAIR_PHASE_PROFILE, A1_COMPRESSION_FULL_TRAIN_CACHE_DRY_RUN_PHASE_PROFILE, A1_COMPRESSION_TRUE_STREAMING_CACHE_REPAIR_PHASE_PROFILE, A1_COMPRESSION_PARENT_GATE_HOTPATH_REPAIR_PHASE_PROFILE, A1_COMPRESSION_SELECTED_KEY_COMPILER_REPAIR_PHASE_PROFILE, A1_COMPRESSION_FEATURE_MASK_COMPILER_REPAIR_PHASE_PROFILE, A1_COMPRESSION_PRODUCTION_SHARDED_AGGREGATE_PHASE_PROFILE, A1_COMPRESSION_FUNDING_POLICY_UNIVERSE_REPAIR_PHASE_PROFILE}:
+    if getattr(getattr(ctx, "args", None), "phase_profile", "") in {A1_COMPRESSION_BINDING_CACHE_DRY_RUN_PHASE_PROFILE, A1_COMPRESSION_MECHANICAL_CANARY_PHASE_PROFILE, A1_COMPRESSION_FULL_TRAIN_AGGREGATE_PHASE_PROFILE, A1_COMPRESSION_SEMANTIC_CACHE_REPAIR_PHASE_PROFILE, A1_COMPRESSION_FULL_TRAIN_CACHE_DRY_RUN_PHASE_PROFILE, A1_COMPRESSION_TRUE_STREAMING_CACHE_REPAIR_PHASE_PROFILE, A1_COMPRESSION_PARENT_GATE_HOTPATH_REPAIR_PHASE_PROFILE, A1_COMPRESSION_SELECTED_KEY_COMPILER_REPAIR_PHASE_PROFILE, A1_COMPRESSION_FEATURE_MASK_COMPILER_REPAIR_PHASE_PROFILE, A1_COMPRESSION_PRODUCTION_SHARDED_AGGREGATE_PHASE_PROFILE, A1_COMPRESSION_FUNDING_POLICY_UNIVERSE_REPAIR_PHASE_PROFILE, A1_COMPRESSION_TARGETED_MATERIALIZATION_CONTROLS_PHASE_PROFILE}:
         summary = read_json(ctx.run_root / "decision_summary.json", {})
         if not summary:
             summary = {
@@ -33770,6 +34009,12 @@ def stage_decision(ctx: Context) -> None:
 
 
 def stage_compact(ctx: Context) -> None:
+    if getattr(getattr(ctx, "args", None), "phase_profile", "") == A1_COMPRESSION_TARGETED_MATERIALIZATION_CONTROLS_PHASE_PROFILE:
+        from tools import kraken_a1_targeted_materialization as targeted
+
+        targeted.compact(ctx.run_root)
+        write_status(ctx, "complete", "compact-review-bundle")
+        return
     bundle = ctx.run_root / "compact_review_bundle"
     bundle.mkdir(parents=True, exist_ok=True)
     files = [
@@ -34767,7 +35012,14 @@ def main(argv: list[str] | None = None) -> int:
         "a1-compression-first-pack-sharded-aggregate": stage_a1_compression_first_pack_sharded_aggregate,
         "a1-compression-first-pack-reducer": stage_a1_compression_first_pack_reducer,
         "a1-compression-full-train-aggregate": stage_a1_compression_full_train_aggregate_cached,
+        "a1-compression-targeted-lineage-gate": stage_a1_compression_targeted_lineage_gate,
+        "a1-compression-targeted-materialization": stage_a1_compression_targeted_materialization,
+        "a1-compression-targeted-controls": stage_a1_compression_targeted_controls,
+        "a1-compression-targeted-stress": stage_a1_compression_targeted_stress,
+        "a1-compression-targeted-decision": stage_a1_compression_targeted_decision,
         "tsmom-v6-targeted-materialization-profile-dry-run": stage_tsmom_v6_targeted_materialization_profile_dry_run,
+        "prior-high-v2-targeted-materialization-profile-dry-run": stage_prior_high_v2_targeted_materialization_profile_dry_run,
+        "prior-high-v2-targeted-materialization-profile-v2-dry-run": stage_prior_high_v2_targeted_materialization_profile_v2_dry_run,
         "tsmom-v6-targeted-lineage-gate": stage_tsmom_v6_targeted_lineage_gate,
         "tsmom-v6-targeted-materialization": stage_tsmom_v6_targeted_materialization,
         "tsmom-v6-targeted-controls": stage_tsmom_v6_targeted_controls,

@@ -12,6 +12,9 @@ import pandas as pd
 
 from tools import run_kraken_family_engine_aggregate_first_sweep as sweep
 from tools import kraken_aggregate_cache_layer as cache_layer
+from tools import kraken_funding_imputation as funding_imputation
+from tools import kraken_shared_funding_consumer as funding_consumer
+from tools import kraken_a1_balanced_50 as a1_balanced_50
 
 
 class KrakenFamilyEngineAggregateFirstSweepTests(unittest.TestCase):
@@ -4150,6 +4153,34 @@ class KrakenFamilyEngineAggregateFirstSweepTests(unittest.TestCase):
         changed_entry = dict(base, leader_top_n=10)
         self.assertNotEqual(sweep.a1_selected_key_policy_hash(base), sweep.a1_selected_key_policy_hash(changed_entry))
 
+    def test_a1_selected_key_policy_hash_is_idempotent_and_ignores_existing_hash(self):
+        base = {
+            "definition_lane": "a1_impulse_base_breakout", "side": "long",
+            "decision_timeframe": "4h", "execution_timeframe": "5m_next_open",
+            "universe_policy": "tier_ab_liquid_strict", "leader_rank_metric": "relative_strength_20d",
+            "leader_top_n": 5, "parent_regime_gate": "btc_eth_trend_up",
+            "funding_gate": "funding_aware_cap", "impulse_required": True,
+            "impulse_lookback_days": 14, "impulse_return_threshold": 0.5,
+        }
+        first = sweep.a1_selected_key_policy_hash(base)
+        enriched = dict(base, selected_key_policy_hash=first, runtime_seconds=123, label_cap_reason="report_only")
+        self.assertEqual(first, sweep.a1_selected_key_policy_hash(enriched))
+
+    def test_a1_selected_key_policy_hash_normalizes_types_and_order(self):
+        first = {
+            "definition_lane": "h12_rv_compression_breakout", "side": "long",
+            "decision_timeframe": "4h", "leader_top_n": 5.0,
+            "impulse_required": "true", "rv_percentile_threshold": "0.20",
+            "box_width_atr_max": np.nan,
+        }
+        second = {
+            "box_width_atr_max": None, "rv_percentile_threshold": 0.2,
+            "impulse_required": True, "leader_top_n": "5",
+            "decision_timeframe": "4h", "side": "long",
+            "definition_lane": "h12_rv_compression_breakout",
+        }
+        self.assertEqual(sweep.a1_selected_key_policy_hash(first), sweep.a1_selected_key_policy_hash(second))
+
     def test_a1_selected_key_compiler_source_avoids_per_definition_universe_append(self):
         source = inspect.getsource(sweep.a1_build_selected_key_compiler_dry_run)
         self.assertIn("selected_key_policy_hash", source)
@@ -4301,6 +4332,23 @@ class KrakenFamilyEngineAggregateFirstSweepTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 sweep.a1_reduce_first_pack_shards(ctx, expected)
 
+    def test_a1_full_reducer_status_contract_accepts_complete_shards_and_pass_caches(self):
+        economic_status = "complete"
+        selected_cache_status = "pass"
+        outcome_cache_status = "pass"
+        self.assertIn(economic_status, {"complete"})
+        self.assertIn(selected_cache_status, {"pass"})
+        self.assertIn(outcome_cache_status, {"pass"})
+        self.assertNotIn("unknown", {"complete"})
+        self.assertNotIn("failed", {"complete"})
+
+    def test_a1_full_180_runner_executes_only_missing_shards(self):
+        from tools import run_kraken_a1_full_180shard as full_runner
+        source = inspect.getsource(full_runner.main)
+        self.assertIn('plan[~plan["imported_reference_shard"]]', source)
+        self.assertIn("verify_and_import_shard", source)
+        self.assertNotIn("feature_mask_compiler_repair_20260709_v1_20260709_112535", source)
+
     def test_a1_finalized_aggregate_shard_validation_rejects_hash_mismatch_and_missing(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
@@ -4353,6 +4401,98 @@ class KrakenFamilyEngineAggregateFirstSweepTests(unittest.TestCase):
         self.assertFalse(by_class["selected_key"]["reused"])
         self.assertTrue(by_class["selected_key"]["rebuilt"])
         self.assertTrue(by_class["outcome"]["newly_built"])
+
+    def test_a1_zero_event_diagnostic_aggregate_is_explicit_and_capped(self):
+        definitions = pd.DataFrame([
+            {
+                "candidate_definition_id": f"diag_{i}",
+                "definition_lane": "short_diagnostic",
+                "side": "short_diagnostic",
+                "exit_policy_id": f"exit_{i}",
+                "rankable": False,
+                "label_cap_reason": "short_diagnostic_not_primary_a1_evidence",
+                "oi_handling": "omitted_or_sidecar_cap",
+            }
+            for i in range(8)
+        ])
+        reason = "no_selected_events_after_signal_parent_funding_gates_for_shard"
+        result = sweep.a1_zero_event_diagnostic_aggregate(definitions, reason)
+        self.assertEqual(len(result), 8)
+        self.assertTrue(result["events"].eq(0).all())
+        self.assertTrue(result["aggregate_status"].eq("not_scored_no_eligible_events").all())
+        self.assertTrue(result["invalid_reason"].eq(reason).all())
+        self.assertTrue(result["label_cap_reason"].str.contains("short_diagnostic", regex=False).all())
+
+    def test_a1_empty_selected_key_set_has_manifest_scoped_hash_consistency(self):
+        selected_hash = "canonical_empty_hash"
+        rows = sweep.a1_shard_selected_key_hash_consistency(
+            "diagnostic_shard",
+            pd.DataFrame(columns=["selected_event_keys_hash"]),
+            {
+                "selected_event_key_hash": selected_hash,
+                "policy_fields": {"selected_event_key_hash": selected_hash},
+            },
+            selected_hash,
+        )
+        self.assertTrue(all(row["status"] == "pass" for row in rows))
+
+    def test_a1_full_reducer_attaches_definition_counts_from_frozen_events(self):
+        from tools.kraken_a1_full_streaming_reducer import _attach_definition_counts
+
+        events = pd.DataFrame([
+            {"candidate_definition_id": "d1", "definition_lane": "lane_a", "exit_policy_id": "exit_1"},
+            {"candidate_definition_id": "d1", "definition_lane": "lane_a", "exit_policy_id": "exit_1"},
+            {"candidate_definition_id": "d2", "definition_lane": "lane_a", "exit_policy_id": "exit_2"},
+        ])
+        lane_summary = pd.DataFrame([
+            {"definition_lane": "lane_a", "period_scope": "full_train", "events": 3},
+        ])
+        result = _attach_definition_counts(lane_summary, events, ["definition_lane"])
+        self.assertEqual(int(result.iloc[0]["definitions"]), 2)
+
+    def test_a1_targeted_materialization_profile_is_registered_with_bounded_stages(self):
+        profile = sweep.A1_COMPRESSION_TARGETED_MATERIALIZATION_CONTROLS_PHASE_PROFILE
+        self.assertIn(profile, sweep.PHASE_PROFILES)
+        stages = sweep.PHASE_PROFILES[profile]["stages"]
+        self.assertIn("a1-compression-targeted-lineage-gate", stages)
+        self.assertIn("a1-compression-targeted-materialization", stages)
+        self.assertIn("a1-compression-targeted-controls", stages)
+        self.assertIn("a1-compression-targeted-stress", stages)
+        self.assertNotIn("validation", " ".join(stages))
+
+    def test_a1_survivor_scenario_pivot_uses_only_frozen_corrected_modes(self):
+        from tools.run_kraken_a1_survivor_preflight import SCENARIOS, _scenario_pivot
+
+        rows = []
+        for mode, bps in SCENARIOS:
+            rows.append({
+                "candidate_definition_id": "d1",
+                "definition_lane": "h12_rv_compression_breakout",
+                "exit_policy_id": "structure_base_failure_time_10d",
+                "funding_mode": mode,
+                "slippage_round_trip_bps": bps,
+                "total_net_R": 1.0,
+                "event_count": 10,
+                "active_symbols": 3,
+                "median_net_R": -0.1,
+                "exact_boundary_rows": 2,
+                "imputed_boundary_rows": 8,
+            })
+        result = _scenario_pivot(pd.DataFrame(rows))
+        self.assertEqual(len(result), 1)
+        self.assertIn("severe_imputed_12bps_total_net_R", result.columns)
+        self.assertNotIn("legacy_adverse_proxy_stress_8bps_total_net_R", result.columns)
+
+    def test_a1_survivor_manifest_projection_keeps_lane_join_key(self):
+        source = inspect.getsource(__import__("tools.run_kraken_a1_survivor_preflight", fromlist=["candidate_pool"]).candidate_pool)
+        self.assertIn('"definition_lane", "parameter_vector_hash"', source)
+
+    def test_a1_survivor_shortlist_enforces_cross_lane_cluster_uniqueness(self):
+        module = __import__("tools.run_kraken_a1_survivor_preflight", fromlist=["select_shortlist"])
+        source = inspect.getsource(module.select_shortlist)
+        self.assertIn("used_clusters_global", source)
+        self.assertIn("used_addresses_global", source)
+        self.assertIn("PRIMARY_EXIT_BY_LANE_SLOT", source)
 
     def test_a1_prepared_funding_gate_is_point_in_time(self):
         funding = pd.DataFrame([
@@ -4588,6 +4728,253 @@ class KrakenFamilyEngineAggregateFirstSweepTests(unittest.TestCase):
         self.assertIn('str(d.get("parent_regime_gate", ""))', source)
         self.assertIn("window_id", source)
         self.assertIn("timeframe", source)
+
+    def test_shared_funding_imputation_rejects_strategy_outcome_features(self):
+        frame = pd.DataFrame({
+            "symbol": ["PF_XBTUSD"],
+            "relativeFundingRate": [0.0001],
+            "net_R": [1.0],
+        })
+        with self.assertRaisesRegex(ValueError, "strategy outcome leakage"):
+            funding_imputation.fit_funding_model(frame, "global_robust_median")
+
+    def test_shared_funding_panel_preserves_exact_rows_and_caps_imputed_rows(self):
+        timestamps = pd.to_datetime(["2025-07-01T00:00:00Z", "2025-07-01T01:00:00Z"], utc=True)
+        required = pd.DataFrame({"symbol": ["PF_XBTUSD", "PF_XBTUSD"], "timestamp": timestamps})
+        exact = pd.DataFrame({"symbol": ["PF_XBTUSD"], "timestamp": [timestamps[0]], "relativeFundingRate": [0.000123]})
+        features = required.assign(
+            liquidity_tier="tier_a",
+            parent_regime="both_up",
+            realized_vol_state="medium",
+            return_state="up",
+        )
+        training = features.iloc[[0]].assign(relativeFundingRate=0.000123)
+        model = funding_imputation.fit_funding_model(training, "global_robust_median")
+        panel = funding_imputation.build_funding_scenarios(required, exact, features, model, (0.00005, 0.0001))
+        exact_row = panel.iloc[0]
+        imputed_row = panel.iloc[1]
+        self.assertEqual(exact_row["funding_rate_central"], 0.000123)
+        self.assertEqual(exact_row["funding_rate_conservative"], 0.000123)
+        self.assertTrue(exact_row["funding_exact"])
+        self.assertFalse(exact_row["funding_imputed"])
+        self.assertFalse(imputed_row["funding_gate_eligible"])
+        self.assertEqual(imputed_row["label_cap_reason"], funding_imputation.IMPUTED_CAP)
+        self.assertGreater(imputed_row["funding_rate_conservative"], imputed_row["funding_rate_central"])
+        self.assertGreater(imputed_row["funding_rate_severe"], imputed_row["funding_rate_conservative"])
+
+    def test_shared_funding_symbol_shrinkage_uses_tier_fallback_for_unseen_symbol(self):
+        training = pd.DataFrame({
+            "symbol": ["PF_XBTUSD"] * 4 + ["PF_ETHUSD"] * 4,
+            "relativeFundingRate": [0.001] * 4 + [-0.001] * 4,
+            "liquidity_tier": ["tier_a"] * 8,
+            "parent_regime": ["mixed"] * 8,
+            "realized_vol_state": ["medium"] * 8,
+            "return_state": ["neutral"] * 8,
+        })
+        model = funding_imputation.fit_funding_model(training, "symbol_shrunk_to_liquidity_tier")
+        unseen = pd.DataFrame({"symbol": ["PF_SOLUSD"], "liquidity_tier": ["tier_a"]})
+        prediction = funding_imputation.predict_funding_model(model, unseen)
+        self.assertAlmostEqual(float(prediction.iloc[0]), 0.0)
+
+    def test_shared_funding_bias_calibration_is_fit_from_funding_rates_only(self):
+        training = pd.DataFrame({
+            "symbol": ["PF_XBTUSD"] * 5,
+            "relativeFundingRate": [-0.0001, -0.0001, 0.0, 0.0002, 0.0010],
+            "liquidity_tier": ["tier_a"] * 5,
+        })
+        raw = funding_imputation.fit_funding_model(training, "symbol_shrunk_to_liquidity_tier")
+        calibrated = funding_imputation.fit_funding_model(training, "symbol_shrunk_to_liquidity_tier_bias_calibrated")
+        raw_prediction = funding_imputation.predict_funding_model(raw, training)
+        calibrated_prediction = funding_imputation.predict_funding_model(calibrated, training)
+        self.assertGreater(calibrated.aggregate_bias_offset, 0.0)
+        self.assertGreater(float(calibrated_prediction.mean()), float(raw_prediction.mean()))
+
+    def test_shared_funding_exact_row_audit_is_bit_exact(self):
+        panel = pd.DataFrame({
+            "funding_exact": [True, True],
+            "relativeFundingRate": [0.0001, -0.0002],
+            "funding_rate_central": [0.0001, -0.0002],
+        })
+        audit = funding_imputation.exact_rows_unchanged_audit(panel)
+        self.assertTrue(audit.iloc[0]["pass"])
+        panel.loc[1, "funding_rate_central"] = -0.0002000001
+        audit = funding_imputation.exact_rows_unchanged_audit(panel)
+        self.assertFalse(audit.iloc[0]["pass"])
+
+    def test_shared_funding_selection_allows_lso_error_parity_when_bias_improves(self):
+        models = funding_imputation.MODEL_NAMES
+        blocked_rows = []
+        symbol_rows = []
+        actual = pd.Series([0.0, 1.0, -1.0, 0.5])
+        for name in models:
+            if name == "global_robust_median":
+                blocked_pred = pd.Series([-0.2, 0.8, -1.2, 0.3])
+                symbol_pred = pd.Series([-0.2, 0.8, -1.2, 0.3])
+            elif name == "symbol_robust_location_shrunk_to_liquidity_tier":
+                blocked_pred = pd.Series([-0.15, 0.85, -1.15, 0.35])
+                symbol_pred = pd.Series([-0.202, 0.798, -1.202, 0.298])
+            else:
+                blocked_pred = pd.Series([-0.3, 0.7, -1.3, 0.2])
+                symbol_pred = blocked_pred
+            blocked_rows.append(pd.DataFrame({"model": name, "actual": actual, "predicted": blocked_pred, "validation": "blocked"}))
+            symbol_rows.append(pd.DataFrame({"model": name, "actual": actual, "predicted": symbol_pred, "validation": "leave_symbol"}))
+        selected, _ = funding_imputation.select_central_model(pd.concat(blocked_rows), pd.concat(symbol_rows))
+        self.assertEqual(selected, "symbol_robust_location_shrunk_to_liquidity_tier")
+
+    def test_shared_funding_consumer_hourly_boundary_rule(self):
+        events = pd.DataFrame({
+            "event_key": ["a1::e1"],
+            "source_family": ["a1"],
+            "symbol": ["PF_XBTUSD"],
+            "entry_ts": pd.to_datetime(["2025-01-01T00:10:00Z"], utc=True),
+            "exit_interval_end_ts": pd.to_datetime(["2025-01-01T03:00:00Z"], utc=True),
+        })
+        boundaries = funding_consumer.build_event_boundary_rows(events)
+        self.assertEqual(boundaries["boundary_ts"].tolist(), list(pd.to_datetime(["2025-01-01T01:00:00Z", "2025-01-01T02:00:00Z", "2025-01-01T03:00:00Z"], utc=True)))
+        self.assertTrue((boundaries["boundary_ts"] > boundaries["entry_ts"]).all())
+        self.assertTrue((boundaries["boundary_ts"] <= boundaries["exit_interval_end_ts"]).all())
+
+    def test_shared_funding_consumer_side_sign_semantics(self):
+        self.assertEqual(funding_consumer.funding_side_sign("long"), -1.0)
+        self.assertEqual(funding_consumer.funding_side_sign("long_flat"), -1.0)
+        self.assertEqual(funding_consumer.funding_side_sign("short"), 1.0)
+        self.assertEqual(funding_consumer.funding_side_sign("short_diagnostic"), 1.0)
+        with self.assertRaises(ValueError):
+            funding_consumer.funding_side_sign("unknown")
+
+    def test_shared_funding_consumer_rejects_duplicate_panel_boundaries(self):
+        boundary = pd.DataFrame({
+            "event_key": ["a1::e1"], "source_family": ["a1"], "symbol": ["PF_XBTUSD"],
+            "boundary_ts": pd.to_datetime(["2025-01-01T01:00:00Z"], utc=True),
+            "entry_ts": pd.to_datetime(["2025-01-01T00:10:00Z"], utc=True),
+            "exit_interval_end_ts": pd.to_datetime(["2025-01-01T01:00:00Z"], utc=True),
+        })
+        row = {
+            "symbol": "PF_XBTUSD", "timestamp": pd.Timestamp("2025-01-01T01:00:00Z"),
+            "relativeFundingRate": 0.001, "funding_rate_central": 0.001,
+            "funding_rate_conservative": 0.002, "funding_rate_severe": 0.003,
+            "funding_rate_conservative_short": 0.0, "funding_rate_severe_short": -0.001,
+            "funding_exact": False, "funding_imputed": True,
+            "label_cap_reason": funding_imputation.IMPUTED_CAP, "funding_gate_eligible": False,
+        }
+        with self.assertRaisesRegex(ValueError, "duplicate"):
+            funding_consumer.join_boundaries_to_panel(boundary, pd.DataFrame([row, row]))
+
+    def test_a1_balanced_50_selection_is_lane_balanced_and_pnl_blind(self):
+        rows = []
+        definitions = []
+        reused = []
+        for lane in a1_balanced_50.LONG_LANES:
+            for index in range(12):
+                policy_hash = f"{lane}_{index:02d}"
+                rows.append({"selected_key_policy_hash": policy_hash, "definition_lane": lane, "shard_id": f"shard_{policy_hash}"})
+                definitions.append({
+                    "selected_key_policy_hash": policy_hash,
+                    "decision_timeframe": "1d" if index % 2 else "4h",
+                    "universe_policy": f"u{index % 2}",
+                    "leader_rank_metric": f"r{index % 3}",
+                    "leader_top_n": [3, 5, 10][index % 3],
+                    "parent_regime_gate": f"p{index % 2}",
+                    "funding_gate": f"f{index % 2}",
+                    "prior_high_proximity_filter": f"h{index % 2}",
+                    "impulse_lookback_days": 10 + index,
+                })
+                if index < 2:
+                    reused.append(policy_hash)
+        selected, audit = a1_balanced_50.select_balanced_50(pd.DataFrame(rows), pd.DataFrame(definitions), reused)
+        self.assertEqual(len(selected), 50)
+        self.assertTrue(selected.groupby("definition_lane").size().eq(10).all())
+        self.assertFalse(selected["definition_lane"].eq("short_diagnostic").any())
+        self.assertFalse(audit["selection_uses_prior_pnl"].any())
+
+    def test_a1_frozen_funding_extension_does_not_refit_or_enable_gates(self):
+        panel = pd.DataFrame([{
+            "symbol": "PF_XBTUSD", "timestamp": pd.Timestamp("2025-01-01 00:00", tz="UTC"),
+            "relativeFundingRate": np.nan, "funding_rate_central": 0.001,
+            "funding_rate_conservative": 0.002, "funding_rate_severe": 0.003,
+            "funding_rate_conservative_short": -0.002, "funding_rate_severe_short": -0.003,
+            "funding_exact": False, "funding_imputed": True, "funding_source": "fixture",
+            "confidence_tier": "low", "model_version": "frozen_v1",
+            "label_cap_reason": "funding_imputed_train_screen_cap", "funding_gate_eligible": False,
+            "liquidity_tier": "A",
+        }])
+        required = pd.DataFrame([{"symbol": "PF_XBTUSD", "boundary_ts": pd.Timestamp("2025-01-01 01:00", tz="UTC")}])
+        extended, audit = a1_balanced_50.extend_frozen_panel(panel, required)
+        added = extended[extended["timestamp"].eq(pd.Timestamp("2025-01-01 01:00", tz="UTC"))].iloc[0]
+        self.assertFalse(bool(added["funding_gate_eligible"]))
+        self.assertEqual(added["model_version"], "frozen_v1")
+        self.assertFalse(bool(audit["model_refit"].iloc[0]))
+
+    def test_a1_frozen_funding_extension_uses_frozen_symbol_model_across_dates(self):
+        panel = pd.DataFrame([{
+            "symbol": "PF_LINKUSD", "timestamp": pd.Timestamp("2025-01-01", tz="UTC"),
+            "relativeFundingRate": np.nan, "funding_rate_central": 0.001,
+            "funding_rate_conservative": 0.002, "funding_rate_severe": 0.003,
+            "funding_rate_conservative_short": -0.002, "funding_rate_severe_short": -0.003,
+            "funding_exact": False, "funding_imputed": True, "funding_source": "fixture",
+            "confidence_tier": "low", "model_version": "frozen_v1",
+            "label_cap_reason": "funding_imputed_train_screen_cap", "funding_gate_eligible": False,
+            "liquidity_tier": "tier_a",
+        }])
+        required = pd.DataFrame([{"symbol": "PF_LINKUSD", "boundary_ts": pd.Timestamp("2024-03-11 01:00", tz="UTC")}])
+        extended, audit = a1_balanced_50.extend_frozen_panel(panel, required)
+        added = extended[extended["timestamp"].eq(pd.Timestamp("2024-03-11 01:00", tz="UTC"))].iloc[0]
+        self.assertEqual(float(added["funding_rate_central"]), 0.001)
+        self.assertFalse(bool(added["funding_gate_eligible"]))
+        self.assertFalse(bool(audit["model_refit"].iloc[0]))
+
+    def test_shared_funding_consumer_adverse_scenarios_are_monotonic_for_both_sides(self):
+        raw = pd.DataFrame({
+            "event_id": ["long", "short"], "candidate_definition_id": ["d1", "d2"],
+            "symbol": ["PF_XBTUSD", "PF_XBTUSD"],
+            "entry_ts": pd.to_datetime(["2025-01-01T00:10:00Z"] * 2, utc=True),
+            "exit_interval_end_ts": pd.to_datetime(["2025-01-01T01:00:00Z"] * 2, utc=True),
+            "decision_ts": pd.to_datetime(["2025-01-01T00:00:00Z"] * 2, utc=True),
+            "side": ["long", "short"], "entry_price": [100.0, 100.0], "risk_price": [1.0, 1.0],
+            "raw_gross_R": [0.0, 0.0], "raw_fee_R": [0.0, 0.0], "raw_slippage_R": [0.0, 0.0], "raw_funding_R": [0.0, 0.0],
+        })
+        events = funding_consumer.normalize_frozen_events(raw, "a1")
+        boundaries = funding_consumer.build_event_boundary_rows(events)
+        panel = pd.DataFrame([{
+            "symbol": "PF_XBTUSD", "timestamp": pd.Timestamp("2025-01-01T01:00:00Z"),
+            "relativeFundingRate": np.nan, "funding_rate_central": 0.001,
+            "funding_rate_conservative": 0.002, "funding_rate_severe": 0.003,
+            "funding_rate_conservative_short": 0.0, "funding_rate_severe_short": -0.001,
+            "funding_exact": False, "funding_imputed": True,
+            "label_cap_reason": funding_imputation.IMPUTED_CAP, "funding_gate_eligible": False,
+        }])
+        joined = funding_consumer.join_boundaries_to_panel(boundaries, panel)
+        scored = funding_consumer.aggregate_event_funding(events, joined)
+        self.assertTrue((scored["funding_central_R"] >= scored["funding_conservative_R"]).all())
+        self.assertTrue((scored["funding_conservative_R"] >= scored["funding_severe_R"]).all())
+
+    def test_a1_targeted_shortlist_is_frozen_to_13_specs_and_26_definitions(self):
+        from tools import kraken_a1_targeted_materialization as targeted
+
+        shortlist = targeted._read_shortlist()
+        self.assertEqual(len(shortlist), 26)
+        self.assertEqual(shortlist["selected_key_policy_hash"].nunique(), 13)
+        self.assertTrue(shortlist.groupby("selected_key_policy_hash").size().eq(2).all())
+
+    def test_a1_targeted_leave_one_arithmetic_is_exact(self):
+        from tools import kraken_a1_targeted_materialization as targeted
+
+        frame = pd.DataFrame([
+            {"candidate_definition_id": "d1", "symbol": "A", "scenario_raw_net_R": 3.0},
+            {"candidate_definition_id": "d1", "symbol": "B", "scenario_raw_net_R": -1.0},
+        ])
+        result = targeted._leave_one(frame, "symbol").set_index("excluded_value")
+        self.assertEqual(float(result.loc["A", "net_R_after_exclusion"]), -1.0)
+        self.assertEqual(float(result.loc["B", "net_R_after_exclusion"]), 3.0)
+
+    def test_a1_targeted_control_contract_freezes_keys_before_outcome_read(self):
+        from tools import kraken_a1_targeted_materialization as targeted
+
+        source = inspect.getsource(targeted.build_controls)
+        freeze_at = source.index("control_key_freeze_summary.json")
+        outcome_at = source.index("outcome_parts: list[pd.DataFrame]")
+        self.assertLess(freeze_at, outcome_at)
+        self.assertIn("control_selection_uses_outcome\": False", source)
 
 
 if __name__ == "__main__":

@@ -24,6 +24,7 @@ PROMOTION_LABEL_RE = re.compile(
 FUTURE_FIELD_RE = re.compile(r"(^|[^a-z0-9])(\d+h_|future|mfe|mae|realized_|forward_)", re.IGNORECASE)
 SYNTHETIC_CONTROL_RE = re.compile(r"placeholder|synthetic|fabricated|dummy|copied", re.IGNORECASE)
 CURRENT_ONLY_RE = re.compile(r"current[_ -]?only|taxonomy[_ -]?proxy|backfill", re.IGNORECASE)
+SIGNAL_STATE_CONTRACT_VERSION = "signal_state_contract_v1_20260715"
 
 EVENT_TRADE_REQUIRED_FIELDS = [
     "candidate_id",
@@ -119,6 +120,48 @@ def require_no_protected_timestamps(df: pd.DataFrame, ts_cols: Iterable[str] | N
         if bool(bad.any()):
             violations.append(f"{label}:{col}:protected_rows={int(bad.sum())}")
     return ContractCheckResult("fail" if violations else "pass", violations, warnings, len(df))
+
+
+def validate_evaluation_window_intervals(
+    df: pd.DataFrame,
+    *,
+    window_start: Any,
+    window_end: Any,
+    entry_col: str = "entry_ts",
+    exit_col: str = "exit_ts",
+    exit_reason_col: str = "exit_reason",
+) -> ContractCheckResult:
+    """Fail closed on truncated intervals or artificial sample-end exits.
+
+    ``window_end`` is exclusive. A strategy runner must drop or explicitly
+    censor a candidate whose natural exit is unavailable before this boundary;
+    the boundary itself is never an executable strategy exit.
+    """
+    violations: list[str] = []
+    if df.empty:
+        return ContractCheckResult("pass", [], ["empty_interval_frame"], 0)
+    if entry_col not in df or exit_col not in df:
+        missing = [col for col in (entry_col, exit_col) if col not in df]
+        return ContractCheckResult("fail", ["missing_interval_fields:" + ",".join(missing)], [], len(df))
+    start = pd.Timestamp(window_start)
+    end = pd.Timestamp(window_end)
+    start = start.tz_localize("UTC") if start.tzinfo is None else start.tz_convert("UTC")
+    end = end.tz_localize("UTC") if end.tzinfo is None else end.tz_convert("UTC")
+    entry = _to_utc(df[entry_col])
+    exit_ts = _to_utc(df[exit_col])
+    outside = entry.lt(start) | entry.ge(end) | exit_ts.lt(entry) | exit_ts.ge(end) | exit_ts.isna()
+    if bool(outside.any()):
+        violations.append(f"evaluation_window_interval_violations={int(outside.sum())}")
+    if exit_reason_col in df:
+        artificial = df[exit_reason_col].astype(str).str.contains(
+            r"artificial|sample[_ -]?end|data[_ -]?horizon|evaluation[_ -]?boundary",
+            case=False,
+            regex=True,
+            na=False,
+        )
+        if bool(artificial.any()):
+            violations.append(f"artificial_horizon_exit_rows={int(artificial.sum())}")
+    return ContractCheckResult("fail" if violations else "pass", violations, [], len(df))
 
 
 def validate_event_trade_schema(df: pd.DataFrame, *, require_all_fields: bool = True, allow_empty: bool = False) -> ContractCheckResult:
@@ -265,6 +308,76 @@ def validate_no_current_only_taxonomy_rankable(df: pd.DataFrame) -> ContractChec
         if bool(bad.any()):
             violations.append(f"current_only_taxonomy_rankable_rows={int(bad.sum())}")
     return ContractCheckResult("fail" if violations else "pass", violations, [], len(df))
+
+
+def validate_rankable_signal_state_contract(manifest: Mapping[str, Any]) -> ContractCheckResult:
+    """Fail closed when rankable evidence lacks immutable signal-state lineage."""
+    violations: list[str] = []
+    required = (
+        "signal_state_contract_version",
+        "raw_signal_hash",
+        "projection_hash",
+        "accepted_trade_hash",
+        "raw_signal_count",
+        "eligible_definition_rows",
+        "accepted_trade_count",
+        "non_overlap_skip_count",
+        "outcome_exclusion_count",
+        "raw_tape_frozen_before_outcomes",
+        "projection_frozen_before_outcomes",
+        "non_overlap_reconciled",
+        "no_mutable_state_shared_across_definitions",
+    )
+    missing = [field for field in required if field not in manifest]
+    if missing:
+        violations.append("missing_signal_state_fields:" + ",".join(missing))
+        return ContractCheckResult("fail", violations, [], 0)
+    if manifest["signal_state_contract_version"] != SIGNAL_STATE_CONTRACT_VERSION:
+        violations.append("invalid_signal_state_contract_version")
+    for field in ("raw_signal_hash", "projection_hash", "accepted_trade_hash"):
+        value = str(manifest.get(field, "")).strip()
+        if not re.fullmatch(r"[0-9a-f]{64}", value):
+            violations.append(f"invalid_or_blank_{field}")
+    for field in (
+        "raw_signal_count", "eligible_definition_rows", "accepted_trade_count",
+        "non_overlap_skip_count", "outcome_exclusion_count",
+    ):
+        value = manifest.get(field)
+        if isinstance(value, bool) or not isinstance(value, (int, np.integer)) or int(value) < 0:
+            violations.append(f"invalid_{field}")
+    for field in (
+        "raw_tape_frozen_before_outcomes", "projection_frozen_before_outcomes",
+        "non_overlap_reconciled", "no_mutable_state_shared_across_definitions",
+    ):
+        if manifest.get(field) is not True:
+            violations.append(f"{field}=false")
+    numeric_fields_valid = not any(v.startswith("invalid_") and v.endswith(("count", "rows")) for v in violations)
+    if numeric_fields_valid:
+        expected = (
+            int(manifest["accepted_trade_count"])
+            + int(manifest["non_overlap_skip_count"])
+            + int(manifest["outcome_exclusion_count"])
+        )
+        if int(manifest["eligible_definition_rows"]) != expected:
+            violations.append("non_overlap_reconciliation_mismatch")
+    return ContractCheckResult("fail" if violations else "pass", violations, [], 1)
+
+
+def assert_rankable_signal_state_contract(manifest: Mapping[str, Any]) -> None:
+    assert_pass(validate_rankable_signal_state_contract(manifest))
+
+
+def validate_walk_forward_window_label(label: str, train_starts: Sequence[Any]) -> ContractCheckResult:
+    """Require a moving train start when a report claims a rolling 18m window."""
+    normalized = str(label).strip().lower()
+    starts = [_to_utc(pd.Series([value])).iloc[0] for value in train_starts]
+    violations: list[str] = []
+    if normalized == "18_month_train_3_month_test_3_month_step" and len(starts) > 1:
+        if len(set(starts)) != len(starts):
+            violations.append("rolling_18m_label_has_nonmoving_train_start")
+    if "expanding" in normalized and not starts:
+        violations.append("expanding_window_label_missing_train_starts")
+    return ContractCheckResult("fail" if violations else "pass", violations, [], len(starts))
 
 
 def artifact_risk_scan(df: pd.DataFrame, *, path: str = "") -> list[dict[str, Any]]:
