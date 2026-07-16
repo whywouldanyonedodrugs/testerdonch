@@ -1,0 +1,31 @@
+{
+  "source_run": "results/rebaseline/phase_kraken_engine_wave_v0_tranche_tsmom_retest_20260703_v1_20260703_193053",
+  "source_wave": "scheduled_tsmom_engine__wave_001",
+  "bug_class": "many_to_many_translation_merge_duplicate_candidate_symbol_rows",
+  "observed_symptom": {
+    "failed_candidates": 23,
+    "aggregate_to_materialized_ratio": 2.0,
+    "example_candidate_definition_id": "kraken_agg__H02__sf__H02__7f6f8f8d2be6",
+    "example_aggregate_events": 15598,
+    "example_materialized_events": 7799
+  },
+  "root_cause": {
+    "source_priority_tranche_definition_rows": 1693,
+    "source_priority_tranche_duplicate_definition_rows": 0,
+    "duplicate_translation_keys": [
+      "H02|scheduled_tsmom_engine",
+      "H07|funding_crowding_engine",
+      "H13|liquid_continuation_breakout_engine"
+    ],
+    "bad_merge_key": ["hypothesis_id", "family_engine_id"],
+    "bad_merge_type": "many_to_many",
+    "h02_scheduled_rows_before_bad_merge": 226,
+    "h02_scheduled_rows_after_bad_merge": 452
+  },
+  "required_regression": [
+    "compatible duplicate translation rows collapse before merge",
+    "prelaunch eligible manifest preserves one row per definition_id",
+    "candidate registry has one row per definition-symbol identity",
+    "aggregate_definition_scope fails closed on duplicate candidate-symbol rows"
+  ]
+}

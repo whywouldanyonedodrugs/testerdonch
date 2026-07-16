@@ -1,0 +1,23 @@
+{
+  "source_run": "results/rebaseline/phase_kraken_engine_wave_v0_tranche_20260703_v1_20260703_133625",
+  "source_wave": "scheduled_tsmom_engine__wave_001",
+  "bug_class": "selected_aggregate_parameter_vector_lost_before_materialization",
+  "selected_aggregate_example": {
+    "candidate_definition_id": "wave001_known_failure_definition",
+    "parameter_vector_hash": "selected_parameter_hash",
+    "events": 1976,
+    "net_R": 2251.30
+  },
+  "wrong_materialized_example": {
+    "candidate_definition_id": "wave001_known_failure_definition",
+    "parameter_vector_hash": "selected_parameter_hash",
+    "events": 647,
+    "net_R": -1125.75
+  },
+  "required_regression": [
+    "selected aggregate params are preserved into materialization manifest",
+    "materialization uses the same parameter_vector_hash",
+    "audit compares original selected metrics to regenerated materialized metrics",
+    "the mismatch pattern cannot pass a wave gate"
+  ]
+}

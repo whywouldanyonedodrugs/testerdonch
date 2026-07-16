@@ -24,6 +24,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 _EXPECTED_WARMUP_MISSING_FIELDS = frozenset({"days_since_prev_break", "S6_fresh_x_compress"})
 
 
+def _autopar_enabled() -> bool:
+    return os.environ.get("DONCH_AUTOPAR_ENABLED", "").strip().lower() in {"1", "true", "yes", "on"}
+
+
 SCOUT_CODE = r"""
 import os
 import sys
@@ -1269,6 +1273,13 @@ def _build_no_signals_summary(
 
 def main() -> int:
     a = parse_args()
+    if not _autopar_enabled():
+        print(
+            "[autopar] disabled: Autopar is legacy and disabled for the QLMG project. "
+            "Set DONCH_AUTOPAR_ENABLED=1 only for an intentional manual legacy run.",
+            flush=True,
+        )
+        return 2
     rid = a.run_id.strip() or _utc_id()
     run_dir = (_to_abs(a.results_root) / rid).resolve()
     run_dir.mkdir(parents=True, exist_ok=True)

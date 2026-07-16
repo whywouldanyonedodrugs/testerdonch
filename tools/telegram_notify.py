@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import shlex
 import socket
 import sys
 import time
@@ -35,6 +36,13 @@ CHAT_ENV_ALIASES = (
     "TELEGRAM_CHAT_ID",
     "CHAT_ID",
 )
+RECOGNIZED_ENV_KEYS = set(TOKEN_ENV_ALIASES) | set(CHAT_ENV_ALIASES) | {"DONCH_TG_FAIL_LOG"}
+ENV_FILE_CANDIDATES = (
+    Path.cwd() / ".telegram.env",
+    Path(__file__).resolve().parents[1] / ".telegram.env",
+    Path("/etc/default/donch-telegram"),
+    Path("/etc/default/donch-autopar-backtester"),
+)
 
 
 def _safe(value: Optional[str]) -> str:
@@ -47,6 +55,64 @@ def _first_env(names: tuple[str, ...]) -> str:
         if v:
             return v
     return ""
+
+
+def _parse_env_value(raw: str) -> str:
+    value = raw.strip()
+    if not value:
+        return ""
+    try:
+        parts = shlex.split(value, comments=False, posix=True)
+        if len(parts) == 1:
+            return parts[0]
+    except ValueError:
+        pass
+    if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+        return value[1:-1]
+    return value
+
+
+def load_telegram_env_files(extra_paths: Optional[list[str | Path]] = None) -> list[dict[str, Any]]:
+    """Load Telegram env vars from known local files without exposing values."""
+    paths: list[Path] = []
+    seen: set[Path] = set()
+    for p in list(ENV_FILE_CANDIDATES) + [Path(x) for x in (extra_paths or [])]:
+        try:
+            rp = p.expanduser().resolve()
+        except Exception:
+            rp = p
+        if rp in seen:
+            continue
+        seen.add(rp)
+        paths.append(rp)
+
+    reports: list[dict[str, Any]] = []
+    for path in paths:
+        rec: dict[str, Any] = {"path": str(path), "exists": path.exists(), "loaded_keys": []}
+        if not path.exists() or not path.is_file():
+            reports.append(rec)
+            continue
+        try:
+            for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+                s = line.strip()
+                if not s or s.startswith("#"):
+                    continue
+                if s.startswith("export "):
+                    s = s[len("export ") :].strip()
+                if "=" not in s:
+                    continue
+                key, raw_val = s.split("=", 1)
+                key = key.strip()
+                if key not in RECOGNIZED_ENV_KEYS or _safe(os.environ.get(key)):
+                    continue
+                val = _parse_env_value(raw_val)
+                if val:
+                    os.environ[key] = val
+                    rec["loaded_keys"].append(key)
+        except Exception as exc:
+            rec["error"] = f"{type(exc).__name__}: {exc}"
+        reports.append(rec)
+    return reports
 
 
 def _clip(msg: str) -> str:
@@ -153,6 +219,7 @@ class TelegramNotifier:
         chat_attr: str = "tg_chat_id",
         auto_chat_attr: str = "tg_auto_chat",
     ) -> "TelegramNotifier":
+        load_telegram_env_files()
         tok = _safe(getattr(args, token_attr, "")) or _first_env(TOKEN_ENV_ALIASES)
         cid = _safe(getattr(args, chat_attr, "")) or _first_env(CHAT_ENV_ALIASES)
         auto_chat = bool(getattr(args, auto_chat_attr, False))

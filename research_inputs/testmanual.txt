@@ -1,0 +1,987 @@
+# Donch / QLMG Crypto Perpetual Backtesting Manual
+
+Status: active full manual  
+Version date: 2026-06-30  
+Project direction: Qullamaggie-inspired crypto perpetual research under a no-vendor-data constraint  
+Primary research venue: Bybit linear USDT perpetuals  
+Live trading: not authorized by this manual  
+Shorts: required in research engines; live shorting not authorized by this manual  
+Old Donch V3/S1/state-transition work: legacy reference only  
+Paid historical depth/trade/liquidation vendor data: not to be purchased
+
+## 0. Purpose of this manual
+
+This manual is the operational source of truth for QLMG backtesting work. It replaces the prior addendum-plus-old-manual format and folds the current project state into one document.
+
+It is written for both the human operators and the backtesting AI agent. If a future prompt conflicts with this manual, the prompt must explicitly say so and explain why.
+
+The manual has two jobs:
+
+1. Prevent fake alpha from mechanical backtest errors.
+2. Prevent the project from getting stuck forever waiting for data that will not be bought.
+
+Every future run must move a hypothesis into one of these states:
+
+```text
+progress_with_current_data
+redesign_to_less_depth_sensitive
+needs_capture_substitute
+candidate_library_only
+discard_current_translation_no_vendor_path
+blocked_by_protocol_issue
+```
+
+`waiting_for_vendor_data` is not an allowed terminal status.
+
+## 1. Current project state
+
+The project has completed a mechanical QA reset. Earlier QLMG research found useful hypotheses, but some prior outputs used unsafe evidence paths, including:
+
+- placeholder or synthetic controls;
+- duplicated/copy-like control summaries;
+- projected internal-validation means treated as event R;
+- summary rows used as if they were event-level trade ledgers;
+- future-aware regime labels;
+- full-sample thresholds;
+- funding and mark proxies treated too strongly;
+- promotion labels not backed by real event-level evidence.
+
+Therefore, older labels such as:
+
+```text
+prelead
+confirmed
+stress_survives
+beats_controls
+targeted_execution_data_prelead
+a2_a3_tier1_prelead_confirmed_train_only
+```
+
+are not rankable unless rebuilt under the current evidence contract.
+
+Old results remain useful for:
+
+- hypothesis discovery;
+- infrastructure lessons;
+- candidate-library preservation;
+- identifying failure modes;
+- selecting families to revisit.
+
+Old results are not sufficient for:
+
+- strategy promotion;
+- validation;
+- live readiness;
+- final ranking;
+- position sizing decisions.
+
+## 2. Business objective and risk posture
+
+The firm is small and expects small account sizes. The goal is aggressive account growth from genuine edge, not institutional capacity.
+
+This creates several consequences:
+
+- Capacity is secondary.
+- Tier C small but tradable perpetuals remain strategically important.
+- Execution quality, fill realism, liquidation risk, funding, data quality, and bad-wick avoidance are primary.
+- Aggressive portfolio overlays are allowed in diagnostics, but never as a substitute for edge.
+- Sparse or rare-regime variants can be preserved as portfolio-sleeve candidates.
+- Live risk should increase only after evidence improves, not because a backtest looks exciting.
+
+Small account does not mean reckless leverage. It means the account can trade smaller-capacity opportunities with smaller notional.
+
+## 3. No-vendor-data policy
+
+The project will not buy historical vendor data such as Tardis, Kaiko, Amberdata, CoinAPI, Coin Metrics, or similar paid historical depth/trade/liquidation feeds.
+
+This is now a hard operating constraint.
+
+If a strategy appears to require paid historical vendor data, it must be assigned one of these statuses:
+
+```text
+progress_with_current_data
+needs_capture_substitute
+redesign_to_less_depth_sensitive
+discard_current_translation_no_vendor_path
+preserve_hypothesis_generate_new_variant
+candidate_library_only
+```
+
+A family cannot remain indefinitely blocked because vendor data is missing.
+
+If the only plausible next step is paid vendor data, the current translation must be redesigned, replaced by a capture substitute, or discarded. The broader hypothesis can remain in the candidate library if the mechanism remains coherent.
+
+## 4. Mechanical QA and evidence contracts
+
+Every future alpha run must use the mechanical QA / evidence-contract rules produced by:
+
+```text
+results/rebaseline/phase_qlmg_mechanical_qa_evidence_contract_20260630_v1_20260630_074328
+```
+
+Future runners must import or comply with:
+
+```text
+tools/qlmg_evidence_contracts.py
+```
+
+The required contracts are:
+
+- event-level trade ledger contract;
+- real control contract;
+- funding and mark contract;
+- point-in-time regime-feature contract;
+- quarantine/deprecated-label contract;
+- no projected metrics;
+- no placeholder controls;
+- no current-only taxonomy in rankable historical sector work.
+
+No future run may compute or report PF, drawdown, Sharpe, CAGR, `prelead`, `validated`, `beats_controls`, or similar promotion-style labels unless those metrics are computed from event-level trade rows that pass the current evidence contract.
+
+## 5. Evidence levels
+
+All candidates and families must receive an evidence level:
+
+```text
+level_0_hypothesis_only
+level_1_generator_support
+level_2_path_or_mae_mfe_support_only
+level_3_event_level_trade_ledger
+level_4_event_ledger_plus_real_controls
+level_5_walkforward_cpcv_parameter_stability
+level_6_final_holdout_still_sealed
+level_7_execution_depth_or_live_capture_evidence
+```
+
+Evidence level is not strategy quality. A weak candidate with clean evidence is more useful than a strong-looking candidate with contaminated evidence.
+
+### Minimum evidence by claim type
+
+```text
+Idea worth preserving:
+    level_0 or higher
+
+Path/entry hypothesis:
+    level_2 or higher
+
+Train-only research candidate:
+    level_3 or higher
+
+Candidate that beats controls:
+    level_4 or higher
+
+Candidate for family-specific validation:
+    level_5 on train-only data, final holdout untouched
+
+Execution-sensitive live telemetry candidate:
+    level_7 or capture-calibration substitute
+
+Live-ready:
+    not authorized by this manual
+```
+
+## 6. Hard rejection versus soft cap
+
+Do not reject hypotheses too quickly.
+
+Hard rejection is allowed only for evidence or logic failure, such as:
+
+- lookahead or point-in-time violation;
+- projected or summary metrics used as event R;
+- no event-level trade ledger where one is required;
+- impossible fills or touch-fill dependence in Tier 1;
+- future liquidation labels or future winners/losers used as filters;
+- event before the instrument was tradable;
+- current-only taxonomy used as historical sector truth;
+- arithmetic mismatch between event rows and reported metrics;
+- universally negative results across clean current translations and controls.
+
+Soft cap or preserve labels should be used for:
+
+- sparse event count;
+- single-month concentration;
+- single-regime concentration;
+- sample-limited mechanisms;
+- failed CPCV because independent folds are too few;
+- mark or funding exactness cap;
+- data-tier limitation;
+- execution-depth limitation;
+- current broad translation negative but mechanism still coherent.
+
+Allowed preservation labels:
+
+```text
+portfolio_sleeve_candidate
+rare_regime_sleeve_candidate
+sample_limited_sleeve_candidate
+feature_overlay_candidate
+mechanism_preserved_current_translation_weak
+current_translation_rejected_only
+candidate_library_only
+```
+
+Use `family_rejected` only when multiple clean no-vendor translations have failed and the economic mechanism itself is no longer coherent.
+
+## 7. Candidate library requirement
+
+Every research run must update a candidate library.
+
+The library must separate:
+
+```text
+standalone_candidate
+portfolio_sleeve_candidate
+rare_regime_sleeve_candidate
+feature_overlay_candidate
+sample_limited_mechanism
+support_only_hypothesis
+data_blocked_hypothesis
+capture_calibration_candidate
+current_translation_rejected_only
+discard_current_translation_no_vendor_path
+```
+
+Every candidate-library row should include:
+
+```text
+family
+variant_id
+mechanism
+direction
+required_data_tier
+current_data_tier
+evidence_level
+standalone_status
+portfolio_sleeve_status
+rare_regime_status
+feature_overlay_status
+event_count
+active_months
+active_symbols
+dominant_month_share
+dominant_symbol_share
+mark_available
+funding_exact
+mark_proxy_used
+funding_proxy_used
+data_tier_cap_reason
+label_cap_reason
+reason_preserved_or_discarded
+next_action
+```
+
+Sparse variants should not be discarded solely because they fail standalone robustness gates. They can be preserved for later portfolio construction if they have clean event-level evidence, coherent mechanism, bounded risk, and plausible diversification value.
+
+## 8. Current family status after QA and no-vendor progress run
+
+The current working status is based on the mechanical QA reset and no-vendor progress run ending 2026-06-30.
+
+### A1 — liquid smooth-path continuation breakout
+
+Status:
+
+```text
+current_translation_weak
+hypothesis_preserved
+progress_with_current_data
+```
+
+Latest current translation:
+
+- 2,500 events;
+- approximately +27.5R before stress;
+- PF approximately 1.03;
+- fails +25 bps and +50 bps stress;
+- fails generic/nearest-neighbor controls;
+- mark/funding proxy caps remain.
+
+Interpretation:
+
+A1 is not a lead in the current expression, but the family remains no-vendor-compatible and should be redesigned rather than abandoned.
+
+Next action:
+
+```text
+redesign A1 with stronger liquid-universe filtering, path smoothness, volatility contraction, funding/OI vetoes, parent-regime gates, and exact mark/funding enrichment where possible
+```
+
+### A2 — prior-high proximity momentum
+
+Status:
+
+```text
+current_standalone_translation_rejected
+feature_overlay_candidate
+hypothesis_preserved
+```
+
+Interpretation:
+
+Standalone A2 has been tail-dependent and unstable. Prior-high proximity remains useful as a filter or overlay, especially for A1, A3, B1, and C2. It should not be ranked as a standalone strategy until a materially different translation is built.
+
+Next action:
+
+```text
+use A2 as leader-quality / relative-strength / prior-high filter, not as standalone entry system
+```
+
+### A3 — close-confirmed post-breakout/retest continuation
+
+Status:
+
+```text
+rare_regime_sleeve_candidate
+path_edge_exit_problem
+hypothesis_preserved
+```
+
+Interpretation:
+
+A3 showed positive isolated event-level variants but failed standalone CPCV/concentration gates. It should be preserved as a rare-regime or portfolio-sleeve candidate, not treated as a validation candidate.
+
+Next action:
+
+```text
+use A3 as a conditional sleeve or feature layer; do not run immediate standalone validation
+```
+
+### A4 — volatility-managed liquid time-series momentum
+
+Status:
+
+```text
+current_translation_failed
+hypothesis_preserved
+progress_with_current_data
+```
+
+Latest current translation:
+
+- 2,500 events;
+- approximately -25R;
+- PF below 1;
+- fails controls and stress;
+- mark/funding caps remain.
+
+Interpretation:
+
+The current A4 implementation failed, but volatility-managed time-series momentum remains one of the more no-vendor-compatible families. It needs a better expression, not deletion.
+
+Next action:
+
+```text
+redesign A4 with slower horizons, stricter Tier A/B universe, volatility scaling, parent-regime gates, and funding/OI crowding vetoes
+```
+
+### B1 — sector/theme ignition leader continuation
+
+Status:
+
+```text
+current_translation_weak
+mechanism_preserved_current_translation_weak
+candidate_library_only
+```
+
+Latest current translation:
+
+- event-level ledger built;
+- approximately 673 events;
+- negative net R;
+- PF below 1;
+- fails controls;
+- mark/funding proxy caps remain.
+
+Interpretation:
+
+The broad B1 ledger is not a lead. This does not reject B1. The family may still work if mode-specific, leader-only, PIT-safe co-movement anchors are used.
+
+Next action:
+
+```text
+build separate B1 modes: PIT sector + co-movement, rolling co-movement-only, theme-window seed; use leader-only entries and A2/A3 filters
+```
+
+### C2 — post-catalyst continuation base
+
+Status:
+
+```text
+sample_limited_sleeve_candidate
+mechanism_specific_hypothesis_preserved
+progress_with_current_data
+```
+
+Latest current translation:
+
+- legal/regulatory repricing is the only clearly interesting sleeve;
+- approximately 4 events, positive net R and PF, but very sparse;
+- ETF/institutional access is positive but fails generic momentum control;
+- exchange access, protocol utility, unlock/vesting, leverage access, and integration/distribution were weak in current extracted sample;
+- mark/funding proxy caps remain.
+
+Interpretation:
+
+C2 is not ready for validation. It remains a mechanism-specific candidate library branch. Legal/regulatory repricing is the first sleeve to preserve.
+
+Next action:
+
+```text
+expand catalyst event database, mechanism-separated ledgers, and controls; preserve legal/regulatory and institutional-access sleeves as sample-limited hypotheses
+```
+
+### Branch X — listing/VWAP-loss, D4, funding-window, generic shock
+
+Status:
+
+```text
+capture_calibration_candidate
+execution_data_blocked_without_vendor
+no_vendor_capture_path_required
+```
+
+Specifics:
+
+```text
+D4:
+    needs_capture_substitute; micro-canary blocked unless a real D4-like captured event exists
+
+Listing/VWAP-loss 589 and b1:
+    progress_with_current_data; execution-only micro-canary possible only after separate human approval and capture calibration
+
+Listing 9dc:
+    candidate_library/backlog only
+
+Funding-window:
+    preserve_hypothesis_generate_new_variant
+
+Generic shock:
+    discard_current_translation_no_vendor_path; preserve only broad concept if new hypothesis emerges
+```
+
+Interpretation:
+
+Branch X cannot be historically validated without vendor-style data, which will not be bought. Therefore the only valid path is capture calibration, delayed/close-confirmed redesign, execution-only micro-canary for listing analogs, or discarding current translations.
+
+### D1/D3/E1/F1/G1/ORB/funding-window
+
+Status:
+
+```text
+hypothesis_preserved
+support_only_or_redesign_required
+no_vendor_path_required
+```
+
+Interpretation:
+
+These families should not be ranked from old scans. They require either capture substitute, delayed/close-confirmed redesign, or explicit discard of current translations. Do not rerun them broadly until the no-vendor version is specified.
+
+## 9. Current research order
+
+The current priority order is:
+
+1. Exact funding/mark enrichment for any family that may be ranked.
+2. Redesign A1/A4 under strict Tier 1 assumptions.
+3. Build B1/C2 mechanism-specific ledgers and controls.
+4. Use live capture for Branch X calibration and possible execution-only micro-canary planning.
+5. Generate new hypotheses if no current branch produces a train-only candidate.
+6. Revisit D1/D3/E1/F1/G1/ORB only after a no-vendor-compatible translation is specified.
+
+Do not run broad all-family sweeps until each family has a valid data-tier and no-vendor path.
+
+## 10. Venue scope
+
+Primary research venue:
+
+```text
+Bybit linear USDT perpetuals
+```
+
+Secondary or contingency venues:
+
+```text
+Kraken derivatives
+OKX Europe
+Coinbase derivatives/futures-style products
+Binance only if regulatory and account access become stable and explicitly approved
+```
+
+Bybit remains the working venue while available. EU/EEA access risk means venue portability should be considered, but not at the cost of contaminating Bybit research.
+
+Kraken is not a direct Bybit clone. If a Kraken migration becomes active, it requires a separate connector and model for:
+
+- USD-settled / multi-collateral products;
+- hourly or continuous funding treatment;
+- net-position mode;
+- different order semantics;
+- different leverage limits;
+- different liquidation/assignment/unwind behavior.
+
+## 11. Strategy catalogue
+
+The active families remain:
+
+```text
+A1 liquid smooth-path continuation breakout
+A2 prior-high proximity / leader-quality filter
+A3 close-confirmed retest/reclaim continuation
+A4 volatility-managed liquid time-series momentum
+B1 sector/theme ignition leader continuation
+C2 post-catalyst continuation base
+D1 low-volume short-horizon reversal
+D3 small-cap liquidity-shock bounce
+D4 forced-deleveraging / reclaim long
+E1 liquidation flush long
+F1 parabolic blowoff short after backside confirmation
+G1 failed breakout short
+Branch X listing/VWAP-loss
+funding-window / ORB / session ideas
+generic shock variants
+```
+
+Current rankable priority is not the same as idea priority. The immediate rankable work is A1/A4 redesign and B1/C2 ledger construction. Branch X and smaller execution-sensitive families need capture substitute or redesign.
+
+## 12. Data layers
+
+The backtest state must distinguish:
+
+- last/trade price;
+- mark price;
+- index/oracle price;
+- funding timestamps and rates;
+- open interest;
+- fees;
+- instrument lifecycle;
+- spread/top-of-book/depth where available;
+- liquidation events where available;
+- catalyst timestamps;
+- sector map;
+- regime labels;
+- live capture telemetry where used.
+
+Minimum versioned datasets:
+
+```text
+instrument_master
+ohlcv_1m
+ohlcv_5m
+ohlcv_15m
+ohlcv_1h
+ohlcv_4h
+ohlcv_1d
+mark_index
+funding_history
+open_interest
+trading_costs
+liquidity_features
+book_top_or_depth_if_available
+liquidations_if_available
+catalyst_events
+sector_map
+live_capture_exports
+```
+
+If full depth/trade history is not feasible, use:
+
+1. OHLCV + mark/index + funding + OI + metadata for broad research.
+2. 1m/5m where available for Tier 1 strategies.
+3. Forward live capture for execution-sensitive families.
+4. Delayed/close-confirmed variants as substitutes for microstructure-dependent entries.
+5. Current-translation discard where no substitute exists.
+
+## 13. Universe construction
+
+The universe must be reconstructed historically. Do not infer historical eligibility from today’s live symbols.
+
+Use official exchange metadata where available:
+
+- launch time;
+- delivery/delist time;
+- status;
+- funding interval;
+- tick size;
+- quantity step;
+- min notional;
+- risk tier;
+- contract type.
+
+If official historical metadata are incomplete, proxy metadata may be used only with explicit flags:
+
+```text
+metadata_official = true/false
+metadata_inferred = true/false
+listing_ts_source = official / first_trade_proxy / sidecar_proxy / unknown
+delist_ts_source = official / last_trade_proxy / status_proxy / unknown
+```
+
+Never remove a symbol from historical dates because it is absent today. Never backfill contract-specific features before listing.
+
+Universe tiers:
+
+```text
+Tier A:
+    majors and highest-liquidity symbols.
+    Use for liquid continuation, TSMOM, funding/OI state.
+
+Tier B:
+    liquid alts.
+    Use for liquid continuation, sector leaders, post-catalyst bases.
+
+Tier C:
+    small but tradable perps.
+    Use only where execution model or capture substitute can support it.
+    Do not discard Tier C, but do not rank Tier C from unrealistic fills.
+
+Tier D:
+    1–30 day live / new listing bucket.
+    Use only for new-instrument and listing-event studies.
+```
+
+Eligibility must be recomputed point-in-time.
+
+## 14. Strategy definitions and current implementation notes
+
+### A1. Liquid smooth-path continuation breakout
+
+Core idea:
+A liquid leader has a meaningful impulse, forms a controlled base, and breaks out while funding/OI are not euphoric.
+
+Current requirement:
+Use Tier A/B only for rankable tests. No touch fills. Entry must be close-confirmed or next-bar.
+
+Required filters:
+- parent BTC/ETH trend;
+- liquid universe;
+- path smoothness;
+- volatility contraction;
+- A2-style leader quality optional;
+- funding/OI crowding veto;
+- exact mark/funding where possible;
+- all-taker stress.
+
+Current status:
+Current translation weak; redesign required.
+
+### A2. Prior-high proximity
+
+Core idea:
+In liquid names, nearness to prior highs can identify leaders.
+
+Current requirement:
+Do not use as standalone lead unless redesigned. Use as feature/overlay for A1, A3, B1, C2.
+
+### A3. Close-confirmed retest/reclaim continuation
+
+Core idea:
+Instead of buying the first breakout extension, enter after reclaim/retest confirmation.
+
+Current requirement:
+Treat as rare-regime or portfolio-sleeve candidate. Do not promote from standalone run until concentration and CPCV issues are resolved.
+
+### A4. Volatility-managed liquid TSMOM
+
+Core idea:
+Liquid time-series momentum with volatility scaling and crowding vetoes.
+
+Current requirement:
+Redesign current expression. Use slower horizons, Tier A/B only, exact mark/funding where possible, and all-taker costs.
+
+### B1. Sector/theme ignition leader continuation
+
+Core idea:
+A PIT-safe sector or co-movement cluster ignites; trade the strongest liquid leader, not the basket.
+
+Rankable modes:
+- PIT sector seed + co-movement confirmation;
+- rolling co-movement cluster only;
+- theme-window seed mode if timestamped.
+
+Non-rankable mode:
+- current-only taxonomy diagnostic.
+
+Current status:
+Broad ledger negative; mechanism preserved.
+
+### C2. Post-catalyst continuation base
+
+Core idea:
+A real catalyst reprices an asset; after the initial reaction, price holds event low and forms a base; enter only on base breakout or event VWAP reclaim.
+
+Rules:
+- no event-day chase;
+- mechanism-separated;
+- high/medium confidence events only for primary tests;
+- exact event anchor and Bybit tradability required;
+- sample-limited mechanisms can be sleeves.
+
+Current status:
+Legal/regulatory sleeve preserved; event count too small for validation.
+
+### D1/D3/E1/D4/F1/G1/ORB/funding-window
+
+Current requirement:
+Do not rank from historical OHLCV/proxy-only results. Use capture substitute, delayed/close-confirmed redesign, or discard current translation under no-vendor rule.
+
+## 15. Short support
+
+The research engine must support both longs and shorts.
+
+Short mechanics must include:
+
+- short entry/exit fills;
+- short stop/target logic;
+- funding sign convention;
+- mark-price liquidation;
+- maintenance margin;
+- separate long/short fees/slippage/funding attribution.
+
+Funding convention:
+
+- calculate side-aware funding cashflow;
+- do not assume every symbol has 8h funding;
+- apply funding only if the position is open at settlement;
+- report funding separately from alpha PnL.
+
+Liquidation:
+
+- mark price drives liquidation;
+- liquidation is never a stop;
+- any liquidation requires failure analysis.
+
+## 16. Execution model and tiers
+
+Execution tiers:
+
+```text
+Tier 0:
+    OHLCV screening only. Not rankable.
+
+Tier 1:
+    1m/5m bars + mark/funding/OI/lifecycle + conservative all-taker execution.
+    Valid for slower liquid families if contract checks pass.
+
+Tier 2:
+    top-of-book/spread/depth or live-capture substitute.
+    Required for more execution-sensitive entries.
+
+Tier 3:
+    deeper book/trades/event replay.
+    Historically required for listing/event shorts, ORB/funding-window, maker-first microstructure, and true D4 validation.
+```
+
+Because paid Tier 3 vendor history will not be bought, Tier 2/3 families must use capture substitute, conservative redesign, or current-translation discard.
+
+## 17. Funding and mark treatment
+
+Funding and mark must be explicit in every event-level ledger.
+
+Rules:
+
+- If no funding timestamp is crossed, set `funding_exact=true` and `funding_R=0`.
+- If funding is crossed and exact funding exists, compute side-aware cashflow.
+- If funding is crossed and exact rate is unavailable, set `funding_exact=false`, run adverse funding sensitivity, and cap the label.
+- Repeated 5m funding fields are context/proxy unless proven to correspond to exact settlement events.
+- Mark price is required for liquidation logic.
+- If mark is missing and last-price proxy is used, set `mark_proxy_used=true` and cap the label.
+- Proxy funding or proxy mark may support screening, but not final validation.
+
+## 18. Controls
+
+Controls must be real, not synthetic.
+
+Every control row must include:
+
+```text
+control_event_id
+control_symbol
+control_decision_ts
+matched_candidate_id
+matching_basis
+source_window_id
+feature_source_ts
+source_set_hash
+```
+
+Allowed control types:
+
+- same-symbol non-event;
+- same-regime non-event;
+- nearest-neighbor by volatility/liquidity/funding/OI;
+- generic momentum baseline;
+- sector/cluster non-leader controls for B1;
+- same-asset non-event and generic breakout controls for C2;
+- A1/A2/A3 overlap controls where useful.
+
+Controls must be normalized to candidate event count.
+
+Controls must be purged and embargoed:
+
+- no overlap with candidate entry/hold/exit window;
+- embargo at least max holding period.
+
+Any runner that uses synthetic, copied, constant, random, or placeholder controls must fail closed.
+
+## 19. Risk and aggressive overlays
+
+Use risk-based sizing.
+
+```text
+risk_amount = account_equity * risk_pct
+stop_distance_pct = abs(entry - stop) / entry
+position_notional = risk_amount / stop_distance_pct
+initial_margin_required = position_notional / leverage
+gross_leverage = gross_position_notional / account_equity
+```
+
+Research overlays may test aggressive small-account risk, including 5%, 10%, 15%, and 20% risk per trade, but these overlays are diagnostic only until a candidate has clean evidence.
+
+Aggressive overlay results cannot promote a weak or unproven strategy.
+
+Any overlay must report:
+
+- ruin frequency;
+- >50%, >75%, >90% drawdown events;
+- max drawdown;
+- liquidation count;
+- skipped trades;
+- capital path under 200 / 500 / 1000 USDT starts.
+
+## 20. Validation and holdout policy
+
+The final holdout remains sealed.
+
+Current protected slice:
+
+```text
+2026-01-01T00:00:00Z onward
+```
+
+Do not use final holdout for strategy selection, feature selection, regime tuning, candidate ranking, or portfolio construction.
+
+Train-only validation should use:
+
+- rolling walk-forward;
+- purged k-fold or CPCV where feasible;
+- embargo at least max hold period;
+- symbol/month/regime blocking;
+- parameter-neighborhood stability;
+- DSR/PBO or equivalent where implemented.
+
+Sparse event strategies should not be rejected solely because CPCV is underpowered. Use leave-one-event, matched controls, mechanism logic, and candidate-library sleeve labels.
+
+## 21. Parameter search
+
+Use coarse randomized or Sobol search first, not full grid explosion.
+
+Process:
+
+1. Write a strategy contract.
+2. Define admissible parameter ranges.
+3. Register every candidate before scoring.
+4. Generate event-level trade ledgers.
+5. Apply real controls.
+6. Apply Tier-appropriate stress.
+7. Score by robustness and evidence quality, not raw Sharpe.
+8. Preserve sparse sleeves separately from standalone candidates.
+9. Freeze candidates before any later holdout work.
+
+Do not manually tweak thresholds after seeing validation results.
+
+## 22. Reporting requirements
+
+Every run must emit:
+
+- run root;
+- UTC start/end;
+- git commit hash;
+- command line;
+- random seed;
+- source artifact hashes;
+- data snapshot hashes;
+- protected holdout scan;
+- candidate registry;
+- event-level ledger path;
+- control ledger path;
+- funding/mark exactness summary;
+- stress summary;
+- candidate library;
+- no-vendor decision matrix;
+- next operator decision.
+
+Required final report sections:
+
+```text
+Progress With Current Data
+Still Candidate-Library Only
+Current Translations Discarded
+Needs New Hypotheses
+Capture / No-Vendor Status
+Next Operator Decision
+```
+
+Allowed next operator decisions:
+
+```text
+run_a1_a4_validation_next
+run_b1_c2_mechanism_validation_next
+branch_x_micro_canary_possible_execution_only
+run_exact_funding_mark_enrichment_next
+generate_new_hypotheses_next
+discard_no_vendor_current_translations
+blocked_by_protocol_issue
+```
+
+## 23. Human review checkpoints
+
+The backtesting team must stop and ask for human review after:
+
+1. any mechanical QA failure;
+2. any strategy package proposed for validation;
+3. any proposal to use final holdout;
+4. any proposal for live/shadow-live transfer;
+5. any proposed micro-canary;
+6. any current translation marked discard/no-vendor path;
+7. any major change in venue or execution model.
+
+## 24. Prompting standards for AI agents
+
+Prompts to agents must be self-contained. Agents do not share memory, project files, or external context unless the human transfers them.
+
+Every prompt must include:
+
+- project direction;
+- current run roots;
+- exact task;
+- allowed and forbidden actions;
+- data paths;
+- protected holdout rules;
+- no-vendor policy;
+- deliverables;
+- tests;
+- final response format.
+
+Do not assume the live machine can see backtesting files. Do not assume the backtesting machine can see live capture exports unless transferred.
+
+## 25. Bottom line
+
+The project is still alive, but the evidence standard is stricter now.
+
+The active thesis is:
+
+- liquid continuation where bar/mark/funding evidence is enough;
+- sector/catalyst sleeves where mechanisms are real and event ledgers are clean;
+- execution-sensitive ideas only through capture substitute, conservative redesign, or execution-only telemetry;
+- no indefinite vendor-data blockage;
+- no fake controls, no projected metrics, no current taxonomy backfill, no hidden future leakage.
+
+Every current strategy must now move into one of four paths:
+
+```text
+progress with current data
+redesign into a no-vendor-compatible variant
+use capture as substitute evidence
+discard current translation and preserve only the hypothesis
+```
+
+The system should be aggressive in hypothesis generation, strict in mechanical evidence, and decisive when a current translation cannot progress under the no-vendor constraint.

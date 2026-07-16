@@ -21,6 +21,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 PKG_RE = re.compile(r"^(autopar_\d{4}-\d{2}-\d{2})(?:\.zip)?$")
 
 
+def _autopar_enabled() -> bool:
+    return os.environ.get("DONCH_AUTOPAR_ENABLED", "").strip().lower() in {"1", "true", "yes", "on"}
+
+
 @dataclass
 class PackageRef:
     package_id: str
@@ -365,6 +369,13 @@ def _run_one_package(
 
 def main() -> int:
     a = _parse_args()
+    if not _autopar_enabled():
+        print(
+            "[autopar-sync] disabled: Autopar is legacy and disabled for the QLMG project. "
+            "Set DONCH_AUTOPAR_ENABLED=1 only for an intentional manual legacy run.",
+            flush=True,
+        )
+        return 2
 
     results_root = _to_abs(a.results_root)
     results_root.mkdir(parents=True, exist_ok=True)
