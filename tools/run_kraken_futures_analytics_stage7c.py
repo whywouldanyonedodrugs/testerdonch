@@ -122,7 +122,9 @@ def validate_terminal_jobs(rows: list[dict[str,Any]], expected_symbols: tuple[st
 
 def compact_parquet(rows: list[dict[str,Any]], output: Path) -> tuple[str,int,int]:
     paths=[Path(row["parquet_path"]) for row in rows if row["status"]=="complete"]
-    frames=[pq.read_table(path).to_pandas() for path in paths]
+    # Staging paths contain Hive-like `symbol=...` components, but each path
+    # is an authoritative single part and must not acquire partition columns.
+    frames=[pq.ParquetFile(path).read().to_pandas() for path in paths]
     if frames:
         frame=pd.concat(frames,ignore_index=True,sort=False)
         compare=frame.groupby(["symbol","timestamp_epoch_seconds"],sort=False)["value_json"].nunique(dropna=False)

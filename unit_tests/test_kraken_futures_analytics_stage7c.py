@@ -46,7 +46,8 @@ class Stage7CTests(unittest.TestCase):
                 "value_field":["liquidation_volume"],"value_json":[f'"{i}"'],"analytics_type":["liquidation-volume"],
                 "symbol":[symbol],"interval_seconds":[300],"source_job_id":[f"j{i}"],"request_since":[1672531200],
                 "request_to":[1672531500],"semantic_status":[SEMANTIC_STATUS],"value_raw":[str(i)]})
-            pp=root/f"{i}.parquet"; frame.to_parquet(pp,index=False)
+            pp=root/"normalized"/"liquidation-volume"/"interval=300"/f"symbol={symbol}"/"year=2023"/"month=01"/f"{i}.parquet"
+            pp.parent.mkdir(parents=True,exist_ok=True); frame.to_parquet(pp,index=False)
             rows.append({"job_id":f"j{i}","status":"complete","raw_compressed_path":str(rp),"raw_compressed_sha256":sha256_file(rp),
                 "raw_sha256":sha256_bytes(raw),"raw_compressed_bytes":rp.stat().st_size,"response_bytes":len(raw),"row_count":1,
                 "first_timestamp":1672531200,"last_timestamp":1672531200,"parquet_path":str(pp),"symbol":symbol})
