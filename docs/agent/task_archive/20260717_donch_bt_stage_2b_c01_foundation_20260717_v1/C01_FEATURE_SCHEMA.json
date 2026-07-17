@@ -1,0 +1,284 @@
+{
+  "columns": [
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "family_id",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "definition_id",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "attempt_id",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "candidate_id",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "economic_address",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "canonical_episode_id",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "datetime64[ns, UTC]",
+      "name": "canonical_episode_input_start",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "datetime64[ns, UTC]",
+      "name": "canonical_episode_input_end",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "datetime64[ns, UTC]",
+      "name": "episode_cluster_start",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "datetime64[ns, UTC]",
+      "name": "episode_cluster_end",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "int64",
+      "name": "episode_member_count",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "symbol",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "venue",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "datetime64[ns, UTC]",
+      "name": "decision_ts",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "datetime64[ns, UTC]",
+      "name": "shock_window_start",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "datetime64[ns, UTC]",
+      "name": "shock_window_end",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "residual_model_version",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "feature_version",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "reference_panel_id",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "reference_panel_hash",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "candidate_cohort_version",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "candidate_cohort_hash",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "data_authority_hash",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "trade_path_refs",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "mark_path_refs",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "int64",
+      "name": "protected_row_count",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "sign",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "object",
+      "name": "path_state",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "float64",
+      "name": "residual_shock_6h",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "float64",
+      "name": "residual_scale_6h",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "float64",
+      "name": "residual_shock_z_6h",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "float64",
+      "name": "largest_bar_share",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "float64",
+      "name": "path_efficiency",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "int64",
+      "name": "scale_block_count",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "float64",
+      "name": "fit_observations",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "float64",
+      "name": "alpha",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "float64",
+      "name": "beta_btc",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "float64",
+      "name": "beta_eth",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "float64",
+      "name": "btc_return_6h",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "float64",
+      "name": "eth_return_6h",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "float64",
+      "name": "btc_rv_24h",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "float64",
+      "name": "candidate_rv_24h",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "float64",
+      "name": "candidate_lagged_trade_bar_availability",
+      "outcome": false
+    },
+    {
+      "causal": true,
+      "dtype": "float64",
+      "name": "candidate_lagged_mark_bar_availability",
+      "outcome": false
+    }
+  ],
+  "feature_contract_hash": "c0d2955d6447f360beff528fc0985d328c2853cf9a45bf03958d2a61216470bb",
+  "forbidden_output_tokens": [
+    "forward_return",
+    "future_return",
+    "exit",
+    "pnl",
+    "profit",
+    "mae",
+    "mfe",
+    "expectancy",
+    "sharpe",
+    "promotion",
+    "target",
+    "label_return"
+  ],
+  "schema_version": "c01_generator_diagnostic_tape_v1"
+}

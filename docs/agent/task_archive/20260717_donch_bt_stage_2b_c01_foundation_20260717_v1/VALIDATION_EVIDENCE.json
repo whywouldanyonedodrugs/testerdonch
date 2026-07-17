@@ -1,0 +1,56 @@
+{
+  "all_hard_checks_pass": true,
+  "attempt_candidate_sum": 1805966,
+  "attempt_rows": 12,
+  "attempts_retained": 12,
+  "candidate_id_recompute_mismatches": 0,
+  "candidate_id_recompute_sample_rows": 9979,
+  "cohort_versions": [
+    "current_roster_bar_existence_cohort"
+  ],
+  "columns": 44,
+  "count_matrix_sum": 1805966,
+  "count_matrix_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "data_authority_hashes": [
+    "b51ca71c3a9cd6425ade8255e443cc76bfc5b5882ee80c3eccfc8de11bad1a1a"
+  ],
+  "duplicate_candidate_ids": 0,
+  "duplicate_economic_addresses": 0,
+  "episode_connected_interval_violations": 0,
+  "episode_count": 19776,
+  "episode_end_violations": 0,
+  "episode_input_end_contract_violations": 0,
+  "episode_input_start_contract_violations": 0,
+  "episode_member_count_violations": 0,
+  "episode_start_violations": 0,
+  "episode_symbol_violations": 0,
+  "feature_contract_hashes": [
+    "c0d2955d6447f360beff528fc0985d328c2853cf9a45bf03958d2a61216470bb"
+  ],
+  "fit_min_violations": 0,
+  "intermediate_state_violations": 0,
+  "jump_state_violations": 0,
+  "known_lifecycle_interval_violations": 0,
+  "negative_z_violations": 0,
+  "non_kraken_rows": 0,
+  "outcome_columns": [],
+  "parquet_bytes": 296490056,
+  "parquet_sha256": "f273b6cc851341b2e3fdd49baf6ed48b39bd6a34f475b7bf129774d0df0a1efd",
+  "positive_z_violations": 0,
+  "pretrain_rows": 0,
+  "protected_row_count_sum": 0,
+  "protected_rows": 0,
+  "reference_panel_hashes": [
+    "2c0cae827c6f83361ea347796d0323b20d83c3acd222c506aac40c0e97b73763"
+  ],
+  "rows": 1805966,
+  "scale_min_violations": 0,
+  "shock_window_duration_violations": 0,
+  "shock_window_end_violations": 0,
+  "smooth_state_violations": 0,
+  "trade_mark_ref_collisions": 0
+}
