@@ -1,0 +1,21 @@
+	Command being timed: "./.venv/bin/python tools/build_kraken_c03_pit_context.py --instrument-sources docs/agent/task_archive/20260716_donch_bt_stage_2a_u2_lifecycle_20260716_v1/sources --terminal-source docs/agent/task_archive/20260717_donch_bt_stage_2a1_c01_reference_panel_20260717_v1/sources/terminal_lifecycle/kraken_derivatives_delistings.body --download-manifest /opt/parquet/kraken_derivatives/manifests/phase_kraken_k0_data_foundation_20260630_v1_20260630_163815_download_manifest.csv --semantic-source docs/agent/task_archive/20260717_donch_bt_stage_2c1_volume_authority_resume_20260717_v1/KRAKEN_CANDLE_VOLUME_AUTHORITY.csv --output results/rebaseline/phase_kraken_c03_pit_cohort_breadth_20260717_v1_20260717_173151"
+	User time (seconds): 28.70
+	System time (seconds): 1.74
+	Percent of CPU this job got: 100%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:30.31
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 1891568
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 491326
+	Voluntary context switches: 423
+	Involuntary context switches: 503
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 2736
+	Socket messages sent: 0
+	Socket messages received: 0
+	Si

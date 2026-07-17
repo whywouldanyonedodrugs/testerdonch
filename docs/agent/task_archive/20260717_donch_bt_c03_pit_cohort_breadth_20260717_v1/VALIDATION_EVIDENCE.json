@@ -1,0 +1,23 @@
+{
+  "C01_C02_economic_ledgers_opened": 0,
+  "artifact_hash_mismatches": 0,
+  "daily_rows": 524984,
+  "economic_outputs_computed": 0,
+  "final_status": "C03_PIT_authority_unavailable",
+  "identity_collisions": 1,
+  "identity_rows": 479,
+  "mark_coverage_identities": 301,
+  "phase_b_executed": false,
+  "protected_outcomes_opened": 0,
+  "status": "pass_fail_closed",
+  "tests_failed": 0,
+  "tests_passed": 71,
+  "trade_coverage_identities": 301,
+  "unknown_rows": 288918,
+  "usable_day_fraction_2023": 0.0,
+  "usable_day_fraction_2024": 0.0,
+  "usable_day_fraction_2025": 0.0,
+  "utc_days": 1096,
+  "verified_eligible_rows": 0,
+  "verified_ineligible_rows": 236066
+}
