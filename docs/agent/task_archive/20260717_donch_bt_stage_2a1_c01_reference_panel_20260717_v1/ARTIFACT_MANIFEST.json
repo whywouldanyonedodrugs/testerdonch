@@ -1,0 +1,237 @@
+{
+  "continuous_tradeability_claim": false,
+  "economic_outputs_computed": false,
+  "file_count": 44,
+  "files": [
+    {
+      "bytes": 2452,
+      "path": "C01_REFERENCE_PANEL_AUTHORITY.csv",
+      "sha256": "bec9b91b5c62ee62d72aad83845cff85cd634cca5ed528b57d2af5f21cbde640"
+    },
+    {
+      "bytes": 1131,
+      "path": "C01_REFERENCE_PANEL_CLAIM_BOUNDARY.md",
+      "sha256": "29bc8accef9b40b316efe4d468fd462dafc16635e7320d8262bf135e83543f2d"
+    },
+    {
+      "bytes": 702,
+      "path": "CHANGED_FILES.md",
+      "sha256": "0734bb6bbaead59b1aaa55b0f6e87b6dc8aa63d4545dc78c4589dc0c76a5dc51"
+    },
+    {
+      "bytes": 1815,
+      "path": "COMMANDS_AND_RESULTS.md",
+      "sha256": "7411f8c088d91ec17feb790b1cf33139030e755579846657498264f59e6161ac"
+    },
+    {
+      "bytes": 688,
+      "path": "COMPLETION.md",
+      "sha256": "2041208b145eaf652cbede78d2389e489089b53187d6ba0cce2fefbd7ae75576"
+    },
+    {
+      "bytes": 1281,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "sha256": "5e3cb1aafc2d06904b6484dd03611f66d26c25d9e4decaf8d0500075e634ffb5"
+    },
+    {
+      "bytes": 776,
+      "path": "FINAL_2025_DAY_COVERAGE_VALIDATION.md",
+      "sha256": "bd41d2e71320160c8b3627a0f8247efd79b347f54b51d8115123cf7066c1b2a9"
+    },
+    {
+      "bytes": 3513,
+      "path": "FINAL_2025_DAY_SOURCE_LEDGER.csv",
+      "sha256": "afdf1089f8fcfe46f6b24d0a55d559a1cb0d51b766edefa0e6581e064a25f4cb"
+    },
+    {
+      "bytes": 348,
+      "path": "NEXT_ACTION.md",
+      "sha256": "6293cb211f6a0066e3cf4da1b8c58f3949ec6af00b3b0912b46ed21c2115ce7e"
+    },
+    {
+      "bytes": 2584,
+      "path": "PLAN.md",
+      "sha256": "d43c83710cebaae650d23a6c2a7780fd8398fe0fec228d7d54fdae2eea6bbacd"
+    },
+    {
+      "bytes": 1439,
+      "path": "REVIEW.md",
+      "sha256": "ec47d9daf17e2eba68350b098720807d772053c79ebebb6eb1d9a055ea9c5c6a"
+    },
+    {
+      "bytes": 8611,
+      "path": "TASK_SPEC.md",
+      "sha256": "78b6552bad37453031e516a539b94c92ea89eb9695925be261f4467a8f7a6055"
+    },
+    {
+      "bytes": 771,
+      "path": "TERMINAL_LIFECYCLE_SOURCE_LEDGER.csv",
+      "sha256": "2fbe1cfcafc5d1c0f2d8ca91d75586fbe245070b69a4ec315d3b588450829146"
+    },
+    {
+      "bytes": 607,
+      "path": "TERMINAL_LIFECYCLE_VALIDATION.md",
+      "sha256": "c4c305957232a3e7c1041cbb3cdf021237ba4689e90cc4b6b9f8739a3dbf8d57"
+    },
+    {
+      "bytes": 1902,
+      "path": "VALIDATION.md",
+      "sha256": "3885b4d1e65501889e95804daf93917e2bcf54c7990c1da1b3cea81086c77872"
+    },
+    {
+      "bytes": 70282,
+      "path": "normalized_final_2025_day/PF_ETHUSD_mark.csv",
+      "sha256": "9a2a91f00a1249dfa83c0b07ab7abf450c253c09efc6c97ca717127460abcc8d"
+    },
+    {
+      "bytes": 28340,
+      "path": "normalized_final_2025_day/PF_ETHUSD_mark.parquet",
+      "sha256": "a8999826c72ba6b2e023e98d62d01602ba948e0213c39794433f5dacbd7cab33"
+    },
+    {
+      "bytes": 60988,
+      "path": "normalized_final_2025_day/PF_ETHUSD_trade.csv",
+      "sha256": "d1f8bc5c7a194618f9322ce3c2b729fcd47ee94be1fb8d8d82e0e7f2495937e3"
+    },
+    {
+      "bytes": 17608,
+      "path": "normalized_final_2025_day/PF_ETHUSD_trade.parquet",
+      "sha256": "89d65926b47c3e087b3f4fa4b0a31ff1dbe1f9d20d0f5f8925bd85d2756d962d"
+    },
+    {
+      "bytes": 70315,
+      "path": "normalized_final_2025_day/PF_XBTUSD_mark.csv",
+      "sha256": "39364995311f55b123be0636da548a24e906a316b9c166e96322615b1f6a2591"
+    },
+    {
+      "bytes": 29057,
+      "path": "normalized_final_2025_day/PF_XBTUSD_mark.parquet",
+      "sha256": "d8c385f12fab01d145a4e5a42e5672579db322999920417d2a5fcc857ee6163b"
+    },
+    {
+      "bytes": 59959,
+      "path": "normalized_final_2025_day/PF_XBTUSD_trade.csv",
+      "sha256": "80d799e7d3be2174089a6517be70f50d506da5f47f93673522d16380f617d3e6"
+    },
+    {
+      "bytes": 19024,
+      "path": "normalized_final_2025_day/PF_XBTUSD_trade.parquet",
+      "sha256": "be02246e54d1c7396c978c76bfad84d213c444ba607c2493045c5526c44dbbc1"
+    },
+    {
+      "bytes": 21,
+      "path": "sources/access_utc.txt",
+      "sha256": "8b83beab5287bdae9d8630ab0314cd5fbaf174f3a261514140b70f30354ea6e1"
+    },
+    {
+      "bytes": 40200,
+      "path": "sources/final_2025_day/PF_ETHUSD_mark.body",
+      "sha256": "b1d6f6e77c5d584244edc4e4ab835b31a8b9e4573cab79422474ba973006cca8"
+    },
+    {
+      "bytes": 760,
+      "path": "sources/final_2025_day/PF_ETHUSD_mark.headers.txt",
+      "sha256": "1228517cf34877c5ecce91c1e2174ef129646f1ed9d92b437e84be7c7853bcf0"
+    },
+    {
+      "bytes": 4,
+      "path": "sources/final_2025_day/PF_ETHUSD_mark.status.txt",
+      "sha256": "c11e3f4837efde2441e23a7b9da02131f53bf59fddeb7147c4ab81afe400460f"
+    },
+    {
+      "bytes": 89,
+      "path": "sources/final_2025_day/PF_ETHUSD_mark.url.txt",
+      "sha256": "ca2a0bd3462df740106d9dc6b67fff71adb5de4f6e6cf5fbcce3a5bad88e3006"
+    },
+    {
+      "bytes": 30618,
+      "path": "sources/final_2025_day/PF_ETHUSD_trade.body",
+      "sha256": "04a18aa50a664c6420d6cf10496d41513e40e17d3b9dbaeed298d5eec4e421c7"
+    },
+    {
+      "bytes": 760,
+      "path": "sources/final_2025_day/PF_ETHUSD_trade.headers.txt",
+      "sha256": "ce93f7f46ddb2af5cc110a88ebc51f1390949745ed453a7257d2e2fd7cff73e3"
+    },
+    {
+      "bytes": 4,
+      "path": "sources/final_2025_day/PF_ETHUSD_trade.status.txt",
+      "sha256": "c11e3f4837efde2441e23a7b9da02131f53bf59fddeb7147c4ab81afe400460f"
+    },
+    {
+      "bytes": 90,
+      "path": "sources/final_2025_day/PF_ETHUSD_trade.url.txt",
+      "sha256": "0c1ef5561b2dc84aa919f0769f4e9146e3a707006baad05f31694e3b5419d778"
+    },
+    {
+      "bytes": 40233,
+      "path": "sources/final_2025_day/PF_XBTUSD_mark.body",
+      "sha256": "1fb1f1de5b90dada8de8585fe354fd3f5dc9009c43dc8aece777cc2178607c35"
+    },
+    {
+      "bytes": 760,
+      "path": "sources/final_2025_day/PF_XBTUSD_mark.headers.txt",
+      "sha256": "6fba3a6b32ecbc198664a546ded1457226f6c198f072297517708442207fc0de"
+    },
+    {
+      "bytes": 4,
+      "path": "sources/final_2025_day/PF_XBTUSD_mark.status.txt",
+      "sha256": "c11e3f4837efde2441e23a7b9da02131f53bf59fddeb7147c4ab81afe400460f"
+    },
+    {
+      "bytes": 89,
+      "path": "sources/final_2025_day/PF_XBTUSD_mark.url.txt",
+      "sha256": "2ca1a7fc9e989253a24dff84d0149e4054950ca542f7100dad6cbb14200b259d"
+    },
+    {
+      "bytes": 29589,
+      "path": "sources/final_2025_day/PF_XBTUSD_trade.body",
+      "sha256": "47ae4f8d10276fdc3baef1926bf66e1a602ab26357be901fdda30cbe43af7b10"
+    },
+    {
+      "bytes": 760,
+      "path": "sources/final_2025_day/PF_XBTUSD_trade.headers.txt",
+      "sha256": "cf76232887b90a1ec938fd721f124b7acba325842415d71b2258f1c8a9f76edd"
+    },
+    {
+      "bytes": 4,
+      "path": "sources/final_2025_day/PF_XBTUSD_trade.status.txt",
+      "sha256": "c11e3f4837efde2441e23a7b9da02131f53bf59fddeb7147c4ab81afe400460f"
+    },
+    {
+      "bytes": 90,
+      "path": "sources/final_2025_day/PF_XBTUSD_trade.url.txt",
+      "sha256": "e1867a9d1e10466ac32a0a9d0a97cf4b5d5f63fb411c8bae08216d2beafa6c35"
+    },
+    {
+      "bytes": 1331489,
+      "path": "sources/terminal_lifecycle/kraken_derivatives_delistings.body",
+      "sha256": "3c8077594ee2184747a572df5aa41bb38ba28ccd8588450a8f47fe0415305d07"
+    },
+    {
+      "bytes": 1418,
+      "path": "sources/terminal_lifecycle/kraken_derivatives_delistings.headers.txt",
+      "sha256": "93af6e5ef332cd8907b70b727bea997da98da0ae53f57fbccd44098efe2ba89e"
+    },
+    {
+      "bytes": 4,
+      "path": "sources/terminal_lifecycle/kraken_derivatives_delistings.status.txt",
+      "sha256": "c11e3f4837efde2441e23a7b9da02131f53bf59fddeb7147c4ab81afe400460f"
+    },
+    {
+      "bytes": 103,
+      "path": "sources/terminal_lifecycle/kraken_derivatives_delistings.url.txt",
+      "sha256": "14a8094aca3c50520f1222f165a6afe2b3c495bdf89288fa41c62bab5fc16073"
+    }
+  ],
+  "manifest_scope": "complete_local_task_archive; manifest self-hash excluded",
+  "manifest_self_hash_excluded": true,
+  "prior_coverage_authority": "docs/agent/task_archive/20260716_donch_bt_stage_2a_u2_lifecycle_20260716_v1/U2_INSTRUMENT_LIFECYCLE_AUTHORITY.csv",
+  "prior_coverage_authority_sha256": "8e174a9e503fe04b3fee6a42100db9c6d0686479116bb5c1ad7098426660b233",
+  "protected_outcomes_opened": false,
+  "reference_panel_hash": "2c0cae827c6f83361ea347796d0323b20d83c3acd222c506aac40c0e97b73763",
+  "reference_panel_id": "kraken_c01_reference_panel_v1",
+  "returned_2026_rows": 0,
+  "survivorship_free_claim": false,
+  "task_id": "donch_bt_stage_2a1_c01_reference_panel_20260717_v1"
+}

@@ -1,0 +1,1 @@
+https://futures.kraken.com/api/charts/v1/mark/PF_ETHUSD/5m?from=1767139200&to=1767225599

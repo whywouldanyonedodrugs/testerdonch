@@ -1,0 +1,21 @@
+HTTP/2 200
+date: Fri, 17 Jul 2026 06:33:42 GMT
+content-type: text/html; charset=utf-8
+set-cookie: [redacted]
+set-cookie: [redacted]
+set-cookie: [redacted]
+cf-ray: a1c737736b3e8ddb-HEL
+cf-cache-status: EXPIRED
+cache-control: max-age=300, public, stale-if-error=604800, stale-while-revalidate=86400
+last-modified: Friday, 17-Jul-2026 06:33:42 UTC
+server: cloudflare
+x-xss-protection: 1; mode=block
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+vary: Accept-Encoding, Origin
+access-control-allow-credentials: true
+permissions-policy: accelerometer=(), autoplay=(self), camera=(), cross-origin-isolated=(), display-capture=(), document-domain=(), encrypted-media=(), fullscreen=(self "https://www.youtube-nocookie.com"), geolocation=(), gyroscope=(), keyboard-map=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), xr-spatial-tracking=()
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-frame-options: sameorigin
+x-theme: light
+link: <https://www.kraken.com/css/facade-onload/7857.css>; as=style; rel=preload, <https://cdn.cookielaw.org>; rel=preconnect, </js/_seg.70ddf3d2.js>; as=script; rel=preload, <https://iapi.kraken.com/api/internal/meta>; as=fetch; rel=preload; crossorigin=use-credentials, </config.json>; as=fetch; rel=preload; crossorigin=anonymous
