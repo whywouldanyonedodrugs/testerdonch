@@ -1,0 +1,15 @@
+{
+  "canonical_episode_count": 11343,
+  "cohort_hash": "768b09c731a728e31ce1d882862878c698cbf19e6883b1d0fe02505edb619f15",
+  "economic_contract_draft_hash": "f1c8c612ea9f7ffcc2abad3f2efde36b5dfb68fde20d2769fdc5ce40ab306c13",
+  "economic_outputs_computed": false,
+  "excluded_onset_count": 27391,
+  "feature_contract_hash": "c0d2955d6447f360beff528fc0985d328c2853cf9a45bf03958d2a61216470bb",
+  "generator_contract_hash": "3464e79a79956c881c7418840068a61e3f3a47776a5a4d3a669e98df124fd970",
+  "onset_event_count": 38347,
+  "protected_outcomes_opened": false,
+  "reference_panel_hash": "2c0cae827c6f83361ea347796d0323b20d83c3acd222c506aac40c0e97b73763",
+  "stage2b_tape_sha256": "f273b6cc851341b2e3fdd49baf6ed48b39bd6a34f475b7bf129774d0df0a1efd",
+  "status": "ready_for_explicit_C01_economic_run_approval",
+  "task_id": "donch_bt_stage_2c1_volume_authority_resume_20260717_v1"
+}

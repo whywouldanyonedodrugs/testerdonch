@@ -1,0 +1,11 @@
+{
+  "Content-Length": "1048576",
+  "Content-Type": "text/html; charset=utf-8",
+  "Date": "Fri, 17 Jul 2026 09:04:19 GMT",
+  "Server": "nginx",
+  "accept-ranges": "bytes",
+  "cache-control": "private",
+  "x-archive-orig-cf-cache-status": "EXPIRED",
+  "x-archive-orig-content-length": "1048576",
+  "x-archive-src": "CC-MAIN-2025-08-1738831951533.47-0030/CC-MAIN-20250208020953-20250208050953-00600.warc.gz"
+}

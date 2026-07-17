@@ -1,0 +1,9 @@
+metric,count
+primary_events,19276
+robustness_events,19071
+exact_timestamp_and_sign,10316
+exact_timestamp_sign_and_path,9949
+same_sign_onset_within_30m,14360
+same_canonical_episode,17722
+primary_only_no_exact_match,8960
+robustness_only_no_exact_match,8755

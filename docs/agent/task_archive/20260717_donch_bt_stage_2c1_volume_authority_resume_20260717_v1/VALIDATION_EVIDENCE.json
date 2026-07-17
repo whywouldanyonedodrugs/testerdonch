@@ -1,0 +1,36 @@
+{
+  "checks": {
+    "all_12_attempts_retained": true,
+    "all_calibration_exact": true,
+    "calibration_rows_12": true,
+    "calibration_symbols_4": true,
+    "cohort_membership_reconciliation": true,
+    "cohort_summary_one_row_per_symbol": true,
+    "cross_family_scope_exact": true,
+    "event_count_reconciliation": true,
+    "event_ids_unique": true,
+    "model_roles_fixed": true,
+    "no_calibration_alpha_use": true,
+    "no_economic_outputs": true,
+    "no_outcome_columns": true,
+    "no_post_onset_reads": true,
+    "no_protected_reads": true,
+    "official_semantics_present": true,
+    "reset_minimum_72": true,
+    "semantic_inconsistencies_fail_closed": true,
+    "stage2b_ids_unique": true,
+    "stage2b_onset_reconciliation": true,
+    "top100_and_20day_gate": true,
+    "train_bounds": true
+  },
+  "counts": {
+    "accepted_onsets": 38347,
+    "canonical_episodes": 11343,
+    "cohort_symbols": 253,
+    "raw_onsets": 65738,
+    "stage2b_active_rows": 1805966
+  },
+  "economic_outputs_computed": false,
+  "protected_outcomes_opened": false,
+  "status": "pass"
+}
