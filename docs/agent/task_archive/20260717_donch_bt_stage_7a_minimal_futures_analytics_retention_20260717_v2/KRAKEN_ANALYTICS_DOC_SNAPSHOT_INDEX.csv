@@ -1,0 +1,5 @@
+access_note,authority,bytes,path,sha256
+live page access restricted; schema snapshot records official indexed content,official_kraken_documentation,255749,raw/docs/market_analytics.access_restricted.html,ad606748cad267e4c567a4347efbe20bc09b1f34cc19618ab5b57c454c60dfc3
+live page access restricted; schema snapshot records official indexed content,official_kraken_documentation,1755,raw/docs/market_analytics.get.headers,f5662dd868f66168735013668f669a7e957e6aeac12810fa3a4c319bc1c9fb48
+live page access restricted; schema snapshot records official indexed content,official_kraken_documentation,2294,raw/docs/market_analytics.head.headers,266428fd3c33880873be328fa1f42bd71bb14400c33778e8081c3fd6194f0152
+live page access restricted; schema snapshot records official indexed content,official_kraken_documentation,1560,raw/docs/market_analytics.schema_snapshot.json,e4a6ebd27aef347c87c18b852b5069e5feb1b88e2660b73d6437dd85de710f45

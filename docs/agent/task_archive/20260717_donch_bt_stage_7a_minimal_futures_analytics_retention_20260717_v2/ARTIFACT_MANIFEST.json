@@ -1,0 +1,111 @@
+{
+  "files": [
+    {
+      "bytes": 615,
+      "path": "CHANGED_FILES.md",
+      "sha256": "2bf85def00215a67f33a81296758d33ec773d09454c3cade2d9403a557c4d9d8"
+    },
+    {
+      "bytes": 876,
+      "path": "COMMANDS.md",
+      "sha256": "6e3783c5a9b31a282b95522d032b6b3a28cbf03e0181c40c9331bee3c90acc78"
+    },
+    {
+      "bytes": 432,
+      "path": "COMPLETION.md",
+      "sha256": "89b4d47a33e48ec68cf963ba7c208b9520980af38aa360f4efa14dbfbdfb9335"
+    },
+    {
+      "bytes": 512,
+      "path": "CONTINUITY_UPDATE.md",
+      "sha256": "1204e0e3e197895bcf7b038f19fe9bb0b7610ef36813fb91103f03b076e5a2fa"
+    },
+    {
+      "bytes": 1185,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "sha256": "ce293bf38a95b4cfdcc49ec77b053cc708a8111a68d1f8630c02879fb3715617"
+    },
+    {
+      "bytes": 589,
+      "path": "HYPOTHESIS_DATA_READINESS_UPDATE.csv",
+      "sha256": "6f18bcdd0b8206bb189211e32a5b04dfde9e3011b1d06b95f1a18be0149a645d"
+    },
+    {
+      "bytes": 652,
+      "path": "INDEPENDENT_REVIEW_EVIDENCE.json",
+      "sha256": "739211a03d99d48f73c0799e1da799e3f5eb7c254920c0199c729f43a869eaca"
+    },
+    {
+      "bytes": 364,
+      "path": "KRAKEN_ANALYTICS_AUTHORITY_DECISION.md",
+      "sha256": "34ec41cc5d3ff3b14c4a78e27a9971f3a384a79ae287cfe8478fd65db889f934"
+    },
+    {
+      "bytes": 927,
+      "path": "KRAKEN_ANALYTICS_DOC_SNAPSHOT_INDEX.csv",
+      "sha256": "bdaa257cad98e3fced97c84e006a489c7e5879aa9cd502a36b8f823df290116b"
+    },
+    {
+      "bytes": 25681,
+      "path": "KRAKEN_ANALYTICS_MINIMAL_REQUEST_LEDGER.csv",
+      "sha256": "cc3a4faa984b5278c0b53c7282a1bace0627a92dfeec96bf638a92feb6bf6943"
+    },
+    {
+      "bytes": 1560,
+      "path": "KRAKEN_ANALYTICS_OFFICIAL_SCHEMA_SNAPSHOT.json",
+      "sha256": "e4a6ebd27aef347c87c18b852b5069e5feb1b88e2660b73d6437dd85de710f45"
+    },
+    {
+      "bytes": 4208,
+      "path": "KRAKEN_ANALYTICS_REPLAY_COMPARISON.csv",
+      "sha256": "809b0a642e2a9c2fc922fc1e881be5025fda643bbec2c293bacc6a484657dbf9"
+    },
+    {
+      "bytes": 3670,
+      "path": "KRAKEN_ANALYTICS_RETENTION_MATRIX.csv",
+      "sha256": "c125265fa92a4befe59209db3c0eb41bca58ca408e8fb9d1c09de46d275d8e6a"
+    },
+    {
+      "bytes": 585,
+      "path": "KRAKEN_ANALYTICS_SCHEMA_AND_UNIT_NOTE.md",
+      "sha256": "34a0c1704290b44889233a779377821af6f9e254d8f13b9da4253b4e888dc500"
+    },
+    {
+      "bytes": 373,
+      "path": "NEXT_ACTION.md",
+      "sha256": "04d07c99f7d08ed72974ceb7ea2eff16a9a1e10608ca1c7906ee63967986d2d9"
+    },
+    {
+      "bytes": 2450,
+      "path": "PLAN.md",
+      "sha256": "46b6cc1c4a3453103b85b3eb883922aac0373a3e9e7349cb4ec268d4c116f583"
+    },
+    {
+      "bytes": 649,
+      "path": "REVIEW.md",
+      "sha256": "9dc0383cc7b52566aa5a7dce604d2d06264ab71ebdb9aaa43b67300008795754"
+    },
+    {
+      "bytes": 899,
+      "path": "SOURCE_AND_CAPABILITY_UPDATE.md",
+      "sha256": "abd9f6f5f4d87faa76a5b69285e77465d58555078160ff972d73f89fe24c06ab"
+    },
+    {
+      "bytes": 661,
+      "path": "TASK_SPEC.md",
+      "sha256": "96b7bb4dddb20795c76a852040ad12eed4fce4279d27da68b16ac0ec04cb3a09"
+    },
+    {
+      "bytes": 145,
+      "path": "TESTS.log",
+      "sha256": "0c51cceb44942234f499553b1e4a8bc36acab831d00beb561a5aeb6d86bab029"
+    },
+    {
+      "bytes": 555,
+      "path": "VALIDATION.md",
+      "sha256": "3460403fe7adecb6cb9ec6eba8e50147c2fbbca6a97351fcf668c6ee32f20f8e"
+    }
+  ],
+  "status": "partial_historical_analytics_requires_review",
+  "task_id": "donch_bt_stage_7a_minimal_futures_analytics_retention_20260717_v2"
+}

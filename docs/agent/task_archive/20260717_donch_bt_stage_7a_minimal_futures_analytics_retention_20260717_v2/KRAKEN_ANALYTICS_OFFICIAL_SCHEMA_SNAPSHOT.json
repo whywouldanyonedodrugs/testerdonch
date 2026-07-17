@@ -1,0 +1,27 @@
+{
+  "source_owner": "Kraken",
+  "source_url": "https://docs.kraken.com/api/docs/futures-api/charts/market-analytics",
+  "retrieval_status": "official_search_index_snapshot_available_live_page_access_restricted",
+  "route": "https://futures.kraken.com/api/charts/v1/analytics/:symbol/:analytics_type",
+  "method": "GET",
+  "path_parameters": {
+    "symbol": {"type": "string", "required": true},
+    "analytics_type": {
+      "required": true,
+      "allowed_values": ["open-interest", "aggressor-differential", "trade-volume", "trade-count", "liquidation-volume", "rolling-volatility", "long-short-ratio", "long-short-info", "cvd", "top-traders", "orderbook", "spreads", "liquidity", "slippage", "future-basis", "funding"]
+    }
+  },
+  "query_parameters": {
+    "since": {"type": "int64", "required": true, "unit": "epoch_seconds"},
+    "interval": {"required": true, "allowed_values_seconds": [60, 300, 900, 1800, 3600, 14400, 43200, 86400, 604800]},
+    "to": {"type": "integer", "required": false, "default": "now", "unit": "epoch_seconds"}
+  },
+  "response": {
+    "statuses": [200, 400, 404],
+    "content_type": "application/json",
+    "result_keys": {"timestamp": "integer[] required", "more": "boolean required", "data": "object required"},
+    "named_data_fields": ["usdValue", "basis", "rate", "relativeRate"],
+    "errors": "object[] required"
+  },
+  "snapshot_note": "Transcribed verbatim field names and enums from the official Kraken API Center indexed page before data probing; live direct page returned access restriction/404 on 2026-07-17."
+}

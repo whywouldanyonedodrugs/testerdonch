@@ -1,0 +1,21 @@
+{
+  "decision": "partial_historical_analytics_requires_review",
+  "economic_outputs_detected": 0,
+  "empty_funding_cells": 6,
+  "limits": [
+    "funding empty for all six cells",
+    "value units/sign not verified",
+    "full retention and pagination not tested",
+    "BTC/ETH only"
+  ],
+  "matrix_cells": 24,
+  "protected_rows": 0,
+  "raw_response_hash_mismatches": 0,
+  "replay_cells": 24,
+  "replay_hash_mismatches": 0,
+  "replay_structural_mismatches": 0,
+  "review_status": "pass_with_partial_authority_decision",
+  "reviewer_role": "independent_read_only_artifact_reconciliation",
+  "upper_bound_failures": 0,
+  "verified_historical_cells": 18
+}
