@@ -1,0 +1,7 @@
+primary_state,direction,primary_resolved_events,events_2023,events_2024,events_2025,same_leader_30m_events,same_leader_30m_rate,passes_total_100,passes_each_year_20,passes_30m_agreement_80pct,mechanically_sufficient
+resolved_spot_led,all,1017,201,332,484,841,0.8269419862340216,True,True,True,True
+resolved_spot_led,positive,489,96,152,241,425,0.869120654396728,True,True,True,True
+resolved_spot_led,negative,528,105,180,243,416,0.7878787878787878,True,True,False,False
+resolved_perp_led,all,609,98,217,294,412,0.6765188834154351,True,True,False,False
+resolved_perp_led,positive,274,38,92,144,177,0.6459854014598541,True,True,False,False
+resolved_perp_led,negative,335,60,125,150,235,0.7014925373134329,True,True,False,False

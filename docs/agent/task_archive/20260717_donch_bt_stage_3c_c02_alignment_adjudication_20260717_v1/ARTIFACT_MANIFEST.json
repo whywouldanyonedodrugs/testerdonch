@@ -1,0 +1,118 @@
+{
+  "actual_starting_commit": "408b9d99686a5506a0ee7e6f42074d56bcfa8cfb",
+  "adjudicator_source_sha256": "5d2e04fa54dee8e9edc4ef46a9cf65c30fac6857c0f3e83aacc965435630e14d",
+  "artifacts": [
+    {
+      "bytes": 725,
+      "drive_included": true,
+      "path": "C02_15M_30M_AGREEMENT.csv",
+      "sha256": "4cc7d6776d8d611e738c5bac3e501c7ae7d6f2623744548a4933afaad2b5998e"
+    },
+    {
+      "bytes": 1676,
+      "drive_included": true,
+      "path": "C02_ALIGNMENT_ADJUDICATION.md",
+      "sha256": "d8e4d08997bfb776ebcca4d86a6dcd292e076c1b0bcb38cc481a8cd12e113e7f"
+    },
+    {
+      "bytes": 1598,
+      "drive_included": true,
+      "path": "C02_CLOCK_SEMANTICS_REPORT.md",
+      "sha256": "bc21cb33f378a4a3019d3e9cdff76b02aa04a60f943aa844d5279083e595228c"
+    },
+    {
+      "bytes": 2301,
+      "drive_included": true,
+      "path": "C02_ORIGINAL_ALIGNMENT_TRANSITION_MATRIX.csv",
+      "sha256": "6906358a4fa04aa3888c122001b0a9fcd94a77ffa4a7cac0eb8e439c654195d9"
+    },
+    {
+      "bytes": 129401,
+      "drive_included": true,
+      "path": "C02_RESOLUTION_AWARE_COUNT_MATRIX.csv",
+      "sha256": "8f13ee17132603197e2c1b62c880c7dc9dd149b8aafe04062d2865d0f68b5dfc"
+    },
+    {
+      "bytes": 10227090,
+      "drive_included": false,
+      "path": "C02_RESOLUTION_AWARE_EVENT_TAPE.parquet",
+      "sha256": "c73344b1bd104c0816d731a1002f729b49100385a34b9b56ec4b2be66dad71ad"
+    },
+    {
+      "bytes": 1601,
+      "drive_included": true,
+      "path": "C02_RESOLUTION_AWARE_GENERATOR_CONTRACT.md",
+      "sha256": "ce65c62edfb80f5fb83e9b8b6bae1d3eb9c981f8e9a1bcad3b285fdce46cca51"
+    },
+    {
+      "bytes": 597,
+      "drive_included": true,
+      "path": "CHANGED_FILES.md",
+      "sha256": "1130b79430eb2bafd86d11982e4711f19b035833333b77a124beeb4657f732e7"
+    },
+    {
+      "bytes": 666,
+      "drive_included": true,
+      "path": "COMMANDS.md",
+      "sha256": "afb2d0e11aa62e185ab77d42e071b9422225fc07d846e4222bdbc520c29fabb3"
+    },
+    {
+      "bytes": 329,
+      "drive_included": true,
+      "path": "COMPLETION.md",
+      "sha256": "f89e0025ff6d19f64041c2e78e9aca1f80b738190354652ce8840bca84227721"
+    },
+    {
+      "bytes": 804,
+      "drive_included": true,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "sha256": "0d7c4e50c23d897956d2b54bccfbb5a2bffbfeb18570a19354100e230624c376"
+    },
+    {
+      "bytes": 459,
+      "drive_included": true,
+      "path": "NEXT_ACTION.md",
+      "sha256": "4b2b2ac8c4363cd81099eddff99f9b9d048cb4de10bcf8fd7aef58d7ce13d675"
+    },
+    {
+      "bytes": 2137,
+      "drive_included": true,
+      "path": "PLAN.md",
+      "sha256": "719d100c526d4790d3a47319ab40bb410446ab53073fd3654101a3a1b3c90def"
+    },
+    {
+      "bytes": 963,
+      "drive_included": true,
+      "path": "REVIEW.md",
+      "sha256": "1b2eef9b00678d7337cce0ae5a427540b3272b7783e4b31569b850aaf5878f1b"
+    },
+    {
+      "bytes": 5999,
+      "drive_included": true,
+      "path": "TASK_SPEC.md",
+      "sha256": "384c6aad13a07c63bc9ad542b93c69a45e0d068b3faecf3f61f89252d24daae6"
+    },
+    {
+      "bytes": 1150,
+      "drive_included": true,
+      "path": "VALIDATION.md",
+      "sha256": "84d716974e193adf75f8cd252fbebef6c7a22ecaca9cd98c9cd89686b23d2d5e"
+    },
+    {
+      "bytes": 797,
+      "drive_included": false,
+      "path": "generator_time.log",
+      "sha256": "eb2e9a12d3d55b90390cc6169d2a68d1aca667ce1b566485cb239b073ab3234f"
+    }
+  ],
+  "economic_outputs_computed": 0,
+  "manifest_content_hash": "6c1e237cf5a6e49b31ee8e529ac75a67aef98dfef93cc5f9f1419b89cdf35e65",
+  "protected_outcomes_opened": 0,
+  "source_stage3b_contract_sha256": "25ecea746dae447a6db3967c3183afb920aa144f8c2324c5224bc5d929a5befb",
+  "source_stage3b_event_tape_sha256": "50a6c486012c2bf4b97bcc29af69ee10b1b52f1588f7fcc129f476a628b20c3e",
+  "source_stage3b_failure_tape_sha256": "a754ef591a06534a1231a42ade895a7934bc8322172c1e1ee0796fb6ff2e32f3",
+  "spot_manifest_content_hash": "3de3b533a390f04590ae458ac661d4fc10d299df1a1833734911fa609b0a7046",
+  "status": "ready_for_C02_resolution_aware_contract_review",
+  "task_id": "donch_bt_stage_3c_c02_alignment_adjudication_20260717_v1",
+  "test_source_sha256": "8d3accfbbbcb310ab22a7d9f7515dd0651fbb5ed5882b85c53a3e6b239b4e828"
+}
