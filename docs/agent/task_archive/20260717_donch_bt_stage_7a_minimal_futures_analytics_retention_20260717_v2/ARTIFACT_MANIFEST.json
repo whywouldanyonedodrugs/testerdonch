@@ -21,9 +21,14 @@
       "sha256": "1204e0e3e197895bcf7b038f19fe9bb0b7610ef36813fb91103f03b076e5a2fa"
     },
     {
-      "bytes": 1185,
+      "bytes": 1354,
       "path": "DECISIONS_AND_PROGRESS.md",
-      "sha256": "ce293bf38a95b4cfdcc49ec77b053cc708a8111a68d1f8630c02879fb3715617"
+      "sha256": "a902f4a78d9a1b7a81780fbc59b1c3014ebb16c010688ba1afcc5fc44f42c692"
+    },
+    {
+      "bytes": 1072,
+      "path": "HANDOFF_RECORD.md",
+      "sha256": "40b1466c62b660cfbc2d69d2b5e0be7c8d0936373c2271139d52cea5bfd19224"
     },
     {
       "bytes": 589,
@@ -91,9 +96,9 @@
       "sha256": "abd9f6f5f4d87faa76a5b69285e77465d58555078160ff972d73f89fe24c06ab"
     },
     {
-      "bytes": 661,
+      "bytes": 9273,
       "path": "TASK_SPEC.md",
-      "sha256": "96b7bb4dddb20795c76a852040ad12eed4fce4279d27da68b16ac0ec04cb3a09"
+      "sha256": "504a4f60738beb70d44744fcfdbc2944b282b27464e502355bc495124d38eb98"
     },
     {
       "bytes": 145,

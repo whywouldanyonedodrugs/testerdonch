@@ -11,3 +11,4 @@
 - Funding returned schema-valid empty responses in all 6/6 cells.
 - All populated bounds were honored; 24/24 replay structures and hashes matched; protected timestamps were zero.
 - Frozen decision: `partial_historical_analytics_requires_review`.
+- Approved default Drive handoff completed to a new non-colliding folder; five files passed separate round-trip byte/hash verification. Raw responses were not uploaded.
