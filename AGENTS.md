@@ -9,6 +9,7 @@ This repository is governed as a historical Kraken backtesting and research proj
 - Use [docs/agent/EXECUTION_PLAN_TEMPLATE.md](docs/agent/EXECUTION_PLAN_TEMPLATE.md) for multi-file, long-running, ambiguous, data-changing, or economic work.
 - Use [docs/agent/DATA_AND_PROTECTED_PERIOD_RULES.md](docs/agent/DATA_AND_PROTECTED_PERIOD_RULES.md) for data, universe, signal, control, funding, or outcome work.
 - Use [docs/agent/RUN_AND_ARTIFACT_CONTRACT.md](docs/agent/RUN_AND_ARTIFACT_CONTRACT.md) for runs, manifests, review bundles, archives, and handoffs.
+- Use [docs/agent/DRIVE_HANDOFF_TARGET.md](docs/agent/DRIVE_HANDOFF_TARGET.md) for the approved default Donch handoff destination and non-overwrite procedure.
 - Use [docs/agent/CODE_REVIEW.md](docs/agent/CODE_REVIEW.md) for review tasks.
 - Use [docs/agent/KNOWN_FAILURE_PATTERNS.md](docs/agent/KNOWN_FAILURE_PATTERNS.md) before changing event generation, controls, or accounting.
 
