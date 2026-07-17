@@ -1,0 +1,36 @@
+{
+  "audit_eligible_rows": 65,
+  "audit_symbols": [
+    "PF_XBTUSD",
+    "PF_ETHUSD",
+    "PF_1INCHUSD",
+    "PF_AAVEUSD",
+    "PF_ADAUSD",
+    "PF_ALGOUSD"
+  ],
+  "coverage_manifest_sha256": "f598cc1fb5714386923272399b98fa560c119c96fd5af33f5b30735f40cea420",
+  "deterministic_additions": [
+    {
+      "PF_symbol": "PF_1INCHUSD",
+      "canonical_asset_id": "1INCH"
+    },
+    {
+      "PF_symbol": "PF_AAVEUSD",
+      "canonical_asset_id": "AAVE"
+    },
+    {
+      "PF_symbol": "PF_ADAUSD",
+      "canonical_asset_id": "ADA"
+    },
+    {
+      "PF_symbol": "PF_ALGOUSD",
+      "canonical_asset_id": "ALGO"
+    }
+  ],
+  "excluded_rows": 19,
+  "included_rows": 460,
+  "inventory_rows": 479,
+  "inventory_sha256": "0e1c35b3348b3187547f188dac47e5e0f5bc3d259207fa3884bc8efccdd36f09",
+  "selection_rule": "nonblank canonical ID; no collision; opening <= 2023-01-01; nonzero trade and mark chunks in each 2023/2024/2025; canonical ID then PF symbol",
+  "source_sha256": "23c932c7c4eda0d938c59a1e02c367cc9d3abf57397589ec846cc1cb4c1da4d9"
+}

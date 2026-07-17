@@ -1,0 +1,8 @@
+{
+  "inventory_hash": "0e1c35b3348b3187547f188dac47e5e0f5bc3d259207fa3884bc8efccdd36f09",
+  "jobs": 1080,
+  "peak_rss_bytes": 178593792,
+  "runtime_seconds": 1041.6186408400536,
+  "stale_jobs_reset": 0,
+  "task_id": "donch_bt_stage_7b_resumable_analytics_acquisition_20260717_v1"
+}

@@ -1,0 +1,5 @@
+hypothesis,capability_status,evidence,remaining_blocker,economic_run_authorized
+C04_crowding_vs_price_progress,bounded_source_retention_only,OI audit rows reproducible; no full acquisition,OI tuple meanings and units unavailable,no
+C08_basis_dislocation_state,bounded_source_retention_only,basis audit rows reproducible,basis unit and sign convention unavailable,no
+C09_liquidation_forced_flow_completion,bounded_source_retention_only,liquidation-volume audit rows reproducible,volume unit and direction structure unavailable,no
+C14_basis_funding_boundary_survival,blocked,basis retention observed; public analytics funding excluded,basis semantics unresolved and funding authority unchanged,no

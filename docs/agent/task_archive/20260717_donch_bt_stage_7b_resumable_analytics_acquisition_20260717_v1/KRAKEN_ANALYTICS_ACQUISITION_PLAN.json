@@ -1,0 +1,45 @@
+{
+  "approved_metrics": [],
+  "blockers": [
+    "metric value units/sign conventions not verified",
+    "storage reserve gate failed"
+  ],
+  "decision": "blocked_by_units_pagination_or_storage",
+  "phase_a": {
+    "continuation_pages": 792,
+    "inclusive_boundary_duplicate_rows": 792,
+    "initial_cells_with_replay": 288,
+    "max_rows_per_response": 2000,
+    "more_true_jobs": 816,
+    "page_count": 1080,
+    "protected_rows": 0,
+    "query_upper_bound_rule": "end_exclusive_minus_interval; endpoint lower and upper bounds inclusive",
+    "replay_cells": 144,
+    "replay_content_mismatches": 0,
+    "replay_schema_mismatches": 0
+  },
+  "phase_b_launched": false,
+  "phase_c_launched": false,
+  "projection": {
+    "filesystem_free_bytes_before_full_acquisition": 56093024256,
+    "filesystem_total_bytes": 160970244096,
+    "included_symbols_5m": 460,
+    "metrics": [
+      "open-interest",
+      "liquidation-volume",
+      "future-basis"
+    ],
+    "projected_combined_bytes": 11470631998,
+    "projected_free_after_contingency_bytes": 41754734259,
+    "projected_parquet_bytes": 9664269466,
+    "projected_part_files": 506520,
+    "projected_raw_zstd_bytes": 1806362531,
+    "projected_requests": 253260,
+    "projected_rows": 445063680,
+    "projected_with_25pct_contingency_bytes": 14338289997,
+    "required_post_completion_reserve_bytes": 53687091200,
+    "storage_gate_pass": false,
+    "symbols_1m": 2
+  },
+  "task_id": "donch_bt_stage_7b_resumable_analytics_acquisition_20260717_v1"
+}

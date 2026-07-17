@@ -1,0 +1,161 @@
+{
+  "files": [
+    {
+      "bytes": 845,
+      "path": "CHANGED_FILES.md",
+      "sha256": "d599e8aef84e52478700477efe27aad79b2db47718288a620382919aae666c5a"
+    },
+    {
+      "bytes": 1239,
+      "path": "COMMANDS.md",
+      "sha256": "b568166d65a20ed81d1b39c3bea95b939d53a867893cf345b0063bb467e98ee8"
+    },
+    {
+      "bytes": 545,
+      "path": "COMPLETION.md",
+      "sha256": "37b71d589f63948872e3c27c97e962ff0a8ff009ebd146b207702dfc6e14c75c"
+    },
+    {
+      "bytes": 447,
+      "path": "CONTINUITY_UPDATE.md",
+      "sha256": "c798968082672454b17b3876f3c7edca2f98a4b7f45f5bb8b8c2a273a41fe666"
+    },
+    {
+      "bytes": 2359,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "sha256": "cc0f6110c852d84da0268f581b004c5f4262ff58f4aeea87b28241fc4d1b9146"
+    },
+    {
+      "bytes": 803,
+      "path": "FINAL_REVIEW.md",
+      "sha256": "58c7536f289a87bad0bfb0537b2f083f32b058fa7ca1556c1114253dc59000fb"
+    },
+    {
+      "bytes": 695,
+      "path": "HYPOTHESIS_DATA_READINESS_UPDATE.csv",
+      "sha256": "79fa8d0ecdffc35029010471ca85d530c2db0c84661fa7bfc16bcd4f67273aa1"
+    },
+    {
+      "bytes": 670,
+      "path": "INDEPENDENT_REVIEW_EVIDENCE.json",
+      "sha256": "450e5cb59e48c849545a7dd4977eed712ad9b41c4442f92a1d99d2be49d7aa18"
+    },
+    {
+      "bytes": 1503,
+      "path": "KRAKEN_ANALYTICS_ACQUISITION_PLAN.json",
+      "sha256": "710cbc81bd528a77ced2131d9fffdcc36c586094b43ba61595c54afd2044cf71"
+    },
+    {
+      "bytes": 846,
+      "path": "KRAKEN_ANALYTICS_ACQUISITION_SUMMARY.md",
+      "sha256": "43e4655e5f195a0cba8ca43705a7391a7ec7c40f8f2460565d64495777c0e40f"
+    },
+    {
+      "bytes": 67738,
+      "path": "KRAKEN_ANALYTICS_COVERAGE_MATRIX.csv",
+      "sha256": "0e1d4407dd20fe93f6f0b28a2009316d957a3228f7d468e6efc9d371c46adcc9"
+    },
+    {
+      "bytes": 490,
+      "path": "KRAKEN_ANALYTICS_DATA_MANIFEST_SUMMARY.json",
+      "sha256": "3f825e92305dc6691fc3f68890c33daadeb7da5ec04ec5e1da19fb027fb97abb"
+    },
+    {
+      "bytes": 1954,
+      "path": "KRAKEN_ANALYTICS_ENDPOINT_MECHANICS.md",
+      "sha256": "0f884d79a5c6a4fda903f66108d847c295271054686f4ddf1cf38b87d68086da"
+    },
+    {
+      "bytes": 283683,
+      "path": "KRAKEN_ANALYTICS_FROZEN_SYMBOL_INVENTORY.csv",
+      "sha256": "0e1c35b3348b3187547f188dac47e5e0f5bc3d259207fa3884bc8efccdd36f09"
+    },
+    {
+      "bytes": 1034,
+      "path": "KRAKEN_ANALYTICS_FROZEN_SYMBOL_INVENTORY.csv.freeze.json",
+      "sha256": "8eb6ef054453a440b7074cc4d1ee2b4208fe7993cc5af87bef5b076248917e33"
+    },
+    {
+      "bytes": 8104,
+      "path": "KRAKEN_ANALYTICS_REPLAY_COMPARISON.csv",
+      "sha256": "94af8dd585d66485263ccf30e9b520513372debb33e6c0ebf89cc79493f7537d"
+    },
+    {
+      "bytes": 946,
+      "path": "KRAKEN_ANALYTICS_SCHEMA_AND_UNIT_AUTHORITY.md",
+      "sha256": "4e0f981caf6576156a272929e0a72b44b306c9fe7ae46ff90c4b1976912f9863"
+    },
+    {
+      "bytes": 1557,
+      "path": "KRAKEN_ANALYTICS_STORAGE_BENCHMARK.csv",
+      "sha256": "1a3cc5003a7c0e45476d26876d44ea580b05eace294c9e14265dac3c10aabe43"
+    },
+    {
+      "bytes": 890,
+      "path": "LOCAL_ONLY_ARTIFACTS.md",
+      "sha256": "e20760562106a6e1ac234a1244251e154ff896362a7a70a7cb7858dc5c0b2f71"
+    },
+    {
+      "bytes": 604,
+      "path": "NEXT_ACTION.md",
+      "sha256": "bba37d86a2174f30c4ad27e00be940325f05d2ffd75e7bbb0868e93a5f2a8781"
+    },
+    {
+      "bytes": 2442,
+      "path": "PLAN.md",
+      "sha256": "774d5a85d2e84117fd457c2d3d374bfef2f5340d117739eaf9c9bee758589719"
+    },
+    {
+      "bytes": 902,
+      "path": "PRE_ACQUISITION_REVIEW.md",
+      "sha256": "265bfcea85bf0db65df5db0098b5694d7c4ace518d25bcd220adbb0ce55318fe"
+    },
+    {
+      "bytes": 74,
+      "path": "QUARANTINED_DIAGNOSTIC_ROOT.txt",
+      "sha256": "68d043c401de7530c5bd24a54aa66ce4e5bc63bd0036f754f8c90e7833e3afd3"
+    },
+    {
+      "bytes": 710,
+      "path": "REVIEW.md",
+      "sha256": "4b592e797bfa7b170323baec3c4d0737aebef01e3a0592bced03091157cb7e29"
+    },
+    {
+      "bytes": 90,
+      "path": "RUN_ROOT.txt",
+      "sha256": "3d389cfe43b44851c5e3441b1e03f1ee48e481e19b6e416c9153c22945689bfb"
+    },
+    {
+      "bytes": 671,
+      "path": "SOURCE_AND_CAPABILITY_UPDATE.md",
+      "sha256": "c11e37dc5fe37734f1cc423f0675bf0c398e3d705f6d723b2956a5f4491eb2fd"
+    },
+    {
+      "bytes": 14306,
+      "path": "TASK_SPEC.md",
+      "sha256": "2a3c70c70e319862f093c7ccb88e4baae5017e7dc600c70f6ab950e149e41475"
+    },
+    {
+      "bytes": 420,
+      "path": "TERMINAL_RECORD.md",
+      "sha256": "d73c5ddf07b8a242bf2a763fa046c125f8570ad47b0dc5e964196ecc10725d90"
+    },
+    {
+      "bytes": 163,
+      "path": "TEST_RESULTS.txt",
+      "sha256": "95934e057dfa238e554c52c8fa0cea625a8a9449e87e84c2032f1c835d1e8ee2"
+    },
+    {
+      "bytes": 786,
+      "path": "VALIDATION.md",
+      "sha256": "d594770b53984429cc7f16437658f0ae25b12be7050426b58cf23e681cc24e42"
+    },
+    {
+      "bytes": 282,
+      "path": "phase_a_execution_summary.json",
+      "sha256": "c1a23fc54e2b76e0b7245b1734349703c80a65957157bb17b90f7377daf15f81"
+    }
+  ],
+  "status": "blocked_by_units_pagination_or_storage",
+  "task_id": "donch_bt_stage_7b_resumable_analytics_acquisition_20260717_v1"
+}

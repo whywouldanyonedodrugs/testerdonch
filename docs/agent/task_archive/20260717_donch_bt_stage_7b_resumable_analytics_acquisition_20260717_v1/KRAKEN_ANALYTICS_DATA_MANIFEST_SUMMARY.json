@@ -1,0 +1,8 @@
+{
+  "data_root": "/opt/parquet/kraken_derivatives/analytics/stage7b_v1_attempt2",
+  "full_data_manifest_path": "results/rebaseline/phase_kraken_futures_analytics_acquisition_20260717_v1_20260717_195535/KRAKEN_ANALYTICS_DATA_MANIFEST.json",
+  "full_data_manifest_sha256": "4f6500d1e85ecedd618c5062b191de80c5fc76d3fe413d738d55527ad27d62c9",
+  "large_parts_in_drive": false,
+  "manifest_content_hash": "8157e882bf7680eb8f2e6ec7082620ee871b52a205b34184667e7964a550b5cd",
+  "part_count": 2160
+}

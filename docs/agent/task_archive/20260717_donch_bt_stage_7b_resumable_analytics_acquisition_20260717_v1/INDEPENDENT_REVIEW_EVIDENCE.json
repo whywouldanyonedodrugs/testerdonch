@@ -1,0 +1,21 @@
+{
+  "attempts": 1080,
+  "corrected_protected_timestamps": 0,
+  "data_manifest_content_hash": "8157e882bf7680eb8f2e6ec7082620ee871b52a205b34184667e7964a550b5cd",
+  "data_parts": 2160,
+  "decision": "blocked_by_units_pagination_or_storage",
+  "economic_outputs": 0,
+  "jobs_complete": 1080,
+  "logical_gap_rows_first_pass": 12,
+  "protected_values_opened": 0,
+  "quarantined_attempt_protected_timestamp_metadata": 1,
+  "replay_cells": 144,
+  "replay_mismatches": 0,
+  "request_upper_bound_violations": 0,
+  "retries": 0,
+  "review_status": "approve_blocked_decision",
+  "storage_gate_pass": false,
+  "tests_failed": 0,
+  "tests_passed": 63,
+  "unit_approved_metrics": 0
+}

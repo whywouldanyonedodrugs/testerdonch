@@ -1,0 +1,3 @@
+# Next Action
+
+Do not start full acquisition. The filesystem must have at least 68,025,381,197 free bytes before restart so the projected 14,338,289,997-byte contingency footprint still leaves the 53,687,091,200-byte reserve. Relative to the measured 56,093,024,256 free bytes, the exact shortfall is 11,932,356,941 bytes; a practical target is at least 70 GiB free before restart. Separately, obtain official Kraken value-unit/sign semantics for each desired metric. A later task may approve only metrics whose semantics and storage gates both pass, using the preserved downloader and frozen inventory.
