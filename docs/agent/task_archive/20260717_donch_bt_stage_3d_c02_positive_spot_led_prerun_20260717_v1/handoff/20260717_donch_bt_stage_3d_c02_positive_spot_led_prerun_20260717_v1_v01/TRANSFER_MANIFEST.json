@@ -1,0 +1,33 @@
+{
+  "commit": "8754660c90251420f510494a0611c0e8f5122ce2",
+  "economic_outputs_computed": 0,
+  "files": [
+    {
+      "bytes": 697,
+      "filename": "READ_FIRST.md",
+      "sha256": "ce7a4c9f66f88af2ff67b1366a116fbcd508a4be27f912deef451c9069f9f31e"
+    },
+    {
+      "bytes": 922,
+      "filename": "VALIDATION.md",
+      "sha256": "ff02d838d45af24db6d535d3a171c23535b895ba3e6f27911313a4c4af6dd67f"
+    },
+    {
+      "bytes": 794,
+      "filename": "REVIEW.md",
+      "sha256": "a62e811c8db2a476e0c132806ba2babb6bccbc732cfb584d23e45b6fa0064367"
+    },
+    {
+      "bytes": 80710,
+      "filename": "qlmg_c02_positive_spot_led_prerun_contract_20260717_v01.zip",
+      "sha256": "0a759648df110528a67eff102bd7dd03b070479697655b2d3e763847ac6a780f"
+    }
+  ],
+  "protected_rows_opened": 0,
+  "raw_market_payloads_included": false,
+  "remote_identity_label": "qlmg_sweep_drive:",
+  "status": "ready_for_human_C02_Level3_run_approval",
+  "target_folder_id": "1vMuf1EJbojoeIjJjz8Xj1fhwLizNgLfl",
+  "target_task_folder": "20260717_donch_bt_stage_3d_c02_positive_spot_led_prerun_20260717_v1_v01",
+  "task_id": "donch_bt_stage_3d_c02_positive_spot_led_prerun_20260717_v1"
+}
