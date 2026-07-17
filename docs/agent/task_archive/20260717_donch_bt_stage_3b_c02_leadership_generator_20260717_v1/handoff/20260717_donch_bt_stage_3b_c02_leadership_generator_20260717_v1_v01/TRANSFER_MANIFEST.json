@@ -1,0 +1,33 @@
+{
+  "commit": "64c65e2bed2e5da38cb808d185cd64298d4ca3ff",
+  "economic_outputs_computed": 0,
+  "files": [
+    {
+      "bytes": 787,
+      "filename": "READ_FIRST.md",
+      "sha256": "a14d17841b27b890ac1be816bef0538052d0800648b67172237bb57eca13d785"
+    },
+    {
+      "bytes": 1465,
+      "filename": "VALIDATION.md",
+      "sha256": "243a35e9a252ad7f99aa61b06fad33f581a9b6c0feb09bcf8a84c985746032b7"
+    },
+    {
+      "bytes": 793,
+      "filename": "REVIEW.md",
+      "sha256": "bb03f0848e635bf6518119f5a3257640b0ae247ccdadcb34d883acebef3d74fd"
+    },
+    {
+      "bytes": 1194097,
+      "filename": "qlmg_c02_leadership_generator_foundation_20260717_v01.zip",
+      "sha256": "9b579279b03e046a22b89a6df491715b8da4b0ef89e2e4cd9944b749a26e0331"
+    }
+  ],
+  "large_market_payloads_included": false,
+  "protected_rows_opened": 0,
+  "remote_identity_label": "qlmg_sweep_drive:",
+  "status": "alignment_fragile_requires_review",
+  "target_folder_id": "1vMuf1EJbojoeIjJjz8Xj1fhwLizNgLfl",
+  "target_task_folder": "20260717_donch_bt_stage_3b_c02_leadership_generator_20260717_v1_v01",
+  "task_id": "donch_bt_stage_3b_c02_leadership_generator_20260717_v1"
+}

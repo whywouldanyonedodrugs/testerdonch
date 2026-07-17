@@ -20,8 +20,8 @@ Build and independently review a deterministic, causal, outcome-free generator f
 
 ## Completion State
 
-- Milestones 1-5: completed.
-- Milestone 6: in progress pending commit, push, and round-trip Drive verification.
+- Milestones 1-6: completed.
+- The approved default Drive handoff passed a five-file round-trip SHA-256 verification.
 
 ## Failure response
 Stop with `blocked_with_exact_non_economic_remedy` on unresolved input authority, mixed/protected payload, unit ambiguity, lifecycle ambiguity that cannot be masked, temporal leak, identity collision, nondeterminism, or review failure. Preserve old roots and all completed task evidence.

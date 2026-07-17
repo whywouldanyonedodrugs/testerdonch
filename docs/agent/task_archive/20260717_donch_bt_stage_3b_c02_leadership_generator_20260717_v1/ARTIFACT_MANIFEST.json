@@ -110,10 +110,10 @@
       "sha256": "3b6888a58a6cb73640fc558166f57119eef21ab4d626e07d1aaacf7b95c66daa"
     },
     {
-      "bytes": 1197,
+      "bytes": 1368,
       "drive_included": true,
       "path": "COMMANDS.md",
-      "sha256": "eda035a94c5cad14eb7dbab9ffef9a116f1763c4c94fa1eb34a91a420259aa59"
+      "sha256": "55694a1192a290d5e3d25c59f302ced4278d1e949757c3f6f275d0e7c3e2901a"
     },
     {
       "bytes": 521,
@@ -134,10 +134,10 @@
       "sha256": "0eeb08462eb8b5cb2109da2f2d7ed7fd83d2b67433901e21d32430492a13c69f"
     },
     {
-      "bytes": 2369,
+      "bytes": 2374,
       "drive_included": true,
       "path": "PLAN.md",
-      "sha256": "afe32a5b654c728bd08e054fd727577b645212ef6c104454ac711c221d3f815e"
+      "sha256": "7592cd4c2c64c7f7f467b28ff7db041dc1ebe180391f999999d22e5766cac1b7"
     },
     {
       "bytes": 793,
@@ -257,7 +257,7 @@
   "cohort_hash": "768b09c731a728e31ce1d882862878c698cbf19e6883b1d0fe02505edb619f15",
   "economic_outputs_computed": 0,
   "generator_source_sha256": "ecfb763c815bd2e22d96150fc7dd1ab55cfec94221e946da3cb0df4c81b876c0",
-  "manifest_content_hash": "d0d04e65e156ca371be85cf83dca0a778c3c3eaf8f86bda032e230c54d21fe58",
+  "manifest_content_hash": "cffe46286cb44b9df28332b7e7cc1970d9b89f33a0ea9ab0ec3c56dd968eef94",
   "protected_outcomes_opened": 0,
   "spot_manifest_content_hash": "3de3b533a390f04590ae458ac661d4fc10d299df1a1833734911fa609b0a7046",
   "status": "alignment_fragile_requires_review",
