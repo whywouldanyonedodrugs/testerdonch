@@ -1,0 +1,107 @@
+{
+  "created_utc": "2026-07-17T16:31:26.702956Z",
+  "files": [
+    {
+      "bytes": 635,
+      "path": "C02_CAPABILITY_AND_CONTINUITY_UPDATE.md",
+      "sha256": "32b3906c35920843aaddc025f2e1a807c8b7445ce5e8049068660ba8cc6ddff9"
+    },
+    {
+      "bytes": 501,
+      "path": "CHANGED_FILES.md",
+      "sha256": "e48b8d0dafc5b6255598029648e50c99e455b59fa44d1fc9505fd208595c6ca1"
+    },
+    {
+      "bytes": 612,
+      "path": "COMMANDS.md",
+      "sha256": "a502fb0a1c93ccb2e4599e68a54734aff035d88a7a38f537c6db91cc70ebd85b"
+    },
+    {
+      "bytes": 791,
+      "path": "COMPLETION.md",
+      "sha256": "eed0473eddb3fef544e2fed5af928ff2dc584b5c7038a9c795d2ba405f3a09c3"
+    },
+    {
+      "bytes": 706,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "sha256": "41ccd5f1dd316516f04c4a58e0fab101f4d012942d48c0160440c37837230493"
+    },
+    {
+      "bytes": 0,
+      "path": "ECONOMIC_RUN.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1341,
+      "path": "ECONOMIC_RUN.stderr.log",
+      "sha256": "d8eb77feb53d49e90aa711c23dcbe814ba2f917c836f03a1dd7c43d82d55ccf3"
+    },
+    {
+      "bytes": 296,
+      "path": "LOCAL_ONLY_ARTIFACTS.md",
+      "sha256": "b42546f5d76a1e931a63c1c54b897a70dde217c6a619986781bdb880ec084fa2"
+    },
+    {
+      "bytes": 301,
+      "path": "NEXT_ACTION.md",
+      "sha256": "e414783461152115edc5b4cc79cf49468a8567edf891f4ec318a044357d9224a"
+    },
+    {
+      "bytes": 1170,
+      "path": "PLAN.md",
+      "sha256": "ba91e4b6971ac349ee304e9f423987dd661a24a21009035a3a313667a0521412"
+    },
+    {
+      "bytes": 668,
+      "path": "PRE_RUN_REVIEW.md",
+      "sha256": "57d66ca251b9af01a1aa577a69bb517383306597acfa080a3d853f6a4f9b668a"
+    },
+    {
+      "bytes": 1089,
+      "path": "REVIEW.md",
+      "sha256": "e230385c36558f507bc0613483b83fb8c7f9d52cb7a88479cd2424ceb0e90b89"
+    },
+    {
+      "bytes": 89,
+      "path": "RUN_ROOT.txt",
+      "sha256": "9dd4152f6c3e1f9b15c8d7e638afb7f964d5b13677c85563d21616c5d3f8637d"
+    },
+    {
+      "bytes": 295,
+      "path": "SECRET_SCAN.md",
+      "sha256": "2883c50ef78ee7700233d64a4fb6f2b96c43cd5be29acf5ed67ee5639292c49a"
+    },
+    {
+      "bytes": 0,
+      "path": "SECRET_SCAN_FINDINGS.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 11076,
+      "path": "TASK_SPEC.md",
+      "sha256": "c977ec8b705a20764a9018e3cd9cf931714e16b324c1e779e6b8df0e8568c35c"
+    },
+    {
+      "bytes": 676,
+      "path": "VALIDATION.md",
+      "sha256": "9cdaaa30c34e74d4e1897fcff3e47a019783641b1d6a4e6af7f7d3e9eb76a978"
+    },
+    {
+      "bytes": 727,
+      "path": "VALIDATION_EVIDENCE.json",
+      "sha256": "d5a157b9f20132e214f571f92314569e874762107b53a9b51a921e16ff3d3dc2"
+    },
+    {
+      "bytes": 723,
+      "path": "handoff/HANDOFF_RECORD.md",
+      "sha256": "e0711cd6acc4f92c612a263fc8591d9db995513492088daba57daff1f4d3c659"
+    },
+    {
+      "bytes": 157,
+      "path": "logs/final_tests.log",
+      "sha256": "0b0c64ce8f6e45905b377da45149b5971ef8f763c7849687686fc77bbf8bbf77"
+    }
+  ],
+  "scope": "task_archive",
+  "task_id": "donch_bt_stage_3e_c02_level3_economic_20260717_v1"
+}

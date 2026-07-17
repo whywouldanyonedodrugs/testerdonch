@@ -55,6 +55,22 @@ def prepare(event, definition, bars, invalidations=()):
             "actual_exit_ts":exitrow.source_open_ts,"exit_ts":exitrow.source_open_ts,"exit_price":float(exitrow.open),"actual_exit_reason":"fixed_timeout","timeout_hours":horizon,
             "economic_address":"c02l3_"+frozen.canonical_hash(identity)[:24],**prices,"calendar_year":entry.source_open_ts.year,"symbol":event["PF_symbol"]}
 
+def gate_report(trades, bootstrap_lower_bps, concentration):
+    years=trades.calendar_year.value_counts().to_dict()
+    gates={
+        "executed_trades_ge_100":len(trades)>=100,
+        "each_year_ge_20":all(int(years.get(year,0))>=20 for year in (2023,2024,2025)),
+        "mean_base_net_positive":float(trades.base_net_bps_ex_funding.mean())>0,
+        "median_base_net_positive":float(trades.base_net_bps_ex_funding.median())>0,
+        "bootstrap_lower_ge_minus5":bootstrap_lower_bps>=-5,
+        "symbol_share_le_25pct":bool(np.isfinite(concentration["max_positive_symbol_share"]) and concentration["max_positive_symbol_share"]<=0.25),
+        "episode_share_le_10pct":bool(np.isfinite(concentration["max_positive_episode_share"]) and concentration["max_positive_episode_share"]<=0.10),
+        "year_share_le_70pct":bool(np.isfinite(concentration["max_positive_year_share"]) and concentration["max_positive_year_share"]<=0.70),
+        "stress_mean_ge_minus10":float(trades.stress_net_bps_ex_funding.mean())>=-10,
+    }
+    gates["all_pass"]=all(gates.values())
+    return gates
+
 def reports(register,trades,eligibility):
     metrics=[]; gates=[]; funding=[]; concentrations=[]; bootstraps=[]
     for d in register.itertuples(index=False):
@@ -66,16 +82,18 @@ def reports(register,trades,eligibility):
             low,high=frozen.episode_bootstrap_ci(base.to_numpy(),g.canonical_episode_id.to_numpy())
             try: conc=frozen.concentration_metrics(g.rename(columns={"calendar_year":"year"}))
             except ValueError: conc={"max_positive_symbol_share":math.nan,"max_positive_episode_share":math.nan,"max_positive_year_share":math.nan}
-            try: gate=frozen.level3_gate_result(g.rename(columns={"calendar_year":"year"}),low)
-            except ValueError: gate={k:False for k in ["executed_trades_ge_100","each_year_ge_20","mean_base_net_positive","median_base_net_positive","bootstrap_lower_ge_minus5","symbol_share_le_25pct","episode_share_le_10pct","year_share_le_70pct","stress_mean_ge_minus10","all_pass"]}
-        else: low=high=math.nan; conc={"max_positive_symbol_share":math.nan,"max_positive_episode_share":math.nan,"max_positive_year_share":math.nan}; gate={"all_pass":False}
+            gate=gate_report(g,low,conc)
+        else:
+            low=high=math.nan; conc={"max_positive_symbol_share":math.nan,"max_positive_episode_share":math.nan,"max_positive_year_share":math.nan}
+            gate={k:False for k in ["executed_trades_ge_100","each_year_ge_20","mean_base_net_positive","median_base_net_positive","bootstrap_lower_ge_minus5","symbol_share_le_25pct","episode_share_le_10pct","year_share_le_70pct","stress_mean_ge_minus10","all_pass"]}
         source=int((eligibility.definition_id==d.definition_id).sum()); executed=len(g)
-        metrics.append({"definition_id":d.definition_id,"role":d.role,"source_events":source,"invalid_events":int(((eligibility.definition_id==d.definition_id)&(eligibility.status=="invalid")).sum()),"overlap_skips":int(((eligibility.definition_id==d.definition_id)&(eligibility.status=="skipped_overlap")).sum()),"executed_trades":executed,"events_2023":years.get(2023,0),"events_2024":years.get(2024,0),"events_2025":years.get(2025,0),"gross_mean_bps":float(g.gross_bps.mean()) if executed else math.nan,"gross_median_bps":float(g.gross_bps.median()) if executed else math.nan,"base_mean_bps":float(base.mean()) if executed else math.nan,"base_median_bps":float(base.median()) if executed else math.nan,"stress_mean_bps":float(stress.mean()) if executed else math.nan,"stress_median_bps":float(stress.median()) if executed else math.nan})
+        metrics.append({"definition_id":d.definition_id,"role":d.role,"source_events":source,"invalid_events":int(((eligibility.definition_id==d.definition_id)&(eligibility.status=="invalid")).sum()),"overlap_skips":int(((eligibility.definition_id==d.definition_id)&(eligibility.status=="skipped_overlap")).sum()),"executed_trades":executed,"unique_symbols":int(g.PF_symbol.nunique()) if executed else 0,"events_2023":years.get(2023,0),"events_2024":years.get(2024,0),"events_2025":years.get(2025,0),"gross_mean_bps":float(g.gross_bps.mean()) if executed else math.nan,"gross_median_bps":float(g.gross_bps.median()) if executed else math.nan,"base_mean_bps":float(base.mean()) if executed else math.nan,"base_median_bps":float(base.median()) if executed else math.nan,"stress_mean_bps":float(stress.mean()) if executed else math.nan,"stress_median_bps":float(stress.median()) if executed else math.nan})
         gates.append({"definition_id":d.definition_id,"role":d.role,**gate})
         concentrations.append({"definition_id":d.definition_id,**conc}); bootstraps.append({"definition_id":d.definition_id,"resamples":10000,"seed":20260717,"ci_lower_bps":low,"ci_upper_bps":high})
+        reported_partition=g.funding_partition.replace({"fully_exact":"fully_exact_funded"}) if executed else pd.Series(dtype=object)
         for p in ["fully_exact_funded","mixed","fully_imputed","zero_boundary"]:
-            x=g[g.funding_partition.eq(p)] if executed else g
-            funding.append({"definition_id":d.definition_id,"funding_partition":p,"trades":len(x),"central_mean_cashflow_bps":float(x.funding_cashflow_central_bps.mean()) if len(x) else math.nan})
+            x=g[reported_partition.eq(p)] if executed else g
+            funding.append({"definition_id":d.definition_id,"funding_partition":p,"trades":len(x),"central_mean_cashflow_bps":float(x.funding_cashflow_central_bps.mean()) if len(x) else math.nan,"central_total_cashflow_bps":float(x.funding_cashflow_central_bps.sum()) if len(x) else math.nan,"conservative_mean_cashflow_bps":float(x.funding_cashflow_conservative_bps.mean()) if len(x) else math.nan,"conservative_total_cashflow_bps":float(x.funding_cashflow_conservative_bps.sum()) if len(x) else math.nan,"severe_mean_cashflow_bps":float(x.funding_cashflow_severe_bps.mean()) if len(x) else math.nan,"severe_total_cashflow_bps":float(x.funding_cashflow_severe_bps.sum()) if len(x) else math.nan})
     return [pd.DataFrame(x) for x in (metrics,gates,funding,concentrations,bootstraps)]
 
 def artifact_manifest(root):
@@ -107,6 +125,7 @@ def main():
     if len(trades) and trades.economic_address.duplicated().any(): raise ValueError("duplicate economic address")
     panel,location,funding_hash=shared.load_funding_panel(); trades,boundaries=shared.attach_funding(trades,panel,location)
     if len(trades):
+        trades["funding_partition"]=trades.funding_partition.replace({"fully_exact":"fully_exact_funded"})
         trades["base_fee_slippage_net_bps"]=trades.base_net_bps_ex_funding; trades["stress_fee_slippage_net_bps"]=trades.stress_net_bps_ex_funding
         trades["path_reference"]="authorized_Kraken_PF_trade_5m_manifest"; trades["code_hash"]=sha(Path(__file__)); trades["config_hash"]=CONTRACT_HASH; trades["data_hash"]=frozen.canonical_hash([r.reference_id for r in authority]); trades["protected_row_count"]=0
     metrics,gates,funding,conc,boot=reports(register,trades,elig)

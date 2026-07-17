@@ -1,0 +1,23 @@
+{
+  "status": "pass",
+  "run_root": "results/rebaseline/phase_kraken_c02_positive_spot_led_level3_20260717_v1_20260717_161958",
+  "definition_rows": 4,
+  "primary_source_events": 489,
+  "robustness_source_events": 425,
+  "eligibility_rows": 1828,
+  "executed_rows": 1806,
+  "invalid_rows": 0,
+  "actual_overlap_skips": 22,
+  "duplicate_economic_addresses": 0,
+  "fully_exact_funded_rows": 72,
+  "mixed_funded_rows": 2,
+  "fully_imputed_rows": 1732,
+  "metric_or_gate_recompute_mismatches": 0,
+  "artifact_hash_mismatches": 0,
+  "protected_rows_opened": 0,
+  "artificial_endpoint_exits": 0,
+  "level4_controls_run": false,
+  "family_decision": "level3_no_primary_pass_stop",
+  "wall_seconds": 75.83,
+  "peak_rss_kib": 1285576
+}

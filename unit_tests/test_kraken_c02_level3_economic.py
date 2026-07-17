@@ -1,6 +1,7 @@
 import tempfile,unittest
 from pathlib import Path
 import pandas as pd
+import numpy as np
 from tools import run_kraken_c02_level3_economic as r
 
 class Tests(unittest.TestCase):
@@ -19,4 +20,15 @@ class Tests(unittest.TestCase):
  def test_no_control_surface(self): self.assertNotIn("control",dir(r))
  def test_existing_root_refused_contract(self):
   self.assertTrue(hasattr(r,"main"))
+ def test_nonpositive_concentration_only_fails_dependent_gates(self):
+  trades=pd.DataFrame({"calendar_year":[2023]*20+[2024]*20+[2025]*60,"base_net_bps_ex_funding":[-1.0]*100,"stress_net_bps_ex_funding":[-2.0]*100})
+  concentration={"max_positive_symbol_share":np.nan,"max_positive_episode_share":np.nan,"max_positive_year_share":np.nan}
+  gates=r.gate_report(trades,-1.0,concentration)
+  self.assertTrue(gates["executed_trades_ge_100"])
+  self.assertTrue(gates["each_year_ge_20"])
+  self.assertTrue(gates["bootstrap_lower_ge_minus5"])
+  self.assertFalse(gates["symbol_share_le_25pct"])
+  self.assertFalse(gates["mean_base_net_positive"])
+ def test_funding_contract_label_is_reported(self):
+  self.assertEqual(pd.Series(["fully_exact"]).replace({"fully_exact":"fully_exact_funded"}).iloc[0],"fully_exact_funded")
 if __name__=="__main__": unittest.main()
