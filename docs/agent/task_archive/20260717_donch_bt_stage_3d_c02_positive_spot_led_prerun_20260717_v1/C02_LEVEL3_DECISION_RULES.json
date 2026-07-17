@@ -1,0 +1,40 @@
+{
+  "bootstrap": {
+    "ci": 0.95,
+    "resamples": 10000,
+    "seed": 20260717,
+    "unit": "canonical_episode"
+  },
+  "costs_bps": {
+    "base": {
+      "round_trip_slippage": 4,
+      "taker_per_side": 5
+    },
+    "stress": {
+      "round_trip_slippage": 12,
+      "taker_per_side": 10
+    }
+  },
+  "funding_partitions": [
+    "fully_exact_funded",
+    "mixed",
+    "fully_imputed",
+    "zero_boundary"
+  ],
+  "gates": {
+    "bootstrap_ci_lower_bps_gte": -5,
+    "each_year_min": 20,
+    "executed_trades_min": 100,
+    "max_positive_episode_share_lte": 0.1,
+    "max_positive_symbol_share_lte": 0.25,
+    "max_positive_year_share_lte": 0.7,
+    "mean_base_net_bps_gt": 0,
+    "median_base_net_bps_gt": 0,
+    "stress_mean_bps_gte": -10
+  },
+  "lineage_id": "C02_positive_resolution_aware_spot_led_continuation_v1",
+  "primary_event_set_hash": "7dbdb3763b9131480f712f60c2e7a4d0822f65a276b4ed5c5c00bdb804e3c42c",
+  "primary_only_permission": true,
+  "robustness_cannot_rescue": true,
+  "robustness_event_set_hash": "f3284aaf54da7c2f53d6a3561eab8e92cc639c40c7b9c025ed1991ac63bf7ca1"
+}

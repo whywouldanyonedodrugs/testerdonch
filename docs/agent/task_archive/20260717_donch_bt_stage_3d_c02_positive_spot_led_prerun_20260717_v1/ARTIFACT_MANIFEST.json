@@ -1,0 +1,114 @@
+{
+  "actual_starting_commit": "d370df829ea38f6cee0d45ece4fccbb91dafa3de",
+  "artifacts": [
+    {
+      "bytes": 1741,
+      "drive_included": true,
+      "path": "C02_FINAL_LEVEL3_ECONOMIC_CONTRACT.md",
+      "sha256": "1c4f7f6ec81fa86d1c1355ce899570bdec85e413ad4febe110f33cc4ec565496"
+    },
+    {
+      "bytes": 1087,
+      "drive_included": true,
+      "path": "C02_LEVEL3_DECISION_RULES.json",
+      "sha256": "07e6d8395f666a4a916625a91ff0e9b113a5434ede89474c773a5c4737e335d9"
+    },
+    {
+      "bytes": 1529,
+      "drive_included": true,
+      "path": "C02_LEVEL3_DEFINITION_REGISTER.csv",
+      "sha256": "c785a9db740d9c6d984dcdd3ddd2f91ace2012b3dd3d916afd19114677a8c693"
+    },
+    {
+      "bytes": 762,
+      "drive_included": true,
+      "path": "C02_LEVEL4_CONTROL_CONTRACT.md",
+      "sha256": "7e47d89257647fc42c28f9a524cda99f4747ae9bda5258285d14e8f50251ab39"
+    },
+    {
+      "bytes": 617,
+      "drive_included": true,
+      "path": "C02_MULTIPLICITY_AND_LINEAGE_RECORD.md",
+      "sha256": "6e0286225b63517f40d49605089a519c800c12cf7e917d51d2d15c25c58f70cd"
+    },
+    {
+      "bytes": 276094,
+      "drive_included": true,
+      "path": "C02_POSITIVE_SPOT_LED_EVENT_SET.csv",
+      "sha256": "4d585f7c4417b47ad54c342dfe20827031a1e5555bcbe9d87bf83b8f98786b6e"
+    },
+    {
+      "bytes": 1568,
+      "drive_included": true,
+      "path": "C02_PRERUN_APPROVAL_PACKET.md",
+      "sha256": "86bb27524ea4b036848699fd3f4cea001e3f70322a74fe9a7cfa4a8e38e15963"
+    },
+    {
+      "bytes": 596,
+      "drive_included": true,
+      "path": "CHANGED_FILES.md",
+      "sha256": "fe3298ac63f8d685f58ea4892fcdb4f831bde1c6e44713328e64fc8a79deefb3"
+    },
+    {
+      "bytes": 416,
+      "drive_included": true,
+      "path": "COMMANDS.md",
+      "sha256": "87bfdb91879ecb56d0122495dc92e9bc0e32366afe0c569b70eca8e666e01282"
+    },
+    {
+      "bytes": 300,
+      "drive_included": true,
+      "path": "COMPLETION.md",
+      "sha256": "728846baf9e1de1dcae39de6357ddf0849a34d79ef544eab73310ec241994c75"
+    },
+    {
+      "bytes": 724,
+      "drive_included": true,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "sha256": "e5bbe43dc0425c4ffc4d22c978ed5b616f46bf33df765867d14111598adbce9a"
+    },
+    {
+      "bytes": 248,
+      "drive_included": true,
+      "path": "NEXT_ACTION.md",
+      "sha256": "ff487721df08a6405144efcc15129d768f4274255392b846254ca08e0ed4b9d9"
+    },
+    {
+      "bytes": 1711,
+      "drive_included": true,
+      "path": "PLAN.md",
+      "sha256": "c12237aab1a65f557c9b47e6cb88aad02b01c4f501ad28e727ee255a3f45229c"
+    },
+    {
+      "bytes": 794,
+      "drive_included": true,
+      "path": "REVIEW.md",
+      "sha256": "a62e811c8db2a476e0c132806ba2babb6bccbc732cfb584d23e45b6fa0064367"
+    },
+    {
+      "bytes": 8897,
+      "drive_included": true,
+      "path": "TASK_SPEC.md",
+      "sha256": "e8682ef99c1d5c5dc66815ed9d1be93b0979a5f5c04c0665429425b1cd88d48d"
+    },
+    {
+      "bytes": 922,
+      "drive_included": true,
+      "path": "VALIDATION.md",
+      "sha256": "ff02d838d45af24db6d535d3a171c23535b895ba3e6f27911313a4c4af6dd67f"
+    }
+  ],
+  "economic_outputs_computed": 0,
+  "economic_runner_implemented": false,
+  "final_contract_sha256": "1c4f7f6ec81fa86d1c1355ce899570bdec85e413ad4febe110f33cc4ec565496",
+  "freezer_source_sha256": "88465241d6460ea709689fcc2149b6f0681c5441734cc0057fb48dba55c72046",
+  "manifest_content_hash": "81b555d72590fecc9cd1aaa6ee47a9760935c207c95630bd62122a4e29eba3a0",
+  "primary_event_set_hash": "7dbdb3763b9131480f712f60c2e7a4d0822f65a276b4ed5c5c00bdb804e3c42c",
+  "protected_outcomes_opened": 0,
+  "robustness_event_set_hash": "f3284aaf54da7c2f53d6a3561eab8e92cc639c40c7b9c025ed1991ac63bf7ca1",
+  "source_stage3c_contract_sha256": "ce65c62edfb80f5fb83e9b8b6bae1d3eb9c981f8e9a1bcad3b285fdce46cca51",
+  "source_stage3c_event_tape_sha256": "c73344b1bd104c0816d731a1002f729b49100385a34b9b56ec4b2be66dad71ad",
+  "status": "ready_for_human_C02_Level3_run_approval",
+  "task_id": "donch_bt_stage_3d_c02_positive_spot_led_prerun_20260717_v1",
+  "test_source_sha256": "e49b17de7280b2c300d5867aa2cf30f150ef6f56ecc7078e01a9c0be9c438eb4"
+}
