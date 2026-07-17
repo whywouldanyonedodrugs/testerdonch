@@ -1,0 +1,77 @@
+{
+  "created_utc": "2026-07-17T10:52:42.868779Z",
+  "files": [
+    {
+      "bytes": 557,
+      "path": "CHANGED_FILES.md",
+      "sha256": "f9644997a5d82034405f4d1e1a144ee90e9859fda1379630b1a1c56957b65617"
+    },
+    {
+      "bytes": 1168,
+      "path": "COMMANDS.md",
+      "sha256": "b88fedde56c2697b00ba7b63c3f2658acec85aaa34c45c05e14029d1276ceef1"
+    },
+    {
+      "bytes": 676,
+      "path": "COMPLETION.md",
+      "sha256": "a1beeb218bdadd062f7d9b86a81d8e38713cebe5add2a15202f983b6e1999eba"
+    },
+    {
+      "bytes": 1174,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "sha256": "9adaf5f53e392f5f3ea2926e138ff394859b4c3768bffe35999779c7918b159f"
+    },
+    {
+      "bytes": 294,
+      "path": "LOCAL_ONLY_ARTIFACTS.md",
+      "sha256": "d38ad1dc1090e74760293ffafbf566fa168b0226e46a9731f18a7ece57aca264"
+    },
+    {
+      "bytes": 256,
+      "path": "NEXT_ACTION.md",
+      "sha256": "922d7ca94c9a928d2a66944c46374c4f502978982f94c2c51e62ec747df3837b"
+    },
+    {
+      "bytes": 1899,
+      "path": "PLAN.md",
+      "sha256": "0c3c83b7e76d278ccce1770bb6859ebafdca5d902cf3e62cea84b493c4708323"
+    },
+    {
+      "bytes": 1745,
+      "path": "REVIEW.md",
+      "sha256": "16bab1c5ebfb77c043ec3f98d954fd0d20cd45dc6ba3e3ff67cc3023b9c3e396"
+    },
+    {
+      "bytes": 309,
+      "path": "SECRET_SCAN.md",
+      "sha256": "7a7f00dfbd9f9a6f31b1c1f8f58151de95d1423a41445b0698e5bcb19f97823b"
+    },
+    {
+      "bytes": 0,
+      "path": "SECRET_SCAN_FINDINGS.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 8975,
+      "path": "TASK_SPEC.md",
+      "sha256": "70c827aa690a052fc449892a250eb05a92d19691a77bc970688f3e5eac8b91ac"
+    },
+    {
+      "bytes": 743,
+      "path": "VALIDATION.md",
+      "sha256": "f5a30f6c48d1ccf253a8a63c15e06b2dd1526efc7b467326a4f02e26c195c5cb"
+    },
+    {
+      "bytes": 593,
+      "path": "VALIDATION_EVIDENCE.json",
+      "sha256": "ebdcb8aee917f4a830709665b211be2e120aedcda9da8300e81d5fb1e7d84412"
+    },
+    {
+      "bytes": 11261,
+      "path": "logs/pre_execution_tests.log",
+      "sha256": "a165199defd68cade58e800fff48851c0dd233d762bc3b098dd44e8d015abe42"
+    }
+  ],
+  "scope": "task_archive_excluding_handoff",
+  "task_id": "donch_bt_stage_2e_c01_level3_economic_20260717_v1"
+}

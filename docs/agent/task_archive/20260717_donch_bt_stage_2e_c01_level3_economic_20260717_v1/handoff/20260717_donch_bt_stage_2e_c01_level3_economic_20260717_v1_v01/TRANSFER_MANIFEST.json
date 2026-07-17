@@ -1,0 +1,33 @@
+{
+  "created_utc": "2026-07-17T10:51:03.762325Z",
+  "decision": "level3_no_primary_pass_stop",
+  "economic_run_count": 1,
+  "files": [
+    {
+      "bytes": 875,
+      "filename": "READ_FIRST.md",
+      "sha256": "dbd49ea1f1cd799c4a5fc4d23d8aa2ce697337ab9c60922aeebd53cad48ecfd1"
+    },
+    {
+      "bytes": 555,
+      "filename": "VALIDATION.md",
+      "sha256": "cd906f3f5b3eb0d99a921cdce589b8ba43e3d57a20ed563698ba8db46e2246c9"
+    },
+    {
+      "bytes": 719,
+      "filename": "REVIEW.md",
+      "sha256": "8d0eedcc36754efa63ecdc2851db74f3b850879414781b131b6bb3037ecd4df2"
+    },
+    {
+      "bytes": 3120143,
+      "filename": "qlmg_c01_level3_economic_20260717_v01.zip",
+      "sha256": "f81a8694939a7c61955c2b523b24f4c54c98fde9a0a12542153d6489b804b996"
+    }
+  ],
+  "level4_controls_run": false,
+  "protected_rows_opened": 0,
+  "remote_label": "qlmg_sweep_drive:",
+  "runner_commit": "4571e097dcceddf228629c8e085e52dd1bfe47cb",
+  "target_folder": "20260717_donch_bt_stage_2e_c01_level3_economic_20260717_v1_v01",
+  "task_id": "donch_bt_stage_2e_c01_level3_economic_20260717_v1"
+}
