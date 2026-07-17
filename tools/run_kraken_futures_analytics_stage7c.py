@@ -2,7 +2,7 @@
 """Stage 7C exact-scope shard-month Kraken analytics acquisition."""
 from __future__ import annotations
 
-import argparse, hashlib, io, json, os, resource, shutil, sqlite3, tarfile, tempfile, time
+import argparse, hashlib, io, json, os, resource, shutil, sqlite3, sys, tarfile, tempfile, time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -11,6 +11,10 @@ from typing import Any
 import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from tools.acquire_kraken_futures_analytics import (
     Acquirer, JobSpec, Ledger, METRICS, PROTECTED_START, TRAIN_START,
