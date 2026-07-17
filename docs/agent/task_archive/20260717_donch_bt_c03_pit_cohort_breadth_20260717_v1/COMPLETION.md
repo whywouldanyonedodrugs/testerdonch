@@ -9,3 +9,5 @@ Status: `C03_PIT_authority_unavailable`.
 - Phase B, economic outputs, protected outcomes, C01/C02 economic reads: zero.
 - Official sources newly acquired: zero; existing archived/current authority was used.
 - Final build wall time: 30.31 seconds; peak RSS: 1,891,568 KiB.
+- Approved Drive handoff: `https://drive.google.com/open?id=1RnpSK7JGxlyOmJipr1H5wKBm8vPlhdJU`.
+- Remote verification: all five direct files passed round-trip byte-size and SHA-256 comparison; the daily membership Parquet remains local only.
