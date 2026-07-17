@@ -1,0 +1,28 @@
+{
+  "check_count": 20,
+  "checks": {
+    "BTC_products_11": true,
+    "ETH_products_9": true,
+    "Kraken_outcomes_zero": true,
+    "authority_values_zero": true,
+    "coverage_max_before_protected": true,
+    "coverage_product_ids_complete": true,
+    "decision_exact": true,
+    "economic_outputs_zero": true,
+    "first_panel_empty": true,
+    "latest_panel_empty": true,
+    "no_AUM_flow_relabel": true,
+    "panel_schema_equal": true,
+    "product_count_20": true,
+    "product_ids_unique": true,
+    "protected_rows_zero": true,
+    "publication_coverage_zero": true,
+    "retained_source_hashes_match": true,
+    "retained_sources_official_sec": true,
+    "source_ids_unique": true,
+    "source_references_resolve": true
+  },
+  "critical_findings": [],
+  "failure_count": 0,
+  "review_status": "approve_authority_unavailable_decision"
+}

@@ -1,0 +1,94 @@
+{
+  "artifacts": [
+    {
+      "bytes": 752,
+      "path": "C16_AUTHORITY_DECISION.md",
+      "sha256": "0d65ce1c0dafcc39d8df5c68131482d6c1250191e2eafc0aa4330afe55e4c104"
+    },
+    {
+      "bytes": 986699,
+      "path": "C16_DAILY_COVERAGE_MATRIX.csv",
+      "sha256": "9936ac252d0cdf23a2c497ce482ed4c65ea41fce774ed4704af12a2d5a1faf36"
+    },
+    {
+      "bytes": 1746,
+      "path": "C16_DATA_MANIFEST.json",
+      "sha256": "6310e96ee0f24e3acd02ea99c0e86f23e5ac53eade0c1c96ba9a5ae500ab2f1f"
+    },
+    {
+      "bytes": 3098,
+      "path": "C16_GAP_AND_REVISION_REGISTER.csv",
+      "sha256": "b2690085e7db864f50451d9f83002dd5971b72730a6af31c0e3d9f2081b4a58b"
+    },
+    {
+      "bytes": 1138,
+      "path": "C16_MEASURE_SEMANTICS.md",
+      "sha256": "28c7410d58ee1568bb70f318b627424ccd2831774e642ad95ba2fe666ea388ad"
+    },
+    {
+      "bytes": 473,
+      "path": "C16_NEXT_CONTRACT_RECOMMENDATION.md",
+      "sha256": "9b766cb81333051ad59e011d405bab3139830db7df9fcc23ba0f744fda69071e"
+    },
+    {
+      "bytes": 14059,
+      "path": "C16_PRODUCT_REGISTRY.csv",
+      "sha256": "d1a3f6c04c0fb064d2f86c1e96009c01d51586ed49909f2d7f67ed8b922b0bf7"
+    },
+    {
+      "bytes": 1504,
+      "path": "C16_PUBLICATION_AND_REVISION_AUDIT.csv",
+      "sha256": "a8e2f08a26c91b1124fccea72cfe3f7f843cdee50cb5024278a10feed7833c13"
+    },
+    {
+      "bytes": 7625,
+      "path": "C16_SOURCE_LEDGER.csv",
+      "sha256": "16fdb697eaa69ecb2f15ca3133ec0adfc1496ecf320d3254bbe875b85be2391c"
+    },
+    {
+      "bytes": 788,
+      "path": "C16_TERMS_AND_LICENSE_REVIEW.md",
+      "sha256": "779e3ffbfeaa8627cbded0612519be271e8dc1959862264e2aef0d086e9c4243"
+    },
+    {
+      "bytes": 977,
+      "path": "COMPLETION.md",
+      "sha256": "254b708c8e7fda43d8739c2c850691efa1b3ed0474440e2783ce91c9de8c1fd5"
+    },
+    {
+      "bytes": 844,
+      "path": "INDEPENDENT_REVIEW_EVIDENCE.json",
+      "sha256": "c9cc16ecf00d2740be6b9e3fad7fd6aef3b587fe13226383230bf6c34ee6e2e8"
+    },
+    {
+      "bytes": 582,
+      "path": "NEXT_ACTION.md",
+      "sha256": "c1793c476ff615d45975d2e4528dc0f3e5b6fe1b590617def979e62701d8aafb"
+    },
+    {
+      "bytes": 902,
+      "path": "REVIEW.md",
+      "sha256": "ec5cb8accec9ada29cc66f0a917631032228f8e6567c95e216131a048cc71b16"
+    },
+    {
+      "bytes": 1246,
+      "path": "VALIDATION.md",
+      "sha256": "08a9bf5b9447ab7b657ba8982ff84f7ad79556ae86aebe9fca013d2b08631a02"
+    },
+    {
+      "bytes": 8793,
+      "local_only": true,
+      "path": "C16_FIRST_PUBLISHED_FLOW_PANEL.parquet",
+      "sha256": "9f0d16dc26c1e1964c841bebe95cdcbf6af7c06be8c7e10398e850009dc104ad"
+    },
+    {
+      "bytes": 8793,
+      "local_only": true,
+      "path": "C16_LATEST_REVISED_AUDIT_PANEL.parquet",
+      "sha256": "9f0d16dc26c1e1964c841bebe95cdcbf6af7c06be8c7e10398e850009dc104ad"
+    }
+  ],
+  "generated_utc": "2026-07-17T18:45:23Z",
+  "status": "C16_flow_authority_unavailable",
+  "task_id": "donch_bt_stage_6a_c16_flow_authority_20260717_v1"
+}

@@ -1,0 +1,21 @@
+product_id,underlying_asset,gap_start,gap_end,missing_eligible_days,consecutive_gap_days,gap_reason,revision_ambiguity
+BTC_GBTC,BTC,2024-01-11,2025-12-31,495,495,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+BTC_BITB,BTC,2024-01-11,2025-12-31,495,495,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+BTC_DEFI,BTC,2024-03-27,2025-12-31,443,443,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+BTC_IBIT,BTC,2024-01-11,2025-12-31,495,495,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+BTC_BRRR,BTC,2024-01-11,2025-12-31,495,495,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+BTC_ARKB,BTC,2024-01-11,2025-12-31,495,495,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+BTC_BTCO,BTC,2024-01-11,2025-12-31,495,495,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+BTC_HODL,BTC,2024-01-11,2025-12-31,495,495,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+BTC_BTCW,BTC,2024-01-11,2025-12-31,495,495,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+BTC_FBTC,BTC,2024-01-11,2025-12-31,495,495,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+BTC_EZBC,BTC,2024-01-11,2025-12-31,495,495,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+ETH_ETHE,ETH,2024-07-23,2025-12-31,363,363,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+ETH_ETHW,ETH,2024-07-23,2025-12-31,363,363,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+ETH_ETH,ETH,2024-07-23,2025-12-31,363,363,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+ETH_ETHA,ETH,2024-07-23,2025-12-31,363,363,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+ETH_ETHV,ETH,2024-07-23,2025-12-31,363,363,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+ETH_CETH,ETH,2024-07-23,2025-12-31,363,363,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+ETH_QETH,ETH,2024-07-23,2025-12-31,363,363,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+ETH_FETH,ETH,2024-07-23,2025-12-31,363,363,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown
+ETH_EZET,ETH,2024-07-23,2025-12-31,363,363,no official versioned daily value with reconstructable first-publication timestamp,unversioned_or_unknown

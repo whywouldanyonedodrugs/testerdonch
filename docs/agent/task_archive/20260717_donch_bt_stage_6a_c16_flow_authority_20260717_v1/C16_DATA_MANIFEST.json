@@ -1,0 +1,46 @@
+{
+  "Kraken_outcomes_opened": 0,
+  "coverage": [
+    {
+      "active_product_count": 11,
+      "authoritative_value_days": 0,
+      "eligible_product_days": 5393,
+      "first_publication_coverage_fraction": 0.0,
+      "first_publication_days": 0,
+      "underlying_asset": "BTC",
+      "usable_asset_days": 0
+    },
+    {
+      "active_product_count": 9,
+      "authoritative_value_days": 0,
+      "eligible_product_days": 3267,
+      "first_publication_coverage_fraction": 0.0,
+      "first_publication_days": 0,
+      "underlying_asset": "ETH",
+      "usable_asset_days": 0
+    }
+  ],
+  "decision": "C16_flow_authority_unavailable",
+  "economic_outputs_computed": 0,
+  "feasibility": {
+    "BTC_usable_asset_days_at_least_150": false,
+    "ETH_usable_asset_days_at_least_100": false,
+    "economically_valid_flow_measure": false,
+    "first_publication_coverage_at_least_80pct": false,
+    "identity_collisions": 0,
+    "no_unversioned_ambiguity_on_usable_days": true,
+    "protected_observation_rows_opened": 0
+  },
+  "first_published_panel_sha256": "9f0d16dc26c1e1964c841bebe95cdcbf6af7c06be8c7e10398e850009dc104ad",
+  "latest_revised_panel_sha256": "9f0d16dc26c1e1964c841bebe95cdcbf6af7c06be8c7e10398e850009dc104ad",
+  "mixed_payload_observation_rows_parsed": 0,
+  "observation_interval": "[2024-01-01,2026-01-01)",
+  "panel_rows": 0,
+  "product_count": 20,
+  "product_registry_sha256": "d1a3f6c04c0fb064d2f86c1e96009c01d51586ed49909f2d7f67ed8b922b0bf7",
+  "protected_observations_opened": 0,
+  "source_count": 15,
+  "source_ledger_sha256": "16fdb697eaa69ecb2f15ca3133ec0adfc1496ecf320d3254bbe875b85be2391c",
+  "starting_commit": "e905a25a82582b8b6e436329c73c3a2117e793a6",
+  "task_id": "donch_bt_stage_6a_c16_flow_authority_20260717_v1"
+}
