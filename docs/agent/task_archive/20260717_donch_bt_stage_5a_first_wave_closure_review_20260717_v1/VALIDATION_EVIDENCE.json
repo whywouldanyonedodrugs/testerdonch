@@ -1,0 +1,13 @@
+{
+  "archive_sha256": "a8fe6597494fd38b3f7ffc59410b96e8b94e63752ce1a9304c7190cf7684b0f3",
+  "definition_rows_verified": 20,
+  "economic_outputs_computed": 0,
+  "manifest_rows_verified": 40,
+  "prior_lineages_verified": 14,
+  "protected_outcomes_opened": 0,
+  "secret_findings": 0,
+  "status": "approve",
+  "tests_errors": 0,
+  "tests_failures": 0,
+  "tests_passed": 67
+}

@@ -1,0 +1,102 @@
+{
+  "created_utc": "2026-07-17T18:13:52.665722Z",
+  "files": [
+    {
+      "path": "BUILD.log",
+      "bytes": 652,
+      "sha256": "e3b9be24476350fc1eb1b79b6f3087f0d4ae69d6421aa53cb2662540c492192b"
+    },
+    {
+      "path": "BUILD.stderr.log",
+      "bytes": 787,
+      "sha256": "eb3fedee862d8f1b8d430314bd3d4ad0b2efbef862191180bc1893bcb549f7c7"
+    },
+    {
+      "path": "CHANGED_FILES.md",
+      "bytes": 567,
+      "sha256": "bf3e237d08353b288c1db7b48440638553efed89fc58d7593283daf67611f49c"
+    },
+    {
+      "path": "COMMANDS.md",
+      "bytes": 761,
+      "sha256": "581b74acecc3fa450bf415ca6d8451feee319f2633a6d556c0b5775b4617387e"
+    },
+    {
+      "path": "COMPLETION.md",
+      "bytes": 662,
+      "sha256": "54c85c901ab253357efae6f6e1ff7eb3b00cb97d2dea59473fa25a0a1dc1c5c0"
+    },
+    {
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "bytes": 809,
+      "sha256": "8f43aba22d31658ece5300e44813bac9278bd8070ea9c1e8453ab5cf0b371ceb"
+    },
+    {
+      "path": "LOCAL_ONLY_ARTIFACTS.md",
+      "bytes": 339,
+      "sha256": "6f941bd30abdca78162422f4c42b6e9cd803a761c6888bb90f82b41810ff97c3"
+    },
+    {
+      "path": "NEXT_ACTION.md",
+      "bytes": 307,
+      "sha256": "43df2a3528bea411f55db1c02266ed4774d4edafff29d50c8f6cae504712426c"
+    },
+    {
+      "path": "PLAN.md",
+      "bytes": 1594,
+      "sha256": "3a3224c97644f9c8f66fe3ca72634860e56c45ce8be43fa7a857a0eb3d260527"
+    },
+    {
+      "path": "PRE_RUN_REVIEW.md",
+      "bytes": 300,
+      "sha256": "f3790d22a56899e0c61d80c866a27062396310ccd1fc9d92f753cc5dd55f475a"
+    },
+    {
+      "path": "REVIEW.md",
+      "bytes": 614,
+      "sha256": "167f7db27573f4442b313c27a6098afac32cde71691f8514eb2158b895d025a2"
+    },
+    {
+      "path": "RUN_ROOT.txt",
+      "bytes": 70,
+      "sha256": "d9a5c7e5848bb36555b6c15215f7cf3141c937cf3f74034928587f15b7cbf023"
+    },
+    {
+      "path": "TASK_SPEC.md",
+      "bytes": 10774,
+      "sha256": "800d97215be3e65d81eaeabcd2acf00872a7c58ea3fa1a5c4adaf490f07c0deb"
+    },
+    {
+      "path": "VALIDATION.md",
+      "bytes": 669,
+      "sha256": "d8c80ed1bb4e587ca49bbc5f203e1ee2fc99f9059e3d06838bb4684c9311e603"
+    },
+    {
+      "path": "VALIDATION_EVIDENCE.json",
+      "bytes": 371,
+      "sha256": "00f43c2ed59cbbf93853cd68088f41ecf7848eca13ff2c73fd29ddb0a32ec4ac"
+    },
+    {
+      "path": "handoff/HANDOFF_RECORD.md",
+      "bytes": 1313,
+      "sha256": "3256ead612513360944d58c3477fb0594a30b39017ab4633bd63e3fbe8560ee4"
+    },
+    {
+      "path": "logs/focused_tests.log",
+      "bytes": 104,
+      "sha256": "37d8a0769d6c800296764c21f8e08feca52d770d400afabe65713604062cf749"
+    },
+    {
+      "path": "logs/full_tests.log",
+      "bytes": 166,
+      "sha256": "14f0216d3c42d7cda918f970490d562b21236f6aba38d44f04b7762e0756093d"
+    },
+    {
+      "path": "logs/independent_validation.log",
+      "bytes": 287,
+      "sha256": "b7c60d9be04a8fad995dec60ffcaf7fe5afdca87ee718ad290fc6206965290a9"
+    }
+  ],
+  "scope": "task_archive_including_handoff_excluding_self",
+  "task_id": "donch_bt_stage_5a_first_wave_closure_review_20260717_v1"
+}
