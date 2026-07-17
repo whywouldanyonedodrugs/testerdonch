@@ -1,0 +1,8 @@
+family,stage,attempts,definitions,decision
+C01,foundation_generator,12,0,frozen attempt register retained
+C01,level3_economic,16,16,level3_no_primary_pass_stop
+C02,resolution_aware_generator,2,0,positive resolved spot-led only advanced
+C02,level3_economic,4,4,level3_no_primary_pass_stop
+C03,PIT_authority,1,0,C03_PIT_authority_unavailable
+prior14,historical_program,not fully recoverable,not pooled,preserve external registry and multiplicity limitation
+C16,official_flow_authority,1,0,C16_flow_authority_unavailable

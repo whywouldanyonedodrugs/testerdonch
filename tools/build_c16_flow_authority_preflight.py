@@ -317,7 +317,9 @@ def artifact_manifest(
     for path in sorted(root.iterdir()):
         if (
             path.is_file()
-            and path.name not in {"ARTIFACT_MANIFEST.json", "BUILD_AS_OF_UTC.txt"}
+            and path.name not in {
+                "ARTIFACT_MANIFEST.json", "BUILD_AS_OF_UTC.txt", "UPDATED_RUN_REGISTRY.csv"
+            }
             and path.suffix != ".parquet"
         ):
             rows.append({"path": path.name, "bytes": path.stat().st_size, "sha256": sha256(path)})

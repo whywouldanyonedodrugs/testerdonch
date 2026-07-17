@@ -6,6 +6,11 @@
       "sha256": "0d65ce1c0dafcc39d8df5c68131482d6c1250191e2eafc0aa4330afe55e4c104"
     },
     {
+      "bytes": 687,
+      "path": "C16_CONTINUITY_UPDATE.md",
+      "sha256": "451321d7a57f2bc5a6f8faed60c56fb2d83e8dc613be6f1e48c7ae984f7c5156"
+    },
+    {
       "bytes": 986699,
       "path": "C16_DAILY_COVERAGE_MATRIX.csv",
       "sha256": "9936ac252d0cdf23a2c497ce482ed4c65ea41fce774ed4704af12a2d5a1faf36"
@@ -69,6 +74,21 @@
       "bytes": 902,
       "path": "REVIEW.md",
       "sha256": "ec5cb8accec9ada29cc66f0a917631032228f8e6567c95e216131a048cc71b16"
+    },
+    {
+      "bytes": 518,
+      "path": "UPDATED_ATTEMPT_MULTIPLICITY_REGISTRY.csv",
+      "sha256": "c53465eae198092e4334b80d52910b5485f3b356c5cb300b334a37b15374987b"
+    },
+    {
+      "bytes": 941,
+      "path": "UPDATED_DATA_CAPABILITY_REGISTRY.csv",
+      "sha256": "3d84fdc6309809889db26b55b71a8c2164d29c32a0a42fdf675099e72f550013"
+    },
+    {
+      "bytes": 4989,
+      "path": "UPDATED_FAMILY_HYPOTHESIS_REGISTRY.csv",
+      "sha256": "7eed3ff5cc3ad1acb167f45bc204bdd1b244e261621982025220a1559c72ec12"
     },
     {
       "bytes": 1246,
