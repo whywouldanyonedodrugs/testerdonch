@@ -1,0 +1,38 @@
+{
+  "Kraken_outcomes_opened": 0,
+  "economic_outputs_computed": 0,
+  "files": [
+    {
+      "bytes": 776,
+      "name": "READ_FIRST.md",
+      "sha256": "5fe061ed624a586e4f28f5ba03e199c4ab4d0ef7033451b31b1468acac65dd35"
+    },
+    {
+      "bytes": 1246,
+      "name": "VALIDATION.md",
+      "sha256": "08a9bf5b9447ab7b657ba8982ff84f7ad79556ae86aebe9fca013d2b08631a02"
+    },
+    {
+      "bytes": 902,
+      "name": "REVIEW.md",
+      "sha256": "ec5cb8accec9ada29cc66f0a917631032228f8e6567c95e216131a048cc71b16"
+    },
+    {
+      "bytes": 55587,
+      "name": "qlmg_c16_flow_authority_20260717_v01.zip",
+      "sha256": "0a868fe9f6461a78a8b0652b91e7b0529eeaa3a12e1157d49592d7fb5577cd23"
+    }
+  ],
+  "omitted": [
+    "raw SEC PDFs and headers",
+    "quarantined mixed response",
+    "Parquet panels",
+    "replay directories",
+    "Kraken and capture data"
+  ],
+  "protected_observation_rows_opened": 0,
+  "remote_direct_file_limit": 5,
+  "secret_scan_findings": 0,
+  "status": "C16_flow_authority_unavailable",
+  "task_id": "donch_bt_stage_6a_c16_flow_authority_20260717_v1"
+}
