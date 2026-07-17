@@ -1,0 +1,16 @@
+{
+  "alignment_status": "alignment_fragile_requires_review",
+  "cohort_hash": "768b09c731a728e31ce1d882862878c698cbf19e6883b1d0fe02505edb619f15",
+  "economic_outputs_computed": 0,
+  "episodes": 13734,
+  "events": 32686,
+  "failures": 1212,
+  "family_id": "C02_spot_led_vs_perp_led_impulse",
+  "outcome_fields": [],
+  "protected_outcomes_opened": 0,
+  "protected_rows_opened": 0,
+  "same_episode_direction_rate": 0.7210732423667625,
+  "same_leadership_rate": 0.04688361831218974,
+  "spot_manifest_hash": "3de3b533a390f04590ae458ac661d4fc10d299df1a1833734911fa609b0a7046",
+  "symbols_processed": 204
+}

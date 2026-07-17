@@ -1,0 +1,31 @@
+{
+  "decision_semantics": "completed_exact_5m_bar; feature_available_ts<=decision_ts",
+  "features": {
+    "leadership_state": "first directional z>=1.5 crossing in frozen lookback",
+    "perp_r_15m": "log close ratio across four consecutive observed PF trade intervals",
+    "perp_z_15m": "return divided by prior-30-UTC-day sample std; min 2000",
+    "price_gaps": "same-decision spot/PF trade/mark close diagnostics",
+    "spot_r_15m": "log close ratio across four consecutive observed spot intervals",
+    "spot_z_15m": "return divided by prior-30-UTC-day sample std; min 2000",
+    "volume_surprise": "15m close-based USD-volume proxy / prior-30-day median; diagnostic"
+  },
+  "outcome_fields": [],
+  "prohibited_output_tokens": [
+    "forward_return",
+    "post_decision",
+    "pnl",
+    "net_r",
+    "gross_r",
+    "mae",
+    "mfe",
+    "expectancy",
+    "profit",
+    "promotion",
+    "exit_price"
+  ],
+  "train_interval": [
+    "2023-01-01T00:00:00+00:00",
+    "2026-01-01T00:00:00+00:00"
+  ],
+  "version": "c02_causal_features_v1_20260717"
+}
