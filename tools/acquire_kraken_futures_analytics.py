@@ -167,9 +167,9 @@ def normalized_rows(spec: JobSpec, payload: dict[str, Any]) -> tuple[pd.DataFram
     if len(values) != len(timestamps):
         raise ValueError("timestamp/value length mismatch")
     rows = []
-    for ts, value in zip(timestamps, values):
+    for row_number, (ts, value) in enumerate(zip(timestamps, values)):
         value_json = json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
-        rows.append({
+        row = {
             "timestamp_utc": pd.Timestamp(ts, unit="s", tz="UTC"),
             "timestamp_epoch_seconds": ts,
             "value_field": value_field,
@@ -178,12 +178,33 @@ def normalized_rows(spec: JobSpec, payload: dict[str, Any]) -> tuple[pd.DataFram
             "symbol": spec.symbol,
             "interval_seconds": spec.interval_seconds,
             "source_job_id": spec.job_id,
+            "source_request_id": spec.job_id,
             "request_since": spec.since,
             "request_to": spec.to,
-        })
-    frame = pd.DataFrame(rows, columns=["timestamp_utc", "timestamp_epoch_seconds", "value_field", "value_json",
-                                             "analytics_type", "symbol", "interval_seconds", "source_job_id",
-                                             "request_since", "request_to"])
+            "semantic_status": "source_authorized_economic_interpretation_blocked",
+        }
+        if spec.analytics_type == "open-interest":
+            if not isinstance(value, list) or len(value) != 4 or not all(isinstance(item, str) for item in value):
+                raise ValueError("open-interest row is not the exact four-string tuple")
+            row.update({f"value_{index}_raw": item for index, item in enumerate(value)})
+        elif spec.analytics_type == "liquidation-volume":
+            if not isinstance(value, str):
+                raise ValueError("liquidation-volume row is not an exact scalar string")
+            row["value_raw"] = value
+        else:
+            # Retain every aligned field returned under data, not only basis.
+            for field, field_values in sorted(data.items()):
+                if not isinstance(field_values, list) or len(field_values) != len(timestamps):
+                    raise ValueError(f"future-basis field {field!r} is not timestamp aligned")
+                field_value = field_values[row_number]
+                row[f"{field}_raw"] = field_value if isinstance(field_value, str) else json.dumps(
+                    field_value, sort_keys=True, separators=(",", ":"), allow_nan=False
+                )
+        rows.append(row)
+    columns = ["timestamp_utc", "timestamp_epoch_seconds", "value_field", "value_json", "analytics_type",
+               "symbol", "interval_seconds", "source_job_id", "source_request_id", "request_since", "request_to", "semantic_status"]
+    extra = sorted({key for row in rows for key in row} - set(columns))
+    frame = pd.DataFrame(rows, columns=columns + extra)
     return frame, bool(result.get("more", False))
 
 
@@ -385,9 +406,11 @@ class StopFlag:
 
 class Acquirer:
     def __init__(self, ledger: Ledger, data_root: Path, fetcher: Callable[[str], tuple[int, dict[str, str], bytes]] = default_fetch,
-                 max_attempts: int = 3, throttle_seconds: float = 0.25, max_response_bytes: int = 50 * 1024 * 1024):
+                 max_attempts: int = 3, throttle_seconds: float = 0.25, max_response_bytes: int = 50 * 1024 * 1024,
+                 progress_callback: Callable[[JobSpec], bool] | None = None):
         self.ledger, self.data_root, self.fetcher = ledger, data_root, fetcher
         self.max_attempts, self.throttle_seconds, self.max_response_bytes = max_attempts, throttle_seconds, max_response_bytes
+        self.progress_callback = progress_callback
         self.stop = StopFlag()
 
     def run(self, initial: Iterable[JobSpec]) -> None:
@@ -407,6 +430,9 @@ class Acquirer:
             if continuation is not None:
                 self.ledger.add(continuation)
                 queue.append(continuation)
+            if self.progress_callback is not None and not self.progress_callback(spec):
+                self.stop.requested = True
+                break
             index += 1
             if index < len(queue):
                 time.sleep(self.throttle_seconds)
@@ -433,6 +459,7 @@ class Acquirer:
                 raise RuntimeError(f"unexpected HTTP {status}")
             payload = json.loads(body)
             frame, more = normalized_rows(spec, payload)
+            frame["source_schema_hash"] = schema_hash(payload)
             frame, duplicates = deduplicate(frame)
             compressed = compress_zstd(body)
             rp, pp = raw_path(self.data_root, spec), parquet_path(self.data_root, spec)

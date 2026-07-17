@@ -1,0 +1,71 @@
+{
+  "files": [
+    {
+      "bytes": 681,
+      "path": "CHANGED_FILES.md",
+      "sha256": "c482977666ea43eb1f197de7cd0caa6ecc1341a357b5de24bc0b35c158c0e0bd"
+    },
+    {
+      "bytes": 414,
+      "path": "COMMANDS.md",
+      "sha256": "9cdcc636751b252758aa638b7aa0bb0500dac6046693c486b9e3543f79c37440"
+    },
+    {
+      "bytes": 53,
+      "path": "DATA_ROOT.txt",
+      "sha256": "a3d7d11e614e522c61f5bfd1f77d536c4ccd927827607a1535bab21359172ce9"
+    },
+    {
+      "bytes": 737,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "sha256": "17b528531cd1b91acdb6f08af3f4d2a5f70de61bf398adca96d50c26927bd268"
+    },
+    {
+      "bytes": 529,
+      "path": "KRAKEN_ANALYTICS_REVISED_STORAGE_AUTHORIZATION.md",
+      "sha256": "aec2a927cefb977d988548ffa994c919810b3d0df5fce131912370e9c7c69236"
+    },
+    {
+      "bytes": 911,
+      "path": "KRAKEN_ANALYTICS_SEMANTIC_STATUS.md",
+      "sha256": "0ecd4b4f8b427d1fdc046cb31272aa0133e8251ec572d66ac645f623416ba7e0"
+    },
+    {
+      "bytes": 12437,
+      "path": "KRAKEN_ANALYTICS_STAGE7C_SYMBOL_SHARDS.csv",
+      "sha256": "8c31be3320501bcfc15ab1a3129437a5d40a33d14cb4f84438ad8f6afbf02ebb"
+    },
+    {
+      "bytes": 1593,
+      "path": "PLAN.md",
+      "sha256": "9850c146951cde8dcc46f3dff876a3ea9c2afd10709ebe9ddb0f5d69a7fe3af6"
+    },
+    {
+      "bytes": 774,
+      "path": "PRELAUNCH_REVIEW.md",
+      "sha256": "7f9748e702de898a132727011facf459c56a57f6512b668f77d92257989903d0"
+    },
+    {
+      "bytes": 86,
+      "path": "RUN_ROOT.txt",
+      "sha256": "2df715a08232f37794160dafda779bced245a637907e9186eabd44e245a027c9"
+    },
+    {
+      "bytes": 15112,
+      "path": "TASK_SPEC.md",
+      "sha256": "21bfebfabef473dabc022efb8d4a3624952e168909b2f9758a3df2d12039dfbc"
+    },
+    {
+      "bytes": 171,
+      "path": "TEST_RESULTS.txt",
+      "sha256": "824aed8bac5e6a3284a3a25343d090d5dcc7f0ffeab8e5277189ccce7f41ab4e"
+    },
+    {
+      "bytes": 643,
+      "path": "VALIDATION.md",
+      "sha256": "2ac407ff17523db3edd708a79ca0d448d9a17b5db0f6cbc6312e2cf1a7402b4f"
+    }
+  ],
+  "status": "prelaunch_approved",
+  "task_id": "donch_bt_stage_7c_resume_analytics_acquisition_20260717_v1"
+}

@@ -1,0 +1,1 @@
+/opt/parquet/kraken_derivatives/analytics/stage7c_v1

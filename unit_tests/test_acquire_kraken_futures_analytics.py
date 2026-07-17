@@ -20,7 +20,7 @@ class AnalyticsAcquisitionTests(unittest.TestCase):
 
     def payload(self, timestamps=None, data=None, more=False):
         timestamps = timestamps if timestamps is not None else [TRAIN_START, TRAIN_START + 300]
-        data = data if data is not None else [["1"], ["2"]]
+        data = data if data is not None else [["1", "2", "3", "4"], ["5", "6", "7", "8"]]
         return {"result": {"timestamp": timestamps, "data": data, "more": more}, "errors": []}
 
     def test_phase_a_matrix_is_exact(self):
@@ -82,6 +82,15 @@ class AnalyticsAcquisitionTests(unittest.TestCase):
             self.assertEqual(len(frame), 2)
             self.assertEqual(frame.analytics_type.iloc[0], metric)
 
+    def test_raw_semantic_fields_are_lossless(self):
+        frame, _ = normalized_rows(self.spec, self.payload())
+        self.assertEqual(frame.loc[0, ["value_0_raw", "value_1_raw", "value_2_raw", "value_3_raw"]].tolist(), ["1", "2", "3", "4"])
+        self.assertEqual(frame.semantic_status.unique().tolist(), ["source_authorized_economic_interpretation_blocked"])
+        basis = JobSpec("x", "PF_XBTUSD", "future-basis", 300, TRAIN_START, TRAIN_START + 3600)
+        payload = self.payload(data={"basis": ["0.1", "0.2"], "usdValue": ["10", "20"]})
+        out, _ = normalized_rows(basis, payload)
+        self.assertEqual(out[["basis_raw", "usdValue_raw"]].iloc[0].tolist(), ["0.1", "10"])
+
     def test_stale_job_recovery(self):
         with tempfile.TemporaryDirectory() as td:
             ledger = Ledger(Path(td) / "jobs.sqlite")
@@ -102,6 +111,19 @@ class AnalyticsAcquisitionTests(unittest.TestCase):
             acq.run([self.spec])
             after = dict(ledger.row(self.spec.job_id))
             self.assertEqual(before["attempt_count"], after["attempt_count"])
+
+    def test_progress_callback_can_stop_after_checkpoint(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            ledger = Ledger(root / "jobs.sqlite")
+            body = json.dumps(self.payload()).encode()
+            calls = []
+            acquirer = Acquirer(ledger, root / "data", fetcher=lambda _url: (200, {}, body), throttle_seconds=0,
+                                progress_callback=lambda spec: (calls.append(spec.job_id) or False))
+            acquirer.run([self.spec])
+            self.assertTrue(acquirer.stop.requested)
+            self.assertEqual(len(calls), 1)
+            self.assertEqual(ledger.row(self.spec.job_id)["status"], "complete")
 
     def test_post_normalization_crash_recovery(self):
         with tempfile.TemporaryDirectory() as td:
