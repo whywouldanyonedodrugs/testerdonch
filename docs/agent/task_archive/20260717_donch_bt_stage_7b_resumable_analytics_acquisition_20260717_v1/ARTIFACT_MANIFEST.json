@@ -31,6 +31,11 @@
       "sha256": "58c7536f289a87bad0bfb0537b2f083f32b058fa7ca1556c1114253dc59000fb"
     },
     {
+      "bytes": 1161,
+      "path": "HANDOFF_RECORD.md",
+      "sha256": "0862db80492035e754a7fda8ac8c14f656690ca49eab82fdc9c7b2613b88f254"
+    },
+    {
       "bytes": 695,
       "path": "HYPOTHESIS_DATA_READINESS_UPDATE.csv",
       "sha256": "79fa8d0ecdffc35029010471ca85d530c2db0c84661fa7bfc16bcd4f67273aa1"
