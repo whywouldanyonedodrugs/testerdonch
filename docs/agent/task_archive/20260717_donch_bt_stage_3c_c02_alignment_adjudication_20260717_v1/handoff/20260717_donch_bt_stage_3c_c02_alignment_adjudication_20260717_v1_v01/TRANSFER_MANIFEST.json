@@ -1,0 +1,33 @@
+{
+  "commit": "110e09c9f6bf99452c60185fc44cbfe07fd69a4d",
+  "economic_outputs_computed": 0,
+  "files": [
+    {
+      "bytes": 890,
+      "filename": "READ_FIRST.md",
+      "sha256": "9c2e87c782d86fbb5dcccf1fdfe65d56dc9f4b464cbac63f1eb0d6f8a745dc2f"
+    },
+    {
+      "bytes": 1150,
+      "filename": "VALIDATION.md",
+      "sha256": "84d716974e193adf75f8cd252fbebef6c7a22ecaca9cd98c9cd89686b23d2d5e"
+    },
+    {
+      "bytes": 963,
+      "filename": "REVIEW.md",
+      "sha256": "1b2eef9b00678d7337cce0ae5a427540b3272b7783e4b31569b850aaf5878f1b"
+    },
+    {
+      "bytes": 30704,
+      "filename": "qlmg_c02_alignment_adjudication_20260717_v01.zip",
+      "sha256": "416eac711611cc4da82f2e40ca42d34120b612ee261e98b2b654e182f86618b4"
+    }
+  ],
+  "large_market_payloads_included": false,
+  "protected_rows_opened": 0,
+  "remote_identity_label": "qlmg_sweep_drive:",
+  "status": "ready_for_C02_resolution_aware_contract_review",
+  "target_folder_id": "1vMuf1EJbojoeIjJjz8Xj1fhwLizNgLfl",
+  "target_task_folder": "20260717_donch_bt_stage_3c_c02_alignment_adjudication_20260717_v1_v01",
+  "task_id": "donch_bt_stage_3c_c02_alignment_adjudication_20260717_v1"
+}
