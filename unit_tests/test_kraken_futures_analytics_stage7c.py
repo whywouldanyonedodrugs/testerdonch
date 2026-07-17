@@ -67,6 +67,13 @@ class Stage7CTests(unittest.TestCase):
             self.assertEqual(cleanup_staging(rows),4)
             self.assertIsNotNone(verify_unit_manifest(manifest))
 
+    def test_compaction_verifies_single_file_under_hive_style_path(self):
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td); rows=self.synthetic_rows(root)
+            output=root/"analytics_type=liquidation-volume"/"interval=300"/"year=2023"/"month=01"/"shard=000"/"data.parquet"
+            _,_,count=compact_parquet(rows,output)
+            self.assertEqual(count,2)
+
     def test_crash_before_manifest_is_not_complete(self):
         with tempfile.TemporaryDirectory() as td:
             self.assertIsNone(verify_unit_manifest(Path(td)/"missing.json"))

@@ -142,7 +142,9 @@ def compact_parquet(rows: list[dict[str,Any]], output: Path) -> tuple[str,int,in
         if sha256_file(output)!=sha256_file(tmp): raise ValueError("existing final Parquet differs")
         tmp.unlink()
     else: os.replace(tmp,output)
-    check=pq.read_table(output)
+    # Read as one file; dataset discovery would inject Hive keys from the
+    # `interval=...` path and collide with the retained interval column.
+    check=pq.ParquetFile(output).read()
     if check.num_rows!=len(frame): raise ValueError("final Parquet row verification failed")
     return sha256_file(output),output.stat().st_size,len(frame)
 
