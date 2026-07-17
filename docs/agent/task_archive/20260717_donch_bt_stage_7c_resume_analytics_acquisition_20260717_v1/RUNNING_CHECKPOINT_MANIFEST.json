@@ -1,0 +1,124 @@
+{
+  "economic_outputs": false,
+  "expected_unit_count": 1836,
+  "heartbeat": {
+    "elapsed_seconds": 66.92439327016473,
+    "free_bytes": 56088649728,
+    "free_inodes": 8520345,
+    "hard_stop": false,
+    "hard_stop_threshold_bytes": 32194048819,
+    "interval": 60,
+    "jobs_complete": 138,
+    "jobs_total": 138,
+    "last_error": "",
+    "metric": "liquidation-volume",
+    "requests": 138,
+    "response_bytes": 4389775,
+    "rows": 259328,
+    "rss_bytes": 342036480,
+    "shard": "000",
+    "status": "running",
+    "task_id": "donch_bt_stage_7c_resume_analytics_acquisition_20260717_v1",
+    "telegram_enabled": true,
+    "total_bytes": 160970244096,
+    "ts_utc": "2026-07-17T20:49:06.352570Z",
+    "unit_id": "e5cf0c4e2a5aa955beeb",
+    "units_complete": 5,
+    "units_total": 1836,
+    "warning": false,
+    "warning_threshold_bytes": 40242561024,
+    "year_month": "2023-02"
+  },
+  "protected_rows_opened": 0,
+  "snapshot_utc": "2026-07-17T20:49:06.352570Z",
+  "status": "acquisition_running_resume_safe",
+  "task_id": "donch_bt_stage_7c_resume_analytics_acquisition_20260717_v1",
+  "verified_unit_count": 5,
+  "verified_units": [
+    {
+      "final_parquet": {
+        "bytes": 8682,
+        "path": "/opt/parquet/kraken_derivatives/analytics/stage7c_v1/normalized/analytics_type=open-interest/interval=60/year=2023/month=01/shard=000/data.parquet",
+        "rows": 0,
+        "sha256": "39e835e8ed32058d06719d8b7780a9ccc44ff811d74321aab76896fa44a416b2"
+      },
+      "manifest_path": "/opt/parquet/kraken_derivatives/analytics/stage7c_v1/unit_manifests/0000_10423d85a94d5fb07af7.json",
+      "manifest_sha256": "8c1b64cf61ae47879a7209bfac1299b02183b84628201812e1db5f35f1f0787a",
+      "raw_bundle": {
+        "bytes": 452,
+        "members": 2,
+        "path": "/opt/parquet/kraken_derivatives/analytics/stage7c_v1/raw_bundles/analytics_type=open-interest/interval=60/year=2023/month=01/shard=000/source.tar.zst",
+        "sha256": "0a849788f2428f5fef0ce8c697bf4df7a61899eb126359ff1144156e2e0eb663"
+      },
+      "unit_id": "10423d85a94d5fb07af7"
+    },
+    {
+      "final_parquet": {
+        "bytes": 726959,
+        "path": "/opt/parquet/kraken_derivatives/analytics/stage7c_v1/normalized/analytics_type=liquidation-volume/interval=60/year=2023/month=01/shard=000/data.parquet",
+        "rows": 89280,
+        "sha256": "b43808ee3da939a507b1a6bd0edc9775914d573f83b2ce6bbd0dc77d75cfdd7c"
+      },
+      "manifest_path": "/opt/parquet/kraken_derivatives/analytics/stage7c_v1/unit_manifests/0001_de1cbf1f4742121fd622.json",
+      "manifest_sha256": "390805c5877ac2b4963f579d0a7dcb0ca8be42b1620d05597867227112a9b030",
+      "raw_bundle": {
+        "bytes": 58101,
+        "members": 46,
+        "path": "/opt/parquet/kraken_derivatives/analytics/stage7c_v1/raw_bundles/analytics_type=liquidation-volume/interval=60/year=2023/month=01/shard=000/source.tar.zst",
+        "sha256": "2ec2aa3b767e25a71466e42d672942a76c8714c06de968cdf53ec4b9db98c148"
+      },
+      "unit_id": "de1cbf1f4742121fd622"
+    },
+    {
+      "final_parquet": {
+        "bytes": 833495,
+        "path": "/opt/parquet/kraken_derivatives/analytics/stage7c_v1/normalized/analytics_type=future-basis/interval=60/year=2023/month=01/shard=000/data.parquet",
+        "rows": 89280,
+        "sha256": "24f61ef475f83e1b05839dd8a4f455322ab2047c1bec0e324a9355197406856d"
+      },
+      "manifest_path": "/opt/parquet/kraken_derivatives/analytics/stage7c_v1/unit_manifests/0002_648bcb2b86486c9b5f81.json",
+      "manifest_sha256": "c0df7cfbe650d961003b30dd592e54efabe87237927af325ee21d7f8f067eb8c",
+      "raw_bundle": {
+        "bytes": 142997,
+        "members": 46,
+        "path": "/opt/parquet/kraken_derivatives/analytics/stage7c_v1/raw_bundles/analytics_type=future-basis/interval=60/year=2023/month=01/shard=000/source.tar.zst",
+        "sha256": "3edd049d3a68f4f1dde0355ee363c6d4b2fd9b1b81e8fd3308dd0c395d680e99"
+      },
+      "unit_id": "648bcb2b86486c9b5f81"
+    },
+    {
+      "final_parquet": {
+        "bytes": 7009,
+        "path": "/opt/parquet/kraken_derivatives/analytics/stage7c_v1/normalized/analytics_type=open-interest/interval=60/year=2023/month=02/shard=000/data.parquet",
+        "rows": 0,
+        "sha256": "1abdb0e0161ccee6141657d8957733ef8acbb566e1b01e8ef4e63a8c37eb1c3d"
+      },
+      "manifest_path": "/opt/parquet/kraken_derivatives/analytics/stage7c_v1/unit_manifests/0003_473d04f61beea797406e.json",
+      "manifest_sha256": "91c1f34644cce510d66815f09a13dd8b985c59f435a9271b8005c15794795678",
+      "raw_bundle": {
+        "bytes": 452,
+        "members": 2,
+        "path": "/opt/parquet/kraken_derivatives/analytics/stage7c_v1/raw_bundles/analytics_type=open-interest/interval=60/year=2023/month=02/shard=000/source.tar.zst",
+        "sha256": "8f02c5e18be1f5326e020405a24ec2e9037d96fe80c0ae0e7d619f9a512d832c"
+      },
+      "unit_id": "473d04f61beea797406e"
+    },
+    {
+      "final_parquet": {
+        "bytes": 657282,
+        "path": "/opt/parquet/kraken_derivatives/analytics/stage7c_v1/normalized/analytics_type=liquidation-volume/interval=60/year=2023/month=02/shard=000/data.parquet",
+        "rows": 80640,
+        "sha256": "b67c2d9ac707dc36989bfb69c65b0301e56febbc9a66eabed43d1587f196a17e"
+      },
+      "manifest_path": "/opt/parquet/kraken_derivatives/analytics/stage7c_v1/unit_manifests/0004_e5cf0c4e2a5aa955beeb.json",
+      "manifest_sha256": "811fb1d39d9975cbe4f1545790e9a79b99eced5883e1777e12e46fa93b5cf7c6",
+      "raw_bundle": {
+        "bytes": 52491,
+        "members": 42,
+        "path": "/opt/parquet/kraken_derivatives/analytics/stage7c_v1/raw_bundles/analytics_type=liquidation-volume/interval=60/year=2023/month=02/shard=000/source.tar.zst",
+        "sha256": "d21f0990e6a5bdd4ac1591d658af1e2e5ae3586b778b76fd610b3527a566a007"
+      },
+      "unit_id": "e5cf0c4e2a5aa955beeb"
+    }
+  ]
+}

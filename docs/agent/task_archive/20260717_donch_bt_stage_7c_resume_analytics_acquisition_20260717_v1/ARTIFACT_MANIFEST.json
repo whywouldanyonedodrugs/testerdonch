@@ -11,14 +11,29 @@
       "sha256": "9cdcc636751b252758aa638b7aa0bb0500dac6046693c486b9e3543f79c37440"
     },
     {
+      "bytes": 410,
+      "path": "COMPLETION.md",
+      "sha256": "e9f5de0e96ea019bf6a390ae0efeafb4088739fae0d4d343577410a57855cf5a"
+    },
+    {
       "bytes": 53,
       "path": "DATA_ROOT.txt",
       "sha256": "a3d7d11e614e522c61f5bfd1f77d536c4ccd927827607a1535bab21359172ce9"
     },
     {
-      "bytes": 737,
+      "bytes": 1323,
       "path": "DECISIONS_AND_PROGRESS.md",
-      "sha256": "17b528531cd1b91acdb6f08af3f4d2a5f70de61bf398adca96d50c26927bd268"
+      "sha256": "f16dd45628e07299775000385b2caf94206cfbc8747f45f68ea30523771f8d65"
+    },
+    {
+      "bytes": 603,
+      "path": "HYPOTHESIS_DATA_READINESS_UPDATE.csv",
+      "sha256": "bd87ceb2d125a4a535e0214f3bf89415270771a48f3239e2f72f8fbdda1c53ba"
+    },
+    {
+      "bytes": 764,
+      "path": "KRAKEN_ANALYTICS_HEARTBEAT_SNAPSHOT.json",
+      "sha256": "c7840d6b33ff1c20c9562fa09139cfba709e11f5407f55a4a36b978e694748ec"
     },
     {
       "bytes": 529,
@@ -36,6 +51,16 @@
       "sha256": "8c31be3320501bcfc15ab1a3129437a5d40a33d14cb4f84438ad8f6afbf02ebb"
     },
     {
+      "bytes": 522,
+      "path": "LAUNCH_COMMAND.txt",
+      "sha256": "1d2a426c3e3e55d80bd92b910065e0b6bdd314046d06246f8732e0b5e4ff3cbd"
+    },
+    {
+      "bytes": 574,
+      "path": "NEXT_ACTION.md",
+      "sha256": "81677cde07bfd422b924210ed616679370344482024baa452ca8ec2dd4c172ab"
+    },
+    {
       "bytes": 1593,
       "path": "PLAN.md",
       "sha256": "9850c146951cde8dcc46f3dff876a3ea9c2afd10709ebe9ddb0f5d69a7fe3af6"
@@ -44,6 +69,16 @@
       "bytes": 774,
       "path": "PRELAUNCH_REVIEW.md",
       "sha256": "7f9748e702de898a132727011facf459c56a57f6512b668f77d92257989903d0"
+    },
+    {
+      "bytes": 560,
+      "path": "REVIEW.md",
+      "sha256": "5bce6a403f3e32c0a0e056910c73caa22e879b85e8ce01545d366264ff14d550"
+    },
+    {
+      "bytes": 5832,
+      "path": "RUNNING_CHECKPOINT_MANIFEST.json",
+      "sha256": "6d234a65289f2ec623588e22afa812b370125c6e2ce64cc9f173cb4959e25cdc"
     },
     {
       "bytes": 86,
@@ -61,11 +96,26 @@
       "sha256": "824aed8bac5e6a3284a3a25343d090d5dcc7f0ffeab8e5277189ccce7f41ab4e"
     },
     {
+      "bytes": 172,
+      "path": "TEST_RESULTS_FINAL.txt",
+      "sha256": "f9b711fff457b483b950f72e4fb3606a08ad6d24c25dae7a88d1e18f332f6735"
+    },
+    {
+      "bytes": 41,
+      "path": "TMUX_SESSION.txt",
+      "sha256": "980ad68deaea45db8ff1ee0cb103efda92ea01cdfc100e30ee681cb2e9ec9abd"
+    },
+    {
       "bytes": 643,
       "path": "VALIDATION.md",
       "sha256": "2ac407ff17523db3edd708a79ca0d448d9a17b5db0f6cbc6312e2cf1a7402b4f"
+    },
+    {
+      "bytes": 8,
+      "path": "WORKER_PID.txt",
+      "sha256": "fbeeca9f4d307596a4643be7cd836fa01a696598e34e5eb28d159884a7d1e629"
     }
   ],
-  "status": "prelaunch_approved",
+  "status": "acquisition_running_resume_safe",
   "task_id": "donch_bt_stage_7c_resume_analytics_acquisition_20260717_v1"
 }

@@ -1,0 +1,5 @@
+hypothesis,capability_status,evidence,remaining_blocker,economic_run_authorized
+C04_crowding_vs_price_progress,acquisition_in_progress,Stage7C source acquisition running resume-safe,OI tuple semantics unresolved,no
+C08_basis_dislocation_state,acquisition_in_progress,Stage7C source acquisition running resume-safe,basis numeric unit unresolved,no
+C09_liquidation_forced_flow_completion,acquisition_in_progress,Stage7C source acquisition running resume-safe,liquidation unit and side split unresolved,no
+C14_basis_funding_boundary_survival,blocked,Stage7C excludes funding,funding authority unchanged,no
