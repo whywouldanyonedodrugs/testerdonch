@@ -1,0 +1,23 @@
+{
+  "authority_regression_tests_passed": 27,
+  "decision": "ready_for_C02_non_economic_generator_contract",
+  "economic_outputs_computed": 0,
+  "focused_tests_passed": 12,
+  "guard_tests_passed": 26,
+  "internal_gap_intervals": 5581777,
+  "manifest_content_hash": "3de3b533a390f04590ae458ac661d4fc10d299df1a1833734911fa609b0a7046",
+  "mapped_pf_symbols": 210,
+  "mapped_without_rows": 6,
+  "mechanism_proof_pf_symbols": 253,
+  "missing_5m_slots_between_observed_bounds": 24834785,
+  "normalized_bar_rows": 19458116,
+  "observed_pf_symbols": 204,
+  "pilot_observed_cells": 12,
+  "pilot_pairs": 4,
+  "pilot_required_cells": 12,
+  "protected_rows_opened": 0,
+  "source_trade_rows": 234996053,
+  "status": "pass",
+  "tests_failed": 0,
+  "unresolved_identity_symbols": 43
+}

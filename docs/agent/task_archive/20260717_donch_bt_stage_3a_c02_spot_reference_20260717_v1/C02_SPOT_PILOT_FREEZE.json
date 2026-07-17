@@ -1,0 +1,70 @@
+{
+  "assetpairs_snapshot_sha256": "94321db11a2085645dfdcc0f8a1dd917268f4d21498254c68af8a05aef8c5371",
+  "created_utc": "2026-07-17T11:11:54.477866Z",
+  "frozen_before_price_read": true,
+  "pairs": [
+    {
+      "Kraken_spot_pair": "XBTUSD",
+      "PF_symbol": "PF_XBTUSD",
+      "canonical_asset_id": "XBT",
+      "current_status": "online",
+      "historical_availability": "unknown_before_payload",
+      "ordering_rule": "XBT_ETH_then_first_two_canonical_Stage2C_assets_with_official_USD_pair",
+      "pair_identity_source": "official_Kraken_AssetPairs_snapshot",
+      "spot_base": "XXBT",
+      "spot_quote": "ZUSD",
+      "wsname": "XBT/USD"
+    },
+    {
+      "Kraken_spot_pair": "ETHUSD",
+      "PF_symbol": "PF_ETHUSD",
+      "canonical_asset_id": "ETH",
+      "current_status": "online",
+      "historical_availability": "unknown_before_payload",
+      "ordering_rule": "XBT_ETH_then_first_two_canonical_Stage2C_assets_with_official_USD_pair",
+      "pair_identity_source": "official_Kraken_AssetPairs_snapshot",
+      "spot_base": "XETH",
+      "spot_quote": "ZUSD",
+      "wsname": "ETH/USD"
+    },
+    {
+      "Kraken_spot_pair": "1INCHUSD",
+      "PF_symbol": "PF_1INCHUSD",
+      "canonical_asset_id": "1INCH",
+      "current_status": "online",
+      "historical_availability": "unknown_before_payload",
+      "ordering_rule": "XBT_ETH_then_first_two_canonical_Stage2C_assets_with_official_USD_pair",
+      "pair_identity_source": "official_Kraken_AssetPairs_snapshot",
+      "spot_base": "1INCH",
+      "spot_quote": "ZUSD",
+      "wsname": "1INCH/USD"
+    },
+    {
+      "Kraken_spot_pair": "AAVEUSD",
+      "PF_symbol": "PF_AAVEUSD",
+      "canonical_asset_id": "AAVE",
+      "current_status": "online",
+      "historical_availability": "unknown_before_payload",
+      "ordering_rule": "XBT_ETH_then_first_two_canonical_Stage2C_assets_with_official_USD_pair",
+      "pair_identity_source": "official_Kraken_AssetPairs_snapshot",
+      "spot_base": "AAVE",
+      "spot_quote": "ZUSD",
+      "wsname": "AAVE/USD"
+    }
+  ],
+  "pilot_windows": [
+    [
+      "2023-01-01T00:00:00Z",
+      "2023-01-08T00:00:00Z"
+    ],
+    [
+      "2024-06-01T00:00:00Z",
+      "2024-06-08T00:00:00Z"
+    ],
+    [
+      "2025-12-24T00:00:00Z",
+      "2026-01-01T00:00:00Z"
+    ]
+  ],
+  "task_id": "donch_bt_stage_3a_c02_spot_reference_20260717_v1"
+}

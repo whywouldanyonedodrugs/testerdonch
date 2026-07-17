@@ -1,0 +1,15 @@
+HTTP/2 200
+date: Fri, 17 Jul 2026 11:12:06 GMT
+content-type: application/json
+cf-ray: a1c8cf4a7ed8f78c-HEL
+cf-cache-status: MISS
+cache-control: max-age=2, public
+last-modified: Fri, 17 Jul 2026 11:12:06 GMT
+server: cloudflare
+x-trace-id: 0ab2b936019f6fc6cab0002c57bed218
+strict-transport-security: max-age=31536000; includeSubDomains; preload
+vary: Accept-Encoding
+x-content-type-options: nosniff
+dkdpo4gpy-pad: !kppyq4xC|!3cJq*DeG&JwRPrj78pSiG+kAp
+referrer-policy: strict-origin-when-cross-origin
+x-proxy: gateway
