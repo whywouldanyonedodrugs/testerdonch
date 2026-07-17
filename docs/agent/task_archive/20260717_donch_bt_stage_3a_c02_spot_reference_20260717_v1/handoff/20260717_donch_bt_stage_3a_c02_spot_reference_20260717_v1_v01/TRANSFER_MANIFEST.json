@@ -1,0 +1,33 @@
+{
+  "commit": "7990853be52a6ddf099177b30b5ae9f656afd8f1",
+  "economic_outputs_computed": 0,
+  "files": [
+    {
+      "bytes": 747,
+      "filename": "READ_FIRST.md",
+      "sha256": "b5e3c746d9ecb4558c0d1b282c927a8e21451148d2c9ca5362caff51ac50f4f0"
+    },
+    {
+      "bytes": 1876,
+      "filename": "VALIDATION.md",
+      "sha256": "ef066f0b2fa018f2261bba76cdc89ffe4478b97c43b185b6ae04928158647302"
+    },
+    {
+      "bytes": 1019,
+      "filename": "REVIEW.md",
+      "sha256": "4a00e7d2f4f7e757814c349090a4df57a338589c3e1d4d054a19317fb9e37243"
+    },
+    {
+      "bytes": 439653,
+      "filename": "qlmg_c02_kraken_spot_reference_authority_20260717_v01.zip",
+      "sha256": "fd45692d72926af7f53fbcf138931c263c3baf5914732d7c2a5a5b3ae421dbc2"
+    }
+  ],
+  "large_market_payloads_included": false,
+  "protected_rows_opened": 0,
+  "remote_identity_label": "qlmg_sweep_drive:",
+  "status": "ready_for_C02_non_economic_generator_contract",
+  "target_folder_id": "1vMuf1EJbojoeIjJjz8Xj1fhwLizNgLfl",
+  "target_task_folder": "20260717_donch_bt_stage_3a_c02_spot_reference_20260717_v1_v01",
+  "task_id": "donch_bt_stage_3a_c02_spot_reference_20260717_v1"
+}
