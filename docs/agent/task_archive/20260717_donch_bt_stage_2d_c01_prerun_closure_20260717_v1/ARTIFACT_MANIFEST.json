@@ -1,0 +1,135 @@
+{
+  "code_files": [
+    {
+      "bytes": 13767,
+      "path": "tools/kraken_c01_prerun_contract.py",
+      "sha256": "17a29d2e79e17fd92fceb41817c41c068a0246dad66e1526c926a365d8fb1dfc"
+    },
+    {
+      "bytes": 19357,
+      "path": "tools/build_kraken_c01_prerun_closure.py",
+      "sha256": "0d9873aa6be6a1edc3227fcb3cb51dbad6baf37ad9f44c9d73bd296c8d5d5b4d"
+    },
+    {
+      "bytes": 7847,
+      "path": "unit_tests/test_kraken_c01_prerun_contract.py",
+      "sha256": "8efcd23ece43b2de100633383c75f7e0a1f5984be93baf3b37951881688061ed"
+    }
+  ],
+  "economic_outputs_computed": false,
+  "file_count": 21,
+  "files": [
+    {
+      "bytes": 5524,
+      "path": "C01_FINAL_LEVEL3_ECONOMIC_CONTRACT.md",
+      "sha256": "c655e94c35412354356bb7f89c07ca17b71c2ae6537a2a1c42aa3dce928ba77d"
+    },
+    {
+      "bytes": 1184,
+      "path": "C01_LEVEL3_DECISION_RULES.json",
+      "sha256": "2f32eb0c67c23c743c85b679a66b8d05d2492871a8128654b5ea3ee998754415"
+    },
+    {
+      "bytes": 3661,
+      "path": "C01_LEVEL3_DEFINITION_REGISTER.csv",
+      "sha256": "b13175a3728c5940a430d425df47c304a16674fc2343af6a63d226e22fbb37c4"
+    },
+    {
+      "bytes": 1112,
+      "path": "C01_LEVEL4_CONTROL_CONTRACT.md",
+      "sha256": "2449fc625fd68b61fc8010bae580e41188c5fb2d41d14a2bc61de91e4e7d3206"
+    },
+    {
+      "bytes": 2032,
+      "path": "C01_PRERUN_APPROVAL_PACKET.md",
+      "sha256": "845106cbc1eaaf911eaff89f58cfc18843c3e8231b377e29c5885de6cb801942"
+    },
+    {
+      "bytes": 710,
+      "path": "CHANGED_FILES.md",
+      "sha256": "52bc1dff1c17b83cd90307b2d1f41bf97fb3ed0782a68bb2c897588030e0320c"
+    },
+    {
+      "bytes": 742,
+      "path": "COMMANDS.md",
+      "sha256": "39fe21cda81bac9952aec498790e991a8df376f6fce5a0ea5ba877919009644b"
+    },
+    {
+      "bytes": 476,
+      "path": "COMPLETION.md",
+      "sha256": "7f2931359c2f8e26ad90d155db6db9c8d81e8d556737c5812ee3d8ea67fa8abd"
+    },
+    {
+      "bytes": 902,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "sha256": "900865e7477b233d6a2182cbb9474b75cd3ec73898d396572536c6cf348d112a"
+    },
+    {
+      "bytes": 2704,
+      "path": "EXTERNAL_REVIEW_PACKAGE_DISPOSITION.json",
+      "sha256": "de5905d008f8e98a5edf9d45452521a505d5225714efcba2b183ef7f498c1d20"
+    },
+    {
+      "bytes": 1918,
+      "path": "EXTERNAL_REVIEW_PACKAGE_DISPOSITION.md",
+      "sha256": "c65107187c5cc8b0d42543d2af237e9713b91a0c575e3d3b4b7bca921477d60f"
+    },
+    {
+      "bytes": 197,
+      "path": "LOCAL_ONLY_ARTIFACTS.md",
+      "sha256": "4e6dbaea805a6b50ac4b17ba0d6b4f0d0ac4882317716f29c2a792d8586c44af"
+    },
+    {
+      "bytes": 353,
+      "path": "LOCAL_ONLY_FILE_MANIFEST.csv",
+      "sha256": "e8f5ffb4bbc9302ee169ba3f2dce393a9e23e0007054cb518aaf0bb983c16589"
+    },
+    {
+      "bytes": 416,
+      "path": "NEXT_ACTION.md",
+      "sha256": "4d72482253e9e5baecaa3c2b2fe214f614415e3717521ed8dafbb1c8e5f1affd"
+    },
+    {
+      "bytes": 3556,
+      "path": "PLAN.md",
+      "sha256": "289177af903d1f46d8e3cb340e0f9b8222556c08c0009affd09a2a513e5234bd"
+    },
+    {
+      "bytes": 1348,
+      "path": "REVIEW.md",
+      "sha256": "812e3b12ed61af42209a4e164232fd8b4bc3ac7e8b077d2e5ad94199f15c8f23"
+    },
+    {
+      "bytes": 236,
+      "path": "SECRET_SCAN.md",
+      "sha256": "0f91f6e7cd8f4c43537561bff02fb8588d5abcaa1ad54397bd97128a5e795c25"
+    },
+    {
+      "bytes": 0,
+      "path": "SECRET_SCAN_FINDINGS.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 10496,
+      "path": "TASK_SPEC.md",
+      "sha256": "579dddfa2c58bdddd2df8d4b4c664795749c9b67ac5f967929acdc5f4d2d4743"
+    },
+    {
+      "bytes": 1243,
+      "path": "VALIDATION.md",
+      "sha256": "9cabf6ddc704a096e4d52549ff17096e78b520ce4dc7b95d49e24ad7f42a95c6"
+    },
+    {
+      "bytes": 702,
+      "path": "VALIDATION_EVIDENCE.json",
+      "sha256": "e6177ce268f386c74048581e258fd10f2dd4ea27cb2b13a37e369e73482bf76f"
+    }
+  ],
+  "final_contract_hash": "c655e94c35412354356bb7f89c07ca17b71c2ae6537a2a1c42aa3dce928ba77d",
+  "package_protocol_disposition": "closed_by_claim_narrowing",
+  "package_release_ready": false,
+  "protected_outcomes_opened": false,
+  "starting_commit": "45d92488a41fb97a9a30936075c19581f358357d",
+  "status": "ready_for_human_C01_Level3_run_approval",
+  "task_id": "donch_bt_stage_2d_c01_prerun_closure_20260717_v1"
+}

@@ -1,0 +1,37 @@
+{
+  "all_gates_required": true,
+  "bootstrap": {
+    "cluster": "canonical_episode_id",
+    "resamples": 10000,
+    "seed": 20260717
+  },
+  "contract_hash": "c655e94c35412354356bb7f89c07ca17b71c2ae6537a2a1c42aa3dce928ba77d",
+  "definition_counts": {
+    "primary": 8,
+    "robustness_only": 8,
+    "total": 16
+  },
+  "economic_outputs_computed": false,
+  "funding_evidence_hierarchy": [
+    "full_period_gross_and_fee_slippage_net_kill_screen_only",
+    "fully_exact_funded_primary_subset_by_calendar_period",
+    "mixed_and_imputed_full_period_sensitivity_only",
+    "zero_boundary_rows_separate"
+  ],
+  "gate_names": [
+    "executed_trades_at_least_100",
+    "each_calendar_year_at_least_20",
+    "positive_mean_net_bps",
+    "positive_median_net_bps",
+    "bootstrap_lower_bound_at_least_minus_5_bps",
+    "max_symbol_pnl_share_at_most_25pct",
+    "max_episode_pnl_share_at_most_10pct",
+    "max_year_positive_pnl_share_at_most_70pct",
+    "stress_mean_at_least_minus_10_bps"
+  ],
+  "no_pooled_funding_rescue": true,
+  "permission_only": "Level4_controls",
+  "primary_model": "btc_eth_ols_daily_v1",
+  "protected_outcomes_opened": false,
+  "robustness_model_cannot_rescue": true
+}

@@ -1,0 +1,27 @@
+{
+  "accepted_authority_hashes_match": true,
+  "artifact_generation_status": "pass",
+  "definition_counts": {
+    "primary": 8,
+    "robustness_only": 8,
+    "total": 16,
+    "unique_policy_hashes": 16
+  },
+  "economic_outputs_computed": false,
+  "external_package_disposition": "closed_by_claim_narrowing",
+  "external_package_release_ready": false,
+  "final_contract_hash": "c655e94c35412354356bb7f89c07ca17b71c2ae6537a2a1c42aa3dce928ba77d",
+  "focused_tests": {
+    "errors": 0,
+    "failures": 0,
+    "passed": 10
+  },
+  "broad_relevant_tests": {
+    "errors": 0,
+    "failures": 0,
+    "passed": 68
+  },
+  "protected_outcomes_opened": false,
+  "source_roots_modified": false,
+  "status": "pass"
+}

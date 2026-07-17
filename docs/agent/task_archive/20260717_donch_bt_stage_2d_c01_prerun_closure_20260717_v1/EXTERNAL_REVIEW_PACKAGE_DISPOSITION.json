@@ -1,0 +1,67 @@
+{
+  "allowed_uses": [
+    "research_history",
+    "supersession_and_negative_decision_continuity",
+    "broad_multiplicity_context",
+    "identification_of_nearest_prior_families"
+  ],
+  "economic_outputs_recomputed": false,
+  "missing_items": [
+    {
+      "effect": "no independent row-level reproduction",
+      "item": "raw_trade_mark_and_exact_funding_verification_extracts",
+      "status": "unavailable"
+    },
+    {
+      "effect": "no exact historical index/spot verification",
+      "item": "historical_index_or_spot_source",
+      "status": "unavailable"
+    },
+    {
+      "effect": "one prior lineage lacks its packaged source snapshot",
+      "exact_task": "donch_bt_prior_high_v2_source_snapshot_recovery_v1",
+      "item": "prior_high_v2_runner_source_snapshot",
+      "status": "deferred_with_exact_task"
+    },
+    {
+      "effect": "package cannot prove all old tests ran",
+      "item": "complete_prior_lineage_test_and_failure_counts",
+      "status": "unavailable"
+    },
+    {
+      "effect": "five old lineages remain non-reproducible from package alone",
+      "exact_task": "donch_bt_external_review_five_lineage_hash_recovery_v1",
+      "item": "five_lineage_reproducibility_hash_sets",
+      "status": "deferred_with_exact_task"
+    },
+    {
+      "effect": "TSMOM path verification remains incomplete",
+      "exact_task": "donch_bt_tsmom_path_coverage_recovery_v1",
+      "item": "tsmom_complete_path_and_mae_mfe_coverage",
+      "status": "deferred_with_exact_task"
+    },
+    {
+      "effect": "exact cross-family episode overlap is unavailable",
+      "exact_task": "donch_bt_cross_family_causal_episode_start_export_v1",
+      "item": "cross_family_causal_episode_start_timestamps",
+      "status": "deferred_with_exact_task"
+    }
+  ],
+  "package_release_ready_for_independent_reproduction": false,
+  "package_role": "strategic_and_continuity_review_only",
+  "prohibited_uses": [
+    "independent_row_level_reproduction",
+    "validation_grade_claims",
+    "proof_all_old_tests_ran",
+    "exact_cross_family_episode_overlap",
+    "promotion_of_C01_or_any_prior_family"
+  ],
+  "protected_outcomes_opened": false,
+  "protocol_disposition": "closed_by_claim_narrowing",
+  "source_package_root": "/opt/testerdonch/results/rebaseline/phase_kraken_all_tested_hypotheses_external_review_package_20260716_v1",
+  "source_package_status_preserved": "blocked_by_protocol_issue",
+  "supersedes_open_workflow_interpretations": [
+    "docs/agent/task_archive/20260716_donch_bt_first_wave_readiness_20260716_v1/PACKAGE_PROTOCOL_STATUS.md",
+    "docs/agent/task_archive/20260716_donch_bt_stage_1b_remaining_loader_boundary_20260716_v1/readiness_rerun/PACKAGE_PROTOCOL_STATUS.md"
+  ]
+}
