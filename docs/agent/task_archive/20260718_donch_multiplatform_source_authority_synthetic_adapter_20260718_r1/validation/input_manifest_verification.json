@@ -1,0 +1,166 @@
+{
+  "input_manifest_sha256": "b3e0a2d9d9bbc7156e39d85bd5d9163122c2f259098729d1c9ac35504ffb563f",
+  "package_bytes": 33912,
+  "package_path": "docs/agent/task_archive/20260718_donch_multiplatform_source_authority_synthetic_adapter_20260718_r1/received/donch_to_backtesting_multiplatform_authority_v1_20260718.zip",
+  "package_sha256": "58991dad07d1e3563f101ef784a9ac5b50fb2ce95fc52126584d29787b34d89b",
+  "records": [
+    {
+      "actual_bytes": 5827,
+      "actual_sha256": "47bc38d7e30c9e97510b5ab25761ed371556f8880b698461c9f6c56fd5f9b6c9",
+      "declared_bytes": 5827,
+      "declared_sha256": "47bc38d7e30c9e97510b5ab25761ed371556f8880b698461c9f6c56fd5f9b6c9",
+      "relative_path": "01_AUTHORITY_Multi_Platform_Operating_Contract_2026-07-18_rev2.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/01_AUTHORITY_Multi_Platform_Operating_Contract_2026-07-18_rev2.md"
+    },
+    {
+      "actual_bytes": 4702,
+      "actual_sha256": "78e561d6e3ccd036782d59dd446fcbadc7f16efe4e45f0cfdcbe30e7a0abeaa3",
+      "declared_bytes": 4702,
+      "declared_sha256": "78e561d6e3ccd036782d59dd446fcbadc7f16efe4e45f0cfdcbe30e7a0abeaa3",
+      "relative_path": "02_STATE_Master_Continuity_Brief_2026-07-18_rev9.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/02_STATE_Master_Continuity_Brief_2026-07-18_rev9.md"
+    },
+    {
+      "actual_bytes": 5851,
+      "actual_sha256": "c1e62916d692a7d207fbf549b04906edddd4dc3147e96caef36d30879a6646a4",
+      "declared_bytes": 5851,
+      "declared_sha256": "c1e62916d692a7d207fbf549b04906edddd4dc3147e96caef36d30879a6646a4",
+      "relative_path": "12_MANUAL_Test_and_Evidence_Standards_2026-07-18_rev2.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/12_MANUAL_Test_and_Evidence_Standards_2026-07-18_rev2.md"
+    },
+    {
+      "actual_bytes": 3306,
+      "actual_sha256": "c2f24fa595c97cf308267bb9b5dbf0c95139f43873f45c2be7c516a83a4b4f31",
+      "declared_bytes": 3306,
+      "declared_sha256": "c2f24fa595c97cf308267bb9b5dbf0c95139f43873f45c2be7c516a83a4b4f31",
+      "relative_path": "17_METHOD_Directed_Cross_Platform_Research_2026-07-18_rev1.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/17_METHOD_Directed_Cross_Platform_Research_2026-07-18_rev1.md"
+    },
+    {
+      "actual_bytes": 3919,
+      "actual_sha256": "673bc570043227d7d18d7341c7a5ed7d222f44c384241fee09141ab8f0431df0",
+      "declared_bytes": 3919,
+      "declared_sha256": "673bc570043227d7d18d7341c7a5ed7d222f44c384241fee09141ab8f0431df0",
+      "relative_path": "19_CONTRACT_Capitalcom_Data_Intake_2026-07-18_rev1.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/19_CONTRACT_Capitalcom_Data_Intake_2026-07-18_rev1.md"
+    },
+    {
+      "actual_bytes": 2617,
+      "actual_sha256": "9a00c506c28c9f1947eef54ef4babc079748d54d46ea08462ac0e6d9babd8098",
+      "declared_bytes": 2617,
+      "declared_sha256": "9a00c506c28c9f1947eef54ef4babc079748d54d46ea08462ac0e6d9babd8098",
+      "relative_path": "APPROVED_POLICY_2026-07-18.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/APPROVED_POLICY_2026-07-18.md"
+    },
+    {
+      "actual_bytes": 2860,
+      "actual_sha256": "7e8ef59de2ed8a4f395e9e703ee3aad93610cb39849ded59f9b0291844b0c273",
+      "declared_bytes": 2860,
+      "declared_sha256": "7e8ef59de2ed8a4f395e9e703ee3aad93610cb39849ded59f9b0291844b0c273",
+      "relative_path": "BACKTESTING_AGENT_OPERATING_AND_ARCHIVE_INSTRUCTIONS_2026-07-18_rev2.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/BACKTESTING_AGENT_OPERATING_AND_ARCHIVE_INSTRUCTIONS_2026-07-18_rev2.md"
+    },
+    {
+      "actual_bytes": 11013,
+      "actual_sha256": "1a47ba5d3a28c10f632615d12cc573da8045b56415fe7725d29557161389dad2",
+      "declared_bytes": 11013,
+      "declared_sha256": "1a47ba5d3a28c10f632615d12cc573da8045b56415fe7725d29557161389dad2",
+      "relative_path": "DONCH_TO_BACKTESTING_MULTIPLATFORM_AUTHORITY_SYNTHETIC_ADAPTER_V1_2026-07-18.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/DONCH_TO_BACKTESTING_MULTIPLATFORM_AUTHORITY_SYNTHETIC_ADAPTER_V1_2026-07-18.md"
+    },
+    {
+      "actual_bytes": 3629,
+      "actual_sha256": "f871e3b803354678ff61214762edde367c93389877646074b28b43961079f16a",
+      "declared_bytes": 3629,
+      "declared_sha256": "f871e3b803354678ff61214762edde367c93389877646074b28b43961079f16a",
+      "relative_path": "PREFLIGHT_CURRENT_ARCHITECTURE_MAP.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/PREFLIGHT_CURRENT_ARCHITECTURE_MAP.md"
+    },
+    {
+      "actual_bytes": 2310,
+      "actual_sha256": "84db9906425b181693d8f964fad08046669499128a1e5733c91fac9f967b7c20",
+      "declared_bytes": 2310,
+      "declared_sha256": "84db9906425b181693d8f964fad08046669499128a1e5733c91fac9f967b7c20",
+      "relative_path": "PREFLIGHT_DOCUMENTATION_AND_REGISTRY_IMPACT.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/PREFLIGHT_DOCUMENTATION_AND_REGISTRY_IMPACT.md"
+    },
+    {
+      "actual_bytes": 4655,
+      "actual_sha256": "515af451f4b83651ad4ff6a1e356f00101d14a71588405e7e94322ca858cf7ad",
+      "declared_bytes": 4655,
+      "declared_sha256": "515af451f4b83651ad4ff6a1e356f00101d14a71588405e7e94322ca858cf7ad",
+      "relative_path": "PREFLIGHT_MINIMAL_EXPANSION_ARCHITECTURE.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/PREFLIGHT_MINIMAL_EXPANSION_ARCHITECTURE.md"
+    },
+    {
+      "actual_bytes": 2787,
+      "actual_sha256": "a2f85d82fa5564d7af447fa86fe170ba49f285e0dc59d937fce4b7a90586e1bb",
+      "declared_bytes": 2787,
+      "declared_sha256": "a2f85d82fa5564d7af447fa86fe170ba49f285e0dc59d937fce4b7a90586e1bb",
+      "relative_path": "PREFLIGHT_PROPOSED_IMPLEMENTATION_TASK_SEQUENCE.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/PREFLIGHT_PROPOSED_IMPLEMENTATION_TASK_SEQUENCE.md"
+    },
+    {
+      "actual_bytes": 1489,
+      "actual_sha256": "ee8479f4363ae962428f596d9aad68a8f187985cff890a8795fb8991de2dd6c5",
+      "declared_bytes": 1489,
+      "declared_sha256": "ee8479f4363ae962428f596d9aad68a8f187985cff890a8795fb8991de2dd6c5",
+      "relative_path": "PREFLIGHT_REPOSITORY_PREFLIGHT.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/PREFLIGHT_REPOSITORY_PREFLIGHT.md"
+    },
+    {
+      "actual_bytes": 926,
+      "actual_sha256": "97a83bedf8d1d9e77969b07ced10b21d3341c2cb25b8a7696ac324dafebdf493",
+      "declared_bytes": 926,
+      "declared_sha256": "97a83bedf8d1d9e77969b07ced10b21d3341c2cb25b8a7696ac324dafebdf493",
+      "relative_path": "PREFLIGHT_REVIEW.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/PREFLIGHT_REVIEW.md"
+    },
+    {
+      "actual_bytes": 1822,
+      "actual_sha256": "eceea8e2e9d25490536ad070384e78eb2d063df47fa3ba4c8440a7c50406ef9c",
+      "declared_bytes": 1822,
+      "declared_sha256": "eceea8e2e9d25490536ad070384e78eb2d063df47fa3ba4c8440a7c50406ef9c",
+      "relative_path": "PREFLIGHT_TEST_AND_ROLLBACK_PLAN.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/PREFLIGHT_TEST_AND_ROLLBACK_PLAN.md"
+    },
+    {
+      "actual_bytes": 873,
+      "actual_sha256": "37124ed20cd9f02b66b5ab1ff8dc28edd2554e84819355df5922b07497a7fb9f",
+      "declared_bytes": 873,
+      "declared_sha256": "37124ed20cd9f02b66b5ab1ff8dc28edd2554e84819355df5922b07497a7fb9f",
+      "relative_path": "PREFLIGHT_VALIDATION.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/PREFLIGHT_VALIDATION.md"
+    },
+    {
+      "actual_bytes": 431,
+      "actual_sha256": "97a307fe9f6c442ef232864930108f45a9d407bfd681ecb44e9bd18ec804b798",
+      "declared_bytes": 431,
+      "declared_sha256": "97a307fe9f6c442ef232864930108f45a9d407bfd681ecb44e9bd18ec804b798",
+      "relative_path": "READ_FIRST.md",
+      "status": "pass",
+      "zip_member": "donch_to_backtesting_multiplatform_authority_v1_20260718/READ_FIRST.md"
+    }
+  ],
+  "records_declared": 17,
+  "records_failed": 0,
+  "records_passed": 17,
+  "status": "pass",
+  "zip_relative_path_prefix": "donch_to_backtesting_multiplatform_authority_v1_20260718/"
+}

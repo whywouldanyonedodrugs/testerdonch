@@ -1,0 +1,57 @@
+test_opening_range_is_completed_and_break_is_close_confirmed (unit_tests.test_kraken_session_open_range_resolution.SessionOpenRangeResolutionTests.test_opening_range_is_completed_and_break_is_close_confirmed) ... ERROR
+test_stage_nulls_ingests_real_controls_and_relabels (unit_tests.test_qlmg_corrected_event_level_development_sweep.CorrectedEventLevelDevelopmentSweepTests.test_stage_nulls_ingests_real_controls_and_relabels) ... ERROR
+test_repo_guards_pass (unit_tests.test_jt008_leakage_guards.TestJT008LeakageGuards.test_repo_guards_pass) ... FAIL
+
+======================================================================
+ERROR: test_opening_range_is_completed_and_break_is_close_confirmed (unit_tests.test_kraken_session_open_range_resolution.SessionOpenRangeResolutionTests.test_opening_range_is_completed_and_break_is_close_confirmed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/testerdonch/unit_tests/test_kraken_session_open_range_resolution.py", line 39, in test_opening_range_is_completed_and_break_is_close_confirmed
+    catalog = screen.opening_range_catalog(work, daily, schedule)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/testerdonch/tools/run_kraken_session_open_range_resolution.py", line 203, in opening_range_catalog
+    result = parent.attach_parent_state(result)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/testerdonch/tools/run_kraken_riskoff_failed_bounce_short_screen.py", line 280, in attach_parent_state
+    table = build_parent_table()
+            ^^^^^^^^^^^^^^^^^^^^
+  File "/opt/testerdonch/tools/run_kraken_riskoff_failed_bounce_short_screen.py", line 262, in build_parent_table
+    btc = runner.load_parent_gate_frame(spec, "PF_XBTUSD", START, END).copy()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/testerdonch/tools/run_kraken_family_engine_aggregate_first_sweep.py", line 2744, in load_parent_gate_frame
+    bars = load_symbol_bars(paths, symbol, start - pd.Timedelta(days=100), end)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/testerdonch/tools/run_kraken_family_engine_aggregate_first_sweep.py", line 4196, in load_symbol_bars
+    assert_rankable_file_authority(paths, p)
+  File "/opt/testerdonch/tools/run_kraken_family_engine_aggregate_first_sweep.py", line 4132, in assert_rankable_file_authority
+    raise RuntimeError(f"rankable file authority status rejected: {path}")
+RuntimeError: rankable file authority status rejected: /opt/parquet/kraken_derivatives/parquet/historical_trade_candles_5m/PF_XBTUSD/20251231T000000_2b3a8dae203d8f5f.parquet
+
+======================================================================
+ERROR: test_stage_nulls_ingests_real_controls_and_relabels (unit_tests.test_qlmg_corrected_event_level_development_sweep.CorrectedEventLevelDevelopmentSweepTests.test_stage_nulls_ingests_real_controls_and_relabels)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/testerdonch/unit_tests/test_qlmg_corrected_event_level_development_sweep.py", line 185, in test_stage_nulls_ingests_real_controls_and_relabels
+    mod.stage_nulls(ctx)
+  File "/opt/testerdonch/tools/run_qlmg_corrected_event_level_development_sweep.py", line 956, in stage_nulls
+    assert_pass(validate_control_rows(control_ledger, allow_empty=False))
+  File "/opt/testerdonch/tools/qlmg_evidence_contracts.py", line 447, in assert_pass
+    raise ContractViolation(";".join(result.violations or result.warnings))
+tools.qlmg_evidence_contracts.ContractViolation: missing_control_fields:control_symbol,control_decision_ts,matched_candidate_id,matching_basis,source_window_id,feature_source_ts
+
+======================================================================
+FAIL: test_repo_guards_pass (unit_tests.test_jt008_leakage_guards.TestJT008LeakageGuards.test_repo_guards_pass)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/opt/testerdonch/unit_tests/test_jt008_leakage_guards.py", line 19, in test_repo_guards_pass
+    self.assertEqual(report["status"], "ok")
+AssertionError: 'fail' != 'ok'
+- fail
++ ok
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 4.032s
+
+FAILED (failures=1, errors=2)
+base_reproducer_exit=1

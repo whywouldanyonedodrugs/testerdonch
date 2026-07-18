@@ -5,12 +5,13 @@ This document does not authorize an economic run.
 ## Fixed boundaries
 
 ```text
-active venue: Kraken only
+approved research platforms: Kraken derivatives; manifest-authorized Capital.com instruments
 rankable train start: 2023-01-01T00:00:00Z inclusive
 rankable train end: 2026-01-01T00:00:00Z exclusive
 protected period: 2026-01-01T00:00:00Z onward
 paid historical vendor data: prohibited
-2026 capture use: execution_calibration_only
+July 2026 Kraken capture use: execution_calibration_only
+Capital.com 2026+ default purpose: data_engineering_only
 ```
 
 Apply the interval at the earliest safe input boundary and enforce it again before signals, controls, outcomes, summaries, and package export. Report counts at each gate. A zero count in a final package does not prove upstream readers were physically separated.
@@ -28,10 +29,13 @@ Apply the interval at the earliest safe input boundary and enforce it again befo
 ## Venue and universe
 
 - No Bybit row may enter an active Kraken output.
+- No row from one platform may enter another platform's adapter or output without an explicitly approved directed source-to-target contract.
+- A rankable payload reader requires a recognized platform, selected adapter, rankable purpose, provable interval, schema hash, and content hash. Mixed or externally unrankable files fail closed.
 - No row before the train start may enter rankable research.
 - No instrument may signal before its official listing or availability time.
 - Do not call a universe survivorship-free without point-in-time listings, delistings, suspensions, expiries, settlements, and historical eligibility evidence.
 - If lifecycle ends are unknown, state the cap and use a declared cohort rule. Do not fill unknown ends from the current roster.
+- Capital.com acquisition scope does not authorize an all-instrument economic search. See `docs/CAPITALCOM_DATA_CONTRACT.md`.
 
 ## Price and cashflow roles
 
@@ -42,6 +46,7 @@ Apply the interval at the earliest safe input boundary and enforce it again befo
 - Exact, mixed, imputed, and zero-boundary funding partitions remain distinct.
 - Imputed funding may affect outcome cashflow only. It cannot activate a signal, gate eligibility, or increase evidence level.
 - Missing index/spot data cannot be relabeled from mark-minus-trade.
+- Capital.com OTC CFD bid and ask are distinct quote objects, not exchange trades. Hypothetical buys use ask and sells use bid unless a separately frozen execution contract says otherwise; midpoint is not the default.
 
 ## Point-in-time and identity
 

@@ -1,6 +1,6 @@
 # Repository Map and Preflight
 
-Status: repository-specific map updated during the 2026-07-16 governance integration.
+Status: repository-specific map amended for the approved 2026-07-18 multi-platform source boundary.
 
 ## Verified Repository State
 
@@ -42,15 +42,18 @@ Current active docs:
 - `docs/QLMG_PERP_BACKTESTING_MANUAL.md`
 - `docs/QLMG_PERP_DATA_CONTRACT.md`
 - `docs/QLMG_PERP_VALIDATION_PROTOCOL.md`
+- `docs/CAPITALCOM_DATA_CONTRACT.md`
+- `docs/CROSS_PLATFORM_RESEARCH_CONTRACT.md`
 
 Superseded pre-governance docs are preserved under `docs/agent/superseded/20260716_pre_governance/`.
 
 ## Binding Rules
 
-- Active venue: Kraken only.
+- Approved research platforms: Kraken derivatives and manifest-authorized Capital.com instruments.
 - Rankable interval: `2023-01-01T00:00:00Z` inclusive through `2026-01-01T00:00:00Z` exclusive.
 - Protected period: `2026-01-01T00:00:00Z` onward.
-- 2026 capture: strategy-agnostic execution calibration only.
+- July 2026 Kraken capture: strategy-agnostic execution calibration only. Capital.com data from 2026 onward: data-engineering-only by default.
+- Real Capital.com import and all economic contracts remain blocked pending their separately verified and approved packages.
 - Paid historical vendor data: prohibited.
 - Economic runs, protected-outcome inspection, live actions, pushes, merges, destructive Git operations, and remote overwrites require exact task authorization.
 
@@ -69,6 +72,12 @@ python3 -m pytest unit_tests/test_project_deep_cleanup_20260624.py unit_tests/te
 ```
 
 Additional documentation and governance checks may be run with repository-local Python one-liners or scripts when they are read-only, non-economic, and recorded in the task archive.
+
+Platform-boundary implementation:
+
+- `tools/qlmg_rankable_source_contract.py`: strict source manifest guard and directed identity helper.
+- `tools/capitalcom_data_adapter.py`: synthetic bid/ask adapter contract; no API, account, or order client.
+- `tools/run_kraken_family_engine_aggregate_first_sweep.py`: explicit legacy Kraken compatibility call preserving existing behavior.
 
 ## Archive Conventions
 

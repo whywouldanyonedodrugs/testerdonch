@@ -1,0 +1,109 @@
+{
+  "package_id": "donch_to_backtesting_multiplatform_authority_v1_20260718",
+  "created_utc": "2026-07-18T10:24:57.792753+00:00",
+  "records": [
+    {
+      "relative_path": "01_AUTHORITY_Multi_Platform_Operating_Contract_2026-07-18_rev2.md",
+      "byte_size": 5827,
+      "sha256": "47bc38d7e30c9e97510b5ab25761ed371556f8880b698461c9f6c56fd5f9b6c9",
+      "purpose": "self-contained backtesting implementation task input"
+    },
+    {
+      "relative_path": "02_STATE_Master_Continuity_Brief_2026-07-18_rev9.md",
+      "byte_size": 4702,
+      "sha256": "78e561d6e3ccd036782d59dd446fcbadc7f16efe4e45f0cfdcbe30e7a0abeaa3",
+      "purpose": "self-contained backtesting implementation task input"
+    },
+    {
+      "relative_path": "12_MANUAL_Test_and_Evidence_Standards_2026-07-18_rev2.md",
+      "byte_size": 5851,
+      "sha256": "c1e62916d692a7d207fbf549b04906edddd4dc3147e96caef36d30879a6646a4",
+      "purpose": "self-contained backtesting implementation task input"
+    },
+    {
+      "relative_path": "17_METHOD_Directed_Cross_Platform_Research_2026-07-18_rev1.md",
+      "byte_size": 3306,
+      "sha256": "c2f24fa595c97cf308267bb9b5dbf0c95139f43873f45c2be7c516a83a4b4f31",
+      "purpose": "self-contained backtesting implementation task input"
+    },
+    {
+      "relative_path": "19_CONTRACT_Capitalcom_Data_Intake_2026-07-18_rev1.md",
+      "byte_size": 3919,
+      "sha256": "673bc570043227d7d18d7341c7a5ed7d222f44c384241fee09141ab8f0431df0",
+      "purpose": "self-contained backtesting implementation task input"
+    },
+    {
+      "relative_path": "APPROVED_POLICY_2026-07-18.md",
+      "byte_size": 2617,
+      "sha256": "9a00c506c28c9f1947eef54ef4babc079748d54d46ea08462ac0e6d9babd8098",
+      "purpose": "self-contained backtesting implementation task input"
+    },
+    {
+      "relative_path": "BACKTESTING_AGENT_OPERATING_AND_ARCHIVE_INSTRUCTIONS_2026-07-18_rev2.md",
+      "byte_size": 2860,
+      "sha256": "7e8ef59de2ed8a4f395e9e703ee3aad93610cb39849ded59f9b0291844b0c273",
+      "purpose": "self-contained backtesting implementation task input"
+    },
+    {
+      "relative_path": "DONCH_TO_BACKTESTING_MULTIPLATFORM_AUTHORITY_SYNTHETIC_ADAPTER_V1_2026-07-18.md",
+      "byte_size": 11013,
+      "sha256": "1a47ba5d3a28c10f632615d12cc573da8045b56415fe7725d29557161389dad2",
+      "purpose": "self-contained backtesting implementation task input"
+    },
+    {
+      "relative_path": "PREFLIGHT_CURRENT_ARCHITECTURE_MAP.md",
+      "byte_size": 3629,
+      "sha256": "f871e3b803354678ff61214762edde367c93389877646074b28b43961079f16a",
+      "purpose": "self-contained backtesting implementation task input"
+    },
+    {
+      "relative_path": "PREFLIGHT_DOCUMENTATION_AND_REGISTRY_IMPACT.md",
+      "byte_size": 2310,
+      "sha256": "84db9906425b181693d8f964fad08046669499128a1e5733c91fac9f967b7c20",
+      "purpose": "self-contained backtesting implementation task input"
+    },
+    {
+      "relative_path": "PREFLIGHT_MINIMAL_EXPANSION_ARCHITECTURE.md",
+      "byte_size": 4655,
+      "sha256": "515af451f4b83651ad4ff6a1e356f00101d14a71588405e7e94322ca858cf7ad",
+      "purpose": "self-contained backtesting implementation task input"
+    },
+    {
+      "relative_path": "PREFLIGHT_PROPOSED_IMPLEMENTATION_TASK_SEQUENCE.md",
+      "byte_size": 2787,
+      "sha256": "a2f85d82fa5564d7af447fa86fe170ba49f285e0dc59d937fce4b7a90586e1bb",
+      "purpose": "self-contained backtesting implementation task input"
+    },
+    {
+      "relative_path": "PREFLIGHT_REPOSITORY_PREFLIGHT.md",
+      "byte_size": 1489,
+      "sha256": "ee8479f4363ae962428f596d9aad68a8f187985cff890a8795fb8991de2dd6c5",
+      "purpose": "self-contained backtesting implementation task input"
+    },
+    {
+      "relative_path": "PREFLIGHT_REVIEW.md",
+      "byte_size": 926,
+      "sha256": "97a83bedf8d1d9e77969b07ced10b21d3341c2cb25b8a7696ac324dafebdf493",
+      "purpose": "self-contained backtesting implementation task input"
+    },
+    {
+      "relative_path": "PREFLIGHT_TEST_AND_ROLLBACK_PLAN.md",
+      "byte_size": 1822,
+      "sha256": "eceea8e2e9d25490536ad070384e78eb2d063df47fa3ba4c8440a7c50406ef9c",
+      "purpose": "self-contained backtesting implementation task input"
+    },
+    {
+      "relative_path": "PREFLIGHT_VALIDATION.md",
+      "byte_size": 873,
+      "sha256": "37124ed20cd9f02b66b5ab1ff8dc28edd2554e84819355df5922b07497a7fb9f",
+      "purpose": "self-contained backtesting implementation task input"
+    },
+    {
+      "relative_path": "READ_FIRST.md",
+      "byte_size": 431,
+      "sha256": "97a307fe9f6c442ef232864930108f45a9d407bfd681ecb44e9bd18ec804b798",
+      "purpose": "self-contained backtesting implementation task input"
+    }
+  ],
+  "approval_scope": "non-economic source authority and synthetic adapter; local reviewed commit; no push/merge"
+}

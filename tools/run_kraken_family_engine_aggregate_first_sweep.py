@@ -38,6 +38,7 @@ from tools.qlmg_evidence_contracts import (  # noqa: E402
     validate_funding_mark_flags,
 )
 from tools.qlmg_real_controls import build_real_controls, normalize_control_net, standardize_event_ledger  # noqa: E402
+from tools.qlmg_rankable_source_contract import assert_legacy_kraken_rankable_authority  # noqa: E402
 from tools.qlmg_screening_core import check_resource_guard, resource_snapshot, utc_now, write_json  # noqa: E402
 from tools.kraken_aggregate_cache_layer import (  # noqa: E402
     OUTCOME_FIELDS,
@@ -4120,23 +4121,11 @@ def assert_rankable_file_authority(
 ) -> None:
     authorities = paths.get("rankable_file_authority")
     authority = authorities.get(str(path)) if isinstance(authorities, Mapping) else None
-    if not isinstance(authority, Mapping):
-        raise RuntimeError(f"rankable file authority missing or unprovable: {path}")
-    if str(authority.get("purpose", "")) != "rankable_research":
-        raise RuntimeError(f"rankable file authority purpose rejected: {path}")
-    if str(authority.get("venue", "")).lower() != "kraken":
-        raise RuntimeError(f"rankable file authority venue rejected: {path}")
-    contains_protected = str(authority.get("contains_protected_period", "false")).strip().lower() in {"true", "1"}
-    rankable_pre_holdout = str(authority.get("rankable_pre_holdout", "false")).strip().lower() in {"true", "1"}
-    if contains_protected or not rankable_pre_holdout:
-        raise RuntimeError(f"rankable file authority status rejected: {path}")
-    start = pd.to_datetime(authority.get("start_ts"), utc=True, errors="coerce")
-    end = pd.to_datetime(authority.get("end_ts"), utc=True, errors="coerce")
-    end_exclusive = str(authority.get("end_ts_exclusive", "false")).strip().lower() in {"true", "1"}
-    if pd.isna(start) or pd.isna(end) or start > end or end > PROTECTED_TS or (end == PROTECTED_TS and not end_exclusive):
-        raise RuntimeError(f"rankable file authority interval rejected: {path}")
-    if funding and str(authority.get("funding_type", "")) != "exact":
-        raise RuntimeError(f"rankable file authority funding type rejected: {path}")
+    assert_legacy_kraken_rankable_authority(
+        authority,
+        source_label=str(path),
+        funding=funding,
+    )
 
 
 def rankable_kraken_rows(df: pd.DataFrame, symbol: str) -> pd.DataFrame:
