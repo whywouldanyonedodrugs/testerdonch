@@ -1,6 +1,6 @@
 # QLMG Multi-Platform Project State
 
-Status: active governance as of 2026-07-16 UTC.
+Status: active governance as of 2026-07-18 UTC.
 
 The active repository direction is QLMG-inspired historical research on Kraken derivatives and manifest-authorized Capital.com instruments with strict point-in-time, platform-faithful, reproducible evidence. Existing Kraken lineage remains unchanged. Donchian/V3/S1 and prior Bybit-oriented reset material are legacy provenance unless a later authority reactivates a specific component.
 

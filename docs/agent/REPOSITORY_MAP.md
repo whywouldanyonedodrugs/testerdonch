@@ -2,7 +2,7 @@
 
 Status: repository-specific map amended for the approved 2026-07-18 multi-platform source boundary.
 
-## Verified Repository State
+## Historical 2026-07-16 Governance Baseline
 
 - Repository root: `/opt/testerdonch`.
 - Original branch at task start: `main`.
@@ -15,7 +15,14 @@ Status: repository-specific map amended for the approved 2026-07-18 multi-platfo
 - Sparse checkout: unset.
 - Applicable repository `AGENTS.md` chain at base: none. This integration adds the root `AGENTS.md`.
 
-The original checkout was dirty at task start: 139 staged entries, 4 unstaged entries, 96 untracked entries, and no unmerged entries. Recovery records were produced outside the dirty checkout before this worktree was created.
+The original checkout was dirty at that task's start: 139 staged entries, 4 unstaged entries, 96 untracked entries, and no unmerged entries. Recovery records were produced outside the dirty checkout before that worktree was created. These facts describe the 2026-07-16 governance baseline, not the current repository state.
+
+## Verified 2026-07-18 Multi-Platform Integration State
+
+- Multi-platform source-boundary base commit: `9df9c4f319cceffce84fc4567ddcaec9333c2bb7`.
+- Reviewed implementation commit: `73aeb419b43ee8f92423982bd47abd627451d362` on `agent/multiplatform-source-authority-20260718`.
+- The reviewed implementation adds the source-neutral authority guard and synthetic Capital.com adapter boundary without changing existing Kraken identities or results.
+- The historical 2026-07-16 worktree and commit details above remain provenance only; they are not assertions about the active checkout after the 2026-07-18 integration.
 
 ## Current Authority Paths
 
