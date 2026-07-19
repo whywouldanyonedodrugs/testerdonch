@@ -70,13 +70,14 @@ Use actual executable exits for chronological non-overlap. Do not use maximum-ho
 
 ## Current evidence limits to preserve
 
-As of the 2026-07-16 audit, amended by the bounded 2026-07-17 Stage 7A retention probe:
+As of the 2026-07-19 Stage 8A non-economic derivatives-state foundation:
 
 - official 5-minute trade and mark bars covered the acquired 2023–2025 Kraken roster;
 - exact funding was materially incomplete before late June 2025;
-- no full historical index/spot, OI, basis, liquidation, CVD, spread, liquidity, or slippage series has been acquired;
-- the official public Futures analytics endpoint returned reproducible bounded 2023, 2024, and 2025 sample rows for BTC/ETH open interest, liquidation volume, and futures basis, but its funding cells were empty and value units remain unverified; this is source-retention evidence only, not full-history or rankable-data authority;
+- the Stage 7C official public Futures analytics acquisition contains 2023–2025 futures basis and liquidation-volume rows plus OI from its later retention start, with exact source-object hashes in its finalized manifest;
+- Stage 8A implements the transferred `inferred_authoritative_v1` semantics for those three analytics fields and produces causal, outcome-free KDA feature and event identities; this does not authorize economic use without a separately frozen contract;
+- no full historical CVD, spread, order-book liquidity, or realized-slippage series has been acquired;
 - the universe was not proven survivorship-free and lifecycle ends were unknown;
-- a valid bounded `interval=3600` analytics probe is complete for the frozen 24-cell Stage 7A matrix; broader retention, pagination, units, and full-universe coverage remain untested.
+- Stage 8A verifies completed five-minute analytics states and one-minute-to-five-minute BTC/ETH aggregation agreement; the inferred field semantics and OI retention truncation remain explicit evidence limits.
 
 Re-verify these facts in the current repository before relying on them. Absence in the old audit is not proof that data remains absent.

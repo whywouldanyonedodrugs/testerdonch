@@ -1,0 +1,101 @@
+{
+  "attempts": [
+    [
+      "KDA01",
+      "kda01_primary_efficient",
+      "crowding_with_efficient_price_progress",
+      "robust_z_2"
+    ],
+    [
+      "KDA01",
+      "kda01_primary_deteriorating",
+      "crowding_with_deteriorating_price_progress",
+      "robust_z_2"
+    ],
+    [
+      "KDA01",
+      "kda01_primary_failure",
+      "completed_failure_after_crowding_deterioration",
+      "robust_z_2"
+    ],
+    [
+      "KDA01",
+      "kda01_robust_efficient",
+      "crowding_with_efficient_price_progress",
+      "percentile_95"
+    ],
+    [
+      "KDA01",
+      "kda01_robust_deteriorating",
+      "crowding_with_deteriorating_price_progress",
+      "percentile_95"
+    ],
+    [
+      "KDA01",
+      "kda01_robust_failure",
+      "completed_failure_after_crowding_deterioration",
+      "percentile_95"
+    ],
+    [
+      "KDA02",
+      "kda02_primary_active_purge",
+      "active_liquidation_purge",
+      "robust_z_2"
+    ],
+    [
+      "KDA02",
+      "kda02_primary_completed",
+      "completed_purge_reclaim_or_failure",
+      "robust_z_2"
+    ],
+    [
+      "KDA02",
+      "kda02_primary_oi_vacuum",
+      "OI_vacuum_with_modest_price_displacement",
+      "robust_z_2"
+    ],
+    [
+      "KDA02",
+      "kda02_robust_active_purge",
+      "active_liquidation_purge",
+      "percentile_95"
+    ],
+    [
+      "KDA02",
+      "kda02_robust_completed",
+      "completed_purge_reclaim_or_failure",
+      "percentile_95"
+    ],
+    [
+      "KDA02",
+      "kda02_robust_oi_vacuum",
+      "OI_vacuum_with_modest_price_displacement",
+      "percentile_95"
+    ],
+    [
+      "KDA03",
+      "kda03_basis_oi",
+      "basis_expansion_with_OI_confirmation",
+      "robust_z_2"
+    ],
+    [
+      "KDA03",
+      "kda03_basis_no_price",
+      "basis_expansion_without_price_confirmation",
+      "robust_z_2"
+    ],
+    [
+      "KDA03",
+      "kda03_basis_liq_reset",
+      "extreme_basis_with_liquidation_and_OI_reset",
+      "robust_z_2"
+    ]
+  ],
+  "decision_delay": "five_minutes_after_source_bucket_open",
+  "event_rule": "causal_false_to_true_onset_on_completed_five_minute_state",
+  "generator_contract_hash": "c285af918e317722e91e3c1df5e44eb48abf27c97fedfe251b0881e3aa8f0017",
+  "semantic_duplicate_policy": {
+    "kda02_robust_oi_vacuum": "killed_duplicate_of_kda02_primary_oi_vacuum"
+  },
+  "version": "kda_outcome_free_generator_v1_20260719"
+}

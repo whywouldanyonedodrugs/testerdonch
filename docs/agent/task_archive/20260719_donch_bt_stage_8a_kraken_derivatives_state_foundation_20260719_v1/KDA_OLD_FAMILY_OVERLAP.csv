@@ -1,0 +1,8 @@
+old_family,source,old_rows,exact_symbol_time_overlaps
+RFBS,safe_identity_tape_unavailable,0,0
+Backside,safe_identity_tape_unavailable,0,0
+failed_breakdown,safe_identity_tape_unavailable,0,0
+LFBS,safe_identity_tape_unavailable,0,0
+H43,safe_identity_tape_unavailable,0,0
+C01,/opt/testerdonch/results/rebaseline/phase_kraken_c01_level3_economic_20260717_v1_20260717_103227/CAUSAL_EVENT_ANCHOR_FREEZE.parquet,4887,2321
+C02,/opt/testerdonch/docs/agent/task_archive/20260717_donch_bt_stage_3b_c02_leadership_generator_20260717_v1/C02_IMPULSE_EVENT_TAPE.parquet,32686,11869

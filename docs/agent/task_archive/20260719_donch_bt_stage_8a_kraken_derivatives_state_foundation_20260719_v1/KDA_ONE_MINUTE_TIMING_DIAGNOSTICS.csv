@@ -1,0 +1,7 @@
+metric,symbol,overlapping_5m_rows,aggregation_mismatches,aggregation_rule,comparison_tolerance,state_agreement,timing_finding,rankable_alt_proxy
+future-basis,PF_XBTUSD,315648,0,last,0,True,completed_5m_state_available_only_after_bucket_close; no_1m_alt_proxy,False
+future-basis,PF_ETHUSD,315648,0,last,0,True,completed_5m_state_available_only_after_bucket_close; no_1m_alt_proxy,False
+open-interest,PF_XBTUSD,289728,0,first_max_min_last,1e-12,True,completed_5m_state_available_only_after_bucket_close; no_1m_alt_proxy,False
+open-interest,PF_ETHUSD,289728,0,first_max_min_last,1e-12,True,completed_5m_state_available_only_after_bucket_close; no_1m_alt_proxy,False
+liquidation-volume,PF_XBTUSD,315648,0,sum,1e-12,True,completed_5m_state_available_only_after_bucket_close; no_1m_alt_proxy,False
+liquidation-volume,PF_ETHUSD,315648,0,sum,1e-12,True,completed_5m_state_available_only_after_bucket_close; no_1m_alt_proxy,False

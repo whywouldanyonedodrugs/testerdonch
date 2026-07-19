@@ -1,0 +1,18 @@
+{
+  "KDA01_events": 2639115,
+  "KDA02_events": 1252232,
+  "KDA03_feasible_rows": 494270,
+  "analytics_data_manifest_hash": "f1520fd3875578a9a2101b10d5e15b7b88c58a6ffcf6067dd91f582352d92a6d",
+  "cohort_hash": "5df5b304d8e735d3579e220d25a000e81013435320c6e8fb2480c1ed565a3636",
+  "cohort_version": "current_roster_analytics_bar_existence_cohort_v1",
+  "economic_outputs_computed": 0,
+  "episodes": 450408,
+  "feature_contract_hash": "4673ff11b8e0ad12bca4552780848b2597f68f54841858376cdfa30f99e193b4",
+  "generator_contract_hash": "c285af918e317722e91e3c1df5e44eb48abf27c97fedfe251b0881e3aa8f0017",
+  "one_minute_aggregation_mismatches": 0,
+  "peak_rss_gib": 2.6669540405273438,
+  "protected_rows_opened": 0,
+  "runtime_seconds": 1402.8283792957664,
+  "semantic_contract_hash": "289368124d12a52b255f9905c7c7520b4aeb764c0d0ae5f20acd3214a2aeea60",
+  "status": "complete"
+}

@@ -7,8 +7,8 @@ The active repository direction is QLMG-inspired historical research on Kraken d
 Current stage:
 
 - governance integration, repository recovery, and safe worktree discipline;
-- documentation authority reconciliation;
-- non-economic validation and tooling checks only;
+- completed Kraken analytics acquisition authority and non-economic derivatives-state generator foundation;
+- outcome-free KDA01/KDA02 event tapes and KDA03 feasibility evidence, pending a separately approved frozen economic contract;
 - no alpha sweep, rankable economic run, protected-outcome inspection, live deployment, order placement, or private-account action is authorized by this state document.
 
 Binding research boundaries:

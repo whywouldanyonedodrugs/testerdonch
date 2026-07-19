@@ -1,0 +1,183 @@
+{
+  "authority": {
+    "does_not_mean": [
+      "primary-source verification of every numerical unit",
+      "economic evidence",
+      "permission to alter closed family decisions",
+      "permission to use 2026+ observations"
+    ],
+    "higher_authority": [
+      "machine-enforced contracts",
+      "finalized manifests and run roots",
+      "future exact Kraken documentation or a lossless identity proof"
+    ],
+    "meaning": "Binding internal semantic contract for subsequent Kraken research. The adopted meanings remain explicitly classified as inferred where Kraken does not publish a complete field/unit definition.",
+    "revision_rule": "Any contradictory higher-authority evidence creates a new version. Do not silently reinterpret or rewrite V1-derived artifacts."
+  },
+  "coverage_caps": {
+    "basis_and_liquidation_5m": "symbol-specific; 456 of 460 identities returned rows",
+    "continuous_tradeability_proven": false,
+    "open_interest_1m_earliest_core": "2023-04-01T00:00:00Z",
+    "open_interest_5m": "454 of 460 identities returned rows",
+    "open_interest_5m_earliest_global": "2023-03-07T11:40:00Z",
+    "rules": [
+      "Event-time trade, mark, and required analytics coverage must be complete.",
+      "Known lifecycle-invalid intervals fail closed.",
+      "Analytics row existence does not prove historical lifecycle eligibility.",
+      "All outputs retain the current-roster/survivorship cap."
+    ],
+    "survivorship_free": false,
+    "universe_label": "current_roster_analytics_bar_existence_cohort"
+  },
+  "date_utc": "2026-07-19",
+  "decision_id": "DONCH_KRAKEN_ANALYTICS_SEMANTICS_20260719_V1",
+  "economic_use_gate": {
+    "authorized_by_this_decision": false,
+    "permitted_now": [
+      "schema and semantic implementation",
+      "causal feature construction",
+      "outcome-free state/event generation",
+      "coverage, counts, identity, overlap, and multiplicity analysis"
+    ],
+    "requires_separate_human_approval": [
+      "forward return calculation",
+      "economic screening",
+      "control performance",
+      "parameter selection from outcomes",
+      "protected-period access"
+    ]
+  },
+  "future_basis": {
+    "aggregation_60_to_300": "last",
+    "confidence": {
+      "decimal_scale": "high-confidence inference",
+      "field_and_sign": "verified"
+    },
+    "definition": "(futures reference price / spot-or-index reference price) - 1",
+    "derived_fields": {
+      "basis_bps": "basis_raw * 10000",
+      "basis_percent": "basis_raw * 100"
+    },
+    "field": "basis_raw",
+    "numerical_unit": "decimal ratio",
+    "reasons": [
+      "The series is signed and five-minute values equal the final one-minute value, so it is a state rather than a flow.",
+      "Typical BTC/ETH and liquid-alt values such as 0.0001-0.001 are economically coherent as 1-10 bps.",
+      "Interpreting those values as absolute USD differences is implausible across assets with very different prices.",
+      "Large distressed/new-listing extrema remain possible and must not be clipped silently."
+    ],
+    "research_rules": [
+      "Preserve basis_raw exactly.",
+      "Use within-symbol causal changes, robust z-scores, and percentiles as primary features.",
+      "Do not call future basis funding.",
+      "Do not treat basis direction alone as a trade direction."
+    ],
+    "semantic_status": "inferred_authoritative_v1",
+    "sign": {
+      "negative": "futures below spot/reference",
+      "positive": "futures above spot/reference",
+      "zero": "no measured premium or discount"
+    },
+    "state_type": "signed closing level"
+  },
+  "liquidation_volume": {
+    "aggregation_60_to_300": "sum",
+    "confidence": {
+      "base_unit_interpretation": "high-confidence inference",
+      "flow_and_sum_semantics": "structurally verified",
+      "side": "unavailable in source; price-inferred side is a proxy only"
+    },
+    "derived_fields": {
+      "liquidation_base_units": "Decimal(value_raw)",
+      "liquidation_mark_notional_usd_proxy": "liquidation_base_units * contemporaneous mark_close",
+      "liquidation_to_lagged_oi": "liquidation_base_units / lagged_oi_close_base_units",
+      "price_inferred_liquidation_side": "long_liquidation_proxy when the causal price path is negative; short_liquidation_proxy when the causal price path is positive; ambiguous otherwise"
+    },
+    "directionality": "unsigned aggregate; no native long/short side",
+    "field": "value_raw",
+    "reasons": [
+      "All retained values are nonnegative.",
+      "Every overlapping BTC/ETH five-minute value equals the sum of the five one-minute values.",
+      "Cross-symbol magnitudes and examples such as fractional AAVE/TAO and large DOGE quantities are coherent with base-unit contract quantity.",
+      "A single common-USD interpretation is inconsistent with the observed cross-symbol scale."
+    ],
+    "research_rules": [
+      "Do not call the aggregate series typed forced flow.",
+      "Do not claim long-versus-short liquidation from value_raw.",
+      "Use liquidation_to_lagged_oi as the primary cross-symbol intensity measure because the inferred unit cancels.",
+      "Use mark-notional only as an approximate economic-size field because liquidation prices vary within the bucket."
+    ],
+    "semantic_status": "inferred_authoritative_v1",
+    "state_type": "nonnegative interval flow",
+    "unit": "Kraken contract base-unit quantity force-closed during the interval"
+  },
+  "open_interest": {
+    "aggregation_60_to_300": [
+      "first open",
+      "maximum high",
+      "minimum low",
+      "last close"
+    ],
+    "confidence": {
+      "base_unit_interpretation": "high-confidence inference",
+      "tuple_mapping": "structurally verified by 74,957,208 rows and exact 1m-to-5m aggregation"
+    },
+    "derived_fields": {
+      "oi_close_base_units": "Decimal(value_3_raw)",
+      "oi_log_change": "log(oi_close_base_units / lagged_oi_close_base_units)",
+      "oi_notional_usd_proxy": "oi_close_base_units * contemporaneous mark_close",
+      "oi_range_fraction": "(oi_high - oi_low) / lagged_oi_close"
+    },
+    "directionality": "unsigned gross open exposure; no long/short direction",
+    "raw_fields": [
+      "value_0_raw",
+      "value_1_raw",
+      "value_2_raw",
+      "value_3_raw"
+    ],
+    "reasons": [
+      "All OHLC inequalities pass over the full retained panel.",
+      "Every overlapping BTC/ETH five-minute tuple exactly matches first/max/min/last of one-minute OI.",
+      "BTC values in thousands, ETH in tens of thousands, and token-dependent alt scales are coherent with base/contract quantity and incoherent with a common USD value.",
+      "Kraken contract specifications express minimum lots and maximum positions in the named base currency."
+    ],
+    "research_rules": [
+      "Never infer long or short crowding from OI alone.",
+      "Prefer log changes and within-symbol normalization.",
+      "Use mark-notional only as a derived proxy and retain the raw base-unit series.",
+      "Do not divide OI by two or assume whether Kraken counts both sides separately without a future explicit source."
+    ],
+    "semantic_status": "inferred_authoritative_v1",
+    "tuple_mapping": {
+      "value_0_raw": "open",
+      "value_1_raw": "high",
+      "value_2_raw": "low",
+      "value_3_raw": "close"
+    },
+    "unit": "Kraken contract base-unit quantity as named by the instrument"
+  },
+  "scope": {
+    "data_root": "/opt/parquet/kraken_derivatives/analytics/stage7c_v1",
+    "five_minute_scope": "frozen 460-symbol inventory, endpoint-supported rows",
+    "metrics": [
+      "future-basis",
+      "open-interest",
+      "liquidation-volume"
+    ],
+    "one_minute_scope": [
+      "PF_XBTUSD",
+      "PF_ETHUSD"
+    ],
+    "platform": "Kraken derivatives",
+    "rankable_interval": "[2023-01-01T00:00:00Z, 2026-01-01T00:00:00Z)"
+  },
+  "source_identity": {
+    "final_unique_rows": 229869200,
+    "frozen_symbol_inventory_sha256": "0e1c35b3348b3187547f188dac47e5e0f5bc3d259207fa3884bc8efccdd36f09",
+    "protected_rows": 0,
+    "stage7c_data_manifest_content_hash": "f1520fd3875578a9a2101b10d5e15b7b88c58a6ffcf6067dd91f582352d92a6d",
+    "stage7c_drive_zip_sha256": "14d49653a5f2c868b6eb38cff89dcb932d6fc6bc629db56b19ffcfe7ae708bf8",
+    "stage7c_package_content_hash": "c5be5d045433e1dc13ef9fbf1e2915d62f101b678088f04eb70630f952c75150"
+  },
+  "status": "project_authoritative_inference_v1"
+}
