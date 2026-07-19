@@ -1,11 +1,11 @@
 ---
-status: active testing manual after verified Stage 10 policy application
+status: active testing manual after verified Stage 12 method reset
 date: 2026-07-19
-revision: 3.0
+revision: 4.0
 scope: multi-platform evidence, conditional alpha, gate routing, controls, reproducibility, validation, and deployment
 authority: operating contract, machine contracts, finalized manifests, and explicit 2026-07-19 human policy
 supersedes: received `12_MANUAL_Test_and_Evidence_Standards_2026-07-19_rev3.md`; prior manuals remain provenance
-provenance: rev2; Stage 7C-9; aggressive conditional-alpha policy
+provenance: rev3; Stage 7C-11; aggressive conditional-alpha policy; Stage 12 method reset
 known limitations: no strategy is validation-grade or live-ready
 ---
 
@@ -35,6 +35,8 @@ research_route
 
 `research_route` does not replace evidence level.
 
+Evidence-limitation tags are a seventh descriptive dimension, separate from all six statuses above. Tags explain precision, concentration, measurement, lifecycle, funding, cost, or mechanical limits and have no promotion effect.
+
 ## Required economic contract
 
 Every contract freezes:
@@ -59,6 +61,25 @@ control_eligibility
 independent_evidence_requirement
 falsification
 ```
+
+## Economic-run admission
+
+Before a future full Level-3 run, the pre-outcome packet must document:
+
+```text
+measurement_semantics_valid
+event_frequency_consistent_with_mechanism
+raw_magnitude_economically_relevant
+actor_or_structural_mechanism_identified
+development_route_or_explicit_one_shot_reason
+horizon_justified
+component_controls_defined
+payoff_archetype_frozen
+```
+
+Use `HYPOTHESIS_DEVELOPMENT_PROTOCOL.json` version 1.0. Phase 0 and Phase 1 are outcome-free. Phase 2 development responses, Phase 4 untouched evaluation, Phase 5 replication, and Phase 6 outcome-bearing controls/validation each require separate exact human approval. Register every explored development cell and prevent later-fold information from altering earlier designs.
+
+A one-shot translation is allowed only when a strong external or mechanical theory directly supplies the rule and the explicit reason is recorded. It does not waive measurement validation or untouched evaluation.
 
 ## Integrity gates
 

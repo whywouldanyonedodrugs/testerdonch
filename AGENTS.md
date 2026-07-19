@@ -12,6 +12,7 @@ This repository is governed as a historical multi-platform backtesting and resea
 - Use [docs/agent/DRIVE_HANDOFF_TARGET.md](docs/agent/DRIVE_HANDOFF_TARGET.md) for the approved default Donch handoff destination and non-overwrite procedure.
 - Use [docs/agent/CODE_REVIEW.md](docs/agent/CODE_REVIEW.md) for review tasks.
 - Use [docs/agent/KNOWN_FAILURE_PATTERNS.md](docs/agent/KNOWN_FAILURE_PATTERNS.md) before changing event generation, controls, or accounting.
+- Use [docs/agent/HYPOTHESIS_DEVELOPMENT_PROTOCOL.md](docs/agent/HYPOTHESIS_DEVELOPMENT_PROTOCOL.md) and its machine contract before translating a qualitative mechanism into an economic contract. Phase 2 or later outcome access always requires separate exact human approval.
 - Use [docs/agent/SOURCE_MAP.md](docs/agent/SOURCE_MAP.md) for current continuity, decisions, registries, and manual order.
 - Use [docs/agent/RESEARCH_GATE_ROUTING_POLICY.md](docs/agent/RESEARCH_GATE_ROUTING_POLICY.md) and its machine-readable JSON for future economic-contract gate classification.
 
@@ -50,6 +51,8 @@ Before completion, ask: “Would a senior engineer consider this solution unnece
 - Freeze candidate identity and real control identity before outcomes.
 - Use actual executable exits for non-overlap. Do not use maximum-hold preblocking, summary rows as trades, placeholder controls, event caps, same-bar execution heroics, or silent artificial boundary closes.
 - Preserve old artifacts and run roots through supersession records rather than deletion.
+- Before a new full Level-3 contract, document measurement semantics, mechanism-consistent event frequency, raw magnitude versus plausible costs, the compelled actor or structural mechanism, the development route or explicit one-shot reason, horizon justification, component controls, and the frozen payoff archetype.
+- Evidence-limitation tags describe uncertainty or claim caps separately from research routes and evidence levels; they never promote evidence.
 
 ## Prospective research routing
 

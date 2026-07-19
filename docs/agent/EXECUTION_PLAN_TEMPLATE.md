@@ -60,6 +60,21 @@ Repository root and commit:
 - Remote writes authorized: yes/no; exact destination and identity prerequisite:
 - Forbidden actions:
 
+## Hypothesis-development admission (economic tasks only)
+
+- Protocol phase and fold role:
+- Compelled actor or structural mechanism:
+- Measurement semantics valid:
+- Event frequency consistent with mechanism:
+- Raw magnitude economically relevant versus plausible costs:
+- Development route or explicit one-shot reason:
+- Horizon justified:
+- Component controls defined:
+- Payoff archetype frozen:
+- Explored-cell registry and multiplicity family:
+- Untouched-block, purging, embargo, and no-backward-transfer evidence:
+- Separate exact human approval for each outcome-bearing phase:
+
 ## Files expected to change
 
 - `<path>`: <reason>

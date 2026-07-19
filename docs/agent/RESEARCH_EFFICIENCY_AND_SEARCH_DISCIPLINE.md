@@ -1,11 +1,11 @@
 ---
-status: active engineering and research-routing method after verified Stage 10 application
+status: active engineering and research-routing method after verified Stage 12 method reset
 date: 2026-07-19
-revision: 2.0
+revision: 3.0
 scope: efficient search, conditional sleeves, controls, duplicate management, and multiplicity
-authority: method prior below machine contracts and Test and Evidence Standards rev3
+authority: method prior below machine contracts and Test and Evidence Standards rev4
 supersedes: received `24_METHOD_Research_Efficiency_and_Search_Discipline_2026-07-19_rev2.md`; prior methods remain provenance
-provenance: rev1; Stage 7C-9; aggressive conditional-alpha policy
+provenance: rev2; Stage 7C-11; aggressive conditional-alpha policy; Stage 12 method reset
 known limitations: no economic work is authorized by this method
 ---
 
@@ -28,11 +28,12 @@ Do not use compute to polish one historical winner.
 
 ```text
 verified immutable data
--> causal reusable features
--> frozen mechanism and payoff archetype
--> frozen candidate/control identities
--> mechanical and cost kill checks
--> exact simulation
+-> compelled actor and falsifiable mechanism
+-> outcome-free measurement semantics, raw magnitude and event-frequency validation
+-> separately approved registered development folds where needed
+-> frozen translation, payoff archetype and candidate/control identities
+-> next untouched-block evaluation
+-> rolling or nested forward replication
 -> route classification
 -> mechanism controls and ablations
 -> duplicate/episode/context clustering
@@ -42,6 +43,8 @@ verified immutable data
 ```
 
 Early stages may reject or route. They cannot validate.
+
+Development folds may characterize continuous response, monotonicity, sign, horizon, component incrementality, and context interactions. Every cell is registered, none is confirmatory, and later-fold information cannot alter an earlier design. A simple one-shot route remains available only with an explicit strong external or mechanical reason.
 
 ## Efficient conditional research
 
@@ -62,6 +65,7 @@ Do not use `year`, `best symbol`, or `best month` as the context.
 - cached causal features keyed by data and feature hashes;
 - deterministic candidate, control and cluster identities;
 - few mechanism-relevant alternatives rather than grids;
+- raw native-unit and bps magnitude plus plausible cost break-even before standardized threshold work;
 - predeclared payoff archetypes;
 - one primary and one robustness translation where possible;
 - all attempts retained;
@@ -76,7 +80,9 @@ Do not use `year`, `best symbol`, or `best month` as the context.
 - relaxing costs because gross returns are close;
 - combining correlated weak sleeves into a portfolio before controls;
 - using protected data to define a context;
-- rerunning a closed translation under cosmetic parameter changes.
+- rerunning a closed translation under cosmetic parameter changes;
+- treating a broad qualitative idea or first hand-written translation as automatically confirmatory;
+- using untouched-fold results to refine an earlier threshold, horizon, component, or context.
 
 ## Stop and route rules
 

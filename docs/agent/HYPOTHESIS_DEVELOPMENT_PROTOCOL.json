@@ -1,0 +1,149 @@
+{
+  "protocol_id": "qlmg_hypothesis_development_protocol",
+  "version": "1.0",
+  "effective_date": "2026-07-19",
+  "status": "active_prospective_method",
+  "applied_task_id": "donch_bt_stage_12_kda03_closure_method_reset_20260719_v1",
+  "economic_run_authorized": false,
+  "protected_outcome_access_authorized": false,
+  "historical_decisions_mutable": false,
+  "route_vocabulary_authority": "docs/agent/RESEARCH_GATE_ROUTING_POLICY.json#version=1.0",
+  "route_vocabulary_changed": false,
+  "principles": {
+    "development_is_not_confirmation": true,
+    "no_information_transfer_backward_from_later_folds": true,
+    "all_explored_cells_registered": true,
+    "same_sample_threshold_rescue_prohibited": true,
+    "independent_or_prospective_evidence_required_for_validation": true,
+    "one_shot_translation_allowed_only_with_explicit_strong_external_or_mechanical_theory": true
+  },
+  "economic_run_admission": {
+    "all_required": true,
+    "fields": [
+      "measurement_semantics_valid",
+      "event_frequency_consistent_with_mechanism",
+      "raw_magnitude_economically_relevant",
+      "actor_or_structural_mechanism_identified",
+      "development_route_or_explicit_one_shot_reason",
+      "horizon_justified",
+      "component_controls_defined",
+      "payoff_archetype_frozen"
+    ],
+    "one_shot_exception": {
+      "allowed": true,
+      "condition": "rule_follows_directly_from_strong_external_or_mechanical_theory",
+      "required_record": "explicit_one_shot_reason",
+      "does_not_waive": [
+        "measurement_validation",
+        "economic_run_approval",
+        "untouched_evaluation",
+        "controls_validation_and_deployment_requirements"
+      ]
+    }
+  },
+  "phases": [
+    {
+      "phase": 0,
+      "name": "mechanism_and_actor_specification",
+      "outcome_bearing": false,
+      "required_fields": [
+        "compelled_actor_or_balance_sheet",
+        "why_pressure_should_persist_or_reverse",
+        "observable_Kraken_state",
+        "information_availability",
+        "main_null",
+        "falsification",
+        "data_semantic_limit"
+      ],
+      "fail_closed_flag": "mechanism_underidentified",
+      "fail_closed_condition": "generic_multivariate_state_without_compelled_actor_or_structural_balance_sheet"
+    },
+    {
+      "phase": 1,
+      "name": "measurement_validation",
+      "outcome_bearing": false,
+      "required_fields": [
+        "raw_economic_magnitude_native_units_and_bps",
+        "standardized_score",
+        "event_frequency_and_duration",
+        "coverage_by_year_symbol_and_liquidity_cohort",
+        "reference_leg_authority_where_claimed",
+        "cost_break_even_magnitude",
+        "feature_window_exactness",
+        "timestamp_availability"
+      ],
+      "required_pre_economic_flag": "economically_too_small_relative_to_plausible_costs",
+      "flag_condition": "statistically_unusual_measurement_but_raw_magnitude_below_plausible_cost_break_even"
+    },
+    {
+      "phase": 2,
+      "name": "development_fold_response_characterization",
+      "outcome_bearing": true,
+      "separate_exact_human_approval_required": true,
+      "fold_policy": "predefined_development_folds_only",
+      "all_explored_cells_must_be_registered": true,
+      "allowed_purposes": [
+        "continuous_response_surfaces",
+        "monotonicity",
+        "directional_sign",
+        "horizon_profile",
+        "component_incrementality",
+        "context_interaction"
+      ],
+      "confirmatory_evidence": false,
+      "same_sample_rescue_allowed": false
+    },
+    {
+      "phase": 3,
+      "name": "translation_freeze",
+      "outcome_bearing": false,
+      "freeze_fields": [
+        "direction",
+        "feature_form",
+        "threshold_or_continuous_rank",
+        "horizon",
+        "payoff_archetype",
+        "context",
+        "controls",
+        "costs",
+        "multiplicity_family"
+      ],
+      "backward_information_transfer_allowed": false
+    },
+    {
+      "phase": 4,
+      "name": "untouched_fold_evaluation",
+      "outcome_bearing": true,
+      "separate_exact_human_approval_required": true,
+      "evaluation_rule": "evaluate_frozen_translation_on_next_untouched_rankable_block",
+      "purging_and_embargo_required_where_needed": true,
+      "contract_mutation_after_exposure_allowed": false
+    },
+    {
+      "phase": 5,
+      "name": "rolling_or_nested_replication",
+      "outcome_bearing": true,
+      "separate_exact_human_approval_required": true,
+      "forward_sequence": [
+        "development",
+        "freeze",
+        "evaluation"
+      ],
+      "future_block_exposure_to_earlier_design_allowed": false
+    },
+    {
+      "phase": 6,
+      "name": "controls_independent_evidence_and_deployment_review",
+      "outcome_bearing": true,
+      "separate_exact_human_approval_required": true,
+      "preserve_existing_requirements": [
+        "mechanism_relevant_controls",
+        "independent_or_prospective_validation",
+        "protected_period_firewall",
+        "deployment_review",
+        "risk_capacity_and_execution_review"
+      ],
+      "route_or_evidence_level_implies_deployment": false
+    }
+  ]
+}

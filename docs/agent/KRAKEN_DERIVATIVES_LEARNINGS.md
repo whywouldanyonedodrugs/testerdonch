@@ -1,8 +1,8 @@
 ---
 status: active consolidated Kraken learning state after verified Stage 10 application
 date: 2026-07-19
-revision: 1.0
-scope: Stage 7C analytics, Stage 8A foundation, KDA01, KDA02, reusable components, defects, and future routes
+revision: 1.1
+scope: Stage 7C analytics, Stage 8A foundation, KDA01-KDA03, reusable components, defects, and future routes
 authority: finalized manifests, reviewed task archives, published commits, and terminal run decisions
 supersedes: prior narrative statements that 2023-2025 OI, basis, and liquidation analytics were unavailable; does not supersede finalized manifests or roots
 provenance: Stage 7A-7C; Stage 8A-8C1; Stage 9; current operating contract and family decisions
@@ -245,6 +245,10 @@ stress mean: -8.8430 bps
 
 Its route is `sample_limited_prospective_candidate`, not a pass or production claim. It is not control-eligible under the frozen policy. No same-sample threshold, context, horizon, robustness, or control work may rescue it; the next permitted evidence is independent or prospective validation of that exact frozen candidate.
 
+The limitation was not a literally tiny raw trade count: 1,839 accepted trades spanned 691 market-day clusters, 1,839 parent episodes, and 49 symbols. The problem was weak precision and threshold robustness. Separate evidence-limitation tags are `high_variance`, `wide_cluster_uncertainty`, `threshold_sensitive`, and `not_control_eligible`; they do not alter its route or evidence level.
+
+Stage 11 also established method lessons: most definitions were near-flat gross before the frozen 14-bps cost; standardized extremes lacked a minimum raw-magnitude condition; prior-day normalization can make intraday “extremes” broad; the claimed shock state was very frequent; KDA03A lacked a directly observed complete executable reference leg; OI did not identify actor direction; and positive/negative shocks were asymmetric. The formal response is the staged development protocol, not a KDA03 rerun.
+
 The evidence cohort is also a binding claim cap: the Kraken K0 trade manifest contains 301 PF symbols, while Stage 8A authorized a 187-symbol current-roster/lifecycle-capped intersection and only 55 generated KDA03 candidates after causal coverage and onset gates. This is not a survivorship-free historical universe.
 
 ## Reusable cross-family components
@@ -308,6 +312,10 @@ Future contracts must separate:
 | KDA02B OI vacuum | Outcome-free candidate library | Fresh independent contract if prioritized. |
 | KDA02C isolated-versus-systemic purge breadth | Post-hoc hypothesis presence | No same-sample promotion; context study and prospective validation. |
 | KDA03 basis-shock family | Level-3 routes assigned; 11/12 primary definitions rejected | Negative completed-basis rejection 6h is sample-limited and requires independent or prospective evidence. |
+
+## Hypothesis-development method after Stage 12
+
+Future families begin with a compelled actor or structural balance sheet and outcome-free measurement validation. Raw magnitude, event frequency/duration, reference authority, exact feature windows, timestamp availability, and plausible cost break-even must be established alongside standardized scores. Any development-fold returns require separate exact human approval, all explored cells count toward multiplicity, and the frozen translation is evaluated only on the next untouched block. Later-fold information cannot flow backward.
 
 ## One-minute expansion
 

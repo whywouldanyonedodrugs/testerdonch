@@ -1,15 +1,15 @@
 ---
-status: active continuity after verified Stage 10 policy application
+status: active continuity after verified Stage 12 KDA03 closure and method reset
 date: 2026-07-19
-revision: rev11
-scope: multi-platform programme state, Kraken analytics, KDA01/KDA02 decisions, and aggressive conditional-alpha routing
-authority: machine contracts and finalized manifests first; explicit 2026-07-19 human gate-policy decision
-supersedes: received `02_STATE_Master_Continuity_Brief_2026-07-19_rev11.md`; prior continuity remains provenance
-provenance: rev10; Stage 7C; Stage 8A-8C1; Stage 9; gate-policy review
+revision: rev12
+scope: multi-platform programme state, Kraken analytics, KDA01/KDA02/KDA03 decisions, and staged hypothesis development
+authority: machine contracts and finalized manifests first; explicit 2026-07-19 Stage 10 and Stage 12 human decisions
+supersedes: rev11; prior continuity remains provenance
+provenance: rev11; Stage 11 KDA03 authority; Stage 12 method reset
 known limitations: Capital.com intake remains separate; no strategy is validation-grade or live-ready
 ---
 
-# Master Continuity Brief, rev11
+# Master Continuity Brief, rev12
 
 ## Fixed programme scope
 
@@ -27,10 +27,10 @@ orders_private_account_actions: not_authorized
 
 ## Current repository state
 
-Verified Stage 10 starting authority after Stage 9:
+Verified Stage 12 starting authority after Stage 11:
 
 ```text
-3ea0d320d71716a5c0890f4c924ed924224beda2
+0fb08802a1eaa44d379618d10882198a3c9d0e9a
 ```
 
 Repository state must be reverified at every task start.
@@ -56,6 +56,7 @@ C03: C03_PIT_authority_unavailable
 C16: C16_flow_authority_unavailable
 KDA01: KDA01_level3_repaired_no_primary_pass_stop
 KDA02A: KDA02_level3_no_primary_pass_stop
+KDA03: KDA03_level3_routes_assigned
 ```
 
 These exact run decisions remain immutable.
@@ -76,8 +77,10 @@ KDA02B OI vacuum:
 KDA02C isolated-versus-systemic purge breadth:
     post_hoc_context_hypothesis; no evidence yet
 
-KDA03 basis state/dislocation:
-    next untested Kraken mechanism
+KDA03 negative completed-basis rejection 6h:
+    sample_limited_prospective_candidate
+    not control-eligible; unvalidated; not live-ready
+    high_variance; wide_cluster_uncertainty; threshold_sensitive
 ```
 
 ## Gate-policy update
@@ -106,14 +109,15 @@ Past run decisions keep their original gates. No historical result is retroactiv
 - market-wide breadth may distinguish isolated mean reversion from systemic continuation;
 - five-minute entry must be at-or-after completed-bar availability;
 - every interior timestamp of a feature window must exist;
-- controls may be appropriate for a positive conditional candidate before universal generality is established.
+- controls may be appropriate for a positive conditional candidate before universal generality is established;
+- standardized extremes must be checked against raw native-unit and bps magnitudes, mechanism-consistent event frequency, and plausible cost break-even before economics;
+- OI expansion cannot identify new-long, new-short, hedge, or arbitrage actor direction, and a reference-led claim requires direct reference-leg authority;
+- a plausible first translation is not automatically the definitive confirmatory translation.
 
-## Next eligible phase
+## Development method and next eligible phase
 
-Before KDA03 economics:
+The active hypothesis-development protocol is version 1.0 at `docs/agent/HYPOTHESIS_DEVELOPMENT_PROTOCOL.json`. It requires outcome-free actor/mechanism specification and measurement validation, separately approved registered development folds, a translation freeze, evaluation on the next untouched block, forward-only rolling replication, and existing control/validation/deployment gates.
 
-1. prepare an outcome-free KDA03 adjudication under the new routing policy;
-2. freeze its payoff archetype, claim scope, gates, diagnostics, controls eligibility, and independent-evidence requirement before any separately authorized outcomes;
-3. retain KDA02 conditional-context work as a separate possible route, not an automatic next run.
+The non-authorizing next-candidate comparison covers KDA02C breadth, KDA02B OI vacuum, a distinct downside completed derivatives-state rejection mechanism using only pre-existing components, and C17 executed-catalyst state as a fresh non-derivatives family. Phase 0/1 work may be planned outcome-free. Phase 2 or later always requires separate exact human approval.
 
 No economic task is authorized by this brief.

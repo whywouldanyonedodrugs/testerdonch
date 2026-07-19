@@ -14,3 +14,8 @@ stress_mean,Execution sensitivity,routing_gate,>= -10 bps default durable route,
 mechanism_controls,Incremental evidence,required_before_validation,pass claimed component,translation_rejected,Controls require separate authorization and may run before universal stability
 independent_or_prospective_evidence,Validation,hard_for_validation,pass,no_validation_promotion,Post-hoc context cannot validate on same sample
 risk_capacity_drawdown,Deployment,hard_for_deployment,pass intended account contract,not_live_ready,Small capacity can be acceptable; risk of ruin cannot
+measurement_semantics_and_raw_magnitude,Development admission,hard_before_level3,valid native units and bps magnitude relative to plausible costs,blocked_before_economics,Standardized extremity alone is insufficient
+actor_or_structural_mechanism,Development admission,hard_before_level3,identified compelled actor or balance sheet,mechanism_underidentified,Generic multivariate state does not identify pressure direction
+development_route_and_fold_registry,Development admission,hard_before_level3,registered folds/cells or explicit strong-theory one-shot reason,blocked_before_economics,Development is not confirmatory and requires separate approval
+untouched_forward_evaluation,Validation design,hard_for_evaluation,next untouched block with purging/embargo as needed,no_validation_promotion,Later-fold information may not transfer backward
+evidence_limitation_tags,Evidence description,separate_from_route,registered descriptive tags,no_route_change,Tags never promote evidence or alter the nine policy-v1.0 routes

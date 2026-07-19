@@ -1,0 +1,27 @@
+{
+  "registry_id": "qlmg_evidence_limitation_tags",
+  "version": "1.0",
+  "effective_date": "2026-07-19",
+  "status": "active_supporting_registry",
+  "applied_task_id": "donch_bt_stage_12_kda03_closure_method_reset_20260719_v1",
+  "separate_from_research_route": true,
+  "changes_route_or_evidence_level": false,
+  "promotion_effect": "none",
+  "tags": {
+    "small_sample": "Too few observations for the stated claim.",
+    "few_independent_clusters": "Nominal observations collapse to too few independent episode or time clusters.",
+    "high_variance": "Outcome or measurement dispersion materially weakens precision.",
+    "wide_cluster_uncertainty": "Cluster-aware uncertainty interval is wide relative to the claim.",
+    "threshold_sensitive": "Conclusion is not robust near the frozen measurement or decision threshold.",
+    "cost_sensitive": "Plausible cost changes materially alter economic relevance.",
+    "symbol_concentrated": "Evidence depends materially on a narrow symbol set.",
+    "time_concentrated": "Evidence depends materially on a narrow time or regime segment.",
+    "context_dependent": "Evidence is conditional on a causal observable context not yet independently established.",
+    "measurement_underidentified": "Observed state does not identify the claimed mechanism or actor sufficiently.",
+    "proxy_side_or_reference": "Direction, side, or reference leg is proxied rather than directly and completely observed.",
+    "mechanically_sparse": "The strict mechanism produces too few mechanically eligible events.",
+    "lifecycle_capped": "Universe or eligibility is capped by incomplete point-in-time lifecycle authority.",
+    "funding_incomplete": "Exact funding coverage is incomplete for the claim interval.",
+    "not_control_eligible": "The binding policy does not admit this object to controls; this tag restates the gate and grants no authority."
+  }
+}
