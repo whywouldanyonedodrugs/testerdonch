@@ -1,0 +1,54 @@
+{
+  "access_or_upload_blocker": null,
+  "abandoned_failed_attempts": [
+    {
+      "drive_path": "qlmg_sweep_drive:20260719_donch_bt_stage_11_kda03_basis_shock_20260719_v2_v01/",
+      "folder_id": "1bhOumcpuJAQVAZ1gRwbuDqcy9uouSke5",
+      "reason": "eventually consistent timed upload and retry produced a duplicate ZIP object",
+      "remote_objects_deleted_or_overwritten": false
+    },
+    {
+      "drive_path": "qlmg_sweep_drive:20260719_donch_bt_stage_11_kda03_basis_shock_20260719_v2_v02/",
+      "folder_id": "1VmC1vx3yb_brY-L8-uEp11CMXwnK_zcS",
+      "reason": "eventually consistent timed upload and retry produced a duplicate ZIP object",
+      "remote_objects_deleted_or_overwritten": false
+    }
+  ],
+  "drive_path": "qlmg_sweep_drive:20260719_donch_bt_stage_11_kda03_basis_shock_20260719_v2_v03/",
+  "files": [
+    {
+      "bytes": 734,
+      "name": "READ_FIRST.md",
+      "sha256": "dcf80109b43d4ddf538ed5012c74f484b1ef39eea793ecd84f3adf3ebfccf2a4"
+    },
+    {
+      "bytes": 1440,
+      "name": "REVIEW.md",
+      "sha256": "85525393100e78ccc9af14a731eda24c0717d8517e0c3ecd5df4015f3c7b00b7"
+    },
+    {
+      "bytes": 1085,
+      "name": "TRANSFER_MANIFEST.json",
+      "sha256": "f15177204c4500c0d5b6124c5280927bdf83059414f5a462686c2728e2e9e81b"
+    },
+    {
+      "bytes": 2145,
+      "name": "VALIDATION.md",
+      "sha256": "43c8aa2adaeeccebc37d9e50075d6f9fb85e2643c6207337d37cc06ffa8880a3"
+    },
+    {
+      "bytes": 904670,
+      "name": "qlmg_kda03_basis_shock_level3_20260719_v01.zip",
+      "sha256": "4471edafce0a301bf4f073277589a78dee357a519ff0c0f45c26eab2597b43ee"
+    }
+  ],
+  "folder_id": "1I7SAjLb6p7BnYEvbYozFjBBpxEtBak72",
+  "folder_url": "https://drive.google.com/drive/folders/1I7SAjLb6p7BnYEvbYozFjBBpxEtBak72",
+  "local_archive_retained": true,
+  "non_overwriting_new_child": true,
+  "remote_label": "qlmg_sweep_drive:",
+  "remote_objects_deleted_or_overwritten": false,
+  "roundtrip_verification": "all_five_files_size_and_sha256_match",
+  "tool": "rclone v1.60.1-DEV",
+  "verified_utc": "2026-07-19T19:45:50Z"
+}
