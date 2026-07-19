@@ -1,7 +1,7 @@
 {
   "Capitalcom_payload_opened": false,
   "economic_outputs_computed": false,
-  "file_count": 16,
+  "file_count": 17,
   "files": [
     {
       "bytes": 503,
@@ -29,9 +29,9 @@
       "sha256": "4290e3328153a69f3832cbbd8f9392c8073aa35c50e5d6aff861e7c69dfea804"
     },
     {
-      "bytes": 634,
+      "bytes": 889,
       "path": "COMPLETION.md",
-      "sha256": "7cb8227d2a65a5d714af259c97fe7bbd8d90941bb163ebd739e6c76fc70f0ff4"
+      "sha256": "ec5e9b6e525d8e6fc79c7a108cdf95919054c51e860e3cc78009d1ecacef8f52"
     },
     {
       "bytes": 364,
@@ -79,12 +79,17 @@
       "sha256": "694956aa3ae14d13e9051dc6e6566fa344259ea22f3ce6bee1501b7b96f5cc75"
     },
     {
-      "bytes": 1359,
+      "bytes": 1504,
       "path": "VALIDATION.md",
-      "sha256": "91db0fc61fbd878bbefae69fd93e69fc2ca6f5d0f85db5d34b0623d0fe882f14"
+      "sha256": "f1e206433b3d1ba48fbfa8c7d333d978ff599673267417b6a09a71143c276e92"
+    },
+    {
+      "bytes": 1361,
+      "path": "handoff/DRIVE_HANDOFF_VERIFICATION.json",
+      "sha256": "1d91f2538c3aaba579ef7fa6a21ac01ca51b72d40b29e71c514604b072e9e6da"
     }
   ],
   "protected_rows_opened": 0,
-  "status": "blocked_preoutcome_packet_semantics",
+  "status": "blocked_preoutcome_packet_semantics_drive_verified",
   "task_id": "donch_bt_stage_15_unattended_derivatives_campaign_20260720_v1"
 }

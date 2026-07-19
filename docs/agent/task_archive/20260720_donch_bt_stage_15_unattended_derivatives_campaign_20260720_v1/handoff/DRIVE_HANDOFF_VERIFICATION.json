@@ -1,0 +1,39 @@
+{
+  "folder_id": "1Sncx_Ty0p-HpwqTbzDi3M09cicQvTeGp",
+  "folder_url": "https://drive.google.com/drive/folders/1Sncx_Ty0p-HpwqTbzDi3M09cicQvTeGp",
+  "local_archive_retained": true,
+  "local_root": "/opt/stage15-handoff-20260720-v01",
+  "remote_identity_label": "qlmg_sweep_drive:",
+  "remote_path": "qlmg_sweep_drive:20260720_donch_bt_stage_15_unattended_derivatives_campaign_20260720_v1_v01/",
+  "round_trip_files": [
+    {
+      "bytes": 908,
+      "name": "READ_FIRST.md",
+      "sha256": "3a5a79e2f18adaac2dc694794907768c844c832228089072348e5a192cea07bc"
+    },
+    {
+      "bytes": 2071,
+      "name": "REVIEW.md",
+      "sha256": "7be5a251d240276b1277f58ea45ac81814fb7732278b0a92455a72bf28f7c070"
+    },
+    {
+      "bytes": 932,
+      "name": "TRANSFER_MANIFEST.json",
+      "sha256": "9b428d1e3cd37d7927dc21c92504e67df79ff64f376f82f3a2ec9f3fe354c321"
+    },
+    {
+      "bytes": 1359,
+      "name": "VALIDATION.md",
+      "sha256": "91db0fc61fbd878bbefae69fd93e69fc2ca6f5d0f85db5d34b0623d0fe882f14"
+    },
+    {
+      "bytes": 25146,
+      "name": "qlmg_stage15_campaign_launch_blocker_20260720_v01.zip",
+      "sha256": "d4245f4dc59954ed0fd8124effa505e8ae61615337a15bf76da02dbe7a1cb16c"
+    }
+  ],
+  "round_trip_root": "/opt/stage15-drive-verify-KUgKPK",
+  "status": "pass",
+  "tool": "rclone v1.60.1-DEV",
+  "verified_at_utc": "2026-07-19T23:09:52Z"
+}

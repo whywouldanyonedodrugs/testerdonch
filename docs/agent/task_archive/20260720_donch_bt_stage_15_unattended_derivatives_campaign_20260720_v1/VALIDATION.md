@@ -15,3 +15,5 @@ Status: `blocked_preoutcome_packet_semantics`.
 - PASS: protected rows opened `0`; Capital.com payloads opened `0`; economic outputs computed `0`.
 
 Funding extension, Telegram delivery tests, synthetic campaign canary, and campaign launch were not attempted because their order follows a passing packet-level pre-outcome review.
+
+Compact Drive handoff: five direct files separately downloaded and matched by bytes and SHA-256; folder ID `1Sncx_Ty0p-HpwqTbzDi3M09cicQvTeGp`.
