@@ -1,0 +1,3 @@
+# Stage 8B Handoff Gap Report
+
+The omitted source manifest was recovered and fully verified: `52` archive objects and `748` cache objects, with zero missing or mismatched files. The reported `569bb1c53ba58767091c42dbf96ead63b3df5a45ae7cad1b4f6d4425e5ef61d5` value is its deterministic embedded content hash; the JSON file SHA-256 is `ee7db729eac30363c6147984658777ed92dc06f1d436527a56efae5bb997f669`. The replacement handoff includes the exact source object at `source_stage8b/ARTIFACT_MANIFEST.json` and the complete Stage 8B1 manifest, which embeds the verified Stage 8B source manifest, all object hashes, and repository code identities.
