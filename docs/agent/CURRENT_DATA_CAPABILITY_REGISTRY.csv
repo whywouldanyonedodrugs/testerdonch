@@ -1,0 +1,12 @@
+asset,status,period,limit
+PF trade and mark bars,verified_for_named_rankable_loaders,2023-2025,bar execution; no historical depth/spread
+PF candle volume,verified_semantic_volume_with_close_based_usd_proxy,2023-2025,not exact traded USD notional or capacity
+Kraken spot reference,verified_with_pair_mapping_and_gap_masks,2023-2025 pair-dependent,sparse exact intersections; not old package index verification
+Funding,mixed_exact_and_imputed,exact mainly 2025-H2,imputation cannot activate signals or promotion
+Lifecycle/PIT membership,unavailable_for_continuous_daily_cohort,2023-2025,sparse snapshots; C03 gate failed
+Historical spread/depth/OI/liquidations,not_verified_for_rankable_history,none,prospective/calibration hypotheses only
+ETF regulated-access flows,unavailable_for_rankable_C16_flow_authority,2024-2025,20-product cohort identified; no versioned daily official values or reconstructable first-publication/revision timestamps
+Kraken Futures open interest analytics,verified_inferred_authoritative_v1,2023-2025 with metric-specific retention,Unsigned OHLC quantity; no long-short direction; current-roster and lifecycle capped
+Kraken Futures future-basis analytics,verified_inferred_authoritative_v1,2023-2025,Signed closing state treated as decimal ratio; basis is not funding
+Kraken Futures liquidation-volume analytics,verified_inferred_authoritative_v1,2023-2025,Nonnegative interval flow without native side; price-inferred side remains proxy
+Kraken Futures one-minute analytics,verified_for_PF_XBTUSD_and_PF_ETHUSD,2023-2025,Use for bounded resolution checks; no automatic all-symbol one-minute expansion

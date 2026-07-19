@@ -1,6 +1,13 @@
 # Repository Map and Preflight
 
-Status: repository-specific map amended for the approved 2026-07-18 multi-platform source boundary.
+Status: repository-specific map amended for the approved 2026-07-19 Stage 10 prospective gate-routing policy.
+
+## Verified 2026-07-19 Stage 10 Starting State
+
+- Stage 10 verified `origin/main` at `3ea0d320d71716a5c0890f4c924ed924224beda2`, the supplied Stage 9 authority.
+- KDA01 remains `KDA01_level3_repaired_no_primary_pass_stop` and KDA02A remains `KDA02_level3_no_primary_pass_stop`.
+- The active policy separates research routing from historical machine decisions and is prospective only.
+- Stage 10 is documentation/registry work; it authorizes no economic run, candidate-return access, protected outcome, Capital.com payload, or data acquisition.
 
 ## Historical 2026-07-16 Governance Baseline
 
@@ -45,6 +52,22 @@ Current active docs:
 - `docs/agent/EXECUTION_PLAN_TEMPLATE.md`
 - `docs/agent/CODE_REVIEW.md`
 - `docs/agent/KNOWN_FAILURE_PATTERNS.md`
+- `docs/agent/SOURCE_MAP.md`
+- `docs/agent/CURRENT_CONTINUITY.md`
+- `docs/agent/CURRENT_RESEARCH_DECISIONS.md`
+- `docs/agent/RESEARCH_GATE_ROUTING_POLICY.md`
+- `docs/agent/RESEARCH_GATE_ROUTING_POLICY.json`
+- `docs/agent/KRAKEN_DERIVATIVES_LEARNINGS.md`
+- `docs/agent/TEST_AND_EVIDENCE_STANDARDS.md`
+- `docs/agent/BACKTEST_CLAIMS_AND_REVIEW.md`
+- `docs/agent/BACKTESTING_AGENT_OPERATING_AND_ARCHIVE_INSTRUCTIONS.md`
+- `docs/agent/CURRENT_FAMILY_HYPOTHESIS_REGISTRY.csv`
+- `docs/agent/CURRENT_ATTEMPT_MULTIPLICITY_REGISTRY.csv`
+- `docs/agent/CURRENT_RUN_EVIDENCE_REGISTRY.csv`
+- `docs/agent/CURRENT_DATA_CAPABILITY_REGISTRY.csv`
+- `docs/agent/CURRENT_DEFECT_REPAIR_REGISTRY.csv`
+- `docs/agent/KDA_LEARNING_CONTEXT_REGISTER.csv`
+- `docs/agent/GATE_ROUTING_MATRIX.csv`
 - `docs/QLMG_PERP_PROJECT_STATE.md`
 - `docs/QLMG_PERP_BACKTESTING_MANUAL.md`
 - `docs/QLMG_PERP_DATA_CONTRACT.md`
@@ -63,6 +86,7 @@ Superseded pre-governance docs are preserved under `docs/agent/superseded/202607
 - Real Capital.com import and all economic contracts remain blocked pending their separately verified and approved packages.
 - Paid historical vendor data: prohibited.
 - Economic runs, protected-outcome inspection, live actions, pushes, merges, destructive Git operations, and remote overwrites require exact task authorization.
+- Future gate routing is governed by `RESEARCH_GATE_ROUTING_POLICY.json`. It cannot supersede a historical run contract or terminal decision.
 
 ## Repository Commands
 
@@ -98,12 +122,13 @@ Keep large dirty-checkout recovery bundles, binary patches, result roots, parque
 
 ## Drive Handoff
 
-The approved Drive transfer folder for the 2026-07-16 governance task was:
+The active approved default Drive target is:
 
 ```text
-folder ID: 1eWdmin0E7QKYJ5AvFcpRmvvDG3YiWlBz
-remote label observed: qlmg_sweep_drive:
-collision policy: unique names only, no overwrite
+folder name: DONCH_BACKTESTING_HANDOFFS
+folder ID: 1vMuf1EJbojoeIjJjz8Xj1fhwLizNgLfl
+remote label: qlmg_sweep_drive:
+collision policy: unique task folders only, no overwrite
 ```
 
 Remote writes require exact task authorization, collision checking, a closed local ZIP, manifest/hash verification, and remote verification by hash or documented round-trip download.

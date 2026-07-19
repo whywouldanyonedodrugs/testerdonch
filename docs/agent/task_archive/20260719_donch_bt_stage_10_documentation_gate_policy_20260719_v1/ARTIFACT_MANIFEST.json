@@ -1,0 +1,145 @@
+{
+  "base_commit": "3ea0d320d71716a5c0890f4c924ed924224beda2",
+  "candidate_returns_opened": false,
+  "capitalcom_payload_opened": false,
+  "controls_executed": false,
+  "economic_outputs_computed": false,
+  "economic_run_authorized": false,
+  "files": [
+    {
+      "bytes": 1942,
+      "path": "CHANGED_FILES.md",
+      "sha256": "075b74c0f064224333cdf4654777cbcdd8489db87a1a6d6356dbd908d0fa0f35"
+    },
+    {
+      "bytes": 2370,
+      "path": "COMMANDS_AND_RESULTS.md",
+      "sha256": "2d513019ec49c14e5495b237ff7187737b86892fe10ac0e7477d78e07603ef86"
+    },
+    {
+      "bytes": 1120,
+      "path": "COMPLETION.md",
+      "sha256": "35eca6b45496482aebb8a4f10af19caad320679e8a583623ee0c22c9d9d92318"
+    },
+    {
+      "bytes": 1555,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "sha256": "d371d4c10cf79498b1041629d11096945724a5426efb82791b4bc8e86352f9c8"
+    },
+    {
+      "bytes": 3376,
+      "path": "DONCH_SOURCE_MANIFEST.json",
+      "sha256": "6618f4ce64bd7bb7869c33d20ef73d67cc3ccb43af7d063d3dec79c0f9effccc"
+    },
+    {
+      "bytes": 604,
+      "path": "NEXT_ACTION.md",
+      "sha256": "53c53e905c2d7fc6be856f80282a7d02243c3230d76f4c789afbebb61f8d59ea"
+    },
+    {
+      "bytes": 7983,
+      "path": "PLAN.md",
+      "sha256": "50e2e9095e8b4397751bc50cec18fd0dec86649ae7f9b24e918fa2a46c4b6b1a"
+    },
+    {
+      "bytes": 944,
+      "path": "READ_FIRST.md",
+      "sha256": "e5383c0b75e75e6e9059c3e0da69f8132024c3b5572fce16bd0bf533874e91ab"
+    },
+    {
+      "bytes": 4105,
+      "path": "RECEIVED_FILES_SHA256.tsv",
+      "sha256": "904da12f5149d3785131babc0cab12e24e0e3d3c526c71b606c43a75fa868406"
+    },
+    {
+      "bytes": 3299,
+      "path": "REVIEW.md",
+      "sha256": "f410cf8bf39d8f9a58a2527d30547f68eb50545b21ea26cd0d28f5d9549faee1"
+    },
+    {
+      "bytes": 7410,
+      "path": "TASK_SPEC.md",
+      "sha256": "73d1cebffec48b568227d090a250ab092638d8eba5dd0d7e98036913c4591499"
+    },
+    {
+      "bytes": 2977,
+      "path": "VALIDATION.md",
+      "sha256": "f10600f8d74c5b89252d63fea277c93e36e52d0d01d1ab53d5e46a0b6f00d261"
+    },
+    {
+      "bytes": 3074,
+      "path": "received/00_READ_FIRST_Project_Source_Map_2026-07-19_rev4.md",
+      "sha256": "181d4be93de9c3c23d9e73b27611df5f6a2144be0fb2912a91369f4414f47f29"
+    },
+    {
+      "bytes": 3966,
+      "path": "received/02_STATE_Master_Continuity_Brief_2026-07-19_rev11.md",
+      "sha256": "5cfdf4f7556497f9ee2ec1fd2b49efae22d0f362b21ef0d7f6d8db8f9eed50ae"
+    },
+    {
+      "bytes": 5277,
+      "path": "received/03_STATE_Current_Research_Decisions_2026-07-19_rev3.md",
+      "sha256": "2f5ef3a9d67df7f96e9f5e4a704857ba528bc8df728c2e9db685f7ad9f247a3c"
+    },
+    {
+      "bytes": 5650,
+      "path": "received/12_MANUAL_Test_and_Evidence_Standards_2026-07-19_rev3.md",
+      "sha256": "dfa5578cbd40b2c9fbc870215799916e8abc247fe1f54a43ab3851ed05957bf5"
+    },
+    {
+      "bytes": 3369,
+      "path": "received/13_GUIDE_Backtest_Claims_and_Review_2026-07-19_rev3.md",
+      "sha256": "384db0272e9193a6b96619ce69daa4b8e63e2a2a3baa37655715eb67187288c1"
+    },
+    {
+      "bytes": 3169,
+      "path": "received/24_METHOD_Research_Efficiency_and_Search_Discipline_2026-07-19_rev2.md",
+      "sha256": "6a16c8d384713e0740fea5781b9e4c7793b05b9a3e9af941765eb255c25c82c4"
+    },
+    {
+      "bytes": 10542,
+      "path": "received/27_POLICY_Aggressive_Conditional_Alpha_and_Gate_Routing_2026-07-19_rev1.md",
+      "sha256": "fb766f669bc1620878c1695fa067c419e53262307d534ad7e69a94ffd1c1f279"
+    },
+    {
+      "bytes": 10878,
+      "path": "received/28_STATE_Kraken_Derivatives_Analytics_and_Research_Learnings_2026-07-19_rev1.md",
+      "sha256": "920b57cf0b1fc8f95b30ede247b4189f9a33f707f10d3b173ccc254e770ff974"
+    },
+    {
+      "bytes": 2634,
+      "path": "received/29_REGISTRY_Kraken_Derivatives_Learnings_and_Context_Candidates_2026-07-19_rev1.csv",
+      "sha256": "ed001e0b267ec7957fbe9c7f0715d0517062e210ca686fc05b1d4f23fe57b4c7"
+    },
+    {
+      "bytes": 2261,
+      "path": "received/30_REGISTRY_Gate_Routing_Matrix_2026-07-19_rev1.csv",
+      "sha256": "be1f74b8271e430882f7589099e92e80f78b2d38cec0d8e6c67963f46b033856"
+    },
+    {
+      "bytes": 2849,
+      "path": "received/BACKTESTING_AGENT_OPERATING_AND_ARCHIVE_INSTRUCTIONS_2026-07-19_rev4.md",
+      "sha256": "1f7dbaf295ffc07609364c5a76ca48d43de1e6b01039b4bc70a78c1bb090c8ab"
+    },
+    {
+      "bytes": 7154,
+      "path": "received/DONCH_TO_BACKTESTING_Stage_10_Documentation_and_Aggressive_Gate_Policy_Application_2026-07-19_v1.md",
+      "sha256": "2db1d4bd25c6c87e2f11fbd6fc6105a4e41ca40964eec33bbb6d384227f97b7a"
+    },
+    {
+      "bytes": 2815,
+      "path": "received/PACKAGE_MANIFEST.json",
+      "sha256": "bb72cac270224bb057d9aaf6c3b76be015d9e1695ac92d07a34412868c5545f5"
+    },
+    {
+      "bytes": 668,
+      "path": "received/README_DONCH_POLICY_UPDATE_2026-07-19.md",
+      "sha256": "84f2419802c62dd8e17657887424808025f89eef6724b8c73fcc77d648426b8d"
+    }
+  ],
+  "policy_sha256": "c54d4a3445da249c6dbd34613b770ad9624f861e0d7c345b3cba944aa6cdf1aa",
+  "policy_version": "1.0",
+  "protected_rows_opened": false,
+  "status": "documentation_registry_application_validated",
+  "task_id": "donch_bt_stage_10_documentation_gate_policy_20260719_v1"
+}

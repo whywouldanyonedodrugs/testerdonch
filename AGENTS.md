@@ -12,6 +12,8 @@ This repository is governed as a historical multi-platform backtesting and resea
 - Use [docs/agent/DRIVE_HANDOFF_TARGET.md](docs/agent/DRIVE_HANDOFF_TARGET.md) for the approved default Donch handoff destination and non-overwrite procedure.
 - Use [docs/agent/CODE_REVIEW.md](docs/agent/CODE_REVIEW.md) for review tasks.
 - Use [docs/agent/KNOWN_FAILURE_PATTERNS.md](docs/agent/KNOWN_FAILURE_PATTERNS.md) before changing event generation, controls, or accounting.
+- Use [docs/agent/SOURCE_MAP.md](docs/agent/SOURCE_MAP.md) for current continuity, decisions, registries, and manual order.
+- Use [docs/agent/RESEARCH_GATE_ROUTING_POLICY.md](docs/agent/RESEARCH_GATE_ROUTING_POLICY.md) and its machine-readable JSON for future economic-contract gate classification.
 
 ## Simplicity and surgical scope
 
@@ -48,6 +50,15 @@ Before completion, ask: “Would a senior engineer consider this solution unnece
 - Freeze candidate identity and real control identity before outcomes.
 - Use actual executable exits for non-overlap. Do not use maximum-hold preblocking, summary rows as trades, placeholder controls, event caps, same-bar execution heroics, or silent artificial boundary closes.
 - Preserve old artifacts and run roots through supersession records rather than deletion.
+
+## Prospective research routing
+
+- Historical contracts, gates, terminal decisions, and roots are immutable. A later policy may change a permitted future route, never retroactively turn a failed run into a pass.
+- Future economic contracts must freeze `payoff_archetype`, `intended_claim_scope`, `hard_gates`, `routing_diagnostics`, `control_eligibility`, and `independent_evidence_requirement` before outcomes.
+- Keep integrity, economic relevance, generality/context, controls, independent validation, and deployment as separate dimensions.
+- Integrity gates remain hard. A positive object that fails an unconditional concentration gate may be recorded as `conditional_context_candidate_unvalidated`, while the original unconditional decision remains failed.
+- Outcome-derived contexts must be labelled `post_hoc_context_hypothesis`; calendar year is not an admissible causal context, and the same sample cannot validate or promote the route.
+- Controls require separate task authorization and do not by themselves validate a candidate.
 
 ## Agent Ownership
 

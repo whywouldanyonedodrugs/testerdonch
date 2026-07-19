@@ -1,0 +1,16 @@
+gate_or_diagnostic,class,future_role,default_interpretation,failure_or_route,notes
+source_platform_purpose_hash,Integrity,hard_stop,verified exact authority,blocked_or_invalid,Never relaxed for aggressiveness
+protected_rows,Integrity,hard_stop,0,blocked_or_invalid,No protected selection leakage
+causal_timestamp_and_no_lookahead,Integrity,hard_stop,pass,blocked_or_invalid,Includes at-or-after completed-bar entry
+deterministic_identity_and_replay,Integrity,hard_stop,pass,blocked_or_invalid,Candidates controls episodes and runs
+base_net_mean,Economic relevance,core_gate,> 0 for control eligibility,translation_rejected,Use declared implementation cost; positive gross but cost-sensitive evidence is classified separately
+base_net_median,Payoff archetype,archetype_dependent,> 0 for symmetric/mean-reversion,convex_tail_candidate_unvalidated,Cannot relabel archetype after outcomes
+bootstrap_lower,Uncertainty,routing_gate,contract-specific; default >= -5 bps for strong support,sample_limited_prospective_candidate,Not universal deployment proof
+market_day_contribution,Independence,routing_or_hard_by_claim,<= 10% for broad unconditional claim,sample_limited_prospective_candidate,Report contributor identity
+symbol_contribution,Breadth,routing_or_hard_by_claim,<= 25% for broad cross-sectional claim,narrow_sleeve_candidate,A named-asset strategy may be legitimate
+positive_year_contribution,Generality/context,routing_gate,<= 70% for unconditional claim,conditional_context_candidate_unvalidated,Year itself is not an admissible context
+each_year_event_count,Generality/context,claim_dependent,>= 20 for unconditional three-year claim,sample_limited_prospective_candidate,Sparse event sleeves use independent event cycles
+stress_mean,Execution sensitivity,routing_gate,>= -10 bps default durable route,execution_sensitive_candidate,Base cost must remain realistic
+mechanism_controls,Incremental evidence,required_before_validation,pass claimed component,translation_rejected,Controls require separate authorization and may run before universal stability
+independent_or_prospective_evidence,Validation,hard_for_validation,pass,no_validation_promotion,Post-hoc context cannot validate on same sample
+risk_capacity_drawdown,Deployment,hard_for_deployment,pass intended account contract,not_live_ready,Small capacity can be acceptable; risk of ruin cannot

@@ -1,0 +1,93 @@
+{
+  "policy_id": "aggressive_conditional_alpha_gate_routing",
+  "version": "1.0",
+  "approved_date": "2026-07-19",
+  "applied_task_id": "donch_bt_stage_10_documentation_gate_policy_20260719_v1",
+  "status": "active_prospective_policy",
+  "economic_run_authorized": false,
+  "protected_outcome_access_authorized": false,
+  "historical_decisions_mutable": false,
+  "no_retroactive_promotion": true,
+  "rankable_interval": {
+    "start_inclusive": "2023-01-01T00:00:00Z",
+    "end_exclusive": "2026-01-01T00:00:00Z"
+  },
+  "separate_dimensions": [
+    "integrity",
+    "economic_relevance",
+    "generality_context",
+    "controls",
+    "independent_validation",
+    "deployment"
+  ],
+  "required_contract_fields": [
+    "payoff_archetype",
+    "intended_claim_scope",
+    "hard_gates",
+    "routing_diagnostics",
+    "control_eligibility",
+    "independent_evidence_requirement"
+  ],
+  "payoff_archetypes": [
+    "symmetric_directional",
+    "mean_reversion",
+    "convex_right_tail",
+    "carry_or_yield",
+    "event_driven_sparse",
+    "execution_or_microstructure"
+  ],
+  "hard_integrity_gates": [
+    "source_platform_purpose_interval_schema_and_hash_authority",
+    "zero_protected_period_selection_leakage",
+    "causal_feature_and_decision_availability",
+    "deterministic_candidate_event_control_episode_and_run_identity",
+    "platform_faithful_execution_fields_and_costs",
+    "reproducible_arithmetic_manifests_tests_and_independent_review",
+    "no_outcome_conditioned_contract_mutation",
+    "no_same_sample_rescue_of_closed_translation"
+  ],
+  "routing_diagnostics": [
+    "bootstrap_uncertainty",
+    "market_day_contribution",
+    "symbol_contribution",
+    "positive_year_contribution",
+    "per_year_event_count",
+    "cluster_estimand_sensitivity",
+    "execution_stress",
+    "sample_and_episode_independence"
+  ],
+  "routing_statuses": {
+    "unconditional_control_candidate": "Positive broad base economics eligible for separately authorized mechanism controls; unvalidated.",
+    "conditional_context_candidate_unvalidated": "Positive economic relevance with causal context or concentration limits; historical unconditional failure remains unchanged.",
+    "convex_tail_candidate_unvalidated": "Positive base mean under a payoff archetype frozen as convex before outcomes; independent evidence required.",
+    "execution_sensitive_candidate": "Plausible execution or cost assumptions determine viability; externally justified execution evidence required.",
+    "narrow_sleeve_candidate": "Claim is limited to a predeclared observable instrument or event sleeve; unvalidated.",
+    "sample_limited_prospective_candidate": "Coherent but insufficient independent clusters for a broad claim; prospective evidence required.",
+    "mechanically_unavailable": "Required opportunities, resolution, or mechanics are insufficient; this is not negative economic evidence.",
+    "translation_rejected": "The exact intended translation lacks meaningful positive economic relevance or is falsified by valid controls.",
+    "blocked_by_data_or_authority": "Required data, lifecycle, source, or purpose authority is unavailable."
+  },
+  "control_eligibility": {
+    "requires_separate_task_authorization": true,
+    "minimum_conditions": [
+      "all_integrity_gates_pass",
+      "declared_base_cost_mean_positive",
+      "frozen_payoff_archetype_rule_satisfied",
+      "independent_event_or_cluster_count_adequate_for_claim",
+      "cluster_bootstrap_not_clearly_incompatible_with_claim",
+      "no_single_event_or_technical_defect_explains_result"
+    ],
+    "controls_validate_candidate": false
+  },
+  "post_hoc_context_contract": {
+    "required_label": "post_hoc_context_hypothesis",
+    "calendar_context_allowed": false,
+    "same_sample_role": "explanation_and_control_design_only",
+    "promotion_requires_independent_or_prospective_evidence": true
+  },
+  "historical_examples": {
+    "KDA01": "KDA01_level3_repaired_no_primary_pass_stop",
+    "KDA02A": "KDA02_level3_no_primary_pass_stop",
+    "KDA02_negative_completed_purge_reversal_6h_route": "conditional_context_candidate_unvalidated"
+  }
+}

@@ -9,6 +9,8 @@ Current stage:
 - governance integration, repository recovery, and safe worktree discipline;
 - completed Kraken analytics acquisition authority and non-economic derivatives-state generator foundation;
 - KDA01 remains closed at `KDA01_level3_repaired_no_primary_pass_stop`; KDA02A v2 completed its one frozen Level-3 run at `KDA02_level3_no_primary_pass_stop` with zero primary passes, while controls and the separate inactive KDA02B OI-vacuum lineage remained unexecuted; KDA03 feasibility evidence remains outcome-free and unexecuted;
+- the negative completed-purge reversal six-hour branch is separately registered as `conditional_context_candidate_unvalidated` and `post_hoc_context_hypothesis`; this route does not amend the KDA02A terminal decision or constitute a pass, validation, promotion, or deployment label;
+- active-purge continuation is `mechanically_unavailable` under the strict five-minute contract, KDA02B is `candidate_library_only` with outcomes unopened, KDA02C records post-hoc hypothesis presence with no evidence, and KDA03 is `translation_candidate_unreviewed`;
 - no alpha sweep, rankable economic run, protected-outcome inspection, live deployment, order placement, or private-account action is authorized by this state document.
 
 Binding research boundaries:
@@ -21,3 +23,5 @@ Binding research boundaries:
 - real Capital.com payload import and economic research remain blocked pending separately verified and approved contracts.
 
 The agent owns plans, logs, recovery records, manifests, registries, continuity updates, validation, task archives, and approved Drive handoffs. Human involvement is reserved for trading sanity checks, broad direction, unresolved authority conflicts, and consequential approvals.
+
+Future research uses the prospective policy in `docs/agent/RESEARCH_GATE_ROUTING_POLICY.json`. Integrity, economic relevance, generality/context, controls, independent validation, and deployment are separate dimensions. Historical run decisions and gates remain immutable, and every future economic contract must predeclare its payoff archetype, claim scope, hard gates, routing diagnostics, control eligibility, and independent-evidence requirement.

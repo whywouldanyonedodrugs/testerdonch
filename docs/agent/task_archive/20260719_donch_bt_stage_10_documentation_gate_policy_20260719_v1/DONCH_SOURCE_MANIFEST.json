@@ -1,0 +1,78 @@
+{
+  "archive_source": "/opt/testerdonch/research_inputs/DONCH_Documentation_and_Aggressive_Gate_Policy_Update_2026-07-19_v1.zip",
+  "archive_sha256": "8096498ef634dbea0520cce1dbfb0c341cb8ccdfe67b8b84ece7c67468aef241",
+  "received_package_manifest_sha256": "bb72cac270224bb057d9aaf6c3b76be015d9e1695ac92d07a34412868c5545f5",
+  "received_files_total_including_package_manifest": 14,
+  "package_manifest_validation": "all_13_declared_files_match_bytes_and_sha256",
+  "task_spec_attachment_sha256": "73d1cebffec48b568227d090a250ab092638d8eba5dd0d7e98036913c4591499",
+  "created_utc": "2026-07-19T16:23:08.915153+00:00",
+  "files": [
+    {
+      "bytes": 3074,
+      "path": "00_READ_FIRST_Project_Source_Map_2026-07-19_rev4.md",
+      "sha256": "181d4be93de9c3c23d9e73b27611df5f6a2144be0fb2912a91369f4414f47f29"
+    },
+    {
+      "bytes": 3966,
+      "path": "02_STATE_Master_Continuity_Brief_2026-07-19_rev11.md",
+      "sha256": "5cfdf4f7556497f9ee2ec1fd2b49efae22d0f362b21ef0d7f6d8db8f9eed50ae"
+    },
+    {
+      "bytes": 5277,
+      "path": "03_STATE_Current_Research_Decisions_2026-07-19_rev3.md",
+      "sha256": "2f5ef3a9d67df7f96e9f5e4a704857ba528bc8df728c2e9db685f7ad9f247a3c"
+    },
+    {
+      "bytes": 5650,
+      "path": "12_MANUAL_Test_and_Evidence_Standards_2026-07-19_rev3.md",
+      "sha256": "dfa5578cbd40b2c9fbc870215799916e8abc247fe1f54a43ab3851ed05957bf5"
+    },
+    {
+      "bytes": 3369,
+      "path": "13_GUIDE_Backtest_Claims_and_Review_2026-07-19_rev3.md",
+      "sha256": "384db0272e9193a6b96619ce69daa4b8e63e2a2a3baa37655715eb67187288c1"
+    },
+    {
+      "bytes": 3169,
+      "path": "24_METHOD_Research_Efficiency_and_Search_Discipline_2026-07-19_rev2.md",
+      "sha256": "6a16c8d384713e0740fea5781b9e4c7793b05b9a3e9af941765eb255c25c82c4"
+    },
+    {
+      "bytes": 10542,
+      "path": "27_POLICY_Aggressive_Conditional_Alpha_and_Gate_Routing_2026-07-19_rev1.md",
+      "sha256": "fb766f669bc1620878c1695fa067c419e53262307d534ad7e69a94ffd1c1f279"
+    },
+    {
+      "bytes": 10878,
+      "path": "28_STATE_Kraken_Derivatives_Analytics_and_Research_Learnings_2026-07-19_rev1.md",
+      "sha256": "920b57cf0b1fc8f95b30ede247b4189f9a33f707f10d3b173ccc254e770ff974"
+    },
+    {
+      "bytes": 2634,
+      "path": "29_REGISTRY_Kraken_Derivatives_Learnings_and_Context_Candidates_2026-07-19_rev1.csv",
+      "sha256": "ed001e0b267ec7957fbe9c7f0715d0517062e210ca686fc05b1d4f23fe57b4c7"
+    },
+    {
+      "bytes": 2261,
+      "path": "30_REGISTRY_Gate_Routing_Matrix_2026-07-19_rev1.csv",
+      "sha256": "be1f74b8271e430882f7589099e92e80f78b2d38cec0d8e6c67963f46b033856"
+    },
+    {
+      "bytes": 2849,
+      "path": "BACKTESTING_AGENT_OPERATING_AND_ARCHIVE_INSTRUCTIONS_2026-07-19_rev4.md",
+      "sha256": "1f7dbaf295ffc07609364c5a76ca48d43de1e6b01039b4bc70a78c1bb090c8ab"
+    },
+    {
+      "bytes": 7154,
+      "path": "DONCH_TO_BACKTESTING_Stage_10_Documentation_and_Aggressive_Gate_Policy_Application_2026-07-19_v1.md",
+      "sha256": "2db1d4bd25c6c87e2f11fbd6fc6105a4e41ca40964eec33bbb6d384227f97b7a"
+    },
+    {
+      "bytes": 668,
+      "path": "README_DONCH_POLICY_UPDATE_2026-07-19.md",
+      "sha256": "84f2419802c62dd8e17657887424808025f89eef6724b8c73fcc77d648426b8d"
+    }
+  ],
+  "package_id": "donch_documentation_gate_policy_update_20260719_v1",
+  "purpose": "Project-source and backtesting documentation update; no economics"
+}

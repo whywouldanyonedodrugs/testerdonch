@@ -1,6 +1,6 @@
 # QLMG Kraken Validation Protocol
 
-Status: active sealed-data policy as of 2026-07-16 UTC.
+Status: active sealed-data policy amended by the 2026-07-19 Stage 10 policy application.
 
 This protocol does not authorize an economic run.
 
@@ -14,5 +14,8 @@ Validation rules:
 - report the search process, parameter budget, reruns, rejected alternatives, and selection-bias risk;
 - distinguish mechanical hash/schema success from statistical validity and release readiness;
 - preserve negative findings and blocked statuses.
+- keep research-route status separate from evidence, reproducibility, validation, and deployment status;
+- do not treat `conditional_context_candidate_unvalidated`, a convex-tail route, an execution-sensitive route, or a sample-limited route as validation evidence;
+- require independent or prospective evidence for any post-hoc context and prohibit same-sample rescue of a closed translation.
 
 Phase 0 and governance tasks do not run final validation. Documentation, code, archive, or review-package work must use non-economic checks and synthetic or pre-2026 fixtures as appropriate.
