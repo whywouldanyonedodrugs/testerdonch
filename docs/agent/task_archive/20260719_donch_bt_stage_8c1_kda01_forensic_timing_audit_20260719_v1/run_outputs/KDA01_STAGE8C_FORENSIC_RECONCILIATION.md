@@ -1,0 +1,3 @@
+# Stage 8C Forensic Reconciliation
+
+The immutable Stage 8C schedule and all 16 metric rows reconcile independently. The timestamp defect was implementation error: entry and exit were each delayed one full bar. Definition behavior remains weak after repair: completed-failure branches can be gross-positive, while continuation branches are materially negative under equal-day inference. Costs are insufficient to explain continuation losses, but they convert all eight repaired gross-positive completed-failure definitions to base-negative. Equal-market-day weighting is the frozen estimand and does not create the continuation weakness; six-hour and parent-episode sensitivity remains directionally consistent.

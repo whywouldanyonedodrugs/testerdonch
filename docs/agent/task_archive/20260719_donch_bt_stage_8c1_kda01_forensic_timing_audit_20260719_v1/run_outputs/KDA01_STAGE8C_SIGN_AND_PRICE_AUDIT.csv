@@ -1,0 +1,17 @@
+definition_id,trades,invalid_prices,max_sign_symmetry_error,protected_rows
+kda01_v2_primary_negative_completed_failure_timeout_1h,13990,0,0.0,0
+kda01_v2_primary_negative_completed_failure_timeout_6h,11847,0,0.0,0
+kda01_v2_primary_negative_efficient_continuation_timeout_1h,7455,0,0.0,0
+kda01_v2_primary_negative_efficient_continuation_timeout_6h,6762,0,0.0,0
+kda01_v2_primary_positive_completed_failure_timeout_1h,20537,0,0.0,0
+kda01_v2_primary_positive_completed_failure_timeout_6h,16650,0,0.0,0
+kda01_v2_primary_positive_efficient_continuation_timeout_1h,8729,0,0.0,0
+kda01_v2_primary_positive_efficient_continuation_timeout_6h,7810,0,0.0,0
+kda01_v2_robustness_negative_completed_failure_timeout_1h,13575,0,0.0,0
+kda01_v2_robustness_negative_completed_failure_timeout_6h,11533,0,0.0,0
+kda01_v2_robustness_negative_efficient_continuation_timeout_1h,6839,0,0.0,0
+kda01_v2_robustness_negative_efficient_continuation_timeout_6h,6271,0,0.0,0
+kda01_v2_robustness_positive_completed_failure_timeout_1h,19831,0,0.0,0
+kda01_v2_robustness_positive_completed_failure_timeout_6h,16134,0,0.0,0
+kda01_v2_robustness_positive_efficient_continuation_timeout_1h,8304,0,0.0,0
+kda01_v2_robustness_positive_efficient_continuation_timeout_6h,7477,0,0.0,0

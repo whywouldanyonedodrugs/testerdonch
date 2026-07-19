@@ -1,0 +1,248 @@
+{
+  "controls_executed": false,
+  "economic_outputs_computed": true,
+  "files": [
+    {
+      "bytes": 408,
+      "path": "CHANGED_FILES.md",
+      "sha256": "ed4d96e12f10d9c5b23bb3ed5a1bae2638353e1d896646b238e2a1d7ab67e2dc"
+    },
+    {
+      "bytes": 729,
+      "path": "COMMANDS_AND_RESULTS.md",
+      "sha256": "dbb316753db52110991506a802377052a17b34ac1bb28ce9be5da47afc2f5e5e"
+    },
+    {
+      "bytes": 194,
+      "path": "COMPLETION.md",
+      "sha256": "3f3aef9dd715f825d4e137afebd642b1fffe6576b7e44d7e6717dc82f3b22121"
+    },
+    {
+      "bytes": 183,
+      "path": "COMPLETION_SUMMARY.md",
+      "sha256": "170e0ce2a7b333b331f027125bed9f89f6866f294fb6d7760d75a5b183d57085"
+    },
+    {
+      "bytes": 231,
+      "path": "CONTINUITY_UPDATE.md",
+      "sha256": "2fdd026cf5e81c2702566ca801b587a6a002a977f8cd536ced16e902f15c0770"
+    },
+    {
+      "bytes": 370,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "sha256": "5e8e49c9889b197b5d0bd6ce9616194087be4c96499349433d9b8fcecb262327"
+    },
+    {
+      "bytes": 163,
+      "path": "NEXT_ACTION.md",
+      "sha256": "7f659c6a62ad8844b08321f072cae7d5dcd81651520a6e90d528bc1ea2e287a4"
+    },
+    {
+      "bytes": 315,
+      "path": "PLAN.md",
+      "sha256": "e6cd482f1c20f2d9c9ed2c9a0e84e5171ee3ba1a054d685a5480e2e15b768333"
+    },
+    {
+      "bytes": 278,
+      "path": "REVIEW.md",
+      "sha256": "82b98567700a6945050ec6bee4ccd50fce5eb5218db623095c0a7f50460a6dab"
+    },
+    {
+      "bytes": 12160,
+      "path": "TASK_SPEC.md",
+      "sha256": "853683e3111a5033bb9c4c2f23214d54078b5e67c483991245f9700ae7b2aeaf"
+    },
+    {
+      "bytes": 303,
+      "path": "VALIDATION.md",
+      "sha256": "8b95f08733540ad128633df34155d573fc86fc37c301b542ed927ca53edb4f5f"
+    },
+    {
+      "bytes": 252,
+      "path": "attempts/initial_direct_import_failure/README.md",
+      "sha256": "65b7804eb39d944d3b7ab0e181df04b6f7f69e1cc71f264bff2ff97bb1cdc5d9"
+    },
+    {
+      "bytes": 243,
+      "path": "attempts/initial_forensic_reporting_gap/README.md",
+      "sha256": "8a0db3d230b46871ee8bad63cc09b947d5f83be179fccee5bc0cbeaa53ebe9aa"
+    },
+    {
+      "bytes": 223,
+      "path": "recovery_records/REPOSITORY_STATE.md",
+      "sha256": "6c521f1fbf81a23dc6eb8be6cf1ab91342204f2105bb345fc4a221ce8139d233"
+    },
+    {
+      "bytes": 156,
+      "path": "run_outputs/COMPLETION.md",
+      "sha256": "69ab4dc2f1aecf01e5f00de07b8573644732b2958b41cf19b7a3bb8863048eb2"
+    },
+    {
+      "bytes": 390,
+      "path": "run_outputs/KDA01_DEFINITION_LIMITATIONS.md",
+      "sha256": "aee50eeae9437c997d2e4e886a8b203ed410c1641a2a985f8ff29376ec831aa6"
+    },
+    {
+      "bytes": 388,
+      "path": "run_outputs/KDA01_INFERENCE_ESTIMAND_DIAGNOSTIC.md",
+      "sha256": "e8996f40b6434e2a6b402c0d8bff86690569a4d9d8f2803276231242057f0402"
+    },
+    {
+      "bytes": 1927,
+      "path": "run_outputs/KDA01_LEVEL3_REPAIRED_BOOTSTRAP_SUMMARY.csv",
+      "sha256": "4db77185540b8b404765110b8944fb7e127ab02929b86a7e896f334d402e394b"
+    },
+    {
+      "bytes": 5261,
+      "path": "run_outputs/KDA01_LEVEL3_REPAIRED_CLUSTER_SENSITIVITY.csv",
+      "sha256": "b96776cd6bdb5209bd73282ac45a35581abe3f383d94ca47fbd5176ff003038d"
+    },
+    {
+      "bytes": 1688,
+      "path": "run_outputs/KDA01_LEVEL3_REPAIRED_CONCENTRATION.csv",
+      "sha256": "34200fdefb8a0fddb9946078346e06a6ca26d370c85fe712a606faacc8682276"
+    },
+    {
+      "bytes": 1333,
+      "path": "run_outputs/KDA01_LEVEL3_REPAIRED_CONTRACT.json",
+      "sha256": "52be2547c833a05e593abbc548f309b8ca3601856a983212d1a7374690612d7c"
+    },
+    {
+      "bytes": 139,
+      "path": "run_outputs/KDA01_LEVEL3_REPAIRED_DECISION.md",
+      "sha256": "b471fb2672eaa19cb9c737c5a89b4bff02531fff8d7d93c7c0bc4087fb02debe"
+    },
+    {
+      "bytes": 23247,
+      "path": "run_outputs/KDA01_LEVEL3_REPAIRED_DEFINITION_METRICS.csv",
+      "sha256": "8d1c1b5e2f692ac81dd6894bb5dd0e22fd0173ee3a8742806673e7efefaca70a"
+    },
+    {
+      "bytes": 2261,
+      "path": "run_outputs/KDA01_LEVEL3_REPAIRED_GATE_MATRIX.csv",
+      "sha256": "3bc73d1dccc2126c8427b22735fbe1fc2a6094a9c5cb5f91be7a437818a67591"
+    },
+    {
+      "bytes": 1483,
+      "path": "run_outputs/KDA01_LEVEL3_REPAIRED_INDEPENDENT_RECOMPUTE.csv",
+      "sha256": "8357a4bef9a4c7f6764e9481fedf33616e3cad7182f84d35ceebc3360818b31d"
+    },
+    {
+      "bytes": 844,
+      "path": "run_outputs/KDA01_LEVEL3_REPAIRED_RUN_AUDIT.json",
+      "sha256": "ad2ddcd462315fa3ed83971e95a31c25f332f4dda402951b948d612330c3fc0d"
+    },
+    {
+      "bytes": 2541,
+      "path": "run_outputs/KDA01_LEVEL3_REPAIRED_TRADE_WEIGHTED_DAY_BOOTSTRAP_DIAGNOSTIC.csv",
+      "sha256": "122bac0aa5ed6094ab37222025823a2460e0c72ada60232d229b470ceb004ce6"
+    },
+    {
+      "bytes": 318679,
+      "path": "run_outputs/KDA01_LEVEL3_TIMING_DELTA_SUMMARY.csv",
+      "sha256": "c5f790e9b9de133becf738b5a4cde1306de9fb87f16db7842a71354da94d818c"
+    },
+    {
+      "bytes": 711,
+      "path": "run_outputs/KDA01_STAGE8C_FORENSIC_RECONCILIATION.md",
+      "sha256": "2103beece2db7652c1e0143cb829da0265dab288525d051805bda0b8995f50eb"
+    },
+    {
+      "bytes": 1419,
+      "path": "run_outputs/KDA01_STAGE8C_INDEPENDENT_RECOMPUTE.csv",
+      "sha256": "bc060ba7971498f983d225c0a6fdfecfbfe6e3a3d1084e5899d770f4bf53bfff"
+    },
+    {
+      "bytes": 6698,
+      "path": "run_outputs/KDA01_STAGE8C_METRIC_DECOMPOSITION.csv",
+      "sha256": "981d8c028929eb396736b50c66a0e4446c82055d293c7a9324fd243a835a2e40"
+    },
+    {
+      "bytes": 45746,
+      "path": "run_outputs/KDA01_STAGE8C_ORIGINAL_VS_REPAIRED_METRICS.csv",
+      "sha256": "adcb6ef05273a287e14a55b6ffc921dda4f1987541f286825714b31455a481d3"
+    },
+    {
+      "bytes": 1235,
+      "path": "run_outputs/KDA01_STAGE8C_SIGN_AND_PRICE_AUDIT.csv",
+      "sha256": "456702cde457a04ff4ab98cb4d2c2baa1ba3d71dd30c1e3f1222924c5c642612"
+    },
+    {
+      "bytes": 2540,
+      "path": "run_outputs/KDA01_STAGE8C_TRADE_WEIGHTED_DAY_BOOTSTRAP_DIAGNOSTIC.csv",
+      "sha256": "7f8e41af0f5142fe0f813b0e70fa20c890ba143eda3477034d60636e457c2851"
+    },
+    {
+      "bytes": 1012,
+      "path": "run_outputs/KDA01_TIMESTAMP_AUTHORITY_LEDGER.csv",
+      "sha256": "889efd74b694237992e0e44e95b6f033a34398817d2c14e64dea7f27f8abc077"
+    },
+    {
+      "bytes": 240,
+      "path": "run_outputs/KDA01_TIMESTAMP_REPAIR_DECISION.md",
+      "sha256": "282189797d8d72c5da44c7d7fb54021ea4a11c503f8c7782ea62f056ec7dbbee"
+    },
+    {
+      "bytes": 338,
+      "path": "run_outputs/KDA01_TIMESTAMP_SEMANTICS_AUDIT.md",
+      "sha256": "b6880789710faeb5e99814f8424d551829f814a856c9a0bea456121ac608c712"
+    },
+    {
+      "bytes": 158,
+      "path": "run_outputs/NEXT_ACTION.md",
+      "sha256": "11c2f9be605bd41d3fdbca9e0cf5a9cf2b7024b9d3b35d5031568b3fcd72051c"
+    },
+    {
+      "bytes": 742,
+      "path": "run_outputs/POST_RUN_INDEPENDENT_REVIEW.json",
+      "sha256": "2bd2832d84ac490a141432af6b48dd8e271acaeac33003d62f464ef2c69e7f3b"
+    },
+    {
+      "bytes": 752,
+      "path": "run_outputs/PRE_REPAIR_INDEPENDENT_REVIEW.json",
+      "sha256": "54ca5864e862135fabd25ee71cd1c0a874827ba8a783f1efbd56ac6e1649c8c5"
+    },
+    {
+      "bytes": 223,
+      "path": "run_outputs/REVIEW.md",
+      "sha256": "fcb22fadca61672e8c57f69f8fa78253d968ea4c102aa9daeafec932227600be"
+    },
+    {
+      "bytes": 234,
+      "path": "run_outputs/VALIDATION.md",
+      "sha256": "54c2ad96327676b8a9fe9917e238e83673957727154e37f22059b7db9c77d52b"
+    }
+  ],
+  "manifest_content_hash": "339c682c4121e8ff10a6ef2fe08070154d2403823b367565cdfeefd47329d39d",
+  "protected_rows_opened": 0,
+  "repair_contract_hash": "2806740e9f78b9aac24fc2c607cccd80cfc90f8a67e7d6b4d4e8115d47d4b3bb",
+  "repository_files": [
+    {
+      "bytes": 5736,
+      "path": "tools/qlmg_kda01_timestamp_repair.py",
+      "sha256": "a7abc7588611024a74c33370b54da852356f05825fb11726f94f5786d5ca53be"
+    },
+    {
+      "bytes": 31894,
+      "path": "tools/run_kda01_stage8c1_forensic_timing.py",
+      "sha256": "c753d7c64380012d75b091447bd2666ef6ff465c48b4ff8d94118d9659c05e2d"
+    },
+    {
+      "bytes": 3840,
+      "path": "unit_tests/test_kda01_stage8c1_timestamp_repair.py",
+      "sha256": "b7968381bfa18e0bb44ec9f295bd2b34fb0812978dcea36763d0537fe70b9419"
+    },
+    {
+      "bytes": 1990,
+      "path": "docs/QLMG_PERP_PROJECT_STATE.md",
+      "sha256": "0c4b5d7db37f350dde1f0152d7bddff490e5524efa6d9ac461eaa09759d8464b"
+    }
+  ],
+  "reverse_direction_executed": false,
+  "run_manifest_sha256": "2e8d8cce4ed5507bbac11b86d98158e7bcfc3ce60905c82c1cc22224636eff05",
+  "run_root": "results/rebaseline/phase_kraken_kda01_stage8c1_forensic_timing_20260719_v1_20260719_125800",
+  "source_stage8c_manifest_sha256": "fba91095e84ddf78eb1e218bf11e4542233ea9b974687b85dac6e99d2e54f1c4",
+  "starting_commit": "fa919770c13c9268dc67c65647f207ee3faf1e0c",
+  "task_id": "donch_bt_stage_8c1_kda01_forensic_timing_audit_20260719_v1",
+  "terminal_decision": "KDA01_level3_repaired_no_primary_pass_stop"
+}

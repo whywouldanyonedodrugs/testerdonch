@@ -1,0 +1,29 @@
+{
+  "bootstrap": {
+    "resamples": 10000,
+    "seed": 20260719,
+    "unit": "market_day_cluster_id"
+  },
+  "contract_version": "kda01_level3_contract_v3_timestamp_repair_20260719",
+  "controls_executed": false,
+  "costs_bps": {
+    "base": 14,
+    "stress": 32
+  },
+  "definitions": 16,
+  "entry": "first_authorized_PF_5m_trade_bar_open_at_or_after_decision_ts",
+  "exit": "first_authorized_PF_5m_trade_bar_open_at_or_after_exit_target",
+  "exit_target": "repaired_actual_entry_plus_unchanged_frozen_1h_or_6h_timeout",
+  "expected_entry": "decision_ts_if_5m_aligned_else_first_5m_grid_after_decision_ts",
+  "funding": "separate_diagnostic_excluded_from_level3_gates",
+  "maximum_entry_delay_minutes": 10,
+  "maximum_exit_delay_minutes": 10,
+  "non_overlap": "definition_and_symbol_local_using_repaired_actual_exit_ts",
+  "primary_definitions": 8,
+  "protected_start": "2026-01-01 00:00:00+00:00",
+  "repair_contract_hash": "2806740e9f78b9aac24fc2c607cccd80cfc90f8a67e7d6b4d4e8115d47d4b3bb",
+  "robustness_definitions": 8,
+  "source_definition_register_sha256": "ef32ebd1032c79e9f59df71b463d8e6d509b2ccfc8ab3eb75db2449d5d2aac7a",
+  "source_event_cluster_sha256": "1a2946a2da8c5bf9b1a4cbc9571abad31d968034f246fe94a8e442e959864669",
+  "source_level3_contract_hash": "d2112d8fb4f0666890761b70f7fa71c9e8cb4f43c704a04cdf9470e949a177b3"
+}

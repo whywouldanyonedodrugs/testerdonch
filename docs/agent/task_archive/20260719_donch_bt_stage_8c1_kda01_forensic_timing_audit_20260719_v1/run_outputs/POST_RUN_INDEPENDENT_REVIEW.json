@@ -1,0 +1,29 @@
+{
+  "approved": true,
+  "blocking_findings": [],
+  "terminal_decision": "KDA01_level3_repaired_no_primary_pass_stop",
+  "validation": {
+    "controls_executed": false,
+    "entry_shift_unique_minutes": [
+      -5.0
+    ],
+    "exit_shift_unique_minutes": [
+      -5.0
+    ],
+    "funding_boundary_duplicate_rows": 0,
+    "gate_mismatches": 0,
+    "metric_max_abs_difference": 7.105427357601002e-15,
+    "original_recompute_pass": true,
+    "protected_rows": 0,
+    "repaired_recompute_pass": true,
+    "reverse_direction_executed": false,
+    "schedule": {
+      "accepted": 183744,
+      "actual_position_overlap": 20473,
+      "missing_exit_bar": 55,
+      "records": 204272,
+      "rejected": 20528
+    },
+    "timing_pairs": 183744
+  }
+}

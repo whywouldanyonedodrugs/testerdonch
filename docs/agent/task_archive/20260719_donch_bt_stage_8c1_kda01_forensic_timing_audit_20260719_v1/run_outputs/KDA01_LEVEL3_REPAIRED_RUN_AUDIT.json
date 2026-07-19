@@ -1,0 +1,22 @@
+{
+  "commit": "fa919770c13c9268dc67c65647f207ee3faf1e0c",
+  "controls_executed": false,
+  "funding_boundaries": 606164,
+  "funding_model_hash": "0054af0ee40740e39739bfade92f342867bb208a4fe7ed15b151a8a0a838d072",
+  "peak_rss_kib": 2592736,
+  "primary_passes": 0,
+  "protected_rows_opened": 0,
+  "repair_contract_hash": "2806740e9f78b9aac24fc2c607cccd80cfc90f8a67e7d6b4d4e8115d47d4b3bb",
+  "reverse_direction_executed": false,
+  "schedule": {
+    "accepted": 183744,
+    "actual_position_overlap": 20473,
+    "missing_exit_bar": 55,
+    "records": 204272,
+    "rejected": 20528
+  },
+  "task_id": "donch_bt_stage_8c1_kda01_forensic_timing_audit_20260719_v1",
+  "terminal_decision": "KDA01_level3_repaired_no_primary_pass_stop",
+  "timestamp_authority_hash": "ec8735f440d1971678316ae6bfe3bc7393bf8701113605c865922e4e7884fa77",
+  "trades": 183744
+}

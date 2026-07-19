@@ -1,0 +1,19 @@
+{
+  "approved": true,
+  "blocking_findings": [],
+  "repair_contract_hash": "2806740e9f78b9aac24fc2c607cccd80cfc90f8a67e7d6b4d4e8115d47d4b3bb",
+  "reviewed_files_combined_sha256": "68373b534f40e2c6c4b6b61bec72bfccc6525767d6bce702a72ec910c18bb4bf",
+  "reviewed_utc": "2026-07-19T13:02:19.751907+00:00",
+  "schedule_timestamp_only_reconciliation": {
+    "accepted": 183744,
+    "actual_position_overlap": 20473,
+    "duplicates": 0,
+    "missing_exit_bar": 55,
+    "protected": 0,
+    "records": 204272,
+    "rejected": 20528
+  },
+  "scope": "entry >= decision; exit target from repaired entry; unchanged definitions/costs/gates/non-overlap",
+  "source_and_contract_hashes_verified": true,
+  "timestamp_defect_confirmed_without_repaired_outcomes": true
+}

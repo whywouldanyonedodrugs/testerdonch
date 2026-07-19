@@ -1,0 +1,8 @@
+layer,authority,finding,status
+official_endpoint,Kraken Futures Market Candles API,OHLC candles; time is epoch ms; open is first traded price in interval,confirmed
+acquisition,tools/run_kraken_k0_data_foundation.py,5m endpoint and aligned from/to boundaries retained without timestamp transformation,confirmed
+stored_time,/opt/parquet/kraken_derivatives/manifests/phase_kraken_k0_data_foundation_20260630_v1_20260630_163815_download_manifest.csv,200 timestamp-only chunks start at aligned requested boundary; all time values lie on 5m grid,confirmed
+stage8a,tools/build_kraken_derivatives_state_foundation.py,decision_ts = source bar time + 5m,confirmed
+stage8b,frozen event-cluster tape,decision_ts is completed signal-bar causal availability,confirmed
+stage8b1,tools/qlmg_kda01_contract_closure.py,original entry uses searchsorted side=right and skips bar at decision_ts,defect_confirmed
+stage8c,tools/run_kda01_level3_economic.py,price lookup faithfully uses the delayed Stage8B1 entry_ts,downstream_affected

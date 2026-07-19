@@ -1,0 +1,17 @@
+definition_id,diagnostic_only,trade_weighted_mean_bps,day_block_bootstrap_median_bps,day_block_bootstrap_lower_bps,day_block_bootstrap_upper_bps,can_replace_frozen_gate
+kda01_v2_primary_negative_completed_failure_timeout_1h,True,-11.279664992533103,-11.286108629528574,-15.285588134925325,-7.307919041662163,False
+kda01_v2_primary_negative_completed_failure_timeout_6h,True,-3.8448122496228185,-3.9902780498332406,-17.071595830350784,9.321901188883894,False
+kda01_v2_primary_negative_efficient_continuation_timeout_1h,True,-20.58303757232642,-20.64700091084169,-27.06114219134535,-14.144275822261193,False
+kda01_v2_primary_negative_efficient_continuation_timeout_6h,True,-21.444852099415108,-21.64297169251155,-38.167087349542186,-4.676256032311066,False
+kda01_v2_primary_positive_completed_failure_timeout_1h,True,-13.904824989889775,-13.922765815017051,-17.318827860566905,-10.41753618904784,False
+kda01_v2_primary_positive_completed_failure_timeout_6h,True,-16.088609396019393,-16.194174497021255,-27.79851497397775,-4.5169251262579655,False
+kda01_v2_primary_positive_efficient_continuation_timeout_1h,True,-13.57748053276439,-13.604904271601132,-18.154506257274907,-8.852588193217636,False
+kda01_v2_primary_positive_efficient_continuation_timeout_6h,True,-12.189270894286931,-12.28505369188617,-25.08961847964959,0.8341751828007848,False
+kda01_v2_robustness_negative_completed_failure_timeout_1h,True,-10.61670735348405,-10.651998124161375,-14.465054243570606,-6.584494400426676,False
+kda01_v2_robustness_negative_completed_failure_timeout_6h,True,-4.459381936451737,-4.495885447385406,-17.098304439029693,8.125031011277123,False
+kda01_v2_robustness_negative_efficient_continuation_timeout_1h,True,-22.176287827570995,-22.243910274011633,-28.885786390685297,-14.97155983838878,False
+kda01_v2_robustness_negative_efficient_continuation_timeout_6h,True,-21.916051476705714,-22.39697959393517,-40.677860472389064,-1.552012906886939,False
+kda01_v2_robustness_positive_completed_failure_timeout_1h,True,-13.643306284525071,-13.669047661025392,-17.172405171953105,-10.069054991871518,False
+kda01_v2_robustness_positive_completed_failure_timeout_6h,True,-18.138664219607072,-18.212763016141075,-29.907814774424725,-6.3577002969212355,False
+kda01_v2_robustness_positive_efficient_continuation_timeout_1h,True,-10.126301473855275,-10.175609075555373,-15.018074024945003,-5.159301277419661,False
+kda01_v2_robustness_positive_efficient_continuation_timeout_6h,True,-6.422918365831476,-6.5560999561712165,-19.845817116181145,7.276665659074135,False
