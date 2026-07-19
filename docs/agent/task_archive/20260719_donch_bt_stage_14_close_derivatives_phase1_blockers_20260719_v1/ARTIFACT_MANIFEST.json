@@ -1,0 +1,187 @@
+{
+  "Capitalcom_payload_opened": 0,
+  "approval_packet_sha256": "c029830526ab7a8cd443acb0f9ec5441e1e50967200c8a95184cf8b46d71c313",
+  "campaign_manifest_sha256": "61119ce30ff142efdf0b40e8796e5ffb2efae0764f835b64e179b624db05f632",
+  "economic_outputs_computed": false,
+  "files": [
+    {
+      "bytes": 2007,
+      "path": "CAMPAIGN_FUNDING_AND_COST_CONTRACT.md",
+      "sha256": "a2dc19786f138b6f694d484cdb8e93c4a26cb108e7b0428295f2470219b5225c"
+    },
+    {
+      "bytes": 104099,
+      "path": "CAMPAIGN_MANIFEST.json",
+      "sha256": "61119ce30ff142efdf0b40e8796e5ffb2efae0764f835b64e179b624db05f632"
+    },
+    {
+      "bytes": 1034,
+      "path": "CHANGED_FILES.md",
+      "sha256": "fbbba712fd08aa3a92af756f4826a5885cc1a591eb3570fb28052a1c3d92e130"
+    },
+    {
+      "bytes": 1281,
+      "path": "COMMANDS_AND_RESULTS.md",
+      "sha256": "f4b81a4256fa52d8efb435ffd29027cd3353ccdc4febbcd594782b553aefbc32"
+    },
+    {
+      "bytes": 845,
+      "path": "COMPLETION.md",
+      "sha256": "7236383af768beaf51c3bd8247e3b2ff371e37ac2607f6216f69d5bd129475ff"
+    },
+    {
+      "bytes": 1134,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "sha256": "e11f851206b9fcd0a4f0a9991dbd6ed4a208bb5b3698065ba75915f8e3a4df9b"
+    },
+    {
+      "bytes": 508,
+      "path": "DONCH_CONTEXT.md",
+      "sha256": "44ba5c83379d0dcd158489845b7853be2cd64ebbb8e295b1fa76eb286b6690d8"
+    },
+    {
+      "bytes": 16414,
+      "path": "FOLD_AND_EXPOSURE_MAP.json",
+      "sha256": "1dd8caab1c23de0d647acfa7609cf493e9bd6dd346989cddc89f85b569357b69"
+    },
+    {
+      "bytes": 5486,
+      "path": "FUTURE_DERIVATIVES_CAMPAIGN_APPROVAL_PACKET.json",
+      "sha256": "c029830526ab7a8cd443acb0f9ec5441e1e50967200c8a95184cf8b46d71c313"
+    },
+    {
+      "bytes": 957,
+      "path": "FUTURE_DERIVATIVES_CAMPAIGN_APPROVAL_PACKET.md",
+      "sha256": "5e756e2c7555f5628ded0218bb414a2688b3a09e38500daffec2d99d5ea2ead5"
+    },
+    {
+      "bytes": 36750,
+      "path": "KDA02B_ONSET_AND_EPISODE_SUMMARY.csv",
+      "sha256": "0fb5997b55f00ce7899dcc3a3636c44f1594f256a72d917cf285b97d7dbcb233"
+    },
+    {
+      "bytes": 1057,
+      "path": "KDA02B_PHASE1_MEASUREMENT.md",
+      "sha256": "f0f1af769d0145394fe516c40c207c8b39815f1fc0d9d5ecda4c17d1961b7f83"
+    },
+    {
+      "bytes": 30272,
+      "path": "KDA02B_RETENTION_BOUNDARY.csv",
+      "sha256": "ab506f14ebaa5247cca7e1f5224d2b82490c5f788a2f4f451937e700b676e26c"
+    },
+    {
+      "bytes": 2905,
+      "path": "KDA02C_BREADTH_SUMMARY.csv",
+      "sha256": "10c3733022ef8c9b805c17faf934f30b3358dc12fbe1355a04fd376c6abd07fd"
+    },
+    {
+      "bytes": 1220,
+      "path": "KDA02C_PIT_BREADTH_CONTRACT.md",
+      "sha256": "9b8d22a02311143571e67a27d2a9f11298bc428ae3cb6dca923baf1d62a5850f"
+    },
+    {
+      "bytes": 31036,
+      "path": "KDX01_COMPONENT_AVAILABILITY_AND_MISSINGNESS.csv",
+      "sha256": "434fc819b2d1cf987dabc960d0c15b4e2825ca5a4f5c6ce4e7569b1a31b1a6b5"
+    },
+    {
+      "bytes": 2089,
+      "path": "KDX01_COMPONENT_OVERLAP_MATRIX.csv",
+      "sha256": "f981eb2a20096a4f613bfe9eb142023c83b70e916d8c3a64842c708a4e095a0f"
+    },
+    {
+      "bytes": 16756,
+      "path": "KDX01_ECONOMIC_ADDRESS_ANALYSIS.csv",
+      "sha256": "91f329197eb32b0f56fc15411e7c8a7493222ddb3908a911ac1552a81d1096c8"
+    },
+    {
+      "bytes": 1832,
+      "path": "KDX01_EPISODE_DURATION_SUMMARY.csv",
+      "sha256": "044c88cafa15e1dff0bfadbe78022fea9526868b1e4e853c8a73798c22be8813"
+    },
+    {
+      "bytes": 366173,
+      "path": "KDX01_INCIDENCE_SUMMARY.csv",
+      "sha256": "502cf01ece25db665f9a3239d1d268f95e7aba0d61a9a54faa0fda3fe1a5d477"
+    },
+    {
+      "bytes": 320235,
+      "path": "KDX01_PARENT_IDENTITY_OVERLAP.csv",
+      "sha256": "fb2ba37476a0394aceb58d4421246d5aa976f91786b48dc63eb13e9f44dfeb2a"
+    },
+    {
+      "bytes": 1695,
+      "path": "KDX01_PRIMITIVE_STATE_CONTRACT.md",
+      "sha256": "82c7a47323b7e34d5e4c9092ea55d93719c6cf8f2e1fc6052f863bae36d0d89c"
+    },
+    {
+      "bytes": 230619,
+      "path": "KDX01_RAW_UNIT_DISTRIBUTIONS.csv",
+      "sha256": "342aabe537ecb5bf5fdc5369bb9318a19e22f7bfe077145311de90204bcaa20d"
+    },
+    {
+      "bytes": 335854,
+      "path": "KRAKEN_CAMPAIGN_UNIVERSE_RECONCILIATION.csv",
+      "sha256": "54e42b05c09a7e2ff9deec1e4f1f16e63a76dbd23979924ed70cbdfdc3a52d6b"
+    },
+    {
+      "bytes": 747,
+      "path": "KRAKEN_CAMPAIGN_UNIVERSE_RECONCILIATION.md",
+      "sha256": "6aaa4214e3938c3c3cb16c7335f658462f45b8ecd10c973e14ca10b7093725fb"
+    },
+    {
+      "bytes": 95580,
+      "path": "LOCAL_STATE_TAPE_MANIFEST.json",
+      "sha256": "838be528ea0bcaeed132c4b95401594e2bb9a726178ece3f51de44dbbcd96380"
+    },
+    {
+      "bytes": 290,
+      "path": "NEXT_ACTION.md",
+      "sha256": "8bbd316355141d3a2a8e5edd1323620caa3f317ab83db5d6d9de87c2a91a8012"
+    },
+    {
+      "bytes": 388,
+      "path": "PHASE1_ADMISSION_DECISIONS.json",
+      "sha256": "240127b2a3dd2ed6c55605048bcf15ea100882cd4c0969773463b2290741c8de"
+    },
+    {
+      "bytes": 2674,
+      "path": "PLAN.md",
+      "sha256": "451d440b1738e9bb5cb0351c081d7737e9f5bd242812167a853f6ea1a727cf0c"
+    },
+    {
+      "bytes": 1276,
+      "path": "RESOURCE_PROJECTION.json",
+      "sha256": "6eb572e8c09be94d462702db54d98d3fa88b4aa0ee402b2873c8a7fe66235d97"
+    },
+    {
+      "bytes": 1194,
+      "path": "REVIEW.md",
+      "sha256": "6489a14583844190245cc60e6fb0ab3574ca20528a9eb87d3e9823453d1fc195"
+    },
+    {
+      "bytes": 81328,
+      "path": "SEARCH_SPACE_REGISTRY.json",
+      "sha256": "a533c8e507f78989963a2631115bd1a3f70c3dc34cb59d749bec57b53577294b"
+    },
+    {
+      "bytes": 1164,
+      "path": "SOURCE_MANIFEST.json",
+      "sha256": "5926444a5ac3fdb046d31356bc44f36ca61e4701a8cc3e5836a0a096f5142ee4"
+    },
+    {
+      "bytes": 13933,
+      "path": "TASK_SPEC.md",
+      "sha256": "d0ee489f31c549e6573f3461756aac629b305086a2c13aaab81a71606d5f99eb"
+    },
+    {
+      "bytes": 1141,
+      "path": "VALIDATION.md",
+      "sha256": "8ba4e169a4dc601600751691fbe40df9376c9b2ee621e962e418909c9e592b17"
+    }
+  ],
+  "protected_rows_opened": 0,
+  "repository_implementation_commit": "b4785ed2a06fbed50d20b7dcdf0bc27e93cd7bea",
+  "status": "complete_non_authorizing",
+  "task_id": "donch_bt_stage_14_close_derivatives_phase1_blockers_20260719_v1"
+}

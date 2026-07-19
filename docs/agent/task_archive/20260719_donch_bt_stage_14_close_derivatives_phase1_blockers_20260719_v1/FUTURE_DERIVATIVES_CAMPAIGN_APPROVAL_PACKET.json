@@ -14,10 +14,10 @@
     "measurement_primitive_code_sha256": "4f37fd38b3101eb76be641f7b77f578ea4e576d511bd28f73844e1142ba2bd56",
     "phase1_measurement_sha256": "ac88691cd061b859bb982e8a2213ff22dbac28397b6c5477aee85377dc977890",
     "protocol_v2_sha256": "4effe3e9608377876486b1583854a7e1479c8e93d6de1661f13d35842bbc6a73",
-    "repository_implementation_commit": "UNCOMMITTED_STAGE14",
+    "repository_implementation_commit": "b4785ed2a06fbed50d20b7dcdf0bc27e93cd7bea",
     "repository_start_commit": "e14bbd0d26c14e48a347481f170fcfe8851df625",
     "route_policy_sha256": "c54d4a3445da249c6dbd34613b770ad9624f861e0d7c345b3cba944aa6cdf1aa",
-    "search_space_builder_sha256": "c3f0e875d9556a783fbe9e6f261b2b7487d8b0ae3acb6aa56513c1bf5830d5fc",
+    "search_space_builder_sha256": "9c49881068e53c3cee5d3860fc552b59e897ecb71f8b88c8738316caa8f9bc0d",
     "stage13_approval_request_sha256": "ed27fc30d39155d6b08d63539a22d34b50d19ab3c909396a8719c443057fcd5c",
     "stage13_campaign_manifest_sha256": "09f4a534dcd799bf252e6e47037af58ad2177256d976b37defd8c257d2949e27"
   },
@@ -28,7 +28,7 @@
     "outcome-free frozen-model boundary panel extension covers registered 2023-2025 events at the predeclared coverage floor",
     "no protected or Capital.com access"
   ],
-  "campaign_manifest_sha256": "fcad434f1d9c5ddbd417c59036576bc129f12a7a9853a6abdf3724f3b5577a00",
+  "campaign_manifest_sha256": "61119ce30ff142efdf0b40e8796e5ffb2efae0764f835b64e179b624db05f632",
   "cost_and_execution": {
     "base_round_trip_bps_pre_funding": 14,
     "execution": "first authorized PF 5m open at or after decision/target, maximum 10 minute delay",

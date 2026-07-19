@@ -1,10 +1,10 @@
 {
   "C17_status": "separate_blocked_route_not_in_campaign",
   "approval_packet_path": "docs/agent/task_archive/20260719_donch_bt_stage_14_close_derivatives_phase1_blockers_20260719_v1/FUTURE_DERIVATIVES_CAMPAIGN_APPROVAL_PACKET.json",
-  "approval_packet_sha256": "162adcbf09f1000ba1804e4a4a6a080e0227b6c04a5918a87e8508c94076d8f0",
+  "approval_packet_sha256": "c029830526ab7a8cd443acb0f9ec5441e1e50967200c8a95184cf8b46d71c313",
   "campaign_id": "kraken_derivatives_campaign_001_stage14_ready",
   "campaign_manifest_path": "docs/agent/task_archive/20260719_donch_bt_stage_14_close_derivatives_phase1_blockers_20260719_v1/CAMPAIGN_MANIFEST.json",
-  "campaign_manifest_sha256": "fcad434f1d9c5ddbd417c59036576bc129f12a7a9853a6abdf3724f3b5577a00",
+  "campaign_manifest_sha256": "61119ce30ff142efdf0b40e8796e5ffb2efae0764f835b64e179b624db05f632",
   "historical_terminal_decisions_changed": false,
   "phase_2_5_authorized": false,
   "ready_lanes": [
