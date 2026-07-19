@@ -25,9 +25,9 @@
       "sha256": "f4b81a4256fa52d8efb435ffd29027cd3353ccdc4febbcd594782b553aefbc32"
     },
     {
-      "bytes": 845,
+      "bytes": 1052,
       "path": "COMPLETION.md",
-      "sha256": "7236383af768beaf51c3bd8247e3b2ff371e37ac2607f6216f69d5bd129475ff"
+      "sha256": "2f5b15ecc1c98ef98916d172f630fe2254032700a7ac3e0a49165ae647c8f420"
     },
     {
       "bytes": 1134,
@@ -178,10 +178,15 @@
       "bytes": 1141,
       "path": "VALIDATION.md",
       "sha256": "8ba4e169a4dc601600751691fbe40df9376c9b2ee621e962e418909c9e592b17"
+    },
+    {
+      "bytes": 1375,
+      "path": "handoff/DRIVE_HANDOFF_VERIFICATION.json",
+      "sha256": "5c407d9f7d34e1e49174ad4406816ac0cfe46efd5339780122dc0c15177667a5"
     }
   ],
   "protected_rows_opened": 0,
   "repository_implementation_commit": "b4785ed2a06fbed50d20b7dcdf0bc27e93cd7bea",
-  "status": "complete_non_authorizing",
+  "status": "complete_non_authorizing_drive_verified",
   "task_id": "donch_bt_stage_14_close_derivatives_phase1_blockers_20260719_v1"
 }

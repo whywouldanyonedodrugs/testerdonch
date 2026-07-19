@@ -1,0 +1,18 @@
+{
+  "drive_folder_id": "1PtFf2DtCWNmobq7bjvbMZwMH9bM6Dw1g",
+  "drive_folder_url": "https://drive.google.com/drive/folders/1PtFf2DtCWNmobq7bjvbMZwMH9bM6Dw1g",
+  "drive_path": "qlmg_sweep_drive:20260719_donch_bt_stage_14_close_derivatives_phase1_blockers_20260719_v1_v01/",
+  "files": [
+    {"bytes": 571, "path": "READ_FIRST.md", "sha256": "411b90b91c1a65ee80ef76888c66e665b9d001ae47b9c4297631eb743785eb92"},
+    {"bytes": 1194, "path": "REVIEW.md", "sha256": "6489a14583844190245cc60e6fb0ab3574ca20528a9eb87d3e9823453d1fc195"},
+    {"bytes": 1126, "path": "TRANSFER_MANIFEST.json", "sha256": "9b089a564ce2218b2645beab5722ada3123c9fb8f947c3c87fbe098838e37d44"},
+    {"bytes": 1141, "path": "VALIDATION.md", "sha256": "8ba4e169a4dc601600751691fbe40df9376c9b2ee621e962e418909c9e592b17"},
+    {"bytes": 220523, "path": "donch_bt_stage_14_close_derivatives_phase1_blockers_20260719_v1.zip", "sha256": "f73641778c1501a86dac3e12b8b1b5cbb64b308a3d3a3d3045b042d7140a7459"}
+  ],
+  "local_archive_retained": "/opt/stage14-handoff-20260719-v01/donch_bt_stage_14_close_derivatives_phase1_blockers_20260719_v1.zip",
+  "non_secret_remote_label": "qlmg_sweep_drive:",
+  "remote_round_trip_verification": "pass_all_five_files_size_and_sha256_equal",
+  "rclone_version": "v1.60.1-DEV",
+  "separate_download_root": "/opt/stage14-drive-verify-zDSPpu",
+  "verified_utc": "2026-07-19T22:35:06Z"
+}
