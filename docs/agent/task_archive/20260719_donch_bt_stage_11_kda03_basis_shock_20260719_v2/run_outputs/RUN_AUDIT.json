@@ -1,0 +1,76 @@
+{
+  "accepted": 199787,
+  "calculation_module_sha256": "25ed8552588c2d10f5ce85a01b9a6e62bfc9653170a5f57aae82c25f7a122739",
+  "commit": "8f365a47625e338b5a518a22866d41e41244e458",
+  "contract_file_sha256": "483c5700e880cf58213660f4a5a3fe6cf0cc4ba673a9e7679e2cb259a25d1ce6",
+  "contract_hash": "5f1abdc7e21ab9e3a6851b21930a7af745cbb865be334f8be45c9a561d2411e7",
+  "control_eligible_count": 0,
+  "control_eligible_definitions": [],
+  "controls_executed": false,
+  "definition_register_sha256": "0329660ac986ae53662969cd21d7004bf4261c04eb8de0edfeb4464b60ca306d",
+  "event_tape_sha256": "97071db6a3fb331462d071fd01d4eefeb6e3d5edd5c23489332ab747903d7bc6",
+  "funding_model_hash": "0054af0ee40740e39739bfade92f342867bb208a4fe7ed15b151a8a0a838d072",
+  "market_manifest_sha256": "f598cc1fb5714386923272399b98fa560c119c96fd5af33f5b30735f40cea420",
+  "official_trade_bar_authority_hash": "aa5e11ed734d03e479cba9747d615ad369624ac5cef2ec6e9af74850dfa4b72a",
+  "parent_tape_sha256": "917ebdc3616e3baa797a2c64d3c708db93e7149ec5efcfd4e45aaba7a0db7f2d",
+  "peak_rss_kib": 2362288,
+  "price_rejections": 0,
+  "primary_route_count": 12,
+  "primary_routes": [
+    {
+      "definition_id": "kda03_v1_primary_negative_basis_impulse_continuation_timeout_1h",
+      "policy_route": "translation_rejected"
+    },
+    {
+      "definition_id": "kda03_v1_primary_negative_basis_impulse_continuation_timeout_6h",
+      "policy_route": "translation_rejected"
+    },
+    {
+      "definition_id": "kda03_v1_primary_negative_completed_basis_impulse_rejection_timeout_1h",
+      "policy_route": "translation_rejected"
+    },
+    {
+      "definition_id": "kda03_v1_primary_negative_completed_basis_impulse_rejection_timeout_6h",
+      "policy_route": "sample_limited_prospective_candidate"
+    },
+    {
+      "definition_id": "kda03_v1_primary_negative_reference_led_catchup_timeout_1h",
+      "policy_route": "translation_rejected"
+    },
+    {
+      "definition_id": "kda03_v1_primary_negative_reference_led_catchup_timeout_6h",
+      "policy_route": "translation_rejected"
+    },
+    {
+      "definition_id": "kda03_v1_primary_positive_basis_impulse_continuation_timeout_1h",
+      "policy_route": "translation_rejected"
+    },
+    {
+      "definition_id": "kda03_v1_primary_positive_basis_impulse_continuation_timeout_6h",
+      "policy_route": "translation_rejected"
+    },
+    {
+      "definition_id": "kda03_v1_primary_positive_completed_basis_impulse_rejection_timeout_1h",
+      "policy_route": "translation_rejected"
+    },
+    {
+      "definition_id": "kda03_v1_primary_positive_completed_basis_impulse_rejection_timeout_6h",
+      "policy_route": "translation_rejected"
+    },
+    {
+      "definition_id": "kda03_v1_primary_positive_reference_led_catchup_timeout_1h",
+      "policy_route": "translation_rejected"
+    },
+    {
+      "definition_id": "kda03_v1_primary_positive_reference_led_catchup_timeout_6h",
+      "policy_route": "translation_rejected"
+    }
+  ],
+  "protected_rows_opened": 0,
+  "runner_sha256": "f1edc4da5f721965f73c46cef2ed3c49133c1e4ddf3c03bc78f9d0bd0cd6fe9f",
+  "schedule_records": 227078,
+  "task_id": "donch_bt_stage_11_kda03_basis_shock_20260719_v2",
+  "terminal_decision": "KDA03_level3_routes_assigned",
+  "timestamp_authority_hash": "80a57846d32a192300e16d5f77ac9b29a061c039a66705f3fba8f8ba60846634",
+  "trades": 199787
+}

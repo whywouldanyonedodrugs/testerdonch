@@ -1,0 +1,73 @@
+{
+  "approved": true,
+  "contract_hash": "5f1abdc7e21ab9e3a6851b21930a7af745cbb865be334f8be45c9a561d2411e7",
+  "finding_counts": {
+    "blocking": 0,
+    "high": 0,
+    "low": 0,
+    "medium": 0,
+    "total": 0
+  },
+  "findings": [],
+  "recorded_economic_run_count": 1,
+  "recomputation_counts": {
+    "accepted_executions": 199787,
+    "bootstrap_draws": 240000,
+    "cluster_sensitivity_rows": 48,
+    "context_diagnostic_rows": 72,
+    "contributor_rows": 21494,
+    "definition_metrics": 24,
+    "execution_rejections": 27291,
+    "funding_boundaries": 631092,
+    "funding_partition_rows": 60,
+    "market_day_rows": 20158,
+    "official_open_symbols": 55,
+    "policy_decisions": 24,
+    "schedule_records": 227078,
+    "trades": 199787
+  },
+  "recomputation_mismatches": {
+    "accepted_schedule_identity": 0,
+    "actual_exit_nonoverlap": 0,
+    "bootstrap": 0,
+    "cluster_context_diagnostics": 0,
+    "concentration_contributors": 0,
+    "cost_arithmetic": 0,
+    "economic_addresses": 0,
+    "equal_market_day_estimand": 0,
+    "funding": 0,
+    "official_entry_opens": 0,
+    "official_exit_opens": 0,
+    "policy_flags_routes": 0,
+    "protected_rows": 0
+  },
+  "run_commit": "8f365a47625e338b5a518a22866d41e41244e458",
+  "run_output_sha256": {
+    "KDA03_LEVEL3_ACCEPTED_EXECUTIONS.parquet": "c66a9d8351d73a59035e5bb166a7f93d286d149d88c1192968a63f612ac9c600",
+    "KDA03_LEVEL3_BOOTSTRAP_DISTRIBUTIONS.parquet": "0118e6f8751a7ad41fa24400872b596b83ae991ade187bd54c31c21fcc14bc8e",
+    "KDA03_LEVEL3_BOOTSTRAP_SUMMARY.csv": "1216c04952fffe51e9ebd8d5b7646cf9d8ca5c554d7be6bc1421d4d119bc95c3",
+    "KDA03_LEVEL3_CLAIM_BOUNDARY.md": "8045de67a2e22aabe0d9ddf9f6f2eac987ba6d464085b51ae9bdf107302d8a27",
+    "KDA03_LEVEL3_CLUSTER_SENSITIVITY.csv": "b95068ace4b1f2e8e6fd5cc8b20c4928e32cd91d051eeaa82d6ae9b8d70679f5",
+    "KDA03_LEVEL3_CONCENTRATION.csv": "fc36dd811155ad6c9eeb7da5b756c3988d87dcbdd111654bd8b2ba1e4c437cb4",
+    "KDA03_LEVEL3_CONTEXT_DIAGNOSTICS.csv": "ff41aace8c0306c147a9f85468c7ccfd77f12ae34884c8479bd88f5128dd08d1",
+    "KDA03_LEVEL3_CONTRIBUTION_LEDGER.csv": "a99d8beee17a0dd67f8063981a39d44ec1d969f43fa859990f9a037d212cae98",
+    "KDA03_LEVEL3_DECISION.md": "598ced5df48d56b2f45f56aa5c05a38b0ab40b9074b9542494a16531f891831a",
+    "KDA03_LEVEL3_DEFINITION_DECISIONS.csv": "2bb591f15db59e981092fa511aa778beba5eaffe78a2f750083a09a13e75820a",
+    "KDA03_LEVEL3_DEFINITION_METRICS.csv": "9cab834c5951f5b673f116914f398bf6dc8b2768ccd5573336e73a1715acbb23",
+    "KDA03_LEVEL3_EXECUTION_REJECTIONS.parquet": "547f3005f9c26d97cfa3848afe989c10cf962012ecefb99ceb0803fba54264bc",
+    "KDA03_LEVEL3_FUNDING_BOUNDARY_LEDGER.parquet": "3f6bcbbce30c5609c60974af8a7fbbba5e64139db7b15846b34020fefaaa626b",
+    "KDA03_LEVEL3_FUNDING_PARTITIONS.csv": "d8235af91a9bf11a3cb7e4197ef965448e982af4e5048982d8a89239a3783d93",
+    "KDA03_LEVEL3_GATE_MATRIX.csv": "7f40de88f83da3441f9397cacaba5e7c6dbdb5544dffd52c62521c209b112a0e",
+    "KDA03_LEVEL3_MARKET_DAY_RETURNS.parquet": "3e9033bab0894ca2bbfc77a5ad3881068eeb45a4e0b707d9bfd9f0ecba8268c1",
+    "KDA03_LEVEL3_TRADE_TAPE.parquet": "a536df2efef4b1c3ad33a49ec4ddc6419aa2f944f722d1084c967f33eb80c0f6",
+    "RUN_AUDIT.json": "d3fe21ba37a098de9aa6b1dcd5fe5eb6b13ee9f2a50ad2c7d58398192233cb3b"
+  },
+  "scope_counts": {
+    "capitalcom_payloads_opened": 0,
+    "control_artifacts_or_columns": 0,
+    "controls_executed": 0,
+    "protected_rows_opened": 0
+  },
+  "status": "approved_postrun",
+  "terminal_status": "KDA03_level3_routes_assigned"
+}

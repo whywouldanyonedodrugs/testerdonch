@@ -1,0 +1,32 @@
+{
+  "collision_policy": "new_child_only_no_overwrite",
+  "direct_file_count": 5,
+  "files": [
+    {
+      "bytes": 734,
+      "name": "READ_FIRST.md",
+      "sha256": "dcf80109b43d4ddf538ed5012c74f484b1ef39eea793ecd84f3adf3ebfccf2a4"
+    },
+    {
+      "bytes": 2145,
+      "name": "VALIDATION.md",
+      "sha256": "43c8aa2adaeeccebc37d9e50075d6f9fb85e2643c6207337d37cc06ffa8880a3"
+    },
+    {
+      "bytes": 1440,
+      "name": "REVIEW.md",
+      "sha256": "85525393100e78ccc9af14a731eda24c0717d8517e0c3ecd5df4015f3c7b00b7"
+    },
+    {
+      "bytes": 904670,
+      "name": "qlmg_kda03_basis_shock_level3_20260719_v01.zip",
+      "sha256": "4471edafce0a301bf4f073277589a78dee357a519ff0c0f45c26eab2597b43ee"
+    }
+  ],
+  "remote_label": "qlmg_sweep_drive:",
+  "root_folder_id": "1vMuf1EJbojoeIjJjz8Xj1fhwLizNgLfl",
+  "status": "ready_for_non_overwriting_upload_and_roundtrip_verification",
+  "task_folder": "20260719_donch_bt_stage_11_kda03_basis_shock_20260719_v2_v01",
+  "task_id": "donch_bt_stage_11_kda03_basis_shock_20260719_v2",
+  "transfer_manifest_self_hash_excluded": true
+}

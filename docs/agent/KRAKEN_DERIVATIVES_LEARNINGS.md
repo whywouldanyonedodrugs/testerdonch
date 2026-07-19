@@ -229,6 +229,24 @@ This is outcome-derived hypothesis presence, not evidence. Register it separatel
 
 The Stage 8A OI-vacuum branch contained no liquidation requirement and was separated into a distinct outcome-free candidate-library lineage. It remains untested.
 
+## Stage 11 KDA03 result
+
+KDA03 tested three prospectively frozen basis-shock mechanisms in separate positive and negative directions at one- and six-hour timeouts. Eleven of the twelve primary definitions were `translation_rejected` after 14 bps round-trip costs.
+
+The sole non-rejected primary definition was negative completed-basis impulse rejection at six hours:
+
+```text
+equal-market-day gross mean: +23.1570 bps
+equal-market-day base mean: +9.1570 bps
+equal-market-day base median: +2.9323 bps
+bootstrap lower bound: -8.2953 bps
+stress mean: -8.8430 bps
+```
+
+Its route is `sample_limited_prospective_candidate`, not a pass or production claim. It is not control-eligible under the frozen policy. No same-sample threshold, context, horizon, robustness, or control work may rescue it; the next permitted evidence is independent or prospective validation of that exact frozen candidate.
+
+The evidence cohort is also a binding claim cap: the Kraken K0 trade manifest contains 301 PF symbols, while Stage 8A authorized a 187-symbol current-roster/lifecycle-capped intersection and only 55 generated KDA03 candidates after causal coverage and onset gates. This is not a survivorship-free historical universe.
+
 ## Reusable cross-family components
 
 ### Completed failure
@@ -289,7 +307,7 @@ Future contracts must separate:
 | KDA02 active purge continuation | Mechanically unavailable under strict 5m contract | Preserve; possible future one-minute feasibility only if justified. |
 | KDA02B OI vacuum | Outcome-free candidate library | Fresh independent contract if prioritized. |
 | KDA02C isolated-versus-systemic purge breadth | Post-hoc hypothesis presence | No same-sample promotion; context study and prospective validation. |
-| KDA03 basis state/dislocation | Untested next-wave candidate | Outcome-free adjudication under new gate policy. |
+| KDA03 basis-shock family | Level-3 routes assigned; 11/12 primary definitions rejected | Negative completed-basis rejection 6h is sample-limited and requires independent or prospective evidence. |
 
 ## One-minute expansion
 

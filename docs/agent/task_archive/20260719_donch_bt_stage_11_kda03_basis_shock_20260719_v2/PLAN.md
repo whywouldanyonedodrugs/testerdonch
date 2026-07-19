@@ -1,9 +1,9 @@
 # Stage 11 — KDA03 Basis-Shock Research
 
-Status: in_progress
+Status: implementation_and_reviews_complete_handoff_prepared
 Owner: Codex backtesting agent
 Created UTC: 2026-07-19T17:32:25Z
-Updated UTC: 2026-07-19T17:32:25Z
+Updated UTC: 2026-07-19T19:30:00Z
 Repository root and commit: `/opt/testerdonch-stage11-20260719` at `e841469984478f7436db824587eac46dcd454c6d`
 
 ## Received task and archive context
@@ -145,7 +145,11 @@ Commands will be recorded only after discovery/execution. Initial supported patt
 | UTC | Milestone | Result | Next action |
 |---|---|---|---|
 | 2026-07-19T17:32:25Z | M1 preflight | base/policy/recovery/worktree verified | verify Stage 8A objects and implement generator |
+| 2026-07-19T18:26:00Z | M2 outcome-free freeze | 104,937 episodes; 113,539 events; six primary branches feasible | independent review |
+| 2026-07-19T19:12:00Z | M3 corrected pre-outcome approval | first freeze preserved; repaired contract approved; deterministic replay matched | commit freeze and execute once |
+| 2026-07-19T19:24:00Z | M4 conditional Level-3 | one run; 199,787 trades; 11 rejected and one sample-limited primary route | independent post-run review |
+| 2026-07-19T19:32:00Z | M5 independent post-run review | all economics and 18 output hashes reproduced; no findings | finalize package and verified handoff |
 
 ## Completion record
 
-Pending.
+Terminal status: `KDA03_level3_routes_assigned`. Pre-outcome and post-run reviews approved. One frozen economic run executed. Controls, protected data, and Capital.com data remained unopened. The only non-rejected primary is negative completed-basis rejection 6h routed `sample_limited_prospective_candidate`; it remains unvalidated and not control-eligible.
