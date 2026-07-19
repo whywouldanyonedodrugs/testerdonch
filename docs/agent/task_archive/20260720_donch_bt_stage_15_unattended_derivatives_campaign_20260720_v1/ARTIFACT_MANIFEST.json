@@ -1,0 +1,90 @@
+{
+  "Capitalcom_payload_opened": false,
+  "economic_outputs_computed": false,
+  "file_count": 16,
+  "files": [
+    {
+      "bytes": 503,
+      "path": "CAMPAIGN_DECISION.md",
+      "sha256": "b2ff6717c89925373a67f3acff7b6e564669d55cbf1cfef1e9b86a5bd7f10412"
+    },
+    {
+      "bytes": 306,
+      "path": "CAMPAIGN_LAUNCH_MANIFEST.json",
+      "sha256": "cc411b59aa771f255c0c512d8fae40ee2d082a7b803a256964a908110586ef10"
+    },
+    {
+      "bytes": 285,
+      "path": "CAMPAIGN_STATE.json",
+      "sha256": "d98bcae2dc08d28cfc0e0c3cb6e2cb690f603c05d62b7080123aa0f8143fa70a"
+    },
+    {
+      "bytes": 432,
+      "path": "CHANGED_FILES.md",
+      "sha256": "58781ab4e0389532afc84d7e88ecfed8791bd74029d6066e32c36904e78b8350"
+    },
+    {
+      "bytes": 1197,
+      "path": "COMMANDS_AND_RESULTS.md",
+      "sha256": "4290e3328153a69f3832cbbd8f9392c8073aa35c50e5d6aff861e7c69dfea804"
+    },
+    {
+      "bytes": 634,
+      "path": "COMPLETION.md",
+      "sha256": "7cb8227d2a65a5d714af259c97fe7bbd8d90941bb163ebd739e6c76fc70f0ff4"
+    },
+    {
+      "bytes": 364,
+      "path": "FUNDING_BOUNDARY_EXTENSION_MANIFEST.json",
+      "sha256": "c60de016b612c4fa36dfdeaef8cccef404f169e1e74cef9995216f98e04343b4"
+    },
+    {
+      "bytes": 5157,
+      "path": "HUMAN_APPROVAL.json",
+      "sha256": "c526bd3e1d47ddcec5c17494dcbb3230a20d7b3e081df0fa6a2f0f984fd2ac6b"
+    },
+    {
+      "bytes": 520,
+      "path": "NEXT_ACTION.md",
+      "sha256": "f8fd101f2e8c2073d4326a7c66347f44c64e198fb3eca54637640c45aa514096"
+    },
+    {
+      "bytes": 9375,
+      "path": "PLAN.md",
+      "sha256": "71e65aa899757e18a7885c1d6a86d4287dd27a2b4e010e61b21e6afdc569ed7b"
+    },
+    {
+      "bytes": 1607,
+      "path": "PREOUTCOME_COMPATIBILITY_REPAIR.md",
+      "sha256": "e20bde09a5ffbc91dd13c5cf299386e7a036988995f4f1a6099993c923e3db07"
+    },
+    {
+      "bytes": 771,
+      "path": "REPOSITORY_RECOVERY.md",
+      "sha256": "61da3b377ff964c993c2b855993fb785682af122dd6f7d6a2c873ffceeb39e86"
+    },
+    {
+      "bytes": 2071,
+      "path": "REVIEW.md",
+      "sha256": "7be5a251d240276b1277f58ea45ac81814fb7732278b0a92455a72bf28f7c070"
+    },
+    {
+      "bytes": 11134,
+      "path": "TASK_SPEC.md",
+      "sha256": "2fbf5088807c0bd20deda7c63d13517be921936e2f8f23f13e446fe3375442f6"
+    },
+    {
+      "bytes": 459,
+      "path": "TELEGRAM_NOTIFICATION_VALIDATION.md",
+      "sha256": "694956aa3ae14d13e9051dc6e6566fa344259ea22f3ce6bee1501b7b96f5cc75"
+    },
+    {
+      "bytes": 1359,
+      "path": "VALIDATION.md",
+      "sha256": "91db0fc61fbd878bbefae69fd93e69fc2ca6f5d0f85db5d34b0623d0fe882f14"
+    }
+  ],
+  "protected_rows_opened": 0,
+  "status": "blocked_preoutcome_packet_semantics",
+  "task_id": "donch_bt_stage_15_unattended_derivatives_campaign_20260720_v1"
+}

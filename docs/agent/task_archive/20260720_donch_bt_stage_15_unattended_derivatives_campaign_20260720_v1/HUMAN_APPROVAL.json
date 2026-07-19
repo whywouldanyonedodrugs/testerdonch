@@ -1,0 +1,103 @@
+{
+  "approval_id": "human_approval_kraken_derivatives_campaign_001_20260720_v1",
+  "approval_packet_canonical_sha256": "57079141cb4f7c8caecdaa82866f91b3b5f44d23e20c3aed57e50e228c3d4bfd",
+  "approval_packet_sha256": "c029830526ab7a8cd443acb0f9ec5441e1e50967200c8a95184cf8b46d71c313",
+  "approved_hypotheses": [
+    "KDA02B_v2_oi_vacuum_redevelopment",
+    "KDA02C_v1_purge_breadth_context",
+    "KDX01_v1_downside_completed_derivatives_state_rejection"
+  ],
+  "approved_phases": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "authorized_at": "2026-07-19T22:46:01Z",
+  "authorized_by": "human_operator_via_donch",
+  "campaign_id": "kraken_derivatives_campaign_001_stage14_ready",
+  "campaign_manifest_canonical_sha256": "018a274eb78531292ced5e8bb312028164f617ac3d7713426d0112e4dd09d941",
+  "campaign_manifest_sha256": "61119ce30ff142efdf0b40e8796e5ffb2efae0764f835b64e179b624db05f632",
+  "cost_and_execution_file_sha256": "a2dc19786f138b6f694d484cdb8e93c4a26cb108e7b0428295f2470219b5225c",
+  "cost_and_execution_sha256": "fbc2cb4cf54697e34cedaad80e2d19599bdb430f6f167f751db511aba3405323",
+  "human_authorized": true,
+  "not_authorized": [
+    "phase_6_controls",
+    "phase_7_validation_or_deployment",
+    "C17",
+    "protected_outcomes",
+    "Capitalcom_payloads",
+    "new_data_acquisition",
+    "capture_restart",
+    "private_account_actions",
+    "orders_or_live_trading",
+    "search_space_or_fold_changes",
+    "manual_outcome_conditioned_intervention"
+  ],
+  "repository_and_data_hashes": {
+    "analytics_manifest_sha256": "f1520fd3875578a9a2101b10d5e15b7b88c58a6ffcf6067dd91f582352d92a6d",
+    "authorized_cohort_sha256": "5df5b304d8e735d3579e220d25a000e81013435320c6e8fb2480c1ed565a3636",
+    "campaign_protocol_sha256": "7091156df9bf815a001423b63d673d2d4217f2616fd40e76a261f218a2d614df",
+    "closure_validator_sha256": "3bc9b775616b00b00cd3b2040966fb424d41725189136e6eeb15ee08fa8781f0",
+    "family_policy_sha256": "d07b0d290e59d17f7d6a587e2a31e6e550468f9ad403250cd6183c549e685335",
+    "feature_contract_sha256": "4673ff11b8e0ad12bca4552780848b2597f68f54841858376cdfa30f99e193b4",
+    "funding_and_cost_contract_sha256": "a2dc19786f138b6f694d484cdb8e93c4a26cb108e7b0428295f2470219b5225c",
+    "local_state_tape_manifest_sha256": "838be528ea0bcaeed132c4b95401594e2bb9a726178ece3f51de44dbbcd96380",
+    "measurement_builder_sha256": "9f1bdd3426e97944dbd66ad56bf3bd17b91ab7de926adaf692b9d77aa422de7c",
+    "measurement_finalizer_sha256": "e354ef01a44d7a9f4feaaf5819d3111745b96fe4d412836ca7c7da162e8b0d50",
+    "measurement_primitive_code_sha256": "4f37fd38b3101eb76be641f7b77f578ea4e576d511bd28f73844e1142ba2bd56",
+    "phase1_measurement_sha256": "ac88691cd061b859bb982e8a2213ff22dbac28397b6c5477aee85377dc977890",
+    "protocol_v2_sha256": "4effe3e9608377876486b1583854a7e1479c8e93d6de1661f13d35842bbc6a73",
+    "repository_implementation_commit": "b4785ed2a06fbed50d20b7dcdf0bc27e93cd7bea",
+    "repository_start_commit": "e14bbd0d26c14e48a347481f170fcfe8851df625",
+    "route_policy_sha256": "c54d4a3445da249c6dbd34613b770ad9624f861e0d7c345b3cba944aa6cdf1aa",
+    "search_space_builder_sha256": "9c49881068e53c3cee5d3860fc552b59e897ecb71f8b88c8738316caa8f9bc0d",
+    "stage13_approval_request_sha256": "ed27fc30d39155d6b08d63539a22d34b50d19ab3c909396a8719c443057fcd5c",
+    "stage13_campaign_manifest_sha256": "09f4a534dcd799bf252e6e47037af58ad2177256d976b37defd8c257d2949e27"
+  },
+  "status": "approved",
+  "supplemental_binding_constraints": {
+    "funding_boundary_coverage": {
+      "minimum_campaign_weighted": 0.95,
+      "minimum_per_hypothesis_fold": 0.9,
+      "missing_boundary_policy": "exclude_before_outcome_read_and_report; never relabel as zero_boundary",
+      "selection_use": "coverage or missingness may not select a candidate, direction, context or horizon"
+    },
+    "preoutcome_compatibility_repair": {
+      "authorized": true,
+      "economic_semantics_may_change": false,
+      "independent_review_required_before_outcome_read": true,
+      "scope": [
+        "support exact Stage14 packet schema phases_requested and ready_lanes",
+        "validate both raw-file and canonical JSON hashes without weakening either",
+        "allow externally approved phases to override false readiness permissions only after exact approval validation",
+        "enforce supplemental funding-coverage and Telegram constraints"
+      ]
+    },
+    "telegram_notifications": {
+      "dry_run_message_required": true,
+      "heartbeat_minutes": 30,
+      "notify_events": [
+        "preflight_passed",
+        "campaign_started",
+        "phase_transition",
+        "fold_completed",
+        "family_stopped",
+        "global_warning",
+        "global_stop",
+        "campaign_completed"
+      ],
+      "required_before_outcome_read": true,
+      "secret_values_must_not_be_logged_archived_or_returned": true,
+      "use_existing_secure_configuration_only": true
+    },
+    "unattended_execution": {
+      "automatic_family_stop_isolation": true,
+      "manual_tuning_after_outcome_open": false,
+      "max_disk_bytes": 5368709120,
+      "max_workers": 4,
+      "persistent_supervisor_required": true,
+      "wall_time_seconds": 14400
+    }
+  }
+}

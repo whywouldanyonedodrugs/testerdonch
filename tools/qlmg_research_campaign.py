@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import os
 import tempfile
 import fcntl
@@ -19,6 +20,11 @@ REQUIRED_MANIFEST_FIELDS = {
     "multiplicity", "phase_permissions", "resource_limits", "stop_conditions",
     "review_requirements", "archive_and_handoff",
 }
+STAGE14_REQUIRED_MANIFEST_FIELDS = {
+    "campaign_id", "repository_and_data_hashes", "ready_hypotheses", "fold_schedule",
+    "search_spaces", "selection_algorithm", "cost_and_execution", "multiplicity",
+    "phase_permissions", "resource_limits", "stop_conditions",
+}
 FAMILY_STOPS = {
     "mechanically_unavailable", "no_development_candidate", "search_budget_exhausted",
     "mechanism_underidentified", "family_specific_defect",
@@ -28,6 +34,10 @@ GLOBAL_STOPS = {
     "unsafe_git_or_storage", "shared_replay_failure",
 }
 APPROVAL_REQUIRED_PHASES = {2, 3, 4, 5, 6, 7}
+TRUSTED_APPROVAL_SHA256 = {
+    "human_approval_kraken_derivatives_campaign_001_20260720_v1":
+        "c526bd3e1d47ddcec5c17494dcbb3230a20d7b3e081df0fa6a2f0f984fd2ac6b",
+}
 RANKABLE_START = datetime(2023, 1, 1, tzinfo=timezone.utc)
 RANKABLE_END = datetime(2026, 1, 1, tzinfo=timezone.utc)
 
@@ -74,6 +84,36 @@ def _ids(items: Iterable[dict[str, Any]], field: str) -> list[str]:
     return values
 
 
+def manifest_hypotheses(manifest: dict[str, Any]) -> list[dict[str, Any]]:
+    if "ready_hypotheses" in manifest:
+        if "hypotheses" in manifest:
+            raise CampaignContractError("manifest hypothesis alias substitution rejected")
+        spaces = {str(item["family_id"]): str(item["search_space_id"])
+                  for item in manifest.get("search_spaces", [])}
+        rows = []
+        for hypothesis_id in manifest["ready_hypotheses"]:
+            family = str(hypothesis_id).split("_", 1)[0]
+            if family not in spaces:
+                raise CampaignContractError(f"Stage-14 hypothesis lacks search space: {hypothesis_id}")
+            rows.append({"hypothesis_id": str(hypothesis_id),
+                         "search_space_id": spaces[family],
+                         "programme_exposure_class": manifest.get("programme_exposure_class")})
+        return rows
+    return list(manifest.get("hypotheses", []))
+
+
+def candidate_beam_limit(manifest: dict[str, Any]) -> int:
+    if "ready_hypotheses" in manifest:
+        if "candidate_beam" in manifest:
+            raise CampaignContractError("manifest candidate-beam alias substitution rejected")
+        value = manifest.get("resource_limits", {}).get("candidate_beam_per_family")
+    else:
+        value = manifest.get("candidate_beam", {}).get("max_retained_per_hypothesis")
+    if not isinstance(value, int) or value < 1:
+        raise CampaignContractError("candidate beam must be a positive integer")
+    return value
+
+
 def parse_utc(value: str) -> datetime:
     if not isinstance(value, str) or not value.endswith("Z"):
         raise CampaignContractError(f"timestamp must be UTC Z format: {value!r}")
@@ -87,12 +127,15 @@ def parse_utc(value: str) -> datetime:
 
 
 def validate_manifest(manifest: dict[str, Any]) -> None:
-    missing = sorted(REQUIRED_MANIFEST_FIELDS - manifest.keys())
+    stage14_schema = "ready_hypotheses" in manifest
+    required = STAGE14_REQUIRED_MANIFEST_FIELDS if stage14_schema else REQUIRED_MANIFEST_FIELDS
+    missing = sorted(required - manifest.keys())
     if missing:
         raise CampaignContractError(f"missing manifest fields: {missing}")
-    hypothesis_ids = set(_ids(manifest["hypotheses"], "hypothesis_id"))
+    hypotheses = manifest_hypotheses(manifest)
+    hypothesis_ids = set(_ids(hypotheses, "hypothesis_id"))
     search_ids = set(_ids(manifest["search_spaces"], "search_space_id"))
-    for hypothesis in manifest["hypotheses"]:
+    for hypothesis in hypotheses:
         if hypothesis.get("search_space_id") not in search_ids:
             raise CampaignContractError(f"unknown search space for {hypothesis['hypothesis_id']}")
         if hypothesis.get("programme_exposure_class") not in {
@@ -115,12 +158,13 @@ def validate_manifest(manifest: dict[str, Any]) -> None:
             raise CampaignContractError("fold ordering or rankable boundary invalid")
     if manifest.get("economic_run_authorized_by_manifest", False):
         raise CampaignContractError("readiness manifest cannot self-authorize economics")
+    candidate_beam_limit(manifest)
 
 
 def build_dag(manifest: dict[str, Any]) -> list[dict[str, Any]]:
     validate_manifest(manifest)
     nodes: list[dict[str, Any]] = []
-    for hypothesis in manifest["hypotheses"]:
+    for hypothesis in manifest_hypotheses(manifest):
         hid = hypothesis["hypothesis_id"]
         phase_0 = f"{hid}:phase_0"; phase_1 = f"{hid}:phase_1"
         nodes.extend([
@@ -156,7 +200,7 @@ def validate_explored_cells(manifest: dict[str, Any], rows: list[dict[str, Any]]
     spaces = {space["search_space_id"]: set(space["registered_cell_ids"])
               for space in manifest["search_spaces"]}
     seen: set[tuple[str, str, str]] = set()
-    hypotheses = {item["hypothesis_id"]: item for item in manifest["hypotheses"]}
+    hypotheses = {item["hypothesis_id"]: item for item in manifest_hypotheses(manifest)}
     folds = {item["fold_id"]: item for item in manifest["fold_schedule"]}
     for row in rows:
         key = (row["hypothesis_id"], row["fold_id"], row["cell_id"])
@@ -186,7 +230,7 @@ def validate_freeze(freeze: dict[str, Any], target_fold: dict[str, Any], folds: 
 
 
 def validate_candidate_beam(manifest: dict[str, Any], rows: list[dict[str, Any]]) -> None:
-    limit = int(manifest["candidate_beam"]["max_retained_per_hypothesis"])
+    limit = candidate_beam_limit(manifest)
     counts: dict[tuple[str, str], int] = {}
     for row in rows:
         key = (row["hypothesis_id"], row["fold_id"])
@@ -211,31 +255,63 @@ def apply_stop(state: dict[str, Any], reason: str, hypothesis_id: str | None = N
 
 def enforce_phase_permission(manifest: dict[str, Any], phase: int, *, state: dict[str, Any] | None = None,
                              hypothesis_id: str | None = None, approval: dict[str, Any] | None = None,
-                             approval_packet: dict[str, Any] | None = None) -> None:
+                             approval_packet: dict[str, Any] | None = None,
+                             approval_raw_bytes: bytes | None = None,
+                             expected_approval_sha256: str | None = None,
+                             manifest_raw_bytes: bytes | None = None,
+                             approval_packet_raw_bytes: bytes | None = None,
+                             launch_constraints: dict[str, Any] | None = None) -> None:
     if state and state.get("global_stop"):
         raise CampaignContractError("campaign is globally stopped")
     if state and hypothesis_id and hypothesis_id in state.get("family_stops", {}):
         raise CampaignContractError(f"hypothesis is stopped: {hypothesis_id}")
-    if not manifest["phase_permissions"].get(str(phase), False):
-        raise CampaignContractError(f"phase {phase} is not authorized")
     if phase in APPROVAL_REQUIRED_PHASES:
         if state is None or not hypothesis_id:
             raise CampaignContractError("state and hypothesis_id are required for approved phases")
         if state.get("campaign_id") != manifest["campaign_id"] or state.get("manifest_sha256") != sha256_bytes(canonical_bytes(manifest)):
             raise CampaignContractError("campaign state identity mismatch")
-        validate_external_approval(manifest, approval, approval_packet, phase, hypothesis_id)
+        validate_external_approval(
+            manifest, approval, approval_packet, phase, hypothesis_id,
+            approval_raw_bytes=approval_raw_bytes,
+            expected_approval_sha256=expected_approval_sha256,
+            manifest_raw_bytes=manifest_raw_bytes,
+            approval_packet_raw_bytes=approval_packet_raw_bytes,
+            launch_constraints=launch_constraints,
+        )
+        external_override = (
+            approval is not None
+            and {"campaign_manifest_canonical_sha256", "approval_packet_canonical_sha256"}.issubset(approval)
+            and approval_packet is not None
+            and "phases_requested" in approval_packet
+            and "ready_lanes" in approval_packet
+        )
+        if not manifest["phase_permissions"].get(str(phase), False) and not external_override:
+            raise CampaignContractError("false readiness permission requires exact Stage-14 external approval")
+        return
+    if not manifest["phase_permissions"].get(str(phase), False):
+        raise CampaignContractError(f"phase {phase} is not authorized")
 
 
 def complete_node(manifest: dict[str, Any], state: dict[str, Any], node_id: str, *,
                   approval: dict[str, Any] | None = None,
-                  approval_packet: dict[str, Any] | None = None) -> dict[str, Any]:
+                  approval_packet: dict[str, Any] | None = None,
+                  approval_raw_bytes: bytes | None = None,
+                  expected_approval_sha256: str | None = None,
+                  manifest_raw_bytes: bytes | None = None,
+                  approval_packet_raw_bytes: bytes | None = None,
+                  launch_constraints: dict[str, Any] | None = None) -> dict[str, Any]:
     nodes = {node["node_id"]: node for node in build_dag(manifest)}
     if node_id not in nodes:
         raise CampaignContractError(f"unknown DAG node: {node_id}")
     node = nodes[node_id]
     enforce_phase_permission(manifest, node["phase"], state=state,
                              hypothesis_id=node["hypothesis_id"], approval=approval,
-                             approval_packet=approval_packet)
+                             approval_packet=approval_packet,
+                             approval_raw_bytes=approval_raw_bytes,
+                             expected_approval_sha256=expected_approval_sha256,
+                             manifest_raw_bytes=manifest_raw_bytes,
+                             approval_packet_raw_bytes=approval_packet_raw_bytes,
+                             launch_constraints=launch_constraints)
     completed = set(state.get("completed_nodes", []))
     if node_id in completed:
         raise CampaignContractError("DAG node already completed")
@@ -249,7 +325,12 @@ def complete_node(manifest: dict[str, Any], state: dict[str, Any], node_id: str,
 
 def validate_external_approval(manifest: dict[str, Any], approval: dict[str, Any] | None,
                                approval_packet: dict[str, Any] | None, phase: int,
-                               hypothesis_id: str | None) -> None:
+                               hypothesis_id: str | None, *,
+                               approval_raw_bytes: bytes | None = None,
+                               expected_approval_sha256: str | None = None,
+                               manifest_raw_bytes: bytes | None = None,
+                               approval_packet_raw_bytes: bytes | None = None,
+                               launch_constraints: dict[str, Any] | None = None) -> None:
     required = {"approval_id", "status", "human_authorized", "authorized_by", "authorized_at",
                 "campaign_id", "campaign_manifest_sha256", "approval_packet_sha256",
                 "approved_phases", "approved_hypotheses", "repository_and_data_hashes",
@@ -260,20 +341,93 @@ def validate_external_approval(manifest: dict[str, Any], approval: dict[str, Any
         raise CampaignContractError("approval artifact is not explicitly human-authorized")
     if approval["campaign_id"] != manifest["campaign_id"]:
         raise CampaignContractError("approval campaign mismatch")
-    if approval["campaign_manifest_sha256"] != sha256_bytes(canonical_bytes(manifest)):
-        raise CampaignContractError("approval manifest hash mismatch")
-    if approval["approval_packet_sha256"] != sha256_bytes(canonical_bytes(approval_packet)):
-        raise CampaignContractError("approval packet hash mismatch")
+    canonical_manifest_hash = sha256_bytes(canonical_bytes(manifest))
+    canonical_packet_hash = sha256_bytes(canonical_bytes(approval_packet))
+    dual_hash_contract = {
+        "campaign_manifest_canonical_sha256", "approval_packet_canonical_sha256"
+    }.issubset(approval)
+    if dual_hash_contract:
+        if approval_raw_bytes is None or not expected_approval_sha256:
+            raise CampaignContractError("externally anchored human-approval bytes are required")
+        trusted_hash = TRUSTED_APPROVAL_SHA256.get(str(approval.get("approval_id", "")))
+        if trusted_hash is None or expected_approval_sha256 != trusted_hash:
+            raise CampaignContractError("human-approval artifact lacks a trusted external anchor")
+        if sha256_bytes(approval_raw_bytes) != expected_approval_sha256:
+            raise CampaignContractError("human-approval artifact file-byte hash mismatch")
+        if json.loads(approval_raw_bytes) != approval:
+            raise CampaignContractError("parsed human approval differs from anchored bytes")
+        if manifest_raw_bytes is None or approval_packet_raw_bytes is None:
+            raise CampaignContractError("raw packet and manifest bytes are required by approval")
+        if approval["campaign_manifest_sha256"] != sha256_bytes(manifest_raw_bytes):
+            raise CampaignContractError("approval manifest file-byte hash mismatch")
+        if approval["approval_packet_sha256"] != sha256_bytes(approval_packet_raw_bytes):
+            raise CampaignContractError("approval packet file-byte hash mismatch")
+        if approval["campaign_manifest_canonical_sha256"] != canonical_manifest_hash:
+            raise CampaignContractError("approval manifest canonical hash mismatch")
+        if approval["approval_packet_canonical_sha256"] != canonical_packet_hash:
+            raise CampaignContractError("approval packet canonical hash mismatch")
+    else:
+        # Preserve the older Stage-13 schema for its own fixtures. It cannot be
+        # substituted into a Stage-14 dual-hash approval.
+        if approval["campaign_manifest_sha256"] != canonical_manifest_hash:
+            raise CampaignContractError("approval manifest hash mismatch")
+        if approval["approval_packet_sha256"] != canonical_packet_hash:
+            raise CampaignContractError("approval packet hash mismatch")
     if approval_packet.get("campaign_manifest_sha256") != approval["campaign_manifest_sha256"]:
         raise CampaignContractError("packet does not bind the approved campaign manifest")
     if approval["repository_and_data_hashes"] != manifest["repository_and_data_hashes"]:
         raise CampaignContractError("approval authority hashes mismatch")
     if approval["cost_and_execution_sha256"] != sha256_bytes(canonical_bytes(manifest["cost_and_execution"])):
         raise CampaignContractError("approval cost contract mismatch")
-    requested = {int(key) for key, value in approval_packet.get("phase_permissions_requested", {}).items() if value}
-    packet_hypotheses = set(approval_packet.get("candidate_list", []))
+    stage14_schema = "phases_requested" in approval_packet or "ready_lanes" in approval_packet
+    if stage14_schema:
+        if "phase_permissions_requested" in approval_packet or "candidate_list" in approval_packet:
+            raise CampaignContractError("Stage-14 packet alias-field substitution rejected")
+        if not isinstance(approval_packet.get("phases_requested"), list) or not isinstance(approval_packet.get("ready_lanes"), list):
+            raise CampaignContractError("complete Stage-14 packet schema required")
+        requested = {int(value) for value in approval_packet["phases_requested"]}
+        packet_hypotheses = set(approval_packet["ready_lanes"])
+    else:
+        if "phases_requested" in approval_packet or "ready_lanes" in approval_packet:
+            raise CampaignContractError("legacy packet alias-field substitution rejected")
+        requested = {int(key) for key, value in approval_packet.get("phase_permissions_requested", {}).items() if value}
+        packet_hypotheses = set(approval_packet.get("candidate_list", []))
+    if requested != set(approval["approved_phases"]):
+        raise CampaignContractError("packet and approval phase scopes differ")
+    if packet_hypotheses != set(approval["approved_hypotheses"]):
+        raise CampaignContractError("packet and approval hypothesis scopes differ")
     if phase not in requested or phase not in approval["approved_phases"] or not hypothesis_id or hypothesis_id not in approval["approved_hypotheses"] or hypothesis_id not in packet_hypotheses:
         raise CampaignContractError("phase or hypothesis outside external approval scope")
+    supplemental = approval.get("supplemental_binding_constraints")
+    if supplemental:
+        if launch_constraints is None:
+            raise CampaignContractError("supplemental launch constraints are required")
+        funding_rule = supplemental.get("funding_boundary_coverage", {})
+        coverage = launch_constraints.get("funding_coverage", {})
+        weighted = float(coverage.get("campaign_weighted", -1))
+        if not math.isfinite(weighted) or not 0.0 <= weighted <= 1.0:
+            raise CampaignContractError("campaign-weighted funding coverage must be finite in [0,1]")
+        if weighted < float(funding_rule.get("minimum_campaign_weighted", 1)):
+            raise CampaignContractError("campaign-weighted funding coverage is inadequate")
+        per_fold = coverage.get("by_hypothesis_fold", {})
+        expected_folds = {item["fold_id"] for item in manifest["fold_schedule"]}
+        values = [float(per_fold[key]) for key in expected_folds] if set(per_fold) == expected_folds else []
+        if (set(per_fold) != expected_folds
+                or any(not math.isfinite(value) or not 0.0 <= value <= 1.0 for value in values)
+                or any(value < float(funding_rule.get("minimum_per_hypothesis_fold", 1)) for value in values)):
+            raise CampaignContractError("per-hypothesis-fold funding coverage is inadequate")
+        if coverage.get("missing_boundary_policy") != funding_rule.get("missing_boundary_policy"):
+            raise CampaignContractError("funding missing-boundary policy mismatch")
+        if coverage.get("selection_use") != funding_rule.get("selection_use"):
+            raise CampaignContractError("funding coverage selection-use policy mismatch")
+        notification = launch_constraints.get("telegram", {})
+        required_notifications = supplemental.get("telegram_notifications", {}).get("required_before_outcome_read", False)
+        if required_notifications and not all(notification.get(key) is True for key in (
+            "secure_configuration_present", "dry_run_delivered", "heartbeat_delivered", "stop_alert_delivered"
+        )):
+            raise CampaignContractError("Telegram launch validation is incomplete")
+        if notification.get("secret_values_logged_or_archived") is not False:
+            raise CampaignContractError("Telegram secret-handling attestation missing")
     parse_utc(approval["authorized_at"])
 
 
@@ -299,7 +453,12 @@ def load_or_initialize(state_path: Path, manifest: dict[str, Any]) -> dict[str, 
 
 def commit_state(state_path: Path, state: dict[str, Any], expected_generation: int,
                  manifest: dict[str, Any], *, approval: dict[str, Any] | None = None,
-                 approval_packet: dict[str, Any] | None = None) -> None:
+                 approval_packet: dict[str, Any] | None = None,
+                 approval_raw_bytes: bytes | None = None,
+                 expected_approval_sha256: str | None = None,
+                 manifest_raw_bytes: bytes | None = None,
+                 approval_packet_raw_bytes: bytes | None = None,
+                 launch_constraints: dict[str, Any] | None = None) -> None:
     with (state_path.parent / f".{state_path.name}.lock").open("a") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         current = json.loads(state_path.read_text())
@@ -335,7 +494,12 @@ def commit_state(state_path: Path, state: dict[str, Any], expected_generation: i
                 raise CampaignContractError("committed DAG node dependencies are incomplete")
             enforce_phase_permission(manifest, node["phase"], state=current,
                                      hypothesis_id=node["hypothesis_id"], approval=approval,
-                                     approval_packet=approval_packet)
+                                     approval_packet=approval_packet,
+                                     approval_raw_bytes=approval_raw_bytes,
+                                     expected_approval_sha256=expected_approval_sha256,
+                                     manifest_raw_bytes=manifest_raw_bytes,
+                                     approval_packet_raw_bytes=approval_packet_raw_bytes,
+                                     launch_constraints=launch_constraints)
         elif global_changed:
             if not state.get("global_stop") or state["global_stop"].get("reason") not in GLOBAL_STOPS:
                 raise CampaignContractError("invalid global stop transition")
@@ -343,7 +507,7 @@ def commit_state(state_path: Path, state: dict[str, Any], expected_generation: i
             if len(added_family_stops) != 1:
                 raise CampaignContractError("only one family stop may be added per transaction")
             key = next(iter(added_family_stops)); stop = state["family_stops"][key]
-            if key not in {item["hypothesis_id"] for item in manifest["hypotheses"]} or stop.get("reason") not in FAMILY_STOPS:
+            if key not in {item["hypothesis_id"] for item in manifest_hypotheses(manifest)} or stop.get("reason") not in FAMILY_STOPS:
                 raise CampaignContractError("invalid family stop transition")
         atomic_write_json(state_path, state)
 

@@ -1,0 +1,7 @@
+{
+  "campaign_id": "kraken_derivatives_campaign_001_stage14_ready",
+  "economic_outcomes_opened": false,
+  "funding_model_hash": "0054af0ee40740e39739bfade92f342867bb208a4fe7ed15b151a8a0a838d072",
+  "reason": "independent pre-outcome review rejected the approved packet before the funding-extension milestone",
+  "status": "not_run_due_packet_semantics_blocker"
+}

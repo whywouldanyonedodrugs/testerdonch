@@ -1,0 +1,9 @@
+{
+  "campaign_id": "kraken_derivatives_campaign_001_stage14_ready",
+  "completed_cells": 0,
+  "economic_outcome_reader_opened": false,
+  "phase": "preoutcome_review",
+  "protected_rows_opened": 0,
+  "status": "blocked_preoutcome_packet_semantics",
+  "stop_scope": "global_prelaunch"
+}

@@ -1,0 +1,8 @@
+{
+  "campaign_id": "kraken_derivatives_campaign_001_stage14_ready",
+  "economic_outputs_computed": false,
+  "launch_status": "not_launched",
+  "protected_rows_opened": 0,
+  "reason": "approved packet is not implementation-complete and requires regeneration plus new human approval",
+  "supervisor": null
+}
