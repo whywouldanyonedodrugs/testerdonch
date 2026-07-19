@@ -1,0 +1,1 @@
+Superseded before publication during independent semantic review. Price-progress normalization used all positive-OI rows rather than only directionally coherent pre-progress parent rows. No outcomes were read; thresholds were not adapted. The cache remains preserved at `/opt/parquet/kraken_derivatives/analytics/stage8b_kda01_v2_prerun_v1` and is not authoritative.

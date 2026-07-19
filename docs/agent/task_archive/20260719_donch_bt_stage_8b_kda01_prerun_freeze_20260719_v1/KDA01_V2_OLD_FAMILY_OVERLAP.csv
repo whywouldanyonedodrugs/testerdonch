@@ -1,0 +1,4 @@
+old_family,source,old_rows,exact_symbol_time_overlaps
+KDA01_v1,/opt/testerdonch-stage8a-20260719/docs/agent/task_archive/20260719_donch_bt_stage_8a_kraken_derivatives_state_foundation_20260719_v1/KDA01_EVENT_TAPE.parquet,2639115,68095
+C01,/opt/testerdonch/results/rebaseline/phase_kraken_c01_level3_economic_20260717_v1_20260717_103227/CAUSAL_EVENT_ANCHOR_FREEZE.parquet,4887,18
+C02,/opt/testerdonch/docs/agent/task_archive/20260717_donch_bt_stage_3b_c02_leadership_generator_20260717_v1/C02_IMPULSE_EVENT_TAPE.parquet,32686,2018

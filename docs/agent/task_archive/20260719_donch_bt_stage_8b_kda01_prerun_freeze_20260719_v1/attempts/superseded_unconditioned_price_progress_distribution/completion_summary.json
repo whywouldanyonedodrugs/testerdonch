@@ -1,0 +1,15 @@
+{
+  "controls_frozen": 7,
+  "definition_count": 16,
+  "economic_outputs_computed": 0,
+  "event_count": 138184,
+  "feasible_primary_branches": 4,
+  "feature_extension_hash": "1f4ece11b928275c5f582b5127f9d5fbe60da0248766ff5cbf83ef8945b68e0b",
+  "generator_hash": "f5917c5667e29b1af1ef82925314627ab938ec06a24a6056493ec69326b4b828",
+  "level3_contract_hash": "2eef5efb631e49014ea239eef5b90d4f2d5932fdcd33e97ec26067b5288ef938",
+  "parent_episode_count": 267435,
+  "peak_rss_gib": 1.0902786254882812,
+  "protected_rows_opened": 0,
+  "runtime_seconds": 52.19361710175872,
+  "status": "ready_for_human_KDA01_Level3_run_approval"
+}

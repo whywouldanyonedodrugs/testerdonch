@@ -1,0 +1,5 @@
+branch_id,event_count,events_2023,events_2024,events_2025,symbol_count,max_symbol_share,events_total_ge_100,each_year_ge_20,symbols_ge_20,max_symbol_share_le_25pct,duplicate_event_ids_zero,duplicate_economic_addresses_zero,protected_rows_zero,mechanically_feasible
+primary_positive_efficient_continuation,9984,1141,3314,5529,108,0.02844551282051282,True,True,True,True,True,True,True,True
+primary_negative_efficient_continuation,8789,767,2111,5911,114,0.030037546933667083,True,True,True,True,True,True,True,True
+primary_positive_completed_failure,30419,3418,11322,15679,107,0.03172359380650251,True,True,True,True,True,True,True,True
+primary_negative_completed_failure,21474,1729,4959,14786,114,0.03716121821737916,True,True,True,True,True,True,True,True
