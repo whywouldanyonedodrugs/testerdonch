@@ -53,3 +53,12 @@ protected_rows_opened: no
 Capitalcom_payload_opened: no
 controls_executed: no
 ```
+
+## Publication and handoff
+
+- Application commit: `91ba2ab07630556984bcdf6b2c650fa6b84fcf7f`; pushed non-force and verified at `origin/main`.
+- Closed ZIP: `/opt/qlmg-stage10-policy-handoff-20260719/qlmg_stage10-conditional-alpha-policy_20260719_v01.zip`.
+- ZIP bytes/SHA-256: `116191` / `bd746471bc5a008429ef7301dbd7b8727b4fe7706295435fef1dd0f59e98718c`.
+- Drive path: `qlmg_sweep_drive:20260719_donch_bt_stage_10_documentation_gate_policy_20260719_v1_v01/`.
+- Drive folder: `https://drive.google.com/drive/folders/1U_KaAb4OOvP0rpdlTxJXAUc65r9yytVk`.
+- Exactly five direct files were uploaded without overwrite and round-trip downloaded; all sizes and SHA-256 values matched.

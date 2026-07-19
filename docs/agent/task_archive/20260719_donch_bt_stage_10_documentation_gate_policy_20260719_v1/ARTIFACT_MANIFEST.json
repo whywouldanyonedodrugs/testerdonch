@@ -12,19 +12,19 @@
       "sha256": "075b74c0f064224333cdf4654777cbcdd8489db87a1a6d6356dbd908d0fa0f35"
     },
     {
-      "bytes": 2370,
+      "bytes": 2842,
       "path": "COMMANDS_AND_RESULTS.md",
-      "sha256": "2d513019ec49c14e5495b237ff7187737b86892fe10ac0e7477d78e07603ef86"
+      "sha256": "425da7e00061e3eac67580f05f0ce8709bc74437aa3af4957054c1535ca81131"
     },
     {
-      "bytes": 1120,
+      "bytes": 1453,
       "path": "COMPLETION.md",
-      "sha256": "35eca6b45496482aebb8a4f10af19caad320679e8a583623ee0c22c9d9d92318"
+      "sha256": "87e0898cb008b5efe203e6f38000595c04cef936aa80daae70af2eb56f89cb8c"
     },
     {
-      "bytes": 1555,
+      "bytes": 1812,
       "path": "DECISIONS_AND_PROGRESS.md",
-      "sha256": "d371d4c10cf79498b1041629d11096945724a5426efb82791b4bc8e86352f9c8"
+      "sha256": "3e8550d94384c7d09e02cdde4673e18a249bab1dd71995f7acd4f61634e92b7b"
     },
     {
       "bytes": 3376,
@@ -37,9 +37,9 @@
       "sha256": "53c53e905c2d7fc6be856f80282a7d02243c3230d76f4c789afbebb61f8d59ea"
     },
     {
-      "bytes": 7983,
+      "bytes": 8120,
       "path": "PLAN.md",
-      "sha256": "50e2e9095e8b4397751bc50cec18fd0dec86649ae7f9b24e918fa2a46c4b6b1a"
+      "sha256": "62ad2ccc8dc9f81b9725b29d84c2c4b8fcfa095e0896dd1afda047b75e8e187c"
     },
     {
       "bytes": 944,
@@ -62,9 +62,19 @@
       "sha256": "73d1cebffec48b568227d090a250ab092638d8eba5dd0d7e98036913c4591499"
     },
     {
-      "bytes": 2977,
+      "bytes": 3655,
       "path": "VALIDATION.md",
-      "sha256": "f10600f8d74c5b89252d63fea277c93e36e52d0d01d1ab53d5e46a0b6f00d261"
+      "sha256": "73bb66513d33456fd89e78771e16fd6a551e8bf2c3515516b4bd3e988b9a8c5d"
+    },
+    {
+      "bytes": 1562,
+      "path": "handoff/DRIVE_HANDOFF_VERIFICATION.json",
+      "sha256": "d18fe8b76c44e87c1cb33d3fc718462503ddf1d78acf05c271dd8f3c0823ecc4"
+    },
+    {
+      "bytes": 1082,
+      "path": "handoff/TRANSFER_MANIFEST.json",
+      "sha256": "2011a74a7dbf8d879634e4ac0ff19fee32921457eb233f4f07758ddfc8115266"
     },
     {
       "bytes": 3074,
@@ -140,6 +150,6 @@
   "policy_sha256": "c54d4a3445da249c6dbd34613b770ad9624f861e0d7c345b3cba944aa6cdf1aa",
   "policy_version": "1.0",
   "protected_rows_opened": false,
-  "status": "documentation_registry_application_validated",
+  "status": "documentation_registry_application_published_and_drive_verified",
   "task_id": "donch_bt_stage_10_documentation_gate_policy_20260719_v1"
 }

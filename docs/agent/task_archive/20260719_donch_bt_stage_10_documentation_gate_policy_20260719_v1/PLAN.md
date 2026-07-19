@@ -124,5 +124,5 @@ Apply version 1.0 of the prospective aggressive conditional-alpha gate-routing p
 - Acceptance criteria met: yes for local documentation/registry application and independent review.
 - Economic runs launched: no.
 - Protected outcomes inspected: no.
-- Remote writes: pending authorized publication/handoff steps.
-- Unresolved blockers: none for local closure; repository dependencies `pytest` and `pandas` remain unavailable but do not block the documentation-specific mechanical evidence.
+- Remote writes: application commit `91ba2ab07630556984bcdf6b2c650fa6b84fcf7f` pushed non-force to `origin/main`; approved-default Drive folder `1U_KaAb4OOvP0rpdlTxJXAUc65r9yytVk` round-trip verified.
+- Unresolved blockers: none for task closure; repository dependencies `pytest` and `pandas` remain unavailable but do not block the documentation-specific mechanical evidence.

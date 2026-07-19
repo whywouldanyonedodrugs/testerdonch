@@ -1,0 +1,31 @@
+{
+  "collision_policy": "new_unique_child_no_overwrite",
+  "drive_path": "qlmg_sweep_drive:20260719_donch_bt_stage_10_documentation_gate_policy_20260719_v1_v01/",
+  "drive_root_folder_id": "1vMuf1EJbojoeIjJjz8Xj1fhwLizNgLfl",
+  "files": [
+    {
+      "bytes": 944,
+      "name": "READ_FIRST.md",
+      "sha256": "e5383c0b75e75e6e9059c3e0da69f8132024c3b5572fce16bd0bf533874e91ab"
+    },
+    {
+      "bytes": 3299,
+      "name": "REVIEW.md",
+      "sha256": "f410cf8bf39d8f9a58a2527d30547f68eb50545b21ea26cd0d28f5d9549faee1"
+    },
+    {
+      "bytes": 2977,
+      "name": "VALIDATION.md",
+      "sha256": "f10600f8d74c5b89252d63fea277c93e36e52d0d01d1ab53d5e46a0b6f00d261"
+    },
+    {
+      "bytes": 116191,
+      "name": "qlmg_stage10-conditional-alpha-policy_20260719_v01.zip",
+      "sha256": "bd746471bc5a008429ef7301dbd7b8727b4fe7706295435fef1dd0f59e98718c"
+    }
+  ],
+  "manifest_self_excluded": true,
+  "remote_label": "qlmg_sweep_drive:",
+  "source_commit": "91ba2ab07630556984bcdf6b2c650fa6b84fcf7f",
+  "task_id": "donch_bt_stage_10_documentation_gate_policy_20260719_v1"
+}

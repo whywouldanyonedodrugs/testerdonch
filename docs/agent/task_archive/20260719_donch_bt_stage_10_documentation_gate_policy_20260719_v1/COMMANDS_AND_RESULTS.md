@@ -18,5 +18,8 @@ All commands ran in the isolated worktree unless stated otherwise. No market, ou
 | Secret scan of changed files | Passed with zero findings. |
 | `git -c core.whitespace=cr-at-eol diff --cached --check` | Passed while retaining the exact received CRLF bytes as fully diffable evidence. |
 | Scope check | Documentation/registry/archive only; zero code, data, test, result-root, or finalized-root changes. |
+| `git commit` and `git push origin HEAD:main` | Application commit `91ba2ab...` created and pushed non-force; remote main matched exactly. |
+| Package manifest, ZIP, and secret scan | 52 package entries verified; zero secret findings; ZIP 116,191 bytes, SHA-256 `bd746471...`. |
+| Drive root `lsjson`, immutable uploads, and separate round-trip download | Unique folder created; exactly five direct files uploaded; all five downloaded sizes and SHA-256 values matched. |
 
 No economic run, return computation, controls, data acquisition, protected access, live action, order action, or Capital.com payload access occurred.
