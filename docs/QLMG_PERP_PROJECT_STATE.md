@@ -1,6 +1,6 @@
 # QLMG Multi-Platform Project State
 
-Status: active governance as of 2026-07-18 UTC.
+Status: active governance as of 2026-07-19 UTC.
 
 The active repository direction is QLMG-inspired historical research on Kraken derivatives and manifest-authorized Capital.com instruments with strict point-in-time, platform-faithful, reproducible evidence. Existing Kraken lineage remains unchanged. Donchian/V3/S1 and prior Bybit-oriented reset material are legacy provenance unless a later authority reactivates a specific component.
 
@@ -8,7 +8,7 @@ Current stage:
 
 - governance integration, repository recovery, and safe worktree discipline;
 - completed Kraken analytics acquisition authority and non-economic derivatives-state generator foundation;
-- outcome-free KDA02 event tape and KDA03 feasibility evidence remain unexecuted; KDA01 Stage 8C had a confirmed extra-five-minute execution delay, and its exact repaired replay completed with `KDA01_level3_repaired_no_primary_pass_stop` and no controls executed;
+- KDA01 remains closed at `KDA01_level3_repaired_no_primary_pass_stop`; KDA02A v2 completed its one frozen Level-3 run at `KDA02_level3_no_primary_pass_stop` with zero primary passes, while controls and the separate inactive KDA02B OI-vacuum lineage remained unexecuted; KDA03 feasibility evidence remains outcome-free and unexecuted;
 - no alpha sweep, rankable economic run, protected-outcome inspection, live deployment, order placement, or private-account action is authorized by this state document.
 
 Binding research boundaries:

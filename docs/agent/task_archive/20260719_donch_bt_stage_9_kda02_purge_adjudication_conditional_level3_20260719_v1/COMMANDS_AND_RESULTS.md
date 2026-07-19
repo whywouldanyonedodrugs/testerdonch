@@ -38,3 +38,14 @@
 - Superseding v5 cache-only freeze: exit 0 in 46.60s; parent/event identities remained byte-identical; runner SHA-256 is `aa46407b43e1feb85fe79c9dc05b3b6c340192fbd70e01425a5d160649f579cf`; contract file SHA-256 is `2833fbab498ebdf3bf3d86801e442779ef1f3396fd5f32d5c8f3658402eb671d`; Level-3 contract hash is `5ca2ba8b762c4aa06b3c880a68112826764979d4e3f2f555316cece4248d280c`.
 - Expanded relevant regression suite after the repair: 103 tests passed. Economic output root remained absent.
 - Owner-side timestamp-only dry reconstruction after repair: 9,274 schedule rows, 8,999 accepted, all 8 definitions, and timestamp-authority hash `5fb1e9bbe2497f1d914f8f5d70f148039fa5879eb23b176b92756b057bbab50b`. Frozen primary accepted counts reproduced as `2812/2643/1017/988`; robustness counts were `617/604/159/159`. No outcome column or output root was opened.
+
+## Frozen Level-3 run and post-run validation
+
+- Reviewed repair commit: `971f694a4ab2cfcfb91e19c5d161d751c91d8e1a`.
+- Single economic runner: exit 0 in 66.12s; maximum RSS 1,119,184 KiB; 9,274 schedules; 8,999 accepted trades; 275 overlap exclusions; 0 price rejections; 0 protected rows.
+- Terminal decision: `KDA02_level3_no_primary_pass_stop`; primary passes: 0/4. Robustness remains diagnostic-only.
+- Full official-open comparison: all 17,998 entry/exit uses across 54 symbols matched; owner check had zero mismatches, while the independent review identified only 12 repeated-use binary display differences below `4.1e-16` relative error and no substantive mismatch.
+- Owner recomputation: exact long/short return and cost arithmetic, 3,087 market-day rows, all 80,000 bootstrap draws, concentration, and every gate flag matched.
+- Relevant repository suite: 103 tests passed. Independent post-run focused suite: 28 tests passed.
+- Independent post-run review: approved with no blockers; pricing, arithmetic, clustering, bootstrap, concentration, funding diagnostics, gates, claims, provenance, and artifacts matched.
+- Controls, KDA02B outcomes, KDA01 outcomes, Capital.com payloads, and protected rows were not executed or opened.

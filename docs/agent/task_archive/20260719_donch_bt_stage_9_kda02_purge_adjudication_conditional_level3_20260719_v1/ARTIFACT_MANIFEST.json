@@ -1,10 +1,34 @@
 {
   "files": [
     {
-      "bytes": 4623,
+      "bytes": 957,
+      "drive_eligible": true,
+      "path": "CHANGED_FILES.md",
+      "sha256": "b26a308d3ff4d965242b683ee47532bf5cb4b8a36a964eff1a00aea7c7386ff9"
+    },
+    {
+      "bytes": 5863,
       "drive_eligible": true,
       "path": "COMMANDS_AND_RESULTS.md",
-      "sha256": "3c3b5c8f0961cd5456e8085dcc1b917a844cd303232d9b3edd7d47f5e28bc8d3"
+      "sha256": "f98001e21847eb16deba79f2becb7c05d792d36ff97a2cfa291a505545450d30"
+    },
+    {
+      "bytes": 691,
+      "drive_eligible": true,
+      "path": "COMPLETION.md",
+      "sha256": "4fec551b336c7a058a46c02318f4738292655a4910d13bac39940308e2d26075"
+    },
+    {
+      "bytes": 595,
+      "drive_eligible": true,
+      "path": "CONTINUITY_UPDATE.md",
+      "sha256": "f323305a468e97c308c2fa50c7bdfc66bfcbed11943cbc7e82678f1b61073ba4"
+    },
+    {
+      "bytes": 1296,
+      "drive_eligible": true,
+      "path": "DECISIONS_AND_PROGRESS.md",
+      "sha256": "5c33d4e97fffe8e8133b5761178d52137196937b88b130c2c140904b847736db"
     },
     {
       "bytes": 271,
@@ -31,6 +55,24 @@
       "sha256": "c7b50c506e412bb439ffd7a8b53bd12493840d0ccef6d2afc840c283672c6fd0"
     },
     {
+      "bytes": 895,
+      "drive_eligible": true,
+      "path": "KDA02_MULTIPLICITY_AND_CAPABILITY_UPDATE.md",
+      "sha256": "c2aae3d60f4388c6a866eca714a066c24e2ac6e73087612410b78fc89bd7457d"
+    },
+    {
+      "bytes": 3129,
+      "drive_eligible": true,
+      "path": "KDA02_POSTRUN_REVIEW.json",
+      "sha256": "d3c35a3352e192e6871208d43f38ca7a634d03b86b6a37e42d0c3fbb48f67508"
+    },
+    {
+      "bytes": 6029,
+      "drive_eligible": true,
+      "path": "KDA02_POSTRUN_REVIEW.md",
+      "sha256": "2dcce82a1afa6794044201250e67506d822e4c6060a56789f76d7266c04ab32c"
+    },
+    {
       "bytes": 1340,
       "drive_eligible": true,
       "path": "KDA02_PRERUN_REVIEW.json",
@@ -41,6 +83,12 @@
       "drive_eligible": true,
       "path": "KDA02_PRERUN_REVIEW.md",
       "sha256": "64fa5c4208241283cee7899fab2d83cee114186fc1c8e349280ec62a08a84150"
+    },
+    {
+      "bytes": 733,
+      "drive_eligible": true,
+      "path": "KDA02_RUN_AND_EVIDENCE_REGISTER.csv",
+      "sha256": "e6468867309043acb07d21b16cf6272d30a28643ddc13d5e051ba5f7d81b2377"
     },
     {
       "bytes": 670,
@@ -91,10 +139,34 @@
       "sha256": "f5bc2dfb4b315d005e4444656cd69ef17a48751c4711ffe8409cdaef45280206"
     },
     {
+      "bytes": 702,
+      "drive_eligible": true,
+      "path": "KNOWN_GAPS.md",
+      "sha256": "7cc564ea732af4434ab6f3268eac668b951ea05ebaf415c97669d4433fa576d7"
+    },
+    {
+      "bytes": 434,
+      "drive_eligible": true,
+      "path": "NEXT_ACTION.md",
+      "sha256": "f4bcddc11d412ae5cb7ce02ba0bfd1877099b226774b5b2a2da69b9f9c09fac5"
+    },
+    {
+      "bytes": 549,
+      "drive_eligible": true,
+      "path": "PACKAGE_AUTHORITY_AND_SUPERSESSION.md",
+      "sha256": "76d7f75522959d6466a1da91e81027a8c958c77c827c7f1b364801d4d9feb540"
+    },
+    {
       "bytes": 7030,
       "drive_eligible": true,
       "path": "PLAN.md",
       "sha256": "5d3806351eeb24ba6ea6dc714f6d27e0e181c63fc51a9f61072a6affb8b28f16"
+    },
+    {
+      "bytes": 554,
+      "drive_eligible": true,
+      "path": "READ_FIRST.md",
+      "sha256": "d8bc582d4878b79731373f56dffd1ccb9a8267e73c0c37c7ea1fea725457ff90"
     },
     {
       "bytes": 956,
@@ -103,16 +175,28 @@
       "sha256": "54c29016c61a0d2fa7ff17716fac159679523384382a499c25bd4ee8de045c25"
     },
     {
+      "bytes": 820,
+      "drive_eligible": true,
+      "path": "REVIEW.md",
+      "sha256": "1a52b2b0aaca200a64abfbf49c0f8ef3f73e23dfa94663023a5c58441e279276"
+    },
+    {
+      "bytes": 486,
+      "drive_eligible": true,
+      "path": "SECRET_SCAN.md",
+      "sha256": "ea884455c295f10ae0f6503010df4e269bb96c0343ca292e34a0c101b00aab92"
+    },
+    {
       "bytes": 19078,
       "drive_eligible": true,
       "path": "TASK_SPEC.md",
       "sha256": "a32cf0e0545a307e175305e42264793ad9e822681a5ecaaee5aee97fe7615ef7"
     },
     {
-      "bytes": 692,
+      "bytes": 1310,
       "drive_eligible": true,
       "path": "VALIDATION.md",
-      "sha256": "bac7036276eab933f6aa79433fb8c6a094f10a0eec9fe7c6a00072e72eb5b9e5"
+      "sha256": "9c2760663676a593dc2fea8e6b7b82c9d4d1afd5f3c679bf43f94fcaa0c10aaf"
     },
     {
       "bytes": 12951,
@@ -347,6 +431,102 @@
       "drive_eligible": true,
       "path": "preoutcome_summary.json",
       "sha256": "231cb6f91ca41a4f8f970400f458665ecf8d57dbd5a4161dbf67f71f21361143"
+    },
+    {
+      "bytes": 426595,
+      "drive_eligible": false,
+      "path": "run_outputs/KDA02_LEVEL3_ACCEPTED_EXECUTIONS.parquet",
+      "sha256": "ff83107d843f560e2f786950ac70680bd40a221c0c56fab3a7a874aea5426269"
+    },
+    {
+      "bytes": 806393,
+      "drive_eligible": false,
+      "path": "run_outputs/KDA02_LEVEL3_BOOTSTRAP_DISTRIBUTIONS.parquet",
+      "sha256": "7b3ecaa6d01ae12e184c909796af05005ac008d06e4a3bd230df49395c244aad"
+    },
+    {
+      "bytes": 1035,
+      "drive_eligible": true,
+      "path": "run_outputs/KDA02_LEVEL3_BOOTSTRAP_SUMMARY.csv",
+      "sha256": "155fcaf4232073d447a841a0e9397695689638323752118ba0d98a3a6a0f84d0"
+    },
+    {
+      "bytes": 349,
+      "drive_eligible": true,
+      "path": "run_outputs/KDA02_LEVEL3_CLAIM_BOUNDARY.md",
+      "sha256": "ab07d9e63ccec27c0e30d452cf19c521dc24fa0d59d991dcf375c22e6d86deaa"
+    },
+    {
+      "bytes": 2716,
+      "drive_eligible": true,
+      "path": "run_outputs/KDA02_LEVEL3_CLUSTER_SENSITIVITY.csv",
+      "sha256": "0bc7dd0492e65ae266c7ad807af43486b680a8ce21d87cf962221223b9e0a364"
+    },
+    {
+      "bytes": 951,
+      "drive_eligible": true,
+      "path": "run_outputs/KDA02_LEVEL3_CONCENTRATION.csv",
+      "sha256": "d5595bf9554dc78c73ed60cf1b7ffbe4bd3597dc84a7fd4fbc6ae0d1cf5f159a"
+    },
+    {
+      "bytes": 182,
+      "drive_eligible": true,
+      "path": "run_outputs/KDA02_LEVEL3_DECISION.md",
+      "sha256": "413fa7726317be4406de04b29f5718063cac80af91c73eea706d44d26702c58c"
+    },
+    {
+      "bytes": 850,
+      "drive_eligible": true,
+      "path": "run_outputs/KDA02_LEVEL3_DEFINITION_DECISIONS.csv",
+      "sha256": "8984d80c7759f638960a9f3a90c47fbed4e98dbab127efff22edb2a689dcd2ee"
+    },
+    {
+      "bytes": 7334,
+      "drive_eligible": true,
+      "path": "run_outputs/KDA02_LEVEL3_DEFINITION_METRICS.csv",
+      "sha256": "3183e83386746578532b18334cb31200a3f3c7710c513e85e95b4cfa9720a7c9"
+    },
+    {
+      "bytes": 38776,
+      "drive_eligible": false,
+      "path": "run_outputs/KDA02_LEVEL3_EXECUTION_REJECTIONS.parquet",
+      "sha256": "3e54d0943477cf37b47ea32f6fb998501357682d40a6524fd603774292e59dff"
+    },
+    {
+      "bytes": 401340,
+      "drive_eligible": false,
+      "path": "run_outputs/KDA02_LEVEL3_FUNDING_BOUNDARY_LEDGER.parquet",
+      "sha256": "ce64e99b40a69caf779fd5380c370a5f74af57cd522b8a300c7a27f86660bddc"
+    },
+    {
+      "bytes": 2891,
+      "drive_eligible": true,
+      "path": "run_outputs/KDA02_LEVEL3_FUNDING_PARTITIONS.csv",
+      "sha256": "55d0c122c4ab72da6feeb3b65f919499fc4bbcd80a668f1381f4470753ec4b5f"
+    },
+    {
+      "bytes": 1295,
+      "drive_eligible": true,
+      "path": "run_outputs/KDA02_LEVEL3_GATE_MATRIX.csv",
+      "sha256": "3617b291f7c5f3e639dcd1447ed7846c68532deee83ae0e0241f91df11270128"
+    },
+    {
+      "bytes": 109989,
+      "drive_eligible": false,
+      "path": "run_outputs/KDA02_LEVEL3_MARKET_DAY_RETURNS.parquet",
+      "sha256": "80c041b307db5421832fbcbb55f3cb416617a30a117731677001d02166ef8623"
+    },
+    {
+      "bytes": 1253121,
+      "drive_eligible": false,
+      "path": "run_outputs/KDA02_LEVEL3_TRADE_TAPE.parquet",
+      "sha256": "45dee295daa3c1a0b7df438aae696fa7567bc59186fbc4cc4425e729a5663440"
+    },
+    {
+      "bytes": 1423,
+      "drive_eligible": true,
+      "path": "run_outputs/RUN_AUDIT.json",
+      "sha256": "b26c5df9ea26ab26235d80f8f395dbad851595faa13bea935b5cfb62df8445c3"
     },
     {
       "bytes": 217,
@@ -4107,6 +4287,6 @@
       "sha256": "923e34c985e82e152c6f84a849eb063815a4bcaeb900903b88440215a8924bf2"
     }
   ],
-  "manifest_content_hash": "4dcd64f1fdf2edbbdc6ff8ab389b49dcccca68cb1fd4cd37d6f51200f407173b",
+  "manifest_content_hash": "0dbe6786aac56930dc44e0ad9ad29b03b3d9184973eccc75973d66cd97e065d6",
   "task_id": "donch_bt_stage_9_kda02_purge_adjudication_conditional_level3_20260719_v1"
 }

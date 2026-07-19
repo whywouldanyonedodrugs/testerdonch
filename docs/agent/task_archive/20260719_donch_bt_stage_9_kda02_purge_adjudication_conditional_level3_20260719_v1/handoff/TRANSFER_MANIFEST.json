@@ -1,0 +1,32 @@
+{
+  "collision_policy": "new_child_only_no_overwrite",
+  "direct_file_count": 5,
+  "files": [
+    {
+      "bytes": 554,
+      "name": "READ_FIRST.md",
+      "sha256": "d8bc582d4878b79731373f56dffd1ccb9a8267e73c0c37c7ea1fea725457ff90"
+    },
+    {
+      "bytes": 1310,
+      "name": "VALIDATION.md",
+      "sha256": "9c2760663676a593dc2fea8e6b7b82c9d4d1afd5f3c679bf43f94fcaa0c10aaf"
+    },
+    {
+      "bytes": 820,
+      "name": "REVIEW.md",
+      "sha256": "1a52b2b0aaca200a64abfbf49c0f8ef3f73e23dfa94663023a5c58441e279276"
+    },
+    {
+      "bytes": 239819,
+      "name": "qlmg_kda02-stage9-level3-evidence_20260719_v01.zip",
+      "sha256": "195ab09fbcd5f5cb25ca4889be95c183f9e76ee476aaa7d8bef1045e927507e0"
+    }
+  ],
+  "remote_label": "qlmg_sweep_drive:",
+  "root_folder_id": "1vMuf1EJbojoeIjJjz8Xj1fhwLizNgLfl",
+  "status": "ready_for_non_overwriting_upload_and_roundtrip_verification",
+  "task_folder": "20260719_donch_bt_stage_9_kda02_purge_adjudication_conditional_level3_20260719_v1_v01",
+  "task_id": "donch_bt_stage_9_kda02_purge_adjudication_conditional_level3_20260719_v1",
+  "transfer_manifest_self_hash_excluded": true
+}
