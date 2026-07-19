@@ -1,0 +1,22 @@
+{
+  "access_or_upload_blocker": null,
+  "drive_path": "qlmg_sweep_drive:20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1_v01/",
+  "files": [
+    {"bytes": 726, "name": "READ_FIRST.md", "sha256": "9106ea5866512909de62d0b0a0bf1e23d6d2ef9b138c4f70631ed12f9788f1e1"},
+    {"bytes": 1227, "name": "REVIEW.md", "sha256": "3f84d8b8e99ca35d1d71c95b030a0c577e58ee8a80f366c077d25e2cac83aebf"},
+    {"bytes": 1096, "name": "TRANSFER_MANIFEST.json", "sha256": "6897c757b1114f28451f4593d2405f4af457632315d2f413ff6979aaaa552310"},
+    {"bytes": 2113, "name": "VALIDATION.md", "sha256": "e0a8460b0c63f36fc3728ea3787e972d9a68b72a400fb7cdc3a43993dc07fbe6"},
+    {"bytes": 144253, "name": "qlmg_stage13_protocol_v2_campaign_readiness_20260719_v01.zip", "sha256": "495f77510994916416a107b226d143c8de0cf58fc0ce7662cd8b0b934ddaf00d"}
+  ],
+  "folder_id": "13J--C6-ckiNw1FPNV5x1oReWGeYxIpke",
+  "folder_url": "https://drive.google.com/drive/folders/13J--C6-ckiNw1FPNV5x1oReWGeYxIpke",
+  "local_archive_path": "/opt/qlmg-stage13-campaign-readiness-handoff-20260719/qlmg_stage13_protocol_v2_campaign_readiness_20260719_v01.zip",
+  "local_archive_retained": true,
+  "non_overwriting_new_child": true,
+  "remote_label": "qlmg_sweep_drive:",
+  "roundtrip_verification": "all_five_files_size_and_sha256_match",
+  "source_commit": "687f26e880273824f7a5988587a0a815f6adb9d8",
+  "task_id": "donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1",
+  "tool": "rclone v1.60.1-DEV",
+  "verified_utc": "2026-07-19T21:32:09Z"
+}

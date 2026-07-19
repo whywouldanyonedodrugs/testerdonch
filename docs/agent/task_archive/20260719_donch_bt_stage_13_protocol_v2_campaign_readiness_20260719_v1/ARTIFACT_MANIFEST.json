@@ -111,9 +111,9 @@
       "sha256": "6489055b3e161c413daea7af8e471bcf36b82eb732c6757360c57f0a91906533"
     },
     {
-      "bytes": 999,
+      "bytes": 1372,
       "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/COMPLETION.md",
-      "sha256": "41c47ecfc4c8b1f10f603a8284e84d04027a25b6f2300876e8c2f6db9c1bc136"
+      "sha256": "8ff151b9ef4e8a5c435ca0275a71243ea9be9eb62bc6a6ccc112acd29a65fc13"
     },
     {
       "bytes": 1038,
@@ -154,6 +154,11 @@
       "bytes": 2113,
       "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/VALIDATION.md",
       "sha256": "e0a8460b0c63f36fc3728ea3787e972d9a68b72a400fb7cdc3a43993dc07fbe6"
+    },
+    {
+      "bytes": 1518,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/handoff/DRIVE_HANDOFF_VERIFICATION.json",
+      "sha256": "514812b42522454baaa562981c4caaf39db9c2f325f918887f55416a89e74b77"
     },
     {
       "bytes": 1496,
@@ -276,7 +281,7 @@
       "sha256": "149adabbc2d7f896bb08da5a05eaa311f18da0dba3977b8cf25209cb2c0e0fd8"
     }
   ],
-  "entry_count": 55,
+  "entry_count": 56,
   "manifest_scope": "task archive plus active policies, registries, campaign artifacts, implementation, and tests",
   "self_excluded": true,
   "task_id": "donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1"
