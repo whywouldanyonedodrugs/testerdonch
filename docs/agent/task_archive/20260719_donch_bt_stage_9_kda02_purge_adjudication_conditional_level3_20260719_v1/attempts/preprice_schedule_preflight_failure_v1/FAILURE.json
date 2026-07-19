@@ -1,0 +1,10 @@
+{
+  "attempt": "preprice_schedule_preflight_failure_v1",
+  "commit": "f7a8a63ce41a718a51d3b4168e4e4b61e6603d46",
+  "economic_output_root_created": false,
+  "error": "timestamp-only schedule no longer matches mechanical freeze",
+  "funding_outcomes_opened": false,
+  "pf_trade_open_values_opened": false,
+  "protected_rows_opened": 0,
+  "status": "preserved_zero_outcome_code_failure"
+}

@@ -136,7 +136,11 @@ def reconstruct_schedule(
     for symbol in sorted(events.loc[events.branch_id.isin(definitions.branch_id), "symbol"].unique()):
         bars[symbol], refs[symbol] = load_timestamp_only_bars(authority, symbol)
     records = repaired_execution_records(events, definitions, bars)
-    primary_expected = gates.set_index("definition_id").accepted_events.astype(int).to_dict()
+    primary_definition_ids = set(definitions.loc[definitions.attempt.eq("primary"), "definition_id"])
+    frozen_gate_rows = gates.loc[gates.definition_id.isin(primary_definition_ids)]
+    if frozen_gate_rows.definition_id.duplicated().any() or set(frozen_gate_rows.definition_id) != primary_definition_ids:
+        raise ValueError("frozen primary definition/gate identity mismatch")
+    primary_expected = frozen_gate_rows.set_index("definition_id").accepted_events.astype(int).to_dict()
     primary_actual = records.loc[records.accepted & records.definition_id.isin(primary_expected)].definition_id.value_counts().to_dict()
     if any(int(primary_actual.get(definition, 0)) != count for definition, count in primary_expected.items()):
         raise ValueError("timestamp-only schedule no longer matches mechanical freeze")

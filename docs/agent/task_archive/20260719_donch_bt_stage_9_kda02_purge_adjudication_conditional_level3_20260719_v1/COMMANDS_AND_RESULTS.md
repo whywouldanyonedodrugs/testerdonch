@@ -27,3 +27,14 @@
 - Funding outcomes read: no.
 - Controls/KDA02B/KDA01/KDA03/Capital.com outcomes: no.
 - Protected rows opened: no.
+
+## Pre-price runner repair
+
+- Reviewed freeze commit: `f7a8a63ce41a718a51d3b4168e4e4b61e6603d46`.
+- First runner invocation stopped in timestamp-only schedule reconciliation before output-root creation. PF trade opens, returns, funding outcomes, protected rows, controls, KDA01, KDA02B, and Capital.com outcomes remained unopened.
+- Root cause: the runner compared frozen economic definitions against all mechanical gate rows, including four deliberately omitted definitions belonging to infeasible continuation branches.
+- The zero-outcome failure is preserved under `attempts/preprice_schedule_preflight_failure_v1`.
+- Smallest repair: intersect the reconciliation gate rows with the complete frozen primary-definition identities and fail closed if that identity set differs. A regression covers an omitted infeasible gate row.
+- Superseding v5 cache-only freeze: exit 0 in 46.60s; parent/event identities remained byte-identical; runner SHA-256 is `aa46407b43e1feb85fe79c9dc05b3b6c340192fbd70e01425a5d160649f579cf`; contract file SHA-256 is `2833fbab498ebdf3bf3d86801e442779ef1f3396fd5f32d5c8f3658402eb671d`; Level-3 contract hash is `5ca2ba8b762c4aa06b3c880a68112826764979d4e3f2f555316cece4248d280c`.
+- Expanded relevant regression suite after the repair: 103 tests passed. Economic output root remained absent.
+- Owner-side timestamp-only dry reconstruction after repair: 9,274 schedule rows, 8,999 accepted, all 8 definitions, and timestamp-authority hash `5fb1e9bbe2497f1d914f8f5d70f148039fa5879eb23b176b92756b057bbab50b`. Frozen primary accepted counts reproduced as `2812/2643/1017/988`; robustness counts were `617/604/159/159`. No outcome column or output root was opened.

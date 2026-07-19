@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 import pandas as pd
@@ -17,7 +18,7 @@ from tools.qlmg_kda02_level3 import (
 )
 from tools.qlmg_kda01_timestamp_repair import locate_repaired_execution, repaired_execution_records
 from tools.build_kda02_v2_prerun_freeze import add_market_clusters, provisional_definitions
-from tools.run_kda02_level3 import add_estimand_weights, attach_funding_diagnostics
+from tools.run_kda02_level3 import add_estimand_weights, attach_funding_diagnostics, reconstruct_schedule
 
 
 class KDA02Level3Tests(unittest.TestCase):
@@ -109,6 +110,28 @@ class KDA02Level3Tests(unittest.TestCase):
         main = source[source.index("def main()") :]
         self.assertLess(main.index("reconstruct_schedule"), main.index("price_and_score"))
         self.assertNotIn("mark_open", source)
+
+    def test_schedule_reconciliation_ignores_omitted_infeasible_gate_rows(self):
+        definitions = pd.DataFrame({
+            "definition_id": ["primary_feasible", "robustness_feasible"],
+            "attempt": ["primary", "robustness"],
+            "branch_id": ["primary_branch", "robustness_branch"],
+        })
+        events = pd.DataFrame({"symbol": ["PF_X"], "branch_id": ["primary_branch"]})
+        gates = pd.DataFrame({
+            "definition_id": ["primary_feasible", "primary_omitted_infeasible"],
+            "accepted_events": [1, 99],
+        })
+        records = pd.DataFrame({
+            "definition_id": ["primary_feasible", "robustness_feasible"],
+            "event_id": ["p", "r"],
+            "accepted": [True, True],
+        })
+        with patch("tools.run_kda02_level3.load_timestamp_only_bars", return_value=(pd.DatetimeIndex([]), "ref")), patch(
+            "tools.run_kda02_level3.repaired_execution_records", return_value=records
+        ):
+            actual, _ = reconstruct_schedule(definitions, events, gates, authority=[])
+        self.assertEqual(actual.event_id.tolist(), ["p", "r"])
 
     def test_funding_is_diagnostic_not_in_gate_flags(self):
         source = Path("tools/qlmg_kda01_level3_economic.py").read_text(encoding="utf-8")
