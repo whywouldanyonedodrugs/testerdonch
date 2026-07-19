@@ -1,0 +1,283 @@
+{
+  "entries": [
+    {
+      "bytes": 962,
+      "path": "docs/agent/ACTIVE_RESEARCH_METHODS.json",
+      "sha256": "9531f666889039c4b8d4718a7bf76cb7ab8b14501fd4e01b73bdf1bf57d11cfc"
+    },
+    {
+      "bytes": 2804,
+      "path": "docs/agent/CURRENT_ATTEMPT_MULTIPLICITY_REGISTRY.csv",
+      "sha256": "b1c66272db767064d2afd642d1d74bbf842ea2ffc3a275bf99a689277eab6255"
+    },
+    {
+      "bytes": 11567,
+      "path": "docs/agent/CURRENT_FAMILY_HYPOTHESIS_REGISTRY.csv",
+      "sha256": "4e6b9abfbda827dfb507f58f0b936776e6fd04fda26b718979816b948d50ed2a"
+    },
+    {
+      "bytes": 909,
+      "path": "docs/agent/FAMILY_REDEFINITION_POLICY.json",
+      "sha256": "d07b0d290e59d17f7d6a587e2a31e6e550468f9ad403250cd6183c549e685335"
+    },
+    {
+      "bytes": 3113,
+      "path": "docs/agent/HYPOTHESIS_DEVELOPMENT_PROTOCOL.json",
+      "sha256": "4effe3e9608377876486b1583854a7e1479c8e93d6de1661f13d35842bbc6a73"
+    },
+    {
+      "bytes": 1357,
+      "path": "docs/agent/RESEARCH_CAMPAIGN_PROTOCOL.json",
+      "sha256": "7091156df9bf815a001423b63d673d2d4217f2616fd40e76a261f218a2d614df"
+    },
+    {
+      "bytes": 140313,
+      "path": "docs/agent/research_campaigns/kraken_research_campaign_001_readiness/CAMPAIGN_DAG.json",
+      "sha256": "36603eec1a5663bb39e0f8f0b9b5ead40f11d5d4887c19f203064f9552726177"
+    },
+    {
+      "bytes": 33005,
+      "path": "docs/agent/research_campaigns/kraken_research_campaign_001_readiness/CAMPAIGN_MANIFEST.json",
+      "sha256": "09f4a534dcd799bf252e6e47037af58ad2177256d976b37defd8c257d2949e27"
+    },
+    {
+      "bytes": 827,
+      "path": "docs/agent/research_campaigns/kraken_research_campaign_001_readiness/CAMPAIGN_STATE.json",
+      "sha256": "e3cba3fbdd745a36eff1449033537c9eb6b3a77f259baa4eeb0ae69a5cdd38dc"
+    },
+    {
+      "bytes": 138,
+      "path": "docs/agent/research_campaigns/kraken_research_campaign_001_readiness/CANDIDATE_BEAM_REGISTRY.json",
+      "sha256": "151ebf51be25a96ff2f41738d130b045b35813348839d632d77d14509b4521e1"
+    },
+    {
+      "bytes": 172,
+      "path": "docs/agent/research_campaigns/kraken_research_campaign_001_readiness/EXPLORED_CELL_REGISTRY.json",
+      "sha256": "0492ae11868ee16a49f31d72c7c47e6a70b84fceac9db632247a2d2bdbf9a651"
+    },
+    {
+      "bytes": 1938,
+      "path": "docs/agent/research_campaigns/kraken_research_campaign_001_readiness/FAMILY_REDEFINITION_RECORDS.json",
+      "sha256": "d249e1b3b1ed6f1c155b63ca4c9ab1ceef7ced17a563e5e6efdfdd5ff1230930"
+    },
+    {
+      "bytes": 19325,
+      "path": "docs/agent/research_campaigns/kraken_research_campaign_001_readiness/FOLD_AND_EXPOSURE_MAP.json",
+      "sha256": "c603c84d1affe7c9d40913cd085f87e9c4cfd486d9587743caed5ecf36d84d65"
+    },
+    {
+      "bytes": 26328,
+      "path": "docs/agent/research_campaigns/kraken_research_campaign_001_readiness/FUTURE_DERIVATIVES_CAMPAIGN_APPROVAL_PACKET.json",
+      "sha256": "ed27fc30d39155d6b08d63539a22d34b50d19ab3c909396a8719c443057fcd5c"
+    },
+    {
+      "bytes": 746,
+      "path": "docs/agent/research_campaigns/kraken_research_campaign_001_readiness/FUTURE_DERIVATIVES_CAMPAIGN_APPROVAL_PACKET.md",
+      "sha256": "f75a3b1350ce1b945dea33e450e71cb7d384d3a126fe2baf27c0ce9cd78f2fab"
+    },
+    {
+      "bytes": 147,
+      "path": "docs/agent/research_campaigns/kraken_research_campaign_001_readiness/HEARTBEAT.json",
+      "sha256": "a89a6d7438db1b48da508c72f2f7c0c7e5c87c9eb3ba05526c71c5a900e41b9b"
+    },
+    {
+      "bytes": 9731,
+      "path": "docs/agent/research_campaigns/kraken_research_campaign_001_readiness/PHASE0_1_READINESS.json",
+      "sha256": "3068f179763ad1dc65be55e2f781d5061898ff99d77b8c3cfb58bb33a85cd206"
+    },
+    {
+      "bytes": 501,
+      "path": "docs/agent/research_campaigns/kraken_research_campaign_001_readiness/README.md",
+      "sha256": "3185733a74946016303b9a4f17e305f0ba4b60437d4ae3f9c475605fd1aafe9e"
+    },
+    {
+      "bytes": 226,
+      "path": "docs/agent/research_campaigns/kraken_research_campaign_001_readiness/RESOURCE_PROJECTION.json",
+      "sha256": "0dafe0a9f010cfbfc625d37db4c44180967b2bb657acc005b140380ce6271cd7"
+    },
+    {
+      "bytes": 9538,
+      "path": "docs/agent/research_campaigns/kraken_research_campaign_001_readiness/SEARCH_SPACE_REGISTRY.json",
+      "sha256": "083b4e29db4d4a3005096b76832f89e77843f8294ef1cb09ed26075e88270827"
+    },
+    {
+      "bytes": 917,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/CHANGED_FILES.md",
+      "sha256": "5a5d246f0abe7d4170e1607a410834af5ba21143d52a238f03ea8732bbd51603"
+    },
+    {
+      "bytes": 1033,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/COMMANDS_AND_RESULTS.md",
+      "sha256": "6489055b3e161c413daea7af8e471bcf36b82eb732c6757360c57f0a91906533"
+    },
+    {
+      "bytes": 999,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/COMPLETION.md",
+      "sha256": "41c47ecfc4c8b1f10f603a8284e84d04027a25b6f2300876e8c2f6db9c1bc136"
+    },
+    {
+      "bytes": 1038,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/DECISIONS_AND_PROGRESS.md",
+      "sha256": "3f504004771d053943629d6af61e3f1f30a420136ebb5fdfd08145d07fa3eed2"
+    },
+    {
+      "bytes": 580,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/DONCH_CONTEXT.md",
+      "sha256": "247a1a92bdff0b94134abffd8653b1f57a1821163e1d182ae6e55649be6e25d8"
+    },
+    {
+      "bytes": 471,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/NEXT_ACTION.md",
+      "sha256": "063f1b943ce04bb5c28877d9db5fd09adf74dc415efedd55e6942a679ca848bf"
+    },
+    {
+      "bytes": 1875,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/PLAN.md",
+      "sha256": "f327fb8c92d58c55d455b0b869d79d405fe478a37d0aec561b83c1ebaba3efbd"
+    },
+    {
+      "bytes": 1227,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/REVIEW.md",
+      "sha256": "3f84d8b8e99ca35d1d71c95b030a0c577e58ee8a80f366c077d25e2cac83aebf"
+    },
+    {
+      "bytes": 5652,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/SOURCE_MANIFEST.json",
+      "sha256": "8b1758875c0cc9a6b615fd5c9b7fe7f4f93537ec1766ab95866a37c367679e68"
+    },
+    {
+      "bytes": 6431,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/TASK_SPEC.md",
+      "sha256": "ec1e9dc27a4cdc902570e6b04e30f1043379349ea5a4d70ec5d578a01eb99975"
+    },
+    {
+      "bytes": 2113,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/VALIDATION.md",
+      "sha256": "e0a8460b0c63f36fc3728ea3787e972d9a68b72a400fb7cdc3a43993dc07fbe6"
+    },
+    {
+      "bytes": 1496,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/00_READ_FIRST_Project_Source_Map_2026-07-19_rev5.md",
+      "sha256": "0b0f1ec95a1803e50005f40bcfc4e6772a8affe8e789afdbc606fe1e8be47768"
+    },
+    {
+      "bytes": 1227,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/02_STATE_Master_Continuity_Brief_2026-07-19_rev12.md",
+      "sha256": "4628dbf74de0b4b8fc9f2e5291ecccfb8ba8c27c0fecc4cc3339aa10ef56bb87"
+    },
+    {
+      "bytes": 1178,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/03_STATE_Current_Research_Decisions_2026-07-19_rev4.md",
+      "sha256": "89a0f0ae52df8aa4d00dd1adac3c7108f665c08ccd98d6391cbf20b9126abed9"
+    },
+    {
+      "bytes": 2658,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/12_MANUAL_Test_and_Evidence_Standards_2026-07-19_rev5.md",
+      "sha256": "871a88808ba23ec69e246ee4e2f59ee9a0d17aaffe51d5ec9cc1441c2e512125"
+    },
+    {
+      "bytes": 1426,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/13_GUIDE_Backtest_Claims_and_Review_2026-07-19_rev5.md",
+      "sha256": "0a2a0960568a1ed4906c3d07e810b73dc81b0f5c99fc4fd31c28e7703c0dd50e"
+    },
+    {
+      "bytes": 1727,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/24_METHOD_Research_Efficiency_and_Search_Discipline_2026-07-19_rev4.md",
+      "sha256": "815e985358b14af65f97e39c286e9e4e00abcd2a0576115989ff37ea5488665c"
+    },
+    {
+      "bytes": 1860,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/27_POLICY_Aggressive_Conditional_Alpha_and_Gate_Routing_2026-07-19_rev2.md",
+      "sha256": "6ce0b6af8cf005c2c43ec69f6808e6e3e8b023c792744307ccc455456aea4bec"
+    },
+    {
+      "bytes": 1840,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/28_STATE_Kraken_Derivatives_Analytics_and_Research_Learnings_2026-07-19_rev2.md",
+      "sha256": "ce29c5ea0b1b82b30832fd4539095c1668db8ababb0f9ab8f17369865529a80d"
+    },
+    {
+      "bytes": 4655,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/31_POLICY_Profitability_First_Family_Redevelopment_2026-07-19_rev1.md",
+      "sha256": "bf20d7f262daf5fe22c2bb4865665c8aa7e3f3964d9939303e7ee065e6b867e0"
+    },
+    {
+      "bytes": 6258,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/32_METHOD_Nested_Hypothesis_Search_Response_Surfaces_and_Multiplicity_2026-07-19_rev1.md",
+      "sha256": "55af49ae22787ae252bc507373e38d2c7a8eaf376f7aa6e08e6b9aa179f32c51"
+    },
+    {
+      "bytes": 4147,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/33_METHOD_Unattended_Multi_Hypothesis_Campaigns_2026-07-19_rev1.md",
+      "sha256": "981fed4494e04b217d9d1d6a080c9d537864a3f000d6c87385de3c1d03e19939"
+    },
+    {
+      "bytes": 1402,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/BACKTESTING_AGENT_OPERATING_AND_ARCHIVE_INSTRUCTIONS_2026-07-19_rev5.md",
+      "sha256": "823f9a1209365c33773e8d14aa603f14ab4e261bc080814500bed137f91c4981"
+    },
+    {
+      "bytes": 6431,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/DONCH_TO_BACKTESTING_Stage_13_Protocol_V2_and_Unattended_Campaign_Readiness_2026-07-19_v1.md",
+      "sha256": "ec1e9dc27a4cdc902570e6b04e30f1043379349ea5a4d70ec5d578a01eb99975"
+    },
+    {
+      "bytes": 650,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/DONCH_TO_BACKTESTING_TASK_ARCHIVE_TEMPLATE_2026-07-19_rev3.md",
+      "sha256": "35095325d5d00a8c0f4204a6adea2908a8397f4915367576df6dec6bbb2c9583"
+    },
+    {
+      "bytes": 909,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/FAMILY_REDEFINITION_POLICY_2026-07-19_v1.json",
+      "sha256": "d07b0d290e59d17f7d6a587e2a31e6e550468f9ad403250cd6183c549e685335"
+    },
+    {
+      "bytes": 1578,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/FIRST_UNATTENDED_KRAKEN_CAMPAIGN_MANIFEST_2026-07-19_v1.json",
+      "sha256": "d534b7b1b5ad422de231a40cce794988d5b0ba82bdeabdef34eaf1e985ac618c"
+    },
+    {
+      "bytes": 903,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/FIRST_UNATTENDED_KRAKEN_CAMPAIGN_PLAN_2026-07-19_v1.md",
+      "sha256": "64c3907117e69166f2b1f92582038a328a18f671dd0ddc1948742165b9b77f84"
+    },
+    {
+      "bytes": 3113,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/HYPOTHESIS_DEVELOPMENT_PROTOCOL_2026-07-19_v2.json",
+      "sha256": "4effe3e9608377876486b1583854a7e1479c8e93d6de1661f13d35842bbc6a73"
+    },
+    {
+      "bytes": 4098,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/PACKAGE_MANIFEST.json",
+      "sha256": "e9e2966987ded20a18ab51e4338da0e448f5f51aae79020b681ef64e02907c5f"
+    },
+    {
+      "bytes": 611,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/README_RESEARCH_PROTOCOL_V2_UPDATE.md",
+      "sha256": "e5b629edeb35123945ac34115130c2b19aad55879ae1e284ae4fedd488514e25"
+    },
+    {
+      "bytes": 1357,
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1/received/DONCH_Research_Protocol_v2_Update_2026-07-19_v1/RESEARCH_CAMPAIGN_PROTOCOL_2026-07-19_v1.json",
+      "sha256": "7091156df9bf815a001423b63d673d2d4217f2616fd40e76a261f218a2d614df"
+    },
+    {
+      "bytes": 22986,
+      "path": "tools/build_research_campaign_readiness.py",
+      "sha256": "7bb648e8c29b48669b8a4c7b9def5ba72d97f355dd33b02614c4f9c791b5ee9f"
+    },
+    {
+      "bytes": 20260,
+      "path": "tools/qlmg_research_campaign.py",
+      "sha256": "e4ddb612672f032c70b23a0b284a36dc1b82bbd563e1f21a05f0f3ce5cbc2a6e"
+    },
+    {
+      "bytes": 8337,
+      "path": "unit_tests/test_qlmg_research_campaign.py",
+      "sha256": "149adabbc2d7f896bb08da5a05eaa311f18da0dba3977b8cf25209cb2c0e0fd8"
+    }
+  ],
+  "entry_count": 55,
+  "manifest_scope": "task archive plus active policies, registries, campaign artifacts, implementation, and tests",
+  "self_excluded": true,
+  "task_id": "donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1"
+}
