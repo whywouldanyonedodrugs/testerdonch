@@ -1,0 +1,18 @@
+{
+  "definition_count": 24,
+  "economic_outputs_computed": 0,
+  "event_count": 113539,
+  "feasible_primary_branches": 6,
+  "feature_extension_hash": "b0b261f65c04c5415220caa6ccef51c036a61410546a0591d6e6f5b49c337aaf",
+  "generator_hash": "2ea2bc37df4c31ca373d890bca5b0b8f68f76001161a223ddf99c6973e0bc2f8",
+  "level3_contract_hash": "d20ae93320bba39fb4b7231532a282e42263580093960b13c7ee681d76429ad0",
+  "mechanical_status": "preoutcome_review_required",
+  "parent_episode_count": 104937,
+  "peak_rss_gib": 2.12310791015625,
+  "protected_rows_opened": 0,
+  "runtime_seconds": 3613.9042157121003,
+  "stage8a_commit": "41b64b52a9146669eb26dcf25a86523a35219b8d",
+  "stage8a_kda03_sha256": "b34f5744170c85d02b44d6a0bfc2b5e1d58e6a5d46784ee57488560200ab17df",
+  "starting_commit": "e841469984478f7436db824587eac46dcd454c6d",
+  "task_id": "donch_bt_stage_11_kda03_basis_shock_20260719_v2"
+}

@@ -1,0 +1,60 @@
+{
+  "approved": false,
+  "capitalcom_payloads_opened": 0,
+  "control_outcomes_opened": 0,
+  "economic_runs_launched": 0,
+  "finding_counts": {
+    "blocking": 2,
+    "high": 0,
+    "low": 0,
+    "medium": 1,
+    "total": 3
+  },
+  "findings": [
+    {
+      "id": "KDA03-PRE-001",
+      "severity": "blocking",
+      "summary": "The frozen Level-3 contract omits the policy-required explicit hard_gates, routing_diagnostics, control_eligibility, and independent_evidence_requirement fields.",
+      "smallest_repair": "Add the four explicit policy-v1.0 fields without changing definitions or thresholds, regenerate the contract and dependent hashes, and obtain a new independent pre-outcome review."
+    },
+    {
+      "id": "KDA03-PRE-002",
+      "severity": "blocking",
+      "summary": "The runner does not compare reconstructed timestamp authority with the frozen hash and does not freeze/verify the market manifest and official trade-bar bytes before outcome reads.",
+      "smallest_repair": "Freeze and preflight the market-manifest and selected official trade-bar content authority, compare timestamp_authority_hash before output/open reads, add a fail-closed test, then refreeze and rereview."
+    },
+    {
+      "id": "KDA03-PRE-003",
+      "severity": "medium",
+      "summary": "Feature-contract prose says all non-liquidation states use daily medians, while basis_change_15m uses all prior-day observations.",
+      "smallest_repair": "Correct the prose to match FEATURE_EXTENSION_CONTRACT and _normalize_prior_observations, then regenerate the artifact manifest."
+    }
+  ],
+  "kda01_kda02_outcomes_opened": 0,
+  "level3_contract_hash": "d20ae93320bba39fb4b7231532a282e42263580093960b13c7ee681d76429ad0",
+  "official_post_decision_open_prices_opened": 0,
+  "protected_outcomes_opened": 0,
+  "review_status": "blocked_preoutcome",
+  "reviewed_sha256": {
+    "builder": "efd0061a2f257c1a1c4e5f64479cef05031470d4208a93cb4411eb297c8a1544",
+    "calculation_module": "25ed8552588c2d10f5ce85a01b9a6e62bfc9653170a5f57aae82c25f7a122739",
+    "contract": "735ca2b9b41c53fd358fb98b29ee46dd7d4f05de7496c09341e9cbb75e84a55d",
+    "definitions": "0329660ac986ae53662969cd21d7004bf4261c04eb8de0edfeb4464b60ca306d",
+    "events": "97071db6a3fb331462d071fd01d4eefeb6e3d5edd5c23489332ab747903d7bc6",
+    "feasibility_gates": "67491f509be5feec83adc0216c593b79d823cdaa8adeb331332e55e620af08a4",
+    "feature_module": "c8897179b832434f38e4990f416876748c4044ff414117845357837b9e4493db",
+    "parents": "917ebdc3616e3baa797a2c64d3c708db93e7149ec5efcfd4e45aaba7a0db7f2d",
+    "runner": "acd358e5a0c15044f8b8daa1d0cfb041ee9ab92d5e37517f21613bc2376ce22c"
+  },
+  "test_counts": {
+    "accepted_schedule_rows_checked": 199787,
+    "definition_hashes_checked": 24,
+    "event_identities_recomputed": 113539,
+    "focused_tests_failed": 0,
+    "focused_tests_passed": 20,
+    "parent_identities_recomputed": 104937,
+    "parent_onsets_checked": 104937,
+    "rejection_events_checked": 8602,
+    "shard_file_hashes_checked": 561
+  }
+}

@@ -1,0 +1,3883 @@
+{
+  "files": [
+    {
+      "bytes": 35896,
+      "drive_eligible": true,
+      "path": "KDA03_FINAL_LEVEL3_CONTRACT.json",
+      "sha256": "735ca2b9b41c53fd358fb98b29ee46dd7d4f05de7496c09341e9cbb75e84a55d"
+    },
+    {
+      "bytes": 16176,
+      "drive_eligible": true,
+      "path": "KDA03_LEVEL3_DEFINITION_REGISTER.csv",
+      "sha256": "0329660ac986ae53662969cd21d7004bf4261c04eb8de0edfeb4464b60ca306d"
+    },
+    {
+      "bytes": 567,
+      "drive_eligible": true,
+      "path": "KDA03_LEVEL4_CONTROL_CONTRACT.md",
+      "sha256": "4d506d56c0d35b9f0a862b9e46fb09c474503f40dce8f1b6d9d1572607319f70"
+    },
+    {
+      "bytes": 287,
+      "drive_eligible": true,
+      "path": "KDA03_PRERUN_REVIEW.md",
+      "sha256": "fb6d1445fd268786d83e9fe1322a30e218a8409bc9793fbb08cdaedcc6e06950"
+    },
+    {
+      "bytes": 430,
+      "drive_eligible": true,
+      "path": "KDA03_SEMANTIC_AND_CLAIM_BOUNDARY.md",
+      "sha256": "bc9b6e7bdea0782d4a8537107bab9597269a7da3e0cc5b8b93378d0f97104a0b"
+    },
+    {
+      "bytes": 422,
+      "drive_eligible": true,
+      "path": "KDA03_STAGE8A_ADJUDICATION.md",
+      "sha256": "a6529f5544099ad13502613034a3062ee0c7a8e004b2cc35effec766bd601c86"
+    },
+    {
+      "bytes": 3458,
+      "drive_eligible": true,
+      "path": "KDA03_V1_ATTEMPT_REGISTER.csv",
+      "sha256": "1463a7d27ca08e2d676fa3d6338cc0d17f48b413ea68ad80be2f5d48dd67651e"
+    },
+    {
+      "bytes": 2156,
+      "drive_eligible": true,
+      "path": "KDA03_V1_BREADTH_CONTEXT_SUMMARY.csv",
+      "sha256": "40bed168dc36c10ac5cf1e5827870585fc874ac006edcb27bef6962601d4e370"
+    },
+    {
+      "bytes": 303253,
+      "drive_eligible": true,
+      "path": "KDA03_V1_COUNT_MATRIX.csv",
+      "sha256": "92639ff50898d656cbc8c1913eb0d68027756347d29647efd2fd33823912ffd9"
+    },
+    {
+      "bytes": 10342310,
+      "drive_eligible": false,
+      "path": "KDA03_V1_EVENT_TAPE.parquet",
+      "sha256": "97071db6a3fb331462d071fd01d4eefeb6e3d5edd5c23489332ab747903d7bc6"
+    },
+    {
+      "bytes": 2468,
+      "drive_eligible": true,
+      "path": "KDA03_V1_FEASIBILITY_GATES.csv",
+      "sha256": "67491f509be5feec83adc0216c593b79d823cdaa8adeb331332e55e620af08a4"
+    },
+    {
+      "bytes": 715,
+      "drive_eligible": true,
+      "path": "KDA03_V1_FEATURE_EXTENSION_CONTRACT.md",
+      "sha256": "08a687dec1c97f63b9e0536da0ab5b79bd6995ae5a6c6755a3b7e47f254e08d9"
+    },
+    {
+      "bytes": 1160,
+      "drive_eligible": true,
+      "path": "KDA03_V1_MARKET_CLUSTER_SUMMARY.csv",
+      "sha256": "b3065ab7810963c7f78f5e68e281a187bde8a1ed7a3cd25728943ef9cdc639d8"
+    },
+    {
+      "bytes": 3895182,
+      "drive_eligible": false,
+      "path": "KDA03_V1_PARENT_EPISODE_TAPE.parquet",
+      "sha256": "917ebdc3616e3baa797a2c64d3c708db93e7149ec5efcfd4e45aaba7a0db7f2d"
+    },
+    {
+      "bytes": 10137,
+      "drive_eligible": true,
+      "path": "PLAN.md",
+      "sha256": "69ebb6712abc2888c5964021d3d9b63bc8e6862f3b6587f1c6d1a61217301350"
+    },
+    {
+      "bytes": 635,
+      "drive_eligible": true,
+      "path": "RECOVERY_SUMMARY.md",
+      "sha256": "7dcc9b25432dc408a0ed5f5579085179a90d2c170e9f52cdd72e74ca4b2a04e2"
+    },
+    {
+      "bytes": 252,
+      "drive_eligible": true,
+      "path": "VALIDATION.md",
+      "sha256": "63cf7eeb86ac091b93435e2b24640cf3f9731cc1d8ee4b931fc937e91465ccc5"
+    },
+    {
+      "bytes": 881,
+      "drive_eligible": true,
+      "path": "preoutcome_summary.json",
+      "sha256": "81bb05093e19d0579c49f96fffb0c6437940d8130e5d692e5fafe761dc698341"
+    },
+    {
+      "bytes": 10143,
+      "drive_eligible": true,
+      "path": "received/TASK_SPEC.md",
+      "sha256": "ef75b31cfaedb6fd563324c1831f280f37be979146b5fb14ea1a2f0dca789967"
+    },
+    {
+      "bytes": 218,
+      "drive_eligible": true,
+      "path": "watch_status.json",
+      "sha256": "649b1bff1add65b396e02f1d56c5b384095f57ad0fab88280b994f17fbb2ff7f"
+    }
+  ],
+  "local_cache_files": [
+    {
+      "bytes": 3752030,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/KDA03_V1_CONTEXT_TAPE.parquet",
+      "sha256": "be5fff70f250c7ec7155d7b3d49903ab50aacfdadd9b97d4a059f9c7897eee3f"
+    },
+    {
+      "bytes": 8240577,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/KDA03_V1_EVENT_TAPE_RAW.parquet",
+      "sha256": "8846b20bf487d4ec551d8fb93818ead6f2d6f34e7e4992cce5e547d818de62a7"
+    },
+    {
+      "bytes": 12074448,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/KDA03_V1_TIMESTAMP_ELIGIBILITY.parquet",
+      "sha256": "7363c1abcbeae493f2771e9ae54b408369259d99e350e58261501c0147e846d7"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_1INCHUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_1INCHUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 15855492,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_1INCHUSD/features.parquet",
+      "sha256": "75b5e8ceb250ced651bb79368a4aa84be063e4cfb7e7d921fee173e5340f6b27"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_1INCHUSD/manifest.json",
+      "sha256": "c35531ea771ab7f0d81eb26f14a79155673f4b904c6c7307342f0b9bda7c5a8d"
+    },
+    {
+      "bytes": 135164,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AAVEUSD/episodes.parquet",
+      "sha256": "bfecbea852d7ec88b09b93321c3ac8b1370bf2de5ee345e821e3bc0416b490c2"
+    },
+    {
+      "bytes": 247791,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AAVEUSD/events.parquet",
+      "sha256": "b120f9fdf3e48c1d020ea2d9f2d7076ba124c3d8f4837c06a96abd89e286ac23"
+    },
+    {
+      "bytes": 22617331,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AAVEUSD/features.parquet",
+      "sha256": "ca028ae29bac64913e86e9da4230580b742cbc7f03270692dac8e79d1429b3b6"
+    },
+    {
+      "bytes": 672,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AAVEUSD/manifest.json",
+      "sha256": "5727dfda978c3191902daf2a729bb55e4dac1d273228446c9fda304e72081444"
+    },
+    {
+      "bytes": 180119,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ADAUSD/episodes.parquet",
+      "sha256": "429da490585288581c51d0d89cf051c3777da7cce4455b7aea6dc774d22af6a9"
+    },
+    {
+      "bytes": 324763,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ADAUSD/events.parquet",
+      "sha256": "d6fc48ec8cc511cbb79895d2d52b42c61f02ef271a82da6f885f1476cf38c7d0"
+    },
+    {
+      "bytes": 26670769,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ADAUSD/features.parquet",
+      "sha256": "bc549d786e1b320dc2057b9f059d0889f6949bf3c05cf75e15254743c5f3ddf4"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ADAUSD/manifest.json",
+      "sha256": "1dfe7d7e7c7e0457bbd32b1485af6bb0f6b693454bedb03cdafe18235160ccea"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AGLDUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AGLDUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 13382322,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AGLDUSD/features.parquet",
+      "sha256": "3933fedff07635ea450b94e876d666638ad61705c25f1609fda69448d318beff"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AGLDUSD/manifest.json",
+      "sha256": "4438bd7c2a20b918eb1b846df668eed8af084a8011293d7d767d63ad9ba487d8"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AIXBTUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AIXBTUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6465339,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AIXBTUSD/features.parquet",
+      "sha256": "696b70fea8dd91a516886e6b0ac2bec504ce78b415270175d927a33a05bd3c87"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AIXBTUSD/manifest.json",
+      "sha256": "05233fb8959a5f75a9bfa1069e7aa9e1678921c2acaef7ce25861b60c76511ab"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AKTUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AKTUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6841553,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AKTUSD/features.parquet",
+      "sha256": "eab88f531c695d50af584521b9f485596f9c746e42eb559961b047e7a7db63f6"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AKTUSD/manifest.json",
+      "sha256": "30122afd2903505d08f0ca36a0271ced4c5b5721b8004b418ef717efcb88d7d2"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ALCHUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ALCHUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6419812,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ALCHUSD/features.parquet",
+      "sha256": "d949d3adefc73e8c6ca091c7f312114f1889760a5f260d43014cbeb8b242d53e"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ALCHUSD/manifest.json",
+      "sha256": "222d30ba7f87a8cb28931bb90083cf3aafd8d16d4d5f78e9d26be790fdbbc885"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ALGOUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ALGOUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 18851666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ALGOUSD/features.parquet",
+      "sha256": "c9b730f527b6b8e4c8d624ecf94b8c1a906a1d30a8b8f0c21899f289d8f3f80f"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ALGOUSD/manifest.json",
+      "sha256": "d65e756caa92a1bc2f7886107378a947e4e280935c0fb4825a6b41d6b720709a"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ALICEUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ALICEUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 15101637,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ALICEUSD/features.parquet",
+      "sha256": "f8c387c3a45e39b00be4c65b33f609caa2d17645cf21e19fe0b6d5b6a955fc73"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ALICEUSD/manifest.json",
+      "sha256": "ba9f1f6bf2b06aeb9e70d6571e07b99aca8d1939f4832370e74acf8e28e8ec54"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ANKRUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ANKRUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 15412750,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ANKRUSD/features.parquet",
+      "sha256": "14809dd9496cbf612b3706d4eb0725010bda10ccc3781e0e990b340933d230cb"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ANKRUSD/manifest.json",
+      "sha256": "fe4d81901063c7ea4ee8b63710ee4bdf987cfeff763b979cf11f3a9ba44ad5ab"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_APEUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_APEUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 20375756,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_APEUSD/features.parquet",
+      "sha256": "3a29cf1c218d614db4d05d40b3185b3d19ede3f260c116e1717f667f18db305a"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_APEUSD/manifest.json",
+      "sha256": "006294ce719c10469e340f35292e6227f387c608f6c5de6bbfed7aaeffd09dfc"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_API3USD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_API3USD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 11528663,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_API3USD/features.parquet",
+      "sha256": "c943d4d4db4d98d971a3672dcec6e7d71f0f30154b92607967432613fde6d62e"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_API3USD/manifest.json",
+      "sha256": "76fb4d7fbb903eb6f0ad69adcc6b3135d9e5c0414dc20f3ddb55c9b01ed6e5da"
+    },
+    {
+      "bytes": 19233,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_APTUSD/episodes.parquet",
+      "sha256": "06ca117de91b0802ddc862530aab266742b446372c04950f08908760a15a3980"
+    },
+    {
+      "bytes": 33490,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_APTUSD/events.parquet",
+      "sha256": "871d68c0470001b37f810b1d3c7fa887d55d4a54edf529e85b125f398552b4d6"
+    },
+    {
+      "bytes": 20124612,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_APTUSD/features.parquet",
+      "sha256": "dfb7a05e6d14ffa9211a821684ccc12a0bfa57621854b3e73a67338142151700"
+    },
+    {
+      "bytes": 669,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_APTUSD/manifest.json",
+      "sha256": "83ad18b4f7d9e808932f71d3104a432942c674322b0856ee59f537b91caeb36f"
+    },
+    {
+      "bytes": 148864,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ARBUSD/episodes.parquet",
+      "sha256": "7409cb4d8c90c2a745fdeb8392eb31a96e9889906b4df64f7534f24927139749"
+    },
+    {
+      "bytes": 275339,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ARBUSD/events.parquet",
+      "sha256": "995fa92fdb73ee69d8bec3cde85c6e11dd3016cb24e906797dec4dfd0fb55315"
+    },
+    {
+      "bytes": 22807673,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ARBUSD/features.parquet",
+      "sha256": "1cc56d4a09cf1d558ab5360c591af8fcf5819bb66bdefebff04a22a0a0748f38"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ARBUSD/manifest.json",
+      "sha256": "227b222b796d4fc0a47a6951e17b4ec5e84b4e2cb7484c148e36e11da1c64f7a"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ARCUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ARCUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 5918452,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ARCUSD/features.parquet",
+      "sha256": "b5fdcd915edd238893f7762044e2faa5d695f029d457f00382a063fe0e72d7c3"
+    },
+    {
+      "bytes": 664,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ARCUSD/manifest.json",
+      "sha256": "4944bbbb5c53b143ec0854fc9da8d36e8957acde3224827cec6c6a98c032dc59"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ARKMUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ARKMUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 9767948,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ARKMUSD/features.parquet",
+      "sha256": "9e32fac91ca60b6f1e3cb1c0674ee4483f4ae2f99c0288ec9c82cc19eddd1695"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ARKMUSD/manifest.json",
+      "sha256": "fe026b998af045f6171eb32284150935d5a02d4642cab7ce290e66a404c77201"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ARUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ARUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 11533356,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ARUSD/features.parquet",
+      "sha256": "6cf6b5c4d2b4dada9d2d0bdc74fae8bb3eec66aff02a2660fd2e20333d87aa51"
+    },
+    {
+      "bytes": 664,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ARUSD/manifest.json",
+      "sha256": "5ff372ed426f9a9151884e1d86216b6eaa4318bc70b7e32bb11730953fd685e8"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ATHUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ATHUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6854469,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ATHUSD/features.parquet",
+      "sha256": "9ed09eedb7ebf4bcf2ce5a4d6e8311744657af9178eea6564f23ffd2a9878aba"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ATHUSD/manifest.json",
+      "sha256": "9533c90156c9ea2e2860d903f61e27dfbf278f12a1c3d8538b50c37258f0268a"
+    },
+    {
+      "bytes": 181371,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ATOMUSD/episodes.parquet",
+      "sha256": "0a3fc8061d16d9585fd88591aa7228151aaf359b75d72c858e7a610e41bd988a"
+    },
+    {
+      "bytes": 332918,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ATOMUSD/events.parquet",
+      "sha256": "d761d95c69b99eb7a6bd6cd3f6ded5e0a398ae5ba3b8d14a515ba8d3e8faec9d"
+    },
+    {
+      "bytes": 23877967,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ATOMUSD/features.parquet",
+      "sha256": "bf2c9061058ed4099d024608fbcaa153277813d35b3602bde1091c78691ed78a"
+    },
+    {
+      "bytes": 672,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ATOMUSD/manifest.json",
+      "sha256": "2f7e39f790f4e9c059a2dea0a9e44eaf8880c38a746e24eb0fed6fa86353b9ab"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AUCTIONUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AUCTIONUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 8264245,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AUCTIONUSD/features.parquet",
+      "sha256": "ce07243123cba424950a8f569099f3d5297e782f7676e5624e9fe8634a6e1e9f"
+    },
+    {
+      "bytes": 669,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AUCTIONUSD/manifest.json",
+      "sha256": "275c541b30edfd8b5ba5aed92a084e12bcce6de6d145600c30f0f10165bb06b3"
+    },
+    {
+      "bytes": 232981,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AVAXUSD/episodes.parquet",
+      "sha256": "0d14567baff995f392ca3052d6334a9346d39943e8363ea5e4fdf899624268ab"
+    },
+    {
+      "bytes": 428939,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AVAXUSD/events.parquet",
+      "sha256": "4c551bc917520ec7e6c958ab8b3fcc1533a6fa4caba0e22df9e2c023d76f7ba7"
+    },
+    {
+      "bytes": 24267007,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AVAXUSD/features.parquet",
+      "sha256": "bdb0bb36e5775131108029a03db4ae9070d05f14e6f37689eb7d30fbf3f1edc8"
+    },
+    {
+      "bytes": 672,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AVAXUSD/manifest.json",
+      "sha256": "52dda3a2f6385d0d31fa31aa3265040087442f9c5789c5c66d650bfba7720682"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AXSUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AXSUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 18574805,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AXSUSD/features.parquet",
+      "sha256": "2a4b064d921fe460497ffa19d2d22008fdcdf820fb86d6373356cf8b41fb31dc"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_AXSUSD/manifest.json",
+      "sha256": "35979f3ad412cf7cfaa5dd3cd4616b64d07acd05eb437aa16708aed5f9cfe1d1"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BANANAUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BANANAUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 7749991,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BANANAUSD/features.parquet",
+      "sha256": "53d3e75c37c64cd33b361b8a265ae7482ba190e56ae1086b862f870cc3822083"
+    },
+    {
+      "bytes": 668,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BANANAUSD/manifest.json",
+      "sha256": "50787345d8d2d58e209bb2ec2de9667c6adaf6b5aff01abdda301d8cd7715524"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BANDUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BANDUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 14938830,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BANDUSD/features.parquet",
+      "sha256": "4abed8b750efc0a7cfa05255f0c8c88798cd1c27f073c1d46b08115bb75e4383"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BANDUSD/manifest.json",
+      "sha256": "34cf0dfefef55d1effddd6da9b28deed9176be22acebf4bba89e0ba2ca6cab57"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BATUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BATUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 15121458,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BATUSD/features.parquet",
+      "sha256": "9cb0f9d1009c547746149c23bf40d94162819ff9676d44b36d07cf7ed1740179"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BATUSD/manifest.json",
+      "sha256": "2d2e77caa41027383af28497948a5a59d20405735f501bbaaf7457ca98d62f79"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BBUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BBUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 9045458,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BBUSD/features.parquet",
+      "sha256": "90703e25ce0d9ba17250b9995d01ff310583823d3400f7548832203616c2554c"
+    },
+    {
+      "bytes": 664,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BBUSD/manifest.json",
+      "sha256": "473c3754972ed312fd3f9a4cadef1c0943a199b04062fcd5aaf56af18dbea19a"
+    },
+    {
+      "bytes": 87491,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BCHUSD/episodes.parquet",
+      "sha256": "3e8b62df9b557edb8f84cffc79c8702275adb2c4b25eaff5e37fe5d7074f4db4"
+    },
+    {
+      "bytes": 158623,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BCHUSD/events.parquet",
+      "sha256": "2d613f031e04ccd2ad953ab2ede67da7e9de303e60dfc1f02bfeacdb4550f499"
+    },
+    {
+      "bytes": 23689209,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BCHUSD/features.parquet",
+      "sha256": "a65fac3dabb400db51d3d62f7d4208c02a3be645b94c0f452164bdcc8f44cddc"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BCHUSD/manifest.json",
+      "sha256": "e2145c10ea18229aee1a8cc302a3faebd40e5ec4b2f86d9a2058ec12a087df09"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BEAMUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BEAMUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 10868903,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BEAMUSD/features.parquet",
+      "sha256": "e631324b4c12fb52b59ed32afebce6bfe2ba75aeb953be91cb71cc222bb3e10c"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BEAMUSD/manifest.json",
+      "sha256": "fc1d02eacf83ba7bc641ea0f60dff14d05e93680c10104118ea1c4eb16bb7d96"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BERAUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BERAUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 5568453,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BERAUSD/features.parquet",
+      "sha256": "cc2f6459dbda8a24cfecf45416628a677317eb1e1650856ea723895eb5241ab5"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BERAUSD/manifest.json",
+      "sha256": "ac9eecd2e68718e2e9a62e6b63b5a4f0a5d6682f0f3b5e124466a7c6e037e6f7"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BIGTIMEUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BIGTIMEUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 9714196,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BIGTIMEUSD/features.parquet",
+      "sha256": "2e7c527f39b3b4d9fdeb22868b706bf998c686c9a6d9e4a93e67b4b176c34a10"
+    },
+    {
+      "bytes": 669,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BIGTIMEUSD/manifest.json",
+      "sha256": "270217b0eee9f7fdd5a40b4d8d5a6d21d58fca4fa01ffbcdc7fbe05a527f4388"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BIOUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BIOUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 5768644,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BIOUSD/features.parquet",
+      "sha256": "33873413b011a298894fe36552b886f80edd3b2211e26d36bc123092b84b8cf2"
+    },
+    {
+      "bytes": 664,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BIOUSD/manifest.json",
+      "sha256": "d6ab4dcbcb5aa3e057ec2b93e87b85b9cebf43b4ca485b58ac226ff5e17c8415"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BLURUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BLURUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 16168251,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BLURUSD/features.parquet",
+      "sha256": "4baa7f05125ef0d3f0a0a562a469831ca19ade77ca1812d18e62c63e429e0991"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BLURUSD/manifest.json",
+      "sha256": "c0b88e2a00490af9d4b252dba81cbae9340ca635dbbc4ccd15a21bbc373c8daa"
+    },
+    {
+      "bytes": 68461,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BNBUSD/episodes.parquet",
+      "sha256": "e01e32e4fff5361368b83299d50e39a3bc689d10988f95c92165570c9d6b50f7"
+    },
+    {
+      "bytes": 127625,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BNBUSD/events.parquet",
+      "sha256": "a575266ca75a1109fa1f1e2cddb91b75dcbab5aa3094706a89057938b78f495b"
+    },
+    {
+      "bytes": 18552366,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BNBUSD/features.parquet",
+      "sha256": "771ffa4c4210411f03e8095a124d5372a8bac6f4b8cd38194bd1dfcae22c3c49"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BNBUSD/manifest.json",
+      "sha256": "42486bd613c412ab13d955a791dad90b6158b52bed507fc9ee9fb9ce5f4d17ba"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BOMEUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BOMEUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 10810012,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BOMEUSD/features.parquet",
+      "sha256": "a21dd68f29ea4c87ff38d3da535fad259f091368478a84a55bccabad240de40e"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BOMEUSD/manifest.json",
+      "sha256": "3a0348bf21d30bd084ae19497c5490cf03d4f8ffd9cc7284c2e4cbcee159f8aa"
+    },
+    {
+      "bytes": 98736,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BONKUSD/episodes.parquet",
+      "sha256": "5c3a0903cb7eff65420cdb746621528d4751cd43b8f5b560ee09a651b6bb580f"
+    },
+    {
+      "bytes": 182494,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BONKUSD/events.parquet",
+      "sha256": "c747e012161d77e720561a52b0a0b369de140c645e46103cacace5f3583b8e8a"
+    },
+    {
+      "bytes": 18904402,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BONKUSD/features.parquet",
+      "sha256": "65935776151453f18355cde4c20aae439ffe3101926946146ea00ce6a31316cb"
+    },
+    {
+      "bytes": 672,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BONKUSD/manifest.json",
+      "sha256": "c3e2ebc11782435e1f028943e16e5c48925aed2ec77921669282e8335ddc795c"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BRETTUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BRETTUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 11886451,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BRETTUSD/features.parquet",
+      "sha256": "cf4bcc2114d096f38dd73f15f4c082c58a1dd6c5a8a5350a7253299941d0ed77"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_BRETTUSD/manifest.json",
+      "sha256": "f32910c34581681e7c4a4edf11c50d3910d5f874e1efd3df0278cc7b2029ba61"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CAKEUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CAKEUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 7114380,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CAKEUSD/features.parquet",
+      "sha256": "b68fff27cf071102f9402695a6747c318602d51366613245398bf9b4e45e2a5b"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CAKEUSD/manifest.json",
+      "sha256": "19faeb1a65ed883a7473e3c274b9d07b67367286f06568ad5b32ccd98af18c28"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CATUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CATUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 7762088,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CATUSD/features.parquet",
+      "sha256": "6a7eb7b9c4ff03af7339c016682fc405936843134771078350280d309545cc09"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CATUSD/manifest.json",
+      "sha256": "c76373ce32d6d40ad7d8d06156bea9ef9a42dd2cd0b5ec742c748b5791c51ae3"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CFXUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CFXUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 14180440,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CFXUSD/features.parquet",
+      "sha256": "c62c00d7d2544b42fca8b37f066e917e6f013283a56b66cdad2464f70f8454db"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CFXUSD/manifest.json",
+      "sha256": "c94b29b9af77d918c2e436f498d60bc3edb7841de4e5be68ce8a204cf45d9782"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CHILLGUYUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CHILLGUYUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 5676248,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CHILLGUYUSD/features.parquet",
+      "sha256": "71de07c86b36bc0d4b515351c05ac9441754a5f2dfe1b842e8796f41db143421"
+    },
+    {
+      "bytes": 670,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CHILLGUYUSD/manifest.json",
+      "sha256": "00e8b21df7adb8b2f5da75745ccfd5705fb497355a397c5c0565df3bad354b5f"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CHZUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CHZUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 16809552,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CHZUSD/features.parquet",
+      "sha256": "2a9a4e8ae559f7d165669a4bfce5e7c3c510121fb50d7699cba918b902c404d4"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CHZUSD/manifest.json",
+      "sha256": "2e0090b50c2962a42aac7456067defbfb653596129f4de66f11f0c6805618ac9"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_COMPUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_COMPUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 16362126,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_COMPUSD/features.parquet",
+      "sha256": "078d4108e9a052cf1373b34b00375d51ab1f3341c53d1a769a9f0ea410c8d357"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_COMPUSD/manifest.json",
+      "sha256": "8578f25f15bab63496ae1f78c173d2f1ae328f035b794b63ba2568942ae3ab9b"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_COOKIEUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_COOKIEUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 5294836,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_COOKIEUSD/features.parquet",
+      "sha256": "a287125ce8410930f2f0b00801a7c889616e3aededafa23147f4e705b742fa40"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_COOKIEUSD/manifest.json",
+      "sha256": "97894fc401f1ead80fda3ffe6601f844ccf5f149372f0d58d3296d1a2bca1b56"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_COTIUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_COTIUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 9978500,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_COTIUSD/features.parquet",
+      "sha256": "dd36eb92d9f711b473e219ae493bf92f25dc7453bb60cb3e7317e53ff253f2d6"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_COTIUSD/manifest.json",
+      "sha256": "49843cd1319efb70bc4bf3ccc07ef839354e8bb155e1aff114d2db63d25754ad"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_COWUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_COWUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6542757,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_COWUSD/features.parquet",
+      "sha256": "f4280b1135814beed75e6e8d4d8c1d2072eb135bd1758f0e933c26bbc22d811b"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_COWUSD/manifest.json",
+      "sha256": "3fa87e24427894e004ec280595e522dc4bb3aabe9cf77faad672211ab2d05a5f"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CROUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CROUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6778485,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CROUSD/features.parquet",
+      "sha256": "0505026f29fd9ce72243f434e67df015b0d96444029ae0ae5e225f7599f8ed10"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CROUSD/manifest.json",
+      "sha256": "12f29b8faacc25465ae31879aee345acb247e6396c49493d169df79b838ffd9d"
+    },
+    {
+      "bytes": 91973,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CRVUSD/episodes.parquet",
+      "sha256": "38554c6fc5363d1303390a0b28e30381eb4b7404495a0c3da40cec3807683f4c"
+    },
+    {
+      "bytes": 168265,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CRVUSD/events.parquet",
+      "sha256": "45868bcdddae5de9b05be9149755326b9d112707272488e8725a866f4dd0c079"
+    },
+    {
+      "bytes": 23752650,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CRVUSD/features.parquet",
+      "sha256": "44632b03a49604a017770dcedd377bbfffcf13ce195a02a69c506931998b5f92"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CRVUSD/manifest.json",
+      "sha256": "686bbadf4d15cab327fc923a7349f48e75b4c264662a63fdbf191b442bb4e58e"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CTSIUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CTSIUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 8972021,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CTSIUSD/features.parquet",
+      "sha256": "8a6fabad08613aac0afdeb1f3cf6ce12a969660bee087ce9e464769c43a68fde"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CTSIUSD/manifest.json",
+      "sha256": "6f6ec393132e927ea874563121a8061d7605cd1f22d628ad9ccd28b6f948d09d"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CVXUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CVXUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 15910839,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CVXUSD/features.parquet",
+      "sha256": "1029e734555916d5dbd07df63676257b1dde1e083d146aaf25c099673a20e03f"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_CVXUSD/manifest.json",
+      "sha256": "ff5c054cf46ed8d13f57fc1970deb0a6fe4418ccf776841ab7f1701c58c52ecb"
+    },
+    {
+      "bytes": 10882,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DASHUSD/episodes.parquet",
+      "sha256": "f054a77e47cacf7937e8c4e197d31e55d190341d02c9404c9c6878ce1f0ebdaa"
+    },
+    {
+      "bytes": 18753,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DASHUSD/events.parquet",
+      "sha256": "9b674836d1bf212a6c9845a0a6a946847b355f8ff7e01f6e7e50369e960d04a1"
+    },
+    {
+      "bytes": 18261700,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DASHUSD/features.parquet",
+      "sha256": "c2317b28cc4a909096e12fe67bb3630a42ad6d75af598a2a01297fcf2b987cc6"
+    },
+    {
+      "bytes": 668,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DASHUSD/manifest.json",
+      "sha256": "55076c5a386f296a36c6b67f6f8595622bcc3b96a04ba061566709b295c36bb9"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DEEPUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DEEPUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6857812,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DEEPUSD/features.parquet",
+      "sha256": "c2160d8078619ea51a1574d4c0146e0ced4fce68adc9340d964800a4d0622534"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DEEPUSD/manifest.json",
+      "sha256": "43bbd4b3798c1dcf95aa3703b71182bd7c63b567b60d39c59e84fc3ef68dab55"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DEGENUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DEGENUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6849422,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DEGENUSD/features.parquet",
+      "sha256": "0988e87d2a718389ef5c408a822bbb02d9cf4050f80a3b44c93e032ad1900d16"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DEGENUSD/manifest.json",
+      "sha256": "fdb6267c8fb951f8478e53330009ba0a1c1b2b3e51aef9b52c019ae564257cc3"
+    },
+    {
+      "bytes": 187630,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DOGEUSD/episodes.parquet",
+      "sha256": "232139676137474d364c927f999f76e3a7d8b53ec9c09f076cf7f3c94f2f66b2"
+    },
+    {
+      "bytes": 339745,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DOGEUSD/events.parquet",
+      "sha256": "100bf09243a8adbdb97f8876775ea6d2210ae805c0ae8fc5cb151ed8a09df011"
+    },
+    {
+      "bytes": 27973594,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DOGEUSD/features.parquet",
+      "sha256": "938a4d738f50e2323c682a9ff4f8ad01def665f1f6b6d73624305e016af68319"
+    },
+    {
+      "bytes": 672,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DOGEUSD/manifest.json",
+      "sha256": "01438d1e83b91c549ed9daed58bbdc582a2db3e5f6a10882172dadeb2096f391"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DOGUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DOGUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 8127811,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DOGUSD/features.parquet",
+      "sha256": "ac8f19e233a59ff85296b67aecccd1f104aef96c1e0dc4c816e89d8b94ed77d2"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DOGUSD/manifest.json",
+      "sha256": "d1ab8bb0e5c30e5cf73afc6a6b645bbf35cd86cb70df25c1206edb3962134e80"
+    },
+    {
+      "bytes": 172959,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DOTUSD/episodes.parquet",
+      "sha256": "16d63fb2b9d9bca6107f79819178e3ec784f08d4d3fd294f15b68ce49bd84730"
+    },
+    {
+      "bytes": 317975,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DOTUSD/events.parquet",
+      "sha256": "5a8ef49507d5ec88dc5b793030bb0d466ca72183948a04d145aef455b3986520"
+    },
+    {
+      "bytes": 24120619,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DOTUSD/features.parquet",
+      "sha256": "6fd1178ac528121a0a4fa266892409cb77f088c77dca690842501f1e1c68d00a"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DOTUSD/manifest.json",
+      "sha256": "62278d36c5405ddc227035a61265d32ba54aefbd6e50564e9ef32d3c5af46ab9"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DYDXUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DYDXUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 17552245,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DYDXUSD/features.parquet",
+      "sha256": "aa7ad4b95079fc72c29bfc7f0ee0f04e8212e167d03b602380860ea9e69f17f0"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DYDXUSD/manifest.json",
+      "sha256": "f64b120669c16025e33c731818481bf5c317c806587c1316784e383639ef637c"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DYMUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DYMUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 11736888,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DYMUSD/features.parquet",
+      "sha256": "d8bb801f0f6153474983f5cb9585369ec1762a23096f98cf7c69e2a34ac934a4"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_DYMUSD/manifest.json",
+      "sha256": "76d9ce7e29fa26a87f7f6dd027e1c96790e6840aeb843569ac59f05018fd73b4"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_EGLDUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_EGLDUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 15183719,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_EGLDUSD/features.parquet",
+      "sha256": "f8ceaca2f2e1ea6be7d4989f1ccccb5868fbbd0425f9028cf96fb1bfcd1a9cdb"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_EGLDUSD/manifest.json",
+      "sha256": "76a726df0140e6969c6cd02a52c5799c0fbe9b7c701c81fb4c1324b64219c348"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_EIGENUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_EIGENUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 8101423,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_EIGENUSD/features.parquet",
+      "sha256": "5e17f11ef657a3179f23b2d6c847c5d3b209edbb020890e2d94db1fb758a3dc3"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_EIGENUSD/manifest.json",
+      "sha256": "4917e07d707fbaf43a874463c70fd71242a719b762dec0bc8232c8618c3d11fd"
+    },
+    {
+      "bytes": 36956,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ENAUSD/episodes.parquet",
+      "sha256": "b6d27a03cc6e8fb10b2afa950e7ff7ec6cf46321afd9424da45193508d19f827"
+    },
+    {
+      "bytes": 66248,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ENAUSD/events.parquet",
+      "sha256": "54e988065e6420490b1c2db41907ac087016051d480e9d9b26d951b03ea36f6d"
+    },
+    {
+      "bytes": 14622645,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ENAUSD/features.parquet",
+      "sha256": "fbbae9a5bf1cdef323b467d49b0b54be77c26ef5581cbd304a6ac688096ada2c"
+    },
+    {
+      "bytes": 669,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ENAUSD/manifest.json",
+      "sha256": "39fec098a406e06104ecb46073b1ccc4b8ffc5246ff2d235e56ee31f3bb85f3f"
+    },
+    {
+      "bytes": 26969,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ENSUSD/episodes.parquet",
+      "sha256": "73eaaefe99a7823b50805a08a1c5394f5fb70b43f0cc1ae8a1fcec61eca1361a"
+    },
+    {
+      "bytes": 48832,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ENSUSD/events.parquet",
+      "sha256": "2e632f0887d8dd1ec9fc3d92d60d8128ed38a176cfc9e9395029e27697bf67e7"
+    },
+    {
+      "bytes": 19416185,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ENSUSD/features.parquet",
+      "sha256": "fe375cf04eedec3492e220552031ff537311f2c514fb16375fc5de1573f2056a"
+    },
+    {
+      "bytes": 669,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ENSUSD/manifest.json",
+      "sha256": "5aac418866b35ad4abb5cb1ca7ff62217ee866ac44d9444d4a7f96ecff1d2216"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ETCUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ETCUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 15857061,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ETCUSD/features.parquet",
+      "sha256": "3534ef31e616486caa99b07eeba0ff2024f79ef060d8df4346f0331e7ec45dba"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ETCUSD/manifest.json",
+      "sha256": "06b3a6b1a05e372a6488cd2854d620c31128acd3a17bd2aa1aeae0ca194dcbac"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ETHFIUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ETHFIUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 10269098,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ETHFIUSD/features.parquet",
+      "sha256": "0993c7c461adbafe0e299d6882519311f936ed147302bcded137b3d090651c96"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ETHFIUSD/manifest.json",
+      "sha256": "d8bcdb43abba7ee1fb7203f0b44d9408ea4655c2f35f4bf34eb56106a89227b3"
+    },
+    {
+      "bytes": 302243,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ETHUSD/episodes.parquet",
+      "sha256": "8c9418f957e96883f0062ae927867015b9e2edfe0cbd08cc090e090a27309e09"
+    },
+    {
+      "bytes": 581088,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ETHUSD/events.parquet",
+      "sha256": "388ab5df00f8e17c975b4c20baa18b3670243d189c0ddacb30b89afe02b3b919"
+    },
+    {
+      "bytes": 27388439,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ETHUSD/features.parquet",
+      "sha256": "5a615b68be13f019ec8742a8ad8fc715f88fe6c3f1e21507ecf49cec7f8b1ac2"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ETHUSD/manifest.json",
+      "sha256": "88a912d8a742cf925ab343f3bc58cdf8923c450f1de35d3631d0532dff435329"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ETHWUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ETHWUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 15011339,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ETHWUSD/features.parquet",
+      "sha256": "f43f509c94221318c14dbec903f895dd276bfab77c6e162e9958e7db65c38f00"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ETHWUSD/manifest.json",
+      "sha256": "105bae61b4d48bb4a0990cb17e057c98238c907f3420be880e54b8d529027015"
+    },
+    {
+      "bytes": 79338,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FARTCOINUSD/episodes.parquet",
+      "sha256": "ed97a5c96c1fd85c7da2e5bae9e6409c185e65cba808d35cc19f7a13e04adc91"
+    },
+    {
+      "bytes": 145116,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FARTCOINUSD/events.parquet",
+      "sha256": "cd14be6c271158699848022beed3a07b0f980d38b8dafbb4573bc817f65dbfd8"
+    },
+    {
+      "bytes": 10195808,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FARTCOINUSD/features.parquet",
+      "sha256": "184e77a00832ad922579e4aad447c971818022d441ed8a30eb71bf4add960060"
+    },
+    {
+      "bytes": 675,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FARTCOINUSD/manifest.json",
+      "sha256": "d801e742c11d59916ad103a36627ce085a45762fbc47840b3a42473ddf35a86d"
+    },
+    {
+      "bytes": 17173,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FETUSD/episodes.parquet",
+      "sha256": "1b93b24cf71aa8818928b2748b58455dba53ea76c15260088864ffc9ba0a3283"
+    },
+    {
+      "bytes": 29919,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FETUSD/events.parquet",
+      "sha256": "fe037ae7af48d63310352e964cb7b74713ff3df3bf8f357e66bc999e188da172"
+    },
+    {
+      "bytes": 17600048,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FETUSD/features.parquet",
+      "sha256": "fbb61a4c7299ec68ae1f52122a98e41891e234fe33bcf30c070de22e10d5cdbd"
+    },
+    {
+      "bytes": 669,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FETUSD/manifest.json",
+      "sha256": "aa2d09d5c16e1cc2921df4bc6e717d455193d7af02d974f5b8ace9b7d5403898"
+    },
+    {
+      "bytes": 78681,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FILUSD/episodes.parquet",
+      "sha256": "ef89ce14854746d28a139ff7c1f6863cfb050a789e0bed2d7a9de463a1105027"
+    },
+    {
+      "bytes": 145743,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FILUSD/events.parquet",
+      "sha256": "e1238c38ab2a0c404b9074ffd7409b6a879be7fa6727bc37464b3ab33c1857fc"
+    },
+    {
+      "bytes": 22281710,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FILUSD/features.parquet",
+      "sha256": "041a90af7b08c4fc4a4da96d5f27d0aaccec8ef8012c8854c13c15fa5778c64e"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FILUSD/manifest.json",
+      "sha256": "00c2604426244cac3d93d29699bf051cf17f8faad15fc89641c03f93dabf146e"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FLOKIUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FLOKIUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 12607013,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FLOKIUSD/features.parquet",
+      "sha256": "327589653a623becc30f365b36297ecc93103726c82a393b3f82c015b89d3ef3"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FLOKIUSD/manifest.json",
+      "sha256": "76b4f3eafd55d1274d0558ca0a966f9dfa8b3a297aede7fd138181afcb3e6a0d"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FLOWUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FLOWUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 14902146,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FLOWUSD/features.parquet",
+      "sha256": "813a5bc0ef22a066b29e6492d3c8f1b0be4e06246f8d8b8b64f0bfe6be862f8f"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FLOWUSD/manifest.json",
+      "sha256": "420bfdef11acab614c55fb6bb71f8947644154ca4c8eb7377aaa55d01d27a07e"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FLRUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FLRUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 15608437,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FLRUSD/features.parquet",
+      "sha256": "54454094bba7624292aa6191dbf1b8d6e346748904b2e189801f1a2e4e8db082"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_FLRUSD/manifest.json",
+      "sha256": "d8101dd94e60dcc5658d8c26b87b214a1f7c2b43a0cb1380fbffbd778deb0208"
+    },
+    {
+      "bytes": 10866,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GALAUSD/episodes.parquet",
+      "sha256": "2a7db242a5698ba29690b2d44ec0f8ceaa980d18319e47f1868d5a3491160503"
+    },
+    {
+      "bytes": 18874,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GALAUSD/events.parquet",
+      "sha256": "a5125d2b00d5c99426b5e6ed938ada291ff84340c4f3db2f34ced4920dc146ae"
+    },
+    {
+      "bytes": 19284761,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GALAUSD/features.parquet",
+      "sha256": "b741a88c498c4fe42c387e29de90a68ec68cbe787621c3a97b96a981d8988720"
+    },
+    {
+      "bytes": 668,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GALAUSD/manifest.json",
+      "sha256": "57af616fa05fee56e746ac698cf1353de111e10f9dbfcd4d45cb38ae0bcd1cbc"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GIGAUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GIGAUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6316787,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GIGAUSD/features.parquet",
+      "sha256": "13c21c8e02e0ff3f3c42f3b7d52156ee80149f13fbaedb09cf456b7a0172326d"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GIGAUSD/manifest.json",
+      "sha256": "0d463fb9700f1d3fb4d511f16307d43bfef2741b4771ba7e6265555b038693e4"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GMTUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GMTUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 15801764,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GMTUSD/features.parquet",
+      "sha256": "153e2f9007e2beac2829c9ebd2d6072b49cd299ab2136e356492b715b10e0c15"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GMTUSD/manifest.json",
+      "sha256": "cc94ba7241e10c3072471b94a605475a24618cf3c5de1040f6e9d118cda65d1b"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GMXUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GMXUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 15862073,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GMXUSD/features.parquet",
+      "sha256": "0c40bc1c59dbb51d7039989aebd7a96cdcaaa51f58fe503411a35a580c0dc71e"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GMXUSD/manifest.json",
+      "sha256": "9423533b775833bed0799816a8d7b85a41542f9309200da7214184f4a8aa0668"
+    },
+    {
+      "bytes": 26451,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GOATUSD/episodes.parquet",
+      "sha256": "400ed2cb7593f6a6c760be8c8f7d240642465acfb885e447072132a449610a11"
+    },
+    {
+      "bytes": 47426,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GOATUSD/events.parquet",
+      "sha256": "33ab8e7a7da6539676b9230065a2cfc1d273f98a85fcc00f8c9cc58c140e595b"
+    },
+    {
+      "bytes": 11044977,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GOATUSD/features.parquet",
+      "sha256": "16839baba99ca52c40e925028da38ebe9e891e1a8fa3ad2c035130163aa88820"
+    },
+    {
+      "bytes": 670,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GOATUSD/manifest.json",
+      "sha256": "024b56a6e40e86e7772f469a7f41fe89a7196547b25b47010e7299078485dede"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GRASSUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GRASSUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 8176478,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GRASSUSD/features.parquet",
+      "sha256": "67bcab92ac54461bd73d96cb26a7d309b77cdb14c5838edafeaa072c53350bd1"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GRASSUSD/manifest.json",
+      "sha256": "d8b8120b674b3d7058fae8c40f7a9366498df47131b78d40552f788f15204769"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GRIFFAINUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GRIFFAINUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6391152,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GRIFFAINUSD/features.parquet",
+      "sha256": "58593f4c4e03f548461c433eb57b52361fbd2f331626c560812d3a8236dfebc3"
+    },
+    {
+      "bytes": 669,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GRIFFAINUSD/manifest.json",
+      "sha256": "2e6dbd2b4996e5adbf94f56daa68707df1ea705b9541fae66f773851c53f091e"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GRTUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GRTUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 18158897,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GRTUSD/features.parquet",
+      "sha256": "96d9f3d402daa4d3b537163f6deaeafbcbe2a65a73fdd6bddec5889a8ec58152"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_GRTUSD/manifest.json",
+      "sha256": "bd4fa1bcb46f5967a6dfdb3fb7d6590aa7f2f97deb3b6280cec7200d38209f1d"
+    },
+    {
+      "bytes": 37865,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_HBARUSD/episodes.parquet",
+      "sha256": "eb050fdace268a5b484b26ee4eed5e2c7a7587bba95ac98acb4e2a1bca6ceec2"
+    },
+    {
+      "bytes": 68864,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_HBARUSD/events.parquet",
+      "sha256": "0154efed2845ae213c178960b02d3843459acfe737301c50a315bfcace048ed8"
+    },
+    {
+      "bytes": 13277788,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_HBARUSD/features.parquet",
+      "sha256": "2926248918bf10e8fb3a35990c9ba339816e9dccec59c34f82e5ada93c5da54d"
+    },
+    {
+      "bytes": 670,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_HBARUSD/manifest.json",
+      "sha256": "1d528242d057a33666988c0f3366fcf388cb2d184a88cfc708e941a0ef442b7d"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_HFTUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_HFTUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 13568053,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_HFTUSD/features.parquet",
+      "sha256": "6d8771d5583332737c7cdb26380c708bdbdaad6f8d65d885c85294f8cf2db09e"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_HFTUSD/manifest.json",
+      "sha256": "12abb9c2ddc8ef97899133ce3a0356ab7513ee7dd1388736c0870af07370bea7"
+    },
+    {
+      "bytes": 37442,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_HYPEUSD/episodes.parquet",
+      "sha256": "aafcac106aec0dddd55901f115aa52b50bc4e4e51fed8737183402662649fb5c"
+    },
+    {
+      "bytes": 67666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_HYPEUSD/events.parquet",
+      "sha256": "77957a601e357b70149e58e5f55aff90015036eb8c0f4b4fefc734b5bb037ec7"
+    },
+    {
+      "bytes": 9017022,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_HYPEUSD/features.parquet",
+      "sha256": "2eec32daf2314fa8659b0e71770c5da9a217100e10fb1c1477bd5893c814f9b5"
+    },
+    {
+      "bytes": 669,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_HYPEUSD/manifest.json",
+      "sha256": "686f0b64139429246005c12112fb82642f8e131292aa1a4b72aaaa3040677e07"
+    },
+    {
+      "bytes": 14062,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ICPUSD/episodes.parquet",
+      "sha256": "5d8f597ee4173bb68ba03b639d01eb0386b5bb02300034fa95036beae4970b26"
+    },
+    {
+      "bytes": 24091,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ICPUSD/events.parquet",
+      "sha256": "4bb3380176e6293fe4d0fd88d4daf3e49ac21b4cb6e00af5661bf11d4982c2a2"
+    },
+    {
+      "bytes": 20317896,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ICPUSD/features.parquet",
+      "sha256": "237df55304b2765bec76e55498af03810f708785f1293c008c0456913f76f49f"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ICPUSD/manifest.json",
+      "sha256": "f6c8bbcb43888b724265580cf3497e4ad46c2c56940bb06f66891faa8a39f271"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ICXUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ICXUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 16049725,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ICXUSD/features.parquet",
+      "sha256": "db50028446b132bb7622aea4dde99310d5b53898462994ddf39f78b949cb5d8b"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ICXUSD/manifest.json",
+      "sha256": "3c67d23df6f8a34dcdafadf72e73462422a2c19f35589be632cfd21f5769b2fe"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_IMXUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_IMXUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 17456743,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_IMXUSD/features.parquet",
+      "sha256": "fcdea23a13ec7641e9719757562f4e97ddc2b48552b235cd2efa4caa3742e490"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_IMXUSD/manifest.json",
+      "sha256": "d33ce5533fa2c673e16198f15317cc774d9735b497136733a845c5ae405786f8"
+    },
+    {
+      "bytes": 134114,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_INJUSD/episodes.parquet",
+      "sha256": "b41e58022d3e7952344c014e80b13672af6df1d8b27617ca678cc2fb3d58829a"
+    },
+    {
+      "bytes": 245368,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_INJUSD/events.parquet",
+      "sha256": "e4d4c394d96fc4a8efcd6c0041e297c8bf7220eb0ce6df4b1acb6adf790bc1c7"
+    },
+    {
+      "bytes": 23660738,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_INJUSD/features.parquet",
+      "sha256": "ae0926eccf38bb75eb12457a836cb5430cf8f0e67c2db2e5c0c7e42ced17e73f"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_INJUSD/manifest.json",
+      "sha256": "658078e2710a1d0f87af24c458fd9d63f37d94cdae27dcfcdd0848243a8e4735"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_IOTAUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_IOTAUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6433903,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_IOTAUSD/features.parquet",
+      "sha256": "006b39c3abc1be0910dc52d650e639f67169341b6f9d54cc7cabe693152c52ff"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_IOTAUSD/manifest.json",
+      "sha256": "97a586ddaa42e5dc7a0717ac7b75b809c1aead7f2be23feda6412999a2eea9a4"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_IOUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_IOUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 5632840,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_IOUSD/features.parquet",
+      "sha256": "55be494b019adee32030e3cb30b5e5d41c2a925c86a9580fed55ad3f3d918859"
+    },
+    {
+      "bytes": 663,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_IOUSD/manifest.json",
+      "sha256": "08d4ffb5329215a52bf0b2487a8e257f92685796d367a3119948a6cdfd92d600"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_IPUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_IPUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6067834,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_IPUSD/features.parquet",
+      "sha256": "4f2caabf0fe2fc1793600cf5b745595b63a62e74077e07c84a6bcbd412bed201"
+    },
+    {
+      "bytes": 663,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_IPUSD/manifest.json",
+      "sha256": "617a5f4df725ad6b1892740b1c2306e4fe100516d372e2db8bde5ca16d6d59ce"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_JASMYUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_JASMYUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 19405670,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_JASMYUSD/features.parquet",
+      "sha256": "43d73a7fa2f9dcf34358a07cfaa436584e1c452baa19651f7a7616aef33c93dd"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_JASMYUSD/manifest.json",
+      "sha256": "27a602f400b16e45217ed84d7f6cdffebdb337ba337408c7ea5f9873fd2d135e"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_JTOUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_JTOUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 13556245,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_JTOUSD/features.parquet",
+      "sha256": "a0d603a4a6ad80ce533e9647cf90fa51c9187dec49ad8846c3882ec76433b3ed"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_JTOUSD/manifest.json",
+      "sha256": "20cc901c3520fe7f1c6a330564452b5377b3ac11f4e2ee99f4ef863fd487f096"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_JUPUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_JUPUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 14962469,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_JUPUSD/features.parquet",
+      "sha256": "947b9be83bcf6d45c4e81fd719be7b8788f6d38e45ec39a1a042d089d936e74b"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_JUPUSD/manifest.json",
+      "sha256": "cb91f64cc15c6eb39410f9d8930a5efd33b7f8ba31568de137cc22bb5ff4e4a8"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KAIAUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KAIAUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6676570,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KAIAUSD/features.parquet",
+      "sha256": "871330b8f8aa761b6edf11d3575cfaccd13720175489fe44a6050e7ab160c71f"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KAIAUSD/manifest.json",
+      "sha256": "e1fc71b0b7b1d7cbde03a06e380e0fddb2484d4827652f58840ba8b644f62898"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KAITOUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KAITOUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 5243079,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KAITOUSD/features.parquet",
+      "sha256": "b012c0b25b32ccf82a0a6ebf3557cdd6f28251b2aa7aebc876f56c88c5d4ba98"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KAITOUSD/manifest.json",
+      "sha256": "682a61cfcd4e55514980fcdc4bd6ad49e84a7e656778daa504502846e0c1d8a6"
+    },
+    {
+      "bytes": 46287,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KASUSD/episodes.parquet",
+      "sha256": "d7b3d26f96b2bd08b3479835aa45ad0ec2d1cb4aeb1b85966453dc05620f9a6f"
+    },
+    {
+      "bytes": 85134,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KASUSD/events.parquet",
+      "sha256": "2baa36da796bf48decbca0e2e49843bf09e4e29203561f63c2c81e247968efee"
+    },
+    {
+      "bytes": 16816646,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KASUSD/features.parquet",
+      "sha256": "6732e831466edf726e917f2237689efbe563292193c669e3b87dfc196734e528"
+    },
+    {
+      "bytes": 669,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KASUSD/manifest.json",
+      "sha256": "02f6e76c85c53d73c4c23898119d3df099df94055840870e87ae802b68db2e5a"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KAVAUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KAVAUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 16377585,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KAVAUSD/features.parquet",
+      "sha256": "215ff500a02b1a5504c87372769facaa2b43475574801cd85912224e41670443"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KAVAUSD/manifest.json",
+      "sha256": "0ecf97d709f987c5e81a3c3e88d3c031d7990436979eb245e57613f178d9e724"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KSMUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KSMUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 15626118,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KSMUSD/features.parquet",
+      "sha256": "20a5653d4f192fbf6e4ecb16b37d177a5314d02f12d8ab015084dfd7be474fbc"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_KSMUSD/manifest.json",
+      "sha256": "73283a7e5a714d9582e7fe270bbe58472495dde48d9019cfec610a2b59ec57e7"
+    },
+    {
+      "bytes": 17001,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LDOUSD/episodes.parquet",
+      "sha256": "ea50c1f057217f4a771925be466f06788afc583974e230eaf456fffcc38c331b"
+    },
+    {
+      "bytes": 30033,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LDOUSD/events.parquet",
+      "sha256": "cf8eb6121881cebc43e312a2c509893962911b7ce47c102e0d127fe5b502154d"
+    },
+    {
+      "bytes": 20306596,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LDOUSD/features.parquet",
+      "sha256": "0ff4467e882b58197d98d50ee8246b3a141af8fef662f4a49c333e99dac2d3c3"
+    },
+    {
+      "bytes": 669,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LDOUSD/manifest.json",
+      "sha256": "020e96359c968ac9ec83a3abb64d095f38d876cf1c606236bb9907a90d270dc1"
+    },
+    {
+      "bytes": 237592,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LINKUSD/episodes.parquet",
+      "sha256": "4a32ba44fbc4256fc37b995beaedbc1a30c507972d564ecd9fe9749185515dc1"
+    },
+    {
+      "bytes": 438106,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LINKUSD/events.parquet",
+      "sha256": "7c5e480e7c3b838132b5cc6a913007915b206bcbbd56d45f046a371ea6fde1aa"
+    },
+    {
+      "bytes": 26054368,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LINKUSD/features.parquet",
+      "sha256": "d0c17b1d6e54e37f73ed1588811b546254c35f890422321bd9c6549a1cbdda8f"
+    },
+    {
+      "bytes": 672,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LINKUSD/manifest.json",
+      "sha256": "7d150e16c9d6f13697c2882d183989c7a3118cfe6675ca3a84e1ed780fff71f3"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LPTUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LPTUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 18501238,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LPTUSD/features.parquet",
+      "sha256": "ace26e76596d400436f04853e30cd28bdbc89002b591f8a40922fd46f4ee7c08"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LPTUSD/manifest.json",
+      "sha256": "f85c966a54bdd0b42e051fdb50b39807d9a3f6a8bbb770772da93e32223437af"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LRCUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LRCUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 16152426,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LRCUSD/features.parquet",
+      "sha256": "9f751fa6518621527d2c50c0a3f1549c986c2383b1a80a2717cc77d3fc33c137"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LRCUSD/manifest.json",
+      "sha256": "471b01875a1d9482680e96379ee133ea8843f69f5b88f0c2f901e2012f0a2bf9"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LSKUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LSKUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 10589858,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LSKUSD/features.parquet",
+      "sha256": "a06000c401b7b13362daf610555af4474fb086adb84befae7acad4ce35090066"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LSKUSD/manifest.json",
+      "sha256": "b260f1832e1f5203b21729257a29782a039fdf69367ab1dfa88841d459f5742d"
+    },
+    {
+      "bytes": 227602,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LTCUSD/episodes.parquet",
+      "sha256": "ce70163689c709b72ac37325e5edd516d79633ae97fcd0ba148ba8bd7bd8bcd3"
+    },
+    {
+      "bytes": 423403,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LTCUSD/events.parquet",
+      "sha256": "de56fdddafa8af07a15be76b91c33e7dd3e1981562f96e93e671a965cef2eeba"
+    },
+    {
+      "bytes": 25717454,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LTCUSD/features.parquet",
+      "sha256": "d92383297adfc80e17bdfbb55980eb1e943e482398f82a4154914679e233c5d9"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LTCUSD/manifest.json",
+      "sha256": "78305972852d14c7d67e0072b5cc14c56f07b773eee7a0af8fb85008cce2b79a"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LUNA2USD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LUNA2USD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 15023240,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LUNA2USD/features.parquet",
+      "sha256": "0f367c758f5ca94d065211dcf03b5c6bfa38204824de7ec9c74d761363af04f4"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_LUNA2USD/manifest.json",
+      "sha256": "4f35a8045605b1734c0ece83f80ac8dd7e540d2660c3f3b11fe282311e815305"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MANAUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MANAUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 17702250,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MANAUSD/features.parquet",
+      "sha256": "6df02facf8f85158cb12cec8c3552e4927f2bb690e6d074d73e822c2097a96d2"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MANAUSD/manifest.json",
+      "sha256": "bb6e54fd2dfbf41adb8701a8ed21bb20162a21fb567936e0ee3e190d52898517"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MELANIAUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MELANIAUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6784822,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MELANIAUSD/features.parquet",
+      "sha256": "88b2b02676a700fa45ec9096cf49eebfa5876b394d8af896ff13aae4c33a7cbb"
+    },
+    {
+      "bytes": 668,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MELANIAUSD/manifest.json",
+      "sha256": "683a7a6c2383cf22b006aa7106df6e532143c3e703e6d0e35ebc197a08118d39"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MEWUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MEWUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 12598626,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MEWUSD/features.parquet",
+      "sha256": "8ad04d6e91a2a8dc5b6a7969f8548003812d7868f1d280381d6d8e0eedfd7464"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MEWUSD/manifest.json",
+      "sha256": "0044c673c067f8cd01fdc3727e267b0145a10c0ecf4465cca1cbb4a4bf7b1463"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MINAUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MINAUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 16006456,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MINAUSD/features.parquet",
+      "sha256": "82c2d84a162e9b55d65bb50043bbf2f2c8e5e0df0a8956900f6e960390a96cdc"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MINAUSD/manifest.json",
+      "sha256": "8ed618d2dd83349483dee88d502f0996d0909fdbcfec7c3184bf4435425d4578"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MNTUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MNTUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6590385,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MNTUSD/features.parquet",
+      "sha256": "b6fc4e36a5c99e5e5adbe89bec6ecfdfd675920322d853ef57ceab8d32113ed4"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MNTUSD/manifest.json",
+      "sha256": "bf7a530fe73bd4dce8356d24f10d2ec121d61f548478f52a7373c91e5893d3f1"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MOGUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MOGUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 8623918,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MOGUSD/features.parquet",
+      "sha256": "df425994318580a2824804f5ef660f0ad168a45b9bb79167144c88144c22ae73"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MOGUSD/manifest.json",
+      "sha256": "c5e0bef98962aaebf884b95447df8edf804310f7a58386a3774d17dfa355e5d5"
+    },
+    {
+      "bytes": 61247,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MOODENGUSD/episodes.parquet",
+      "sha256": "71d5bd8e506704a8109aebe13c86a3bf26debd489e13f5d18b0a76c6027c0417"
+    },
+    {
+      "bytes": 112379,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MOODENGUSD/events.parquet",
+      "sha256": "292244262a2095905924288f9f85885e9350f12ca5ca8ece0cf6f38f3d79c8f7"
+    },
+    {
+      "bytes": 11718586,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MOODENGUSD/features.parquet",
+      "sha256": "36f111a9ff144b2b37c6a9f59e9fd02d7e76422701204e7130d677079bdb2ca8"
+    },
+    {
+      "bytes": 675,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MOODENGUSD/manifest.json",
+      "sha256": "c0d8eb88529e2d70c6c861c87f9f73785874ea170add70a4f27f7bbd1f668b30"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MORPHOUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MORPHOUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6945377,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MORPHOUSD/features.parquet",
+      "sha256": "06e8b03a92a79499d783dd005f7099b6cf7aab4d95a4d5c59b4c9f8ed8754e0e"
+    },
+    {
+      "bytes": 668,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MORPHOUSD/manifest.json",
+      "sha256": "ff683ae9e8a51b685bb9ef3793e35d5b6ffe7da87cc6cd158931912cc8189186"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MOVEUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MOVEUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6442151,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MOVEUSD/features.parquet",
+      "sha256": "6bf5fc4f124b80e9e62077d17f76f74caecf05d8203c6e8f5cea983984f09e99"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MOVEUSD/manifest.json",
+      "sha256": "addf9179a21d56697232102ccb33f7f67b4c8e597011d74c6cdde04b82c42817"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MOVRUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MOVRUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 9239597,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MOVRUSD/features.parquet",
+      "sha256": "9b2cc79a2cb0ee35dc9c3d14a79009d722f1dc9dbd9f470a029d4c8ae507a697"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_MOVRUSD/manifest.json",
+      "sha256": "8cb858bcd08eeeb9228438bb5510057a05ca1178735cd1bc5dcea34dc1c9b148"
+    },
+    {
+      "bytes": 216993,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NEARUSD/episodes.parquet",
+      "sha256": "964988f371e927d1b3ad6f7e167d51517712dfc8f48e4818442938716f25dce7"
+    },
+    {
+      "bytes": 389886,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NEARUSD/events.parquet",
+      "sha256": "f867ae670cfc4b7fa925702235cd0b8a2fde71ac19ec00ec287c2e24f966df94"
+    },
+    {
+      "bytes": 23561684,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NEARUSD/features.parquet",
+      "sha256": "b1ec8bb2a9706ba3a876c3572f570399b3e6a1de1f3e1a5a887635055bdd13fb"
+    },
+    {
+      "bytes": 672,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NEARUSD/manifest.json",
+      "sha256": "38004032a2b12975bfabd87c616d0c36a685f42d88c7308ff9e2387ab5a7cc17"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NEIROUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NEIROUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 8787647,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NEIROUSD/features.parquet",
+      "sha256": "92815920f09d56357cf880ce0f78e2efc152955bc721858673ebaf841df5f7b1"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NEIROUSD/manifest.json",
+      "sha256": "df99d726d0b0b673499a6c600ddc9be61d09cf9bbe5a0a3a600b8e13547201b9"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NEOUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NEOUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 9451005,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NEOUSD/features.parquet",
+      "sha256": "97f3ab6dab53851e8ebc0e2a4fe4a5c162e40dc5d532ff1ff5dd20ee8ec9f3de"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NEOUSD/manifest.json",
+      "sha256": "23062e4cd6d021e980f96bee18f5b161492a979db64f26dcca08f804bcffd2d2"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NMRUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NMRUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 9181362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NMRUSD/features.parquet",
+      "sha256": "7a0339e8965a1a3a7600837dbe16e7eb5602fba3745a2a69f68bd1f9c07d332b"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NMRUSD/manifest.json",
+      "sha256": "08edfe6d32ca98f51e980ed8f24262801a53e3e39158ac9a92fc1d9c25ce7535"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NOTUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NOTUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 9456067,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NOTUSD/features.parquet",
+      "sha256": "0c635a195ac64b91ea5edb057054c904233221e4c6de36610d6245ddf99a065e"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_NOTUSD/manifest.json",
+      "sha256": "8b20f63472407baa38bd2af5ea24ab2081148ecbd7d94b62498905f89dbd510c"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_OGNUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_OGNUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 14952792,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_OGNUSD/features.parquet",
+      "sha256": "61f49430b3921d6ecdee6d327f55525f59dcac1171b5928bf8ed304d5052ee9b"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_OGNUSD/manifest.json",
+      "sha256": "1e9e934dea63867186b89d312fec208c021e6156ef833dcaa4be33a658645f89"
+    },
+    {
+      "bytes": 57873,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ONDOUSD/episodes.parquet",
+      "sha256": "7aa58beb4494d603f0e2193c71e81bf1d542bbb4a1bba9225694ddeaee8286ac"
+    },
+    {
+      "bytes": 102733,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ONDOUSD/events.parquet",
+      "sha256": "f1c9079deb0532deb012ac7748b5d0fd21539dbac5ca9206150a34c9a8e97fe2"
+    },
+    {
+      "bytes": 14895101,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ONDOUSD/features.parquet",
+      "sha256": "f124257da2332ceacfa6d59e428894eb5296e5aa44bd7b82fb86bb9844545717"
+    },
+    {
+      "bytes": 670,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ONDOUSD/manifest.json",
+      "sha256": "cb25724d14aec9cc60ad7d87022812e7dec39307b1de7c08b933d43a47b46905"
+    },
+    {
+      "bytes": 66638,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_OPUSD/episodes.parquet",
+      "sha256": "0cd89c6d03d8054896e46b24c201c594aca70c41dbcef53473f379661975e678"
+    },
+    {
+      "bytes": 119382,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_OPUSD/events.parquet",
+      "sha256": "f6586abb90ec3738a65e94aa22a59be5b72031db7f6b0299f46870e2fd7285f8"
+    },
+    {
+      "bytes": 21508089,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_OPUSD/features.parquet",
+      "sha256": "a3de535059b0a388796f401f7b6fc22071c9c6a8179898bf95c03e60e52b50e5"
+    },
+    {
+      "bytes": 670,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_OPUSD/manifest.json",
+      "sha256": "9a455ab34483dabca652bfb6709a1ddb61baeae1452c3662659ea826447c61a4"
+    },
+    {
+      "bytes": 19419,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ORDIUSD/episodes.parquet",
+      "sha256": "89dfaf8a65c5f134df3fdddba540ca2c9fe7e1c137a8858880d1e0c36f986e6d"
+    },
+    {
+      "bytes": 34132,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ORDIUSD/events.parquet",
+      "sha256": "56404a6f247fd0284a98e78b7af1a721d9662de7763c0d6f717ef13907e7d3f6"
+    },
+    {
+      "bytes": 14098677,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ORDIUSD/features.parquet",
+      "sha256": "38dd3534b089bf9776ce53223a9ccc9ad05e4ca8f27fd641b1c071ea09468711"
+    },
+    {
+      "bytes": 670,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ORDIUSD/manifest.json",
+      "sha256": "3fc741a71bfb4e24337eb765d1dc105733af1a5d1aa3e28fbf7445687dd53bf0"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PENDLEUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PENDLEUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 10678448,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PENDLEUSD/features.parquet",
+      "sha256": "c6f0578f18a45e51e00b513b83388479c1e3a6236a77b19dba3dbe9b13cbf5f8"
+    },
+    {
+      "bytes": 668,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PENDLEUSD/manifest.json",
+      "sha256": "09e17894df315974783d5752e2f8c3c30e4baed70fdfff7a44640f4fe229cb1b"
+    },
+    {
+      "bytes": 28998,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PENGUUSD/episodes.parquet",
+      "sha256": "42cd83aee87e7e86721f4aed55d4d03cf01eb81eea34fb7a1141cabd4cdc7b65"
+    },
+    {
+      "bytes": 52392,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PENGUUSD/events.parquet",
+      "sha256": "5c8214709af78e2e5924ea21ac4efd50e0bbb8ea84a6b1a260a19cf4d4dd22ef"
+    },
+    {
+      "bytes": 9197090,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PENGUUSD/features.parquet",
+      "sha256": "6eb2f2c5a6a3a313b5f6d19bb803b9e447af331cf3f8bd9baf602e3a118a6e00"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PENGUUSD/manifest.json",
+      "sha256": "9b7007c41f50169a2666056616de29732663c2d98bc37ef660e14af8e8427dbe"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PEOPLEUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PEOPLEUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 9570168,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PEOPLEUSD/features.parquet",
+      "sha256": "78743ad129d1566091ffc5f463fdf55ebc8356d0efddce07ea4ba6db63abbc5d"
+    },
+    {
+      "bytes": 668,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PEOPLEUSD/manifest.json",
+      "sha256": "4b16e83183c48809f94657e89c762d348a45c4adabc7f5e7f0905bde2821245f"
+    },
+    {
+      "bytes": 150319,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PEPEUSD/episodes.parquet",
+      "sha256": "217e115b6865ce83a793c3e956fe469fa755ca754111ff0657ec4a6d18326d68"
+    },
+    {
+      "bytes": 273843,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PEPEUSD/events.parquet",
+      "sha256": "554fe4bc896aaff5994e781beac026759a3e86b2938d2af7a1953ca42b71366f"
+    },
+    {
+      "bytes": 24392192,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PEPEUSD/features.parquet",
+      "sha256": "bce6ee9d772344b8babfd32b985696856aa231013f00a58af262bbec37c7e220"
+    },
+    {
+      "bytes": 672,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PEPEUSD/manifest.json",
+      "sha256": "627fdfcc877500bb6d99786b6bd2214eb90695c35536444f5cf3d9dc42a71627"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PNUTUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PNUTUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 8648840,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PNUTUSD/features.parquet",
+      "sha256": "bea8ba8e90fd93886bbbf6eadbece7493dd8fe133354cdf9beced8ed26ebc770"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PNUTUSD/manifest.json",
+      "sha256": "a5855fbcae88863d900129eb46788b846a3021e0b12d7c9b893569ec9a8e80a9"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_POLUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_POLUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 9408673,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_POLUSD/features.parquet",
+      "sha256": "9e67d6d44dbc0d630afae4cba126448f1739bb4219f1c34b348f7455facb46ee"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_POLUSD/manifest.json",
+      "sha256": "30dbfd9a0116a3c07504855cf008de19e15919905dd1a0b9f2ae0d21ccce47fc"
+    },
+    {
+      "bytes": 97684,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_POPCATUSD/episodes.parquet",
+      "sha256": "77f67ec17d3739ba04ee79091c0b836a19f71bb754ccde6b308da1501424ae87"
+    },
+    {
+      "bytes": 176571,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_POPCATUSD/events.parquet",
+      "sha256": "091ac91f0b5d07215784142088df874a227cb4f12e377f31354c3cfda2cbc48d"
+    },
+    {
+      "bytes": 16499659,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_POPCATUSD/features.parquet",
+      "sha256": "13ff974e817f9604973b21f8e6d67ecc99b0caee0f914835f0a527f41d23b586"
+    },
+    {
+      "bytes": 674,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_POPCATUSD/manifest.json",
+      "sha256": "6171a5b71aaaaa0ba0ac7e1ebf547ba9dfdd9855a30c8422b37f3060e5b3f1bf"
+    },
+    {
+      "bytes": 36704,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PUMPUSD/episodes.parquet",
+      "sha256": "fe819d1537e762e02a91569959f2aa91264c1d99ffbbf6fc6b46af7c0fb82b06"
+    },
+    {
+      "bytes": 65899,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PUMPUSD/events.parquet",
+      "sha256": "b399a0eb79c19ef7b824f7dbf51da457c1d67232f0fdbddbb09bc095ce766061"
+    },
+    {
+      "bytes": 4353586,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PUMPUSD/features.parquet",
+      "sha256": "3df4b4ec16f48cd131173e86e6ad3cacf2bb6a261032d905e4a2055909b3bff7"
+    },
+    {
+      "bytes": 669,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PUMPUSD/manifest.json",
+      "sha256": "7321c220ed5f18c7ee4424ee604d9e1ead5eb3f83e78b4d88492128c70870988"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PYTHUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PYTHUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 15325250,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PYTHUSD/features.parquet",
+      "sha256": "551039354c91bcd75a33457fc68a1ef91b53a59e32ae0fab8e77c1447d2fb809"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_PYTHUSD/manifest.json",
+      "sha256": "10cb03848dc536cb846c7508c0a46801a1a954665957ae36b0fff29b12af57f9"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_QNTUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_QNTUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 16262318,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_QNTUSD/features.parquet",
+      "sha256": "5b40bd72496f83d877914422594894a1637a7da908ee0b6427ab671d87d223f9"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_QNTUSD/manifest.json",
+      "sha256": "7b06390996fde3157b2d05a47685c2b1af599eb10483b710053e13464e059d5d"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_QTUMUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_QTUMUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 14525850,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_QTUMUSD/features.parquet",
+      "sha256": "a07efaf6ad728f39785d02a32b06a58458a6101da867155b0e4cb9d87b4696a8"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_QTUMUSD/manifest.json",
+      "sha256": "1b68b396b3e064a55f3576e5666a1234fd59a502545a31c9c8148f8fedfaff65"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RAYUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RAYUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 9072506,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RAYUSD/features.parquet",
+      "sha256": "5ff0ed1a95193006eb870bf40ec89eb0b62fd842e19af779a0dc735d997873fc"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RAYUSD/manifest.json",
+      "sha256": "689c090eee4ad2c6e4ac0dd1a3144577d0207aba201cf0970e7aa5a50591f21c"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RENDERUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RENDERUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 12263455,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RENDERUSD/features.parquet",
+      "sha256": "3598ca3d60789a56a0ad3b658d858ef8041a17d138efd57e146c522e49ff279b"
+    },
+    {
+      "bytes": 668,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RENDERUSD/manifest.json",
+      "sha256": "945f23559e8e0f1e9d2e84ded7324526435afc726628d78ddaefc7e3897403c1"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RLCUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RLCUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 14261383,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RLCUSD/features.parquet",
+      "sha256": "45c6fc553c7f047e185815e80ffcbdfbbf227a77069539f889290d172c0c829c"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RLCUSD/manifest.json",
+      "sha256": "4da9054a2603234feddb68bc6a317b97ce44b8ad274e77e1a5ce98912a5d87fd"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RSRUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RSRUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 7801241,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RSRUSD/features.parquet",
+      "sha256": "5a08970b23c9168fdb777e17e6bc332b513e8561630e295f4a39f8c90c33ef74"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RSRUSD/manifest.json",
+      "sha256": "c9c2ccd93d73c5120bdad39ce98cdd1271a750983ca623b0a7cc2cdb2792b9b1"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RUNEUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RUNEUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 20822950,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RUNEUSD/features.parquet",
+      "sha256": "6c5996228f8e1a039061f5fb3614f96c937e5462ddab8aa3ef21a4ee76915ba0"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_RUNEUSD/manifest.json",
+      "sha256": "be46211cf5959f58f37473583a89a8ee23cfbe00067f9396dcb4f476932f6138"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SAGAUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SAGAUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 10114740,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SAGAUSD/features.parquet",
+      "sha256": "9d40175df178c7f8cb1940e6aa8dd7bdb4b41fbb6f9385a9551b647ad4a0f523"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SAGAUSD/manifest.json",
+      "sha256": "186c9a9418489e8fe2fb37ed49d43bdd761e4b61d0b0a80dd37ce4fe5bec3a49"
+    },
+    {
+      "bytes": 21445,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SEIUSD/episodes.parquet",
+      "sha256": "c912e6f308dda17752981fe738888752479b222875395a22c85c2181aab17030"
+    },
+    {
+      "bytes": 38148,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SEIUSD/events.parquet",
+      "sha256": "f08ffa70d44f5f87ca5fce4de487f2f980557bae3aa953c9358565ce781f4b1d"
+    },
+    {
+      "bytes": 14974623,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SEIUSD/features.parquet",
+      "sha256": "2badb651ea18fd8dee0538b3561a050730ff4980f87f70923c51cb1013d7cf5e"
+    },
+    {
+      "bytes": 669,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SEIUSD/manifest.json",
+      "sha256": "4ef2b26acce0d98677a39f582c7b1b4a62cc19f89c7fb5c5f102bf93b9040c33"
+    },
+    {
+      "bytes": 158254,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SHIBUSD/episodes.parquet",
+      "sha256": "7622da34c5a1e72b3b25b2a6563813070dd71e59c4d05634493dbbbea566ac14"
+    },
+    {
+      "bytes": 283799,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SHIBUSD/events.parquet",
+      "sha256": "7ef73fd2b9984e98e619e2cbbb6a1afd8a6275626733f8fff1a20b30b2e7ed52"
+    },
+    {
+      "bytes": 20913677,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SHIBUSD/features.parquet",
+      "sha256": "fa5d0fc0a23e43ca42c8c8d526cf3b9e5c6f70c7a0232d27650d13ae151832c7"
+    },
+    {
+      "bytes": 672,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SHIBUSD/manifest.json",
+      "sha256": "457daa48b82e712d6aa66e8da47235f231c175dce0164b8fc4f985aeca996cb3"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SKLUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SKLUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 5609042,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SKLUSD/features.parquet",
+      "sha256": "01b573d7e67a51c3abc599d03f0309d97a4fb84ed2b2272f76fa2959fb088523"
+    },
+    {
+      "bytes": 664,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SKLUSD/manifest.json",
+      "sha256": "05aca1409e88f777dcce27bd80f5f5547dff00b1156c43ce0dd203a937df1426"
+    },
+    {
+      "bytes": 22162,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SNXUSD/episodes.parquet",
+      "sha256": "d46be0a8786c1d86393ccee5e9b8e7ba6c05bdbc04613287593c2d77e893c199"
+    },
+    {
+      "bytes": 38973,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SNXUSD/events.parquet",
+      "sha256": "427e716ca2b03e6cc5639e53dcd7bae3644e04947e69efddc6b8f0a25eb3b08f"
+    },
+    {
+      "bytes": 18970174,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SNXUSD/features.parquet",
+      "sha256": "19af4ee88928abcea8ff80aafe4ece5409f37dfa42aebd4003051f36b4663618"
+    },
+    {
+      "bytes": 669,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SNXUSD/manifest.json",
+      "sha256": "52267da37d99e45ec0392e4aba589ddc3ff58c7a9f40ecb08ea5dc3902d249e2"
+    },
+    {
+      "bytes": 294493,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SOLUSD/episodes.parquet",
+      "sha256": "531bc81e4732d2bd5f807abdd70aae30be762d6fcd8ff56dda3993f0c420b215"
+    },
+    {
+      "bytes": 560251,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SOLUSD/events.parquet",
+      "sha256": "7f1e24baa542576d3171197738b2a1378cb6e36720419e7702b295308ac24181"
+    },
+    {
+      "bytes": 27459904,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SOLUSD/features.parquet",
+      "sha256": "0844f2c02d1a95d5f8246aaf01ae74a3089de2a9baabd1417ab48b9396a3c230"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SOLUSD/manifest.json",
+      "sha256": "f4975226e6b5a4ec4e4414a2bb0872fd065d0e2b15e0a8e927be00ddbac9132b"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SPELLUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SPELLUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 10654483,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SPELLUSD/features.parquet",
+      "sha256": "b2664b504a9d93743743f10462382c378a3e84c8269b5138083543fefe86e15a"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SPELLUSD/manifest.json",
+      "sha256": "4898c3ded9488c7e6421e41d4b2cea65c2c7b08d41d1363c3d4cc76f3182000c"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SPKUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SPKUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 3021803,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SPKUSD/features.parquet",
+      "sha256": "7ba3925f58067f53510fccda4e27cf39a61df01000fd589e2af23882cb058d98"
+    },
+    {
+      "bytes": 664,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SPKUSD/manifest.json",
+      "sha256": "30d78ad1d622e110ebcaedfedc20a1bb6126f91a8534c35d7ea9e2af150e7244"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SPXUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SPXUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 8349651,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SPXUSD/features.parquet",
+      "sha256": "d712adbeb8b2428221c65db74da0982ea6c0fd2b1e3db4f4358b57f1179e9312"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SPXUSD/manifest.json",
+      "sha256": "e63189a1d27d6f97674d941a9fb92a80e970eb49060670271b50401a774f972a"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_STGUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_STGUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 12891674,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_STGUSD/features.parquet",
+      "sha256": "897dc4a24894258fb8353156182531f01ce3cabacb4fe9c4f1bd586a77dd205c"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_STGUSD/manifest.json",
+      "sha256": "bd67d40464519c78fb2477e6feb079b6d360f7f01989a193970e87a77a5fd38c"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_STORJUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_STORJUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 16063112,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_STORJUSD/features.parquet",
+      "sha256": "45bb81c5c7516fe1bd42e59e21c04bb9948e93171907c518a7f7098c46d9d911"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_STORJUSD/manifest.json",
+      "sha256": "6ba81d3a71ca21bad147d42e01539b468cc92a5b17988d756ca67637e678eab5"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_STRKUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_STRKUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 12924758,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_STRKUSD/features.parquet",
+      "sha256": "20f69fe8814e14cfd1053621eaad8cee8468f69b13a6c39efa0465d40bfc4119"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_STRKUSD/manifest.json",
+      "sha256": "561e31161510c3159c20b91e88bc63cb4c9bb86acaa0f519e800599687f1de6e"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_STXUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_STXUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 19634622,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_STXUSD/features.parquet",
+      "sha256": "55ae273b040d8f691a3bf8ff9682cde688f3b4880a5e182153708ab406f7a9fd"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_STXUSD/manifest.json",
+      "sha256": "7ad54f7e8a03bd271dfdb1cf5f14b6775ccc5df43d13f8e364508eb971a8806a"
+    },
+    {
+      "bytes": 172171,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SUIUSD/episodes.parquet",
+      "sha256": "5a57a00eead89f123d3f4aa952d6a86b1512769ec8de83b52d4361512e719890"
+    },
+    {
+      "bytes": 316125,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SUIUSD/events.parquet",
+      "sha256": "f7aa5deb94c9af95db47734ec310825b40764a2b2526ebdb7439b0bb7540f3c1"
+    },
+    {
+      "bytes": 23330039,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SUIUSD/features.parquet",
+      "sha256": "32b58b0e5c95d519b90ff63272f225e2708f076547381e3a3f96df8c0f1cca01"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SUIUSD/manifest.json",
+      "sha256": "2d736e080c4da56b6b82ca18bbd7641d139f489c29f2780d4353c6d0b7632bba"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6050416,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SUSD/features.parquet",
+      "sha256": "cbc146301c8347ad2a2bbad29f39f1809737592eabeb686e2ffb3d75f89f3980"
+    },
+    {
+      "bytes": 662,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SUSD/manifest.json",
+      "sha256": "44eafb589fcbfd8dc7e72275512db6bee51db7c7f59b7671a7e80e0c2b8e4cce"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SUSHIUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SUSHIUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 18441374,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SUSHIUSD/features.parquet",
+      "sha256": "8bbd43b20afdceb4998a963d0bedfc96b22636466f600d6a51caf82b61d67b99"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_SUSHIUSD/manifest.json",
+      "sha256": "a9299c6721a19f0f4232e6466cbd4c6d85aee75aa5fd6168ddae92566becdbc7"
+    },
+    {
+      "bytes": 62220,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TAOUSD/episodes.parquet",
+      "sha256": "6af7769a79c83fa6fb3e3d81b5c730d723357caaf1dfc189232e5edd3a43f317"
+    },
+    {
+      "bytes": 114999,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TAOUSD/events.parquet",
+      "sha256": "f183ab70a61f61e5fc4f3b0ccbf2adc33e7086886df38d8f88a770827bd16fa9"
+    },
+    {
+      "bytes": 14213794,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TAOUSD/features.parquet",
+      "sha256": "3341fb48ba6cd3e35f977c362cc082db98ca730b5eab8407aca62a41daa5eede"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TAOUSD/manifest.json",
+      "sha256": "da48723d12af039a6c0353e98b56597c8cf4badec87d8f8fa97e341305174f39"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_THETAUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_THETAUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 17766382,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_THETAUSD/features.parquet",
+      "sha256": "56e14baa64d18223166ad9ce37dc70143395a8d87b338f66b8dfb21d077238bc"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_THETAUSD/manifest.json",
+      "sha256": "7e1c1541d1b316cd4dd20b7d006667652b39d89339d57d7ccea24a1c1a2fd4d8"
+    },
+    {
+      "bytes": 54876,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TIAUSD/episodes.parquet",
+      "sha256": "01eef15f3e24c6c839dedd41a56ff3c1de47ee68a3d287a11abc5caf96960d50"
+    },
+    {
+      "bytes": 98008,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TIAUSD/events.parquet",
+      "sha256": "086314c3cf5aab3d485d80f0632fe529fd1505e7fa87ac662e89b5b2f2621a76"
+    },
+    {
+      "bytes": 19091143,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TIAUSD/features.parquet",
+      "sha256": "5d74cfacb731263988e527134f85fb879dc256219bf44977805eacc45cba06a2"
+    },
+    {
+      "bytes": 669,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TIAUSD/manifest.json",
+      "sha256": "97a4c655dd495ac103b3edcb93278265f728a114ed75f4ec9cd4efce18892fdf"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TRBUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TRBUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 9099245,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TRBUSD/features.parquet",
+      "sha256": "5a6c2bbafdb11ab25244289d35aa8aa715785ff13b4e76dbce5cfe45dd01b899"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TRBUSD/manifest.json",
+      "sha256": "1dba4be4812f56178d9f7d71a52cdfb9112b8f42216522bd75d485e637eb88fb"
+    },
+    {
+      "bytes": 62242,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TRUMPUSD/episodes.parquet",
+      "sha256": "ba5a9b4cf75625e40dbf85cbbbeb25ba7a631114d016830b66b91dfcbc0ee2cd"
+    },
+    {
+      "bytes": 114546,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TRUMPUSD/events.parquet",
+      "sha256": "6af862ba675a23e8b8facb8cdf569f86280569bf376976327dcfc97b5a5d3ee6"
+    },
+    {
+      "bytes": 9620379,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TRUMPUSD/features.parquet",
+      "sha256": "3a484bea0945dbec113d9bbfee95cb826ff1b668f01efabda47caf69955fc42c"
+    },
+    {
+      "bytes": 672,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TRUMPUSD/manifest.json",
+      "sha256": "0d1a39f0f5cf6772fa0b08f377d2b9b7cae1515407c9c7553f43607c8ea0e596"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TRUUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TRUUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 9787200,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TRUUSD/features.parquet",
+      "sha256": "0fc043d8cd303e7bc897a30fb7bee596cf5bd9d1854b4340bf0627b18a83b3b9"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TRUUSD/manifest.json",
+      "sha256": "6060c08121292afa05a1406386448b6d62365942e45a36a52ec061cf07cd7a65"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TRXUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TRXUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 17962956,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TRXUSD/features.parquet",
+      "sha256": "9cbe3bdfc061aa5e6f3246c8feb2358a93be40acab1d375d95f69564431074c4"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TRXUSD/manifest.json",
+      "sha256": "4273e5089ce52c08db98b31d3c5a49c09775e953ff45c9b740888ab4e443a73e"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TURBOUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TURBOUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 13032565,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TURBOUSD/features.parquet",
+      "sha256": "b9808a2c9695fa58602f5bc8b2040b9dd6b157b293aafc15d55d98ca8b2640a6"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_TURBOUSD/manifest.json",
+      "sha256": "d97ae3e8c93c49a19650e2773b0dd206a530abb9781ffc88305e901126358e51"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_UMAUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_UMAUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 11141022,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_UMAUSD/features.parquet",
+      "sha256": "75f5e1eb440abc90d82c66629c63499fce5596fc35f2ef9fd2b7f7fea48dc4b0"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_UMAUSD/manifest.json",
+      "sha256": "38542d4511deb68928fc29b50050dd206ccd28d3f574aa21936c071836d32196"
+    },
+    {
+      "bytes": 129498,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_UNIUSD/episodes.parquet",
+      "sha256": "3d99c74c8c24b9b1329e2c5816e4ab5a9be7b2b8f012692e6627161263eddc8f"
+    },
+    {
+      "bytes": 241376,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_UNIUSD/events.parquet",
+      "sha256": "65ee87bdb53714cb4941e6f16fc349e3ac856ac9db2f47e75e26180905ce9bf3"
+    },
+    {
+      "bytes": 23379441,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_UNIUSD/features.parquet",
+      "sha256": "42dd861c039de7030f340e6052defe923c66a61fd0c6d141969532694d365919"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_UNIUSD/manifest.json",
+      "sha256": "b823be85bc144adad2f248213ff21ac475500ba44b1e68a04ef19b3a2a4b6048"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_USUALUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_USUALUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 5851266,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_USUALUSD/features.parquet",
+      "sha256": "7218b37e583564d00406da375df8a9b9de9060f3e6812378aaa8d2d9f05840ae"
+    },
+    {
+      "bytes": 667,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_USUALUSD/manifest.json",
+      "sha256": "00ffe67c2c89c61f1e21dd57a9638b9b0f17198ecff293e4657965f959ffe52e"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_VETUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_VETUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 7834392,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_VETUSD/features.parquet",
+      "sha256": "61ccfe78711cbccdae35f8ffc97d1821cf16b7099b91d3624ed3a83efde45e93"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_VETUSD/manifest.json",
+      "sha256": "65a5c6263825506306181499fc1ff55c48a37ecfeba1cdf2f4bf241a00387474"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_VINEUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_VINEUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6280808,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_VINEUSD/features.parquet",
+      "sha256": "27a9fca5f3139f30434e6df80aabe02b6f10eb59b8f357911f2a75a816c9d4c7"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_VINEUSD/manifest.json",
+      "sha256": "b2f0ff4c5ea38742b76c2c75f4415c425fbf2230569324d4211a74e3146cf3b8"
+    },
+    {
+      "bytes": 18817,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_VIRTUALUSD/episodes.parquet",
+      "sha256": "3214ef420c0f0eefdd6a336e27a4bbbde20e2b09e99ff304b1a20c1ca5c5bf46"
+    },
+    {
+      "bytes": 33481,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_VIRTUALUSD/events.parquet",
+      "sha256": "30a162a911854beaa9c77f19777ef58b38fd601d95c86026534fdb6f18d973b3"
+    },
+    {
+      "bytes": 8212642,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_VIRTUALUSD/features.parquet",
+      "sha256": "adc410eef60698a3da7daa42d672d9fb1658e427830f52b880f61af8c44f70af"
+    },
+    {
+      "bytes": 672,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_VIRTUALUSD/manifest.json",
+      "sha256": "a6e70a9368ea0307218d64a91ad156463892a9b3e994136f1d04a7017d580b20"
+    },
+    {
+      "bytes": 185697,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_WIFUSD/episodes.parquet",
+      "sha256": "cb58b131ad74b2faa282403216e6170bec0ce32d8459f8d9d7b3314f0e693376"
+    },
+    {
+      "bytes": 341848,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_WIFUSD/events.parquet",
+      "sha256": "6d83b8d94cfd7a781a605299038afc4feed0014c8b456c800e071cd0d372081b"
+    },
+    {
+      "bytes": 20360491,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_WIFUSD/features.parquet",
+      "sha256": "649c8a81e912d96cf073ee808217c17bc507ffbd6e9985490966758ba3126453"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_WIFUSD/manifest.json",
+      "sha256": "f8c9c82119bcf7175c3cedac8947846e4c6aac174005951f2ef3741d02ab752c"
+    },
+    {
+      "bytes": 91516,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_WLDUSD/episodes.parquet",
+      "sha256": "5a4b6f80bb4d8fe0af39a577590867b88a4151847b4efe40a66ef25bf2a8f656"
+    },
+    {
+      "bytes": 168769,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_WLDUSD/events.parquet",
+      "sha256": "f85a3f55320852710cab5c852b2cebe2e4f43c40915f47e1d57d6a15356869e4"
+    },
+    {
+      "bytes": 20837139,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_WLDUSD/features.parquet",
+      "sha256": "c761668d7defda6a0447b66921720e7557636bad482de35ef9809261f1ab0e0c"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_WLDUSD/manifest.json",
+      "sha256": "ef5c8ada62bb24259727972fcb88bb753708aa2dbcd6760e3a89866050c0253c"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_WOOUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_WOOUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 15337558,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_WOOUSD/features.parquet",
+      "sha256": "266992414f6b421deb2ed8f42a1438e912632ef396269a62f43ad0855ae668ea"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_WOOUSD/manifest.json",
+      "sha256": "5616547ed865675b70f002a56ad21027db703d0bd547374599a44131cdd79383"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_WUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_WUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 11564949,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_WUSD/features.parquet",
+      "sha256": "80ee1b45beb6b3071c6466ae4bd880b8150d1edf183579a7eaea1d91c03481d0"
+    },
+    {
+      "bytes": 663,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_WUSD/manifest.json",
+      "sha256": "d5fc500fa7aee9eac91ab32b3839561e4424bee3aff52333d952b3134600dbfd"
+    },
+    {
+      "bytes": 319130,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XBTUSD/episodes.parquet",
+      "sha256": "ec7fb956b62e05859500958d5f792a71d54039490e0269ebc23bf52bd96579b4"
+    },
+    {
+      "bytes": 606588,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XBTUSD/events.parquet",
+      "sha256": "f0795e998e47ff9e3c76b91fdf61e2c91bf440fd3c9d867ff4ce71c75b5eabdc"
+    },
+    {
+      "bytes": 27676463,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XBTUSD/features.parquet",
+      "sha256": "8820103c11d8089f6c115d92f35709cd53f9c6b702b35990776c85cb6ff93f27"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XBTUSD/manifest.json",
+      "sha256": "92b89b3db0e3844c96eea174b0faac85c464ac207ee6a61d2306f0a1b9c0d106"
+    },
+    {
+      "bytes": 48369,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XLMUSD/episodes.parquet",
+      "sha256": "7ad08c75a7639e2535bdf0a7a23ab91b723b81e48cf5bf5a976f45893285bcf1"
+    },
+    {
+      "bytes": 85684,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XLMUSD/events.parquet",
+      "sha256": "0b71fbb1f196f75977b1a729e441355501e79828c2ec184dfd0f8be51b610313"
+    },
+    {
+      "bytes": 20640705,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XLMUSD/features.parquet",
+      "sha256": "e67ebf44400afe7bfd07d025d5d350aed4be7c4150d807c9d0a26abeaaa5fb0f"
+    },
+    {
+      "bytes": 669,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XLMUSD/manifest.json",
+      "sha256": "be7725aeb82bb75d24a6e84fb8135fea20801ed499a39ebbf4f2c419056e723c"
+    },
+    {
+      "bytes": 97192,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XMRUSD/episodes.parquet",
+      "sha256": "24236f7b2084274f0cd3342c2cdec875df246c8de216e7a1f17d33fcdfcc9a4d"
+    },
+    {
+      "bytes": 179791,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XMRUSD/events.parquet",
+      "sha256": "a81d6f5b6b6a71fc4a19dd95ab096bfc02b6e014a3758061ffed6c2d341f04de"
+    },
+    {
+      "bytes": 23661153,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XMRUSD/features.parquet",
+      "sha256": "9dc4dd6a6303f65bf6fff4393644604400bca7325108270501780c2f0d1c91e4"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XMRUSD/manifest.json",
+      "sha256": "f46a6c6d3c7bdc8594138acf492606c5ec3bfe47ca9ad9d6f0b1f2239c6d4c9a"
+    },
+    {
+      "bytes": 301356,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XRPUSD/episodes.parquet",
+      "sha256": "6efb22a5a2b599165e4aefa7f2892dfe88350915a5a7f98057ca354d22241685"
+    },
+    {
+      "bytes": 549883,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XRPUSD/events.parquet",
+      "sha256": "0e08f761c3d8d5450bc88450d3c300927fa9be5e9b266d7f8918f8d9785d49d9"
+    },
+    {
+      "bytes": 28468573,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XRPUSD/features.parquet",
+      "sha256": "ca598df66d62ba25baf556fb08a8ab8f87d0056bcbfbca080330f8b28a5ae61d"
+    },
+    {
+      "bytes": 671,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XRPUSD/manifest.json",
+      "sha256": "0ea39a82fa46b816fb3fb76bcaffc3761220acbb3989dc5cc41ecc44c3554314"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XTZUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XTZUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 17013601,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XTZUSD/features.parquet",
+      "sha256": "a0a7fcb0d1afef74fb7a6cdc5122cbf8c0891fd126397a6979a38d04b0043c02"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_XTZUSD/manifest.json",
+      "sha256": "a34a2cb6d3f06a9f5d7bd5aff715a3c95ecb1803e62132fff739b356a9d66a3a"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_YFIUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_YFIUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 16268687,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_YFIUSD/features.parquet",
+      "sha256": "42083dae004eb0608e2e65d8bb4d82beadc995294dce1c8e0c6d3896a60a749e"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_YFIUSD/manifest.json",
+      "sha256": "74999632f8382260878eb32af68cdd1295c7ad8b8822f638da1c277975095797"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_YGGUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_YGGUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 9896275,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_YGGUSD/features.parquet",
+      "sha256": "f766e44e5079f79bdced29e0b5f189bc7dd849eed0e85710795bb599b139b784"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_YGGUSD/manifest.json",
+      "sha256": "e0553c7c9b0ba47a0d0aff31854e26de0b4c9e91429aebddc4c672077148ed3e"
+    },
+    {
+      "bytes": 15471,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZECUSD/episodes.parquet",
+      "sha256": "84302cab15b326425bdd3b733a4a52a10a4f181480e896245b2cec4fcd09c10c"
+    },
+    {
+      "bytes": 27493,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZECUSD/events.parquet",
+      "sha256": "f2fdd828eaaf1444b23d9ac3d63bb4487438fa5f6c673067177de425570128b5"
+    },
+    {
+      "bytes": 19352841,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZECUSD/features.parquet",
+      "sha256": "f4b74bcbf69a87b8cd4a1662a589114c0aae95ce8bad65c568f787930d2aadb1"
+    },
+    {
+      "bytes": 669,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZECUSD/manifest.json",
+      "sha256": "c18e008ea0cddda544f3c794182bf22a9e976d3d33ade4433fae90936a7e7ac7"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZENUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZENUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 6823294,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZENUSD/features.parquet",
+      "sha256": "7f2fa5f5c87ae188d7653d483d33ff7ebc037e8caa17e9a36a56d846d9bec329"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZENUSD/manifest.json",
+      "sha256": "c80e84a38daa28c2ffb2677a5003ff926d905f2a158685c273495682b18e0768"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZEREBROUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZEREBROUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 5547286,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZEREBROUSD/features.parquet",
+      "sha256": "9071d5f6531d67532ab32460038fc54a390f7d3d2b67111daa50c000c201e8ac"
+    },
+    {
+      "bytes": 668,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZEREBROUSD/manifest.json",
+      "sha256": "2fbfe292ba0617fb96860295d859487974d7a4170d6589a0f003f60fe9863e15"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZETAUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZETAUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 9253038,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZETAUSD/features.parquet",
+      "sha256": "9c03262a4b9ba993adc7c878eb19b9241281da3afcd2f3d43722d43c75cb03c0"
+    },
+    {
+      "bytes": 666,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZETAUSD/manifest.json",
+      "sha256": "b3f4b68d9aa8c453562e4ae7f7893535c76ad57bd20205a678b818b77e1e7d96"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZKUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZKUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 9471231,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZKUSD/features.parquet",
+      "sha256": "86006cda92bf51e002e621e72bdc4a861bd4936804b3ae89f9875300c8bbb431"
+    },
+    {
+      "bytes": 664,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZKUSD/manifest.json",
+      "sha256": "420dee7f46cec0c90c330ab98a21dc087fb12985b32d39261d4199f29ae3df95"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZROUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZROUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 10049550,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZROUSD/features.parquet",
+      "sha256": "70195c0ef8ae6e6557e07c8627dad534ba8ee31db67b90b907ebc22b74ba170c"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZROUSD/manifest.json",
+      "sha256": "e68dd12d077e6f42bc14160df879e7d337607e755903fe85734ddd3c896fa114"
+    },
+    {
+      "bytes": 7362,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZRXUSD/episodes.parquet",
+      "sha256": "49579f641c5ab34d39814c1ba1dace10c8be212755c061088ceb458543085500"
+    },
+    {
+      "bytes": 11279,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZRXUSD/events.parquet",
+      "sha256": "dd45f41b41a31269cef67e199d7aaf7d47ebdc396cfb3376c4539306f2afc4e8"
+    },
+    {
+      "bytes": 15362942,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZRXUSD/features.parquet",
+      "sha256": "0b523ae2e4401cf826eb0f22ddf9b3725e262a7686340589ebba7bb826077abe"
+    },
+    {
+      "bytes": 665,
+      "path": "/opt/parquet/kraken_derivatives/analytics/stage11_kda03_v1/symbol=PF_ZRXUSD/manifest.json",
+      "sha256": "70d65adabb0adb1b2aa7665d99ee0fb9a42bc567ff57ad456fd227d86f8c6075"
+    }
+  ],
+  "manifest_content_hash": "7b428992de6363c2ee7d7bc52598378fe465263d0281b7d98fa1d69805311a08",
+  "task_id": "donch_bt_stage_11_kda03_basis_shock_20260719_v2"
+}

@@ -1,0 +1,41 @@
+{
+  "approved": true,
+  "capitalcom_payloads_opened": 0,
+  "control_outcomes_opened": 0,
+  "economic_runs_launched": 0,
+  "finding_counts": {
+    "blocking": 0,
+    "high": 0,
+    "low": 0,
+    "medium": 0,
+    "total": 0
+  },
+  "findings": [],
+  "kda01_kda02_outcomes_opened": 0,
+  "level3_contract_hash": "5f1abdc7e21ab9e3a6851b21930a7af745cbb865be334f8be45c9a561d2411e7",
+  "official_post_decision_open_prices_opened": 0,
+  "protected_outcomes_opened": 0,
+  "review_status": "approved_preoutcome",
+  "reviewed_sha256": {
+    "builder": "0de125949bc31824b394d4a9840e2d2cf5c3ffffb1794e473fdcf06a0c8edc20",
+    "calculation_module": "25ed8552588c2d10f5ce85a01b9a6e62bfc9653170a5f57aae82c25f7a122739",
+    "contract": "483c5700e880cf58213660f4a5a3fe6cf0cc4ba673a9e7679e2cb259a25d1ce6",
+    "definitions": "0329660ac986ae53662969cd21d7004bf4261c04eb8de0edfeb4464b60ca306d",
+    "events": "97071db6a3fb331462d071fd01d4eefeb6e3d5edd5c23489332ab747903d7bc6",
+    "feasibility_gates": "67491f509be5feec83adc0216c593b79d823cdaa8adeb331332e55e620af08a4",
+    "feature_module": "c8897179b832434f38e4990f416876748c4044ff414117845357837b9e4493db",
+    "parents": "917ebdc3616e3baa797a2c64d3c708db93e7149ec5efcfd4e45aaba7a0db7f2d",
+    "runner": "f1edc4da5f721965f73c46cef2ed3c49133c1e4ddf3c03bc78f9d0bd0cd6fe9f"
+  },
+  "test_counts": {
+    "accepted_schedule_rows_checked": 199787,
+    "definition_hashes_checked": 24,
+    "focused_tests_failed": 0,
+    "focused_tests_passed": 21,
+    "frozen_events_checked": 113539,
+    "frozen_parent_episodes_checked": 104937,
+    "mechanically_feasible_primary_branches": 6,
+    "official_trade_bar_symbols_hash_verified": 55,
+    "protected_rows_opened": 0
+  }
+}
