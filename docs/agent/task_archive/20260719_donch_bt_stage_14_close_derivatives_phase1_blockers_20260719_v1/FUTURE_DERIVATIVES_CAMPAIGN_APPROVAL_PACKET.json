@@ -1,0 +1,103 @@
+{
+  "C17_excluded": true,
+  "authorities": {
+    "analytics_manifest_sha256": "f1520fd3875578a9a2101b10d5e15b7b88c58a6ffcf6067dd91f582352d92a6d",
+    "authorized_cohort_sha256": "5df5b304d8e735d3579e220d25a000e81013435320c6e8fb2480c1ed565a3636",
+    "campaign_protocol_sha256": "7091156df9bf815a001423b63d673d2d4217f2616fd40e76a261f218a2d614df",
+    "closure_validator_sha256": "3bc9b775616b00b00cd3b2040966fb424d41725189136e6eeb15ee08fa8781f0",
+    "family_policy_sha256": "d07b0d290e59d17f7d6a587e2a31e6e550468f9ad403250cd6183c549e685335",
+    "feature_contract_sha256": "4673ff11b8e0ad12bca4552780848b2597f68f54841858376cdfa30f99e193b4",
+    "funding_and_cost_contract_sha256": "a2dc19786f138b6f694d484cdb8e93c4a26cb108e7b0428295f2470219b5225c",
+    "local_state_tape_manifest_sha256": "838be528ea0bcaeed132c4b95401594e2bb9a726178ece3f51de44dbbcd96380",
+    "measurement_builder_sha256": "9f1bdd3426e97944dbd66ad56bf3bd17b91ab7de926adaf692b9d77aa422de7c",
+    "measurement_finalizer_sha256": "e354ef01a44d7a9f4feaaf5819d3111745b96fe4d412836ca7c7da162e8b0d50",
+    "measurement_primitive_code_sha256": "4f37fd38b3101eb76be641f7b77f578ea4e576d511bd28f73844e1142ba2bd56",
+    "phase1_measurement_sha256": "ac88691cd061b859bb982e8a2213ff22dbac28397b6c5477aee85377dc977890",
+    "protocol_v2_sha256": "4effe3e9608377876486b1583854a7e1479c8e93d6de1661f13d35842bbc6a73",
+    "repository_implementation_commit": "UNCOMMITTED_STAGE14",
+    "repository_start_commit": "e14bbd0d26c14e48a347481f170fcfe8851df625",
+    "route_policy_sha256": "c54d4a3445da249c6dbd34613b770ad9624f861e0d7c345b3cba944aa6cdf1aa",
+    "search_space_builder_sha256": "c3f0e875d9556a783fbe9e6f261b2b7487d8b0ae3acb6aa56513c1bf5830d5fc",
+    "stage13_approval_request_sha256": "ed27fc30d39155d6b08d63539a22d34b50d19ab3c909396a8719c443057fcd5c",
+    "stage13_campaign_manifest_sha256": "09f4a534dcd799bf252e6e47037af58ad2177256d976b37defd8c257d2949e27"
+  },
+  "authorization_preconditions": [
+    "external human approval artifact explicitly names this final packet SHA-256",
+    "repository/data/code/cost/search/fold hashes match",
+    "independent Stage14 review accepted",
+    "outcome-free frozen-model boundary panel extension covers registered 2023-2025 events at the predeclared coverage floor",
+    "no protected or Capital.com access"
+  ],
+  "campaign_manifest_sha256": "fcad434f1d9c5ddbd417c59036576bc129f12a7a9853a6abdf3724f3b5577a00",
+  "cost_and_execution": {
+    "base_round_trip_bps_pre_funding": 14,
+    "execution": "first authorized PF 5m open at or after decision/target, maximum 10 minute delay",
+    "funding_model_hash": "0054af0ee40740e39739bfade92f342867bb208a4fe7ed15b151a8a0a838d072",
+    "funding_partitions": [
+      "zero_boundary",
+      "exact",
+      "mixed",
+      "imputed"
+    ],
+    "imputation_cannot_activate_gate_or_improve_selection": true,
+    "instrument": "Kraken linear PF derivatives",
+    "non_overlap": "translation-symbol local using actual executable exit",
+    "primary_metric": "base net expectancy after 14 bps and signed exact-or-conservative-adverse funding",
+    "published_panel_coverage": "2024-01-01 through 2025-12-21 required-boundary panel; exact source concentrated from 2025-06-26",
+    "required_preoutcome_2023_remedy": "apply frozen model 0054af0e with unchanged parameters to every registered 2023 boundary using PIT inputs before opening outcomes; do not retrain or relabel missing as zero-boundary; event/fold fails closed at the registered coverage floor",
+    "same_bar_heroics": false,
+    "sensitivities": [
+      "32bps_plus_conservative",
+      "exact_boundary_only_slice",
+      "zero_funding_diagnostic",
+      "severe_adverse_imputation"
+    ],
+    "stress_round_trip_bps_pre_funding": 32
+  },
+  "economic_run_authorized": false,
+  "fold_and_exposure_map_sha256": "1dd8caab1c23de0d647acfa7609cf493e9bd6dd346989cddc89f85b569357b69",
+  "not_independent_validation": true,
+  "packet_id": "kraken_derivatives_campaign_001_stage14_phase2_5_approval_request",
+  "phases_requested": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "programme_exposed_historical": true,
+  "protected_outcome_access": false,
+  "ready_lanes": [
+    "KDA02B_v2_oi_vacuum_redevelopment",
+    "KDA02C_v1_purge_breadth_context",
+    "KDX01_v1_downside_completed_derivatives_state_rejection"
+  ],
+  "resource_projection_sha256": "6eb572e8c09be94d462702db54d98d3fa88b4aa0ee402b2873c8a7fe66235d97",
+  "search_space_registry_sha256": "a533c8e507f78989963a2631115bd1a3f70c3dc34cb59d749bec57b53577294b",
+  "selection_algorithm": {
+    "backward_information_flow": false,
+    "candidate_beam_per_family": 5,
+    "deterministic_tie_break": [
+      "higher_worst_inner_fold_utility",
+      "higher_effective_independent_cluster_count",
+      "lower_complexity",
+      "lexical_cell_id"
+    ],
+    "global_candidate_beam": 12,
+    "method": "predeclared_nested_pareto",
+    "objectives": [
+      "base_net_expectancy_after_authorized_costs",
+      "median_inner_fold_utility",
+      "worst_inner_fold_utility",
+      "cross_fold_sign_and_stability",
+      "effective_independent_cluster_count",
+      "left_tail_and_drawdown_proxy_by_archetype",
+      "opportunity_frequency",
+      "capital_occupancy",
+      "execution_margin",
+      "complexity",
+      "candidate_correlation"
+    ]
+  },
+  "status": "human_approval_required_not_authorized",
+  "unattended_scope": "one later hash-matched Phase 2-5 campaign without routine inter-fold approval; all stops remain binding"
+}

@@ -1,0 +1,14 @@
+{
+  "analytics_manifest_sha256": "f1520fd3875578a9a2101b10d5e15b7b88c58a6ffcf6067dd91f582352d92a6d",
+  "authorized_cohort_sha256": "5df5b304d8e735d3579e220d25a000e81013435320c6e8fb2480c1ed565a3636",
+  "expected_starting_commit": "e14bbd0d26c14e48a347481f170fcfe8851df625",
+  "family_redefinition_policy_sha256": "d07b0d290e59d17f7d6a587e2a31e6e550468f9ad403250cd6183c549e685335",
+  "feature_contract_sha256": "4673ff11b8e0ad12bca4552780848b2597f68f54841858376cdfa30f99e193b4",
+  "funding_model_hash": "0054af0ee40740e39739bfade92f342867bb208a4fe7ed15b151a8a0a838d072",
+  "hypothesis_protocol_v2_sha256": "4effe3e9608377876486b1583854a7e1479c8e93d6de1661f13d35842bbc6a73",
+  "research_campaign_protocol_sha256": "7091156df9bf815a001423b63d673d2d4217f2616fd40e76a261f218a2d614df",
+  "route_policy_sha256": "c54d4a3445da249c6dbd34613b770ad9624f861e0d7c345b3cba944aa6cdf1aa",
+  "stage13_approval_request_sha256": "ed27fc30d39155d6b08d63539a22d34b50d19ab3c909396a8719c443057fcd5c",
+  "stage13_campaign_manifest_sha256": "09f4a534dcd799bf252e6e47037af58ad2177256d976b37defd8c257d2949e27",
+  "task_id": "donch_bt_stage_14_close_derivatives_phase1_blockers_20260719_v1"
+}

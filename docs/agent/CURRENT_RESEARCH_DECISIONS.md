@@ -81,3 +81,9 @@ Aggressive does not mean:
 New translations follow `HYPOTHESIS_DEVELOPMENT_PROTOCOL.json` version 1.0. Development-fold outcomes require separate exact approval, every explored cell is registered, and only a frozen translation advances to the next untouched block. Limitation tags describe evidence caps separately from routes.
 
 The next planning comparison is KDA02C breadth, KDA02B OI vacuum, a distinct downside completed derivatives-state rejection mechanism, and C17 executed-catalyst state. This comparison authorizes no outcomes.
+## Stage 14 derivatives Phase-1 closure — 2026-07-19
+
+- `KDA02B_v2_oi_vacuum_redevelopment`: `phase_2_ready` from outcome-free causal onset/episode, retention, magnitude, and coverage measurement. OI remains unsigned; continuation and reversal remain registered without historical outcome selection.
+- `KDA02C_v1_purge_breadth_context`: `phase_2_ready` from the authorized-cohort PIT breadth panel. It remains `post_hoc_context_hypothesis` and `program_exposed_historical`.
+- `KDX01_v1_downside_completed_derivatives_state_rejection`: `phase_2_ready` from fixed-grammar primitive incrementality measurement. It remains `cross_family_program_exposed_redevelopment` and is not independent validation.
+- The Stage 14 packet is non-authorizing. Phase 2-5 require an external human-approval artifact naming the final packet SHA-256. C17 remains excluded on its separate blocked route. All earlier terminal decisions remain unchanged.

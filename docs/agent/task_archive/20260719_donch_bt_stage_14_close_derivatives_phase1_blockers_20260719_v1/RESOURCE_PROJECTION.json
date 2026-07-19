@@ -1,0 +1,34 @@
+{
+  "benchmark": {
+    "deterministic_cell_projection_method": "measured full outcome-free primitive replay",
+    "feature_rows": 39279314,
+    "finalization_peak_rss_kib": 912780,
+    "finalization_replay_wall_seconds": 134.5272172689438,
+    "observed_full_scan_peak_rss_kib_lower_bound": 463124,
+    "workers": 1
+  },
+  "candidate_beam_per_family": 5,
+  "complexity_budget_max_interaction_depth": 6,
+  "derivation": {
+    "per_cell_output_cap_bytes": 1048576,
+    "performance_cell_ceiling": 285,
+    "projected_disk_bytes": 2386558976,
+    "projected_wall_seconds": 11502.077076494694,
+    "registered_cells": 228,
+    "registered_cells_are_complete_mechanism_cartesian_products": true,
+    "runtime_safety_factor": 1.5,
+    "shared_output_cap_bytes": 2147483648,
+    "single_worker_full_replay_seconds_used_as_conservative_per_cell_cost": 134.5272172689438,
+    "workers": 4
+  },
+  "max_disk_bytes": 5368709120,
+  "max_workers": 4,
+  "maximum_cells_by_family": {
+    "KDA02B": 96,
+    "KDA02C": 48,
+    "KDX01": 84
+  },
+  "maximum_total_cells": 228,
+  "projection": "mechanism-complete 96/48/84 registry is below the benchmark-derived cell ceiling; each cell and shared writer is separately hard-capped; stop before either four hours or 5 GiB",
+  "wall_seconds": 14400
+}

@@ -1,0 +1,9 @@
+{
+  "criteria": "outcome-free incidence, causal completeness, raw scale, exact bounded grammar, funding and benchmark contracts",
+  "decisions": {
+    "KDA02B_v2_oi_vacuum_redevelopment": "phase_2_ready",
+    "KDA02C_v1_purge_breadth_context": "phase_2_ready",
+    "KDX01_v1_downside_completed_derivatives_state_rejection": "phase_2_ready"
+  },
+  "generated_at": "2026-07-19T00:00:00Z"
+}

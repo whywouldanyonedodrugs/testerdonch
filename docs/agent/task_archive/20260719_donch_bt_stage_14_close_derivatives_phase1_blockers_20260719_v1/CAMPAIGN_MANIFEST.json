@@ -1,0 +1,3091 @@
+{
+  "C17_excluded": true,
+  "campaign_id": "kraken_derivatives_campaign_001_stage14_ready",
+  "cost_and_execution": {
+    "base_round_trip_bps_pre_funding": 14,
+    "execution": "first authorized PF 5m open at or after decision/target, maximum 10 minute delay",
+    "funding_model_hash": "0054af0ee40740e39739bfade92f342867bb208a4fe7ed15b151a8a0a838d072",
+    "funding_partitions": [
+      "zero_boundary",
+      "exact",
+      "mixed",
+      "imputed"
+    ],
+    "imputation_cannot_activate_gate_or_improve_selection": true,
+    "instrument": "Kraken linear PF derivatives",
+    "non_overlap": "translation-symbol local using actual executable exit",
+    "primary_metric": "base net expectancy after 14 bps and signed exact-or-conservative-adverse funding",
+    "published_panel_coverage": "2024-01-01 through 2025-12-21 required-boundary panel; exact source concentrated from 2025-06-26",
+    "required_preoutcome_2023_remedy": "apply frozen model 0054af0e with unchanged parameters to every registered 2023 boundary using PIT inputs before opening outcomes; do not retrain or relabel missing as zero-boundary; event/fold fails closed at the registered coverage floor",
+    "same_bar_heroics": false,
+    "sensitivities": [
+      "32bps_plus_conservative",
+      "exact_boundary_only_slice",
+      "zero_funding_diagnostic",
+      "severe_adverse_imputation"
+    ],
+    "stress_round_trip_bps_pre_funding": 32
+  },
+  "economic_run_authorized_by_manifest": false,
+  "fold_schedule": [
+    {
+      "development_end": "2023-09-30T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2023-10-01T00:00:00Z",
+      "embargo_start": "2023-09-30T18:00:00Z",
+      "evaluation_end": "2024-01-01T00:00:00Z",
+      "evaluation_start": "2023-10-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02B_v2_oi_vacuum_redevelopment:2023Q4",
+      "hypothesis_id": "KDA02B_v2_oi_vacuum_redevelopment",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2023-12-31T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2024-01-01T00:00:00Z",
+      "embargo_start": "2023-12-31T18:00:00Z",
+      "evaluation_end": "2024-04-01T00:00:00Z",
+      "evaluation_start": "2024-01-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02B_v2_oi_vacuum_redevelopment:2024Q1",
+      "hypothesis_id": "KDA02B_v2_oi_vacuum_redevelopment",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2024-03-31T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2024-04-01T00:00:00Z",
+      "embargo_start": "2024-03-31T18:00:00Z",
+      "evaluation_end": "2024-07-01T00:00:00Z",
+      "evaluation_start": "2024-04-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02B_v2_oi_vacuum_redevelopment:2024Q2",
+      "hypothesis_id": "KDA02B_v2_oi_vacuum_redevelopment",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2024-06-30T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2024-07-01T00:00:00Z",
+      "embargo_start": "2024-06-30T18:00:00Z",
+      "evaluation_end": "2024-10-01T00:00:00Z",
+      "evaluation_start": "2024-07-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02B_v2_oi_vacuum_redevelopment:2024Q3",
+      "hypothesis_id": "KDA02B_v2_oi_vacuum_redevelopment",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2024-09-30T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2024-10-01T00:00:00Z",
+      "embargo_start": "2024-09-30T18:00:00Z",
+      "evaluation_end": "2025-01-01T00:00:00Z",
+      "evaluation_start": "2024-10-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02B_v2_oi_vacuum_redevelopment:2024Q4",
+      "hypothesis_id": "KDA02B_v2_oi_vacuum_redevelopment",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2024-12-31T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2025-01-01T00:00:00Z",
+      "embargo_start": "2024-12-31T18:00:00Z",
+      "evaluation_end": "2025-04-01T00:00:00Z",
+      "evaluation_start": "2025-01-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02B_v2_oi_vacuum_redevelopment:2025Q1",
+      "hypothesis_id": "KDA02B_v2_oi_vacuum_redevelopment",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2025-03-31T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2025-04-01T00:00:00Z",
+      "embargo_start": "2025-03-31T18:00:00Z",
+      "evaluation_end": "2025-07-01T00:00:00Z",
+      "evaluation_start": "2025-04-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02B_v2_oi_vacuum_redevelopment:2025Q2",
+      "hypothesis_id": "KDA02B_v2_oi_vacuum_redevelopment",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2025-06-30T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2025-07-01T00:00:00Z",
+      "embargo_start": "2025-06-30T18:00:00Z",
+      "evaluation_end": "2025-10-01T00:00:00Z",
+      "evaluation_start": "2025-07-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02B_v2_oi_vacuum_redevelopment:2025Q3",
+      "hypothesis_id": "KDA02B_v2_oi_vacuum_redevelopment",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2025-09-30T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2025-10-01T00:00:00Z",
+      "embargo_start": "2025-09-30T18:00:00Z",
+      "evaluation_end": "2026-01-01T00:00:00Z",
+      "evaluation_start": "2025-10-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02B_v2_oi_vacuum_redevelopment:2025Q4",
+      "hypothesis_id": "KDA02B_v2_oi_vacuum_redevelopment",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2023-09-30T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2023-10-01T00:00:00Z",
+      "embargo_start": "2023-09-30T18:00:00Z",
+      "evaluation_end": "2024-01-01T00:00:00Z",
+      "evaluation_start": "2023-10-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02C_v1_purge_breadth_context:2023Q4",
+      "hypothesis_id": "KDA02C_v1_purge_breadth_context",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2023-12-31T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2024-01-01T00:00:00Z",
+      "embargo_start": "2023-12-31T18:00:00Z",
+      "evaluation_end": "2024-04-01T00:00:00Z",
+      "evaluation_start": "2024-01-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02C_v1_purge_breadth_context:2024Q1",
+      "hypothesis_id": "KDA02C_v1_purge_breadth_context",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2024-03-31T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2024-04-01T00:00:00Z",
+      "embargo_start": "2024-03-31T18:00:00Z",
+      "evaluation_end": "2024-07-01T00:00:00Z",
+      "evaluation_start": "2024-04-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02C_v1_purge_breadth_context:2024Q2",
+      "hypothesis_id": "KDA02C_v1_purge_breadth_context",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2024-06-30T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2024-07-01T00:00:00Z",
+      "embargo_start": "2024-06-30T18:00:00Z",
+      "evaluation_end": "2024-10-01T00:00:00Z",
+      "evaluation_start": "2024-07-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02C_v1_purge_breadth_context:2024Q3",
+      "hypothesis_id": "KDA02C_v1_purge_breadth_context",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2024-09-30T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2024-10-01T00:00:00Z",
+      "embargo_start": "2024-09-30T18:00:00Z",
+      "evaluation_end": "2025-01-01T00:00:00Z",
+      "evaluation_start": "2024-10-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02C_v1_purge_breadth_context:2024Q4",
+      "hypothesis_id": "KDA02C_v1_purge_breadth_context",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2024-12-31T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2025-01-01T00:00:00Z",
+      "embargo_start": "2024-12-31T18:00:00Z",
+      "evaluation_end": "2025-04-01T00:00:00Z",
+      "evaluation_start": "2025-01-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02C_v1_purge_breadth_context:2025Q1",
+      "hypothesis_id": "KDA02C_v1_purge_breadth_context",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2025-03-31T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2025-04-01T00:00:00Z",
+      "embargo_start": "2025-03-31T18:00:00Z",
+      "evaluation_end": "2025-07-01T00:00:00Z",
+      "evaluation_start": "2025-04-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02C_v1_purge_breadth_context:2025Q2",
+      "hypothesis_id": "KDA02C_v1_purge_breadth_context",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2025-06-30T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2025-07-01T00:00:00Z",
+      "embargo_start": "2025-06-30T18:00:00Z",
+      "evaluation_end": "2025-10-01T00:00:00Z",
+      "evaluation_start": "2025-07-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02C_v1_purge_breadth_context:2025Q3",
+      "hypothesis_id": "KDA02C_v1_purge_breadth_context",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2025-09-30T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2025-10-01T00:00:00Z",
+      "embargo_start": "2025-09-30T18:00:00Z",
+      "evaluation_end": "2026-01-01T00:00:00Z",
+      "evaluation_start": "2025-10-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDA02C_v1_purge_breadth_context:2025Q4",
+      "hypothesis_id": "KDA02C_v1_purge_breadth_context",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2023-09-30T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2023-10-01T00:00:00Z",
+      "embargo_start": "2023-09-30T18:00:00Z",
+      "evaluation_end": "2024-01-01T00:00:00Z",
+      "evaluation_start": "2023-10-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDX01_v1_downside_completed_derivatives_state_rejection:2023Q4",
+      "hypothesis_id": "KDX01_v1_downside_completed_derivatives_state_rejection",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2023-12-31T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2024-01-01T00:00:00Z",
+      "embargo_start": "2023-12-31T18:00:00Z",
+      "evaluation_end": "2024-04-01T00:00:00Z",
+      "evaluation_start": "2024-01-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDX01_v1_downside_completed_derivatives_state_rejection:2024Q1",
+      "hypothesis_id": "KDX01_v1_downside_completed_derivatives_state_rejection",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2024-03-31T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2024-04-01T00:00:00Z",
+      "embargo_start": "2024-03-31T18:00:00Z",
+      "evaluation_end": "2024-07-01T00:00:00Z",
+      "evaluation_start": "2024-04-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDX01_v1_downside_completed_derivatives_state_rejection:2024Q2",
+      "hypothesis_id": "KDX01_v1_downside_completed_derivatives_state_rejection",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2024-06-30T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2024-07-01T00:00:00Z",
+      "embargo_start": "2024-06-30T18:00:00Z",
+      "evaluation_end": "2024-10-01T00:00:00Z",
+      "evaluation_start": "2024-07-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDX01_v1_downside_completed_derivatives_state_rejection:2024Q3",
+      "hypothesis_id": "KDX01_v1_downside_completed_derivatives_state_rejection",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2024-09-30T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2024-10-01T00:00:00Z",
+      "embargo_start": "2024-09-30T18:00:00Z",
+      "evaluation_end": "2025-01-01T00:00:00Z",
+      "evaluation_start": "2024-10-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDX01_v1_downside_completed_derivatives_state_rejection:2024Q4",
+      "hypothesis_id": "KDX01_v1_downside_completed_derivatives_state_rejection",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2024-12-31T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2025-01-01T00:00:00Z",
+      "embargo_start": "2024-12-31T18:00:00Z",
+      "evaluation_end": "2025-04-01T00:00:00Z",
+      "evaluation_start": "2025-01-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDX01_v1_downside_completed_derivatives_state_rejection:2025Q1",
+      "hypothesis_id": "KDX01_v1_downside_completed_derivatives_state_rejection",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2025-03-31T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2025-04-01T00:00:00Z",
+      "embargo_start": "2025-03-31T18:00:00Z",
+      "evaluation_end": "2025-07-01T00:00:00Z",
+      "evaluation_start": "2025-04-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDX01_v1_downside_completed_derivatives_state_rejection:2025Q2",
+      "hypothesis_id": "KDX01_v1_downside_completed_derivatives_state_rejection",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2025-06-30T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2025-07-01T00:00:00Z",
+      "embargo_start": "2025-06-30T18:00:00Z",
+      "evaluation_end": "2025-10-01T00:00:00Z",
+      "evaluation_start": "2025-07-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDX01_v1_downside_completed_derivatives_state_rejection:2025Q3",
+      "hypothesis_id": "KDX01_v1_downside_completed_derivatives_state_rejection",
+      "independent_validation_claim": false
+    },
+    {
+      "development_end": "2025-09-30T18:00:00Z",
+      "development_start": "2023-04-01T00:00:00Z",
+      "embargo": "six_hours_plus_actual_executable_exit_nonoverlap",
+      "embargo_end": "2025-10-01T00:00:00Z",
+      "embargo_start": "2025-09-30T18:00:00Z",
+      "evaluation_end": "2026-01-01T00:00:00Z",
+      "evaluation_start": "2025-10-01T00:00:00Z",
+      "exposure_class": "program_exposed_historical",
+      "fold_id": "KDX01_v1_downside_completed_derivatives_state_rejection:2025Q4",
+      "hypothesis_id": "KDX01_v1_downside_completed_derivatives_state_rejection",
+      "independent_validation_claim": false
+    }
+  ],
+  "generated_at": "2026-07-19T00:00:00Z",
+  "human_approval_artifact_required": true,
+  "independent_validation_claim": false,
+  "mode": "future_phase2_5_request_only",
+  "multiplicity": {
+    "complete_registry_required": true,
+    "counts_every_response_bin_feature_subset_model_rule_direction_horizon_context_cell": true,
+    "inherit_parent_and_program_attempts": true,
+    "unrecoverable_historical_attempt_count_never_zero": true
+  },
+  "phase_permissions": {
+    "0": true,
+    "1": true,
+    "2": false,
+    "3": false,
+    "4": false,
+    "5": false,
+    "6": false,
+    "7": false
+  },
+  "programme_exposure_class": "program_exposed_historical",
+  "ready_hypotheses": [
+    "KDA02B_v2_oi_vacuum_redevelopment",
+    "KDA02C_v1_purge_breadth_context",
+    "KDX01_v1_downside_completed_derivatives_state_rejection"
+  ],
+  "repository_and_data_hashes": {
+    "analytics_manifest_sha256": "f1520fd3875578a9a2101b10d5e15b7b88c58a6ffcf6067dd91f582352d92a6d",
+    "authorized_cohort_sha256": "5df5b304d8e735d3579e220d25a000e81013435320c6e8fb2480c1ed565a3636",
+    "campaign_protocol_sha256": "7091156df9bf815a001423b63d673d2d4217f2616fd40e76a261f218a2d614df",
+    "closure_validator_sha256": "3bc9b775616b00b00cd3b2040966fb424d41725189136e6eeb15ee08fa8781f0",
+    "family_policy_sha256": "d07b0d290e59d17f7d6a587e2a31e6e550468f9ad403250cd6183c549e685335",
+    "feature_contract_sha256": "4673ff11b8e0ad12bca4552780848b2597f68f54841858376cdfa30f99e193b4",
+    "funding_and_cost_contract_sha256": "a2dc19786f138b6f694d484cdb8e93c4a26cb108e7b0428295f2470219b5225c",
+    "local_state_tape_manifest_sha256": "838be528ea0bcaeed132c4b95401594e2bb9a726178ece3f51de44dbbcd96380",
+    "measurement_builder_sha256": "9f1bdd3426e97944dbd66ad56bf3bd17b91ab7de926adaf692b9d77aa422de7c",
+    "measurement_finalizer_sha256": "e354ef01a44d7a9f4feaaf5819d3111745b96fe4d412836ca7c7da162e8b0d50",
+    "measurement_primitive_code_sha256": "4f37fd38b3101eb76be641f7b77f578ea4e576d511bd28f73844e1142ba2bd56",
+    "phase1_measurement_sha256": "ac88691cd061b859bb982e8a2213ff22dbac28397b6c5477aee85377dc977890",
+    "protocol_v2_sha256": "4effe3e9608377876486b1583854a7e1479c8e93d6de1661f13d35842bbc6a73",
+    "repository_implementation_commit": "UNCOMMITTED_STAGE14",
+    "repository_start_commit": "e14bbd0d26c14e48a347481f170fcfe8851df625",
+    "route_policy_sha256": "c54d4a3445da249c6dbd34613b770ad9624f861e0d7c345b3cba944aa6cdf1aa",
+    "search_space_builder_sha256": "c3f0e875d9556a783fbe9e6f261b2b7487d8b0ae3acb6aa56513c1bf5830d5fc",
+    "stage13_approval_request_sha256": "ed27fc30d39155d6b08d63539a22d34b50d19ab3c909396a8719c443057fcd5c",
+    "stage13_campaign_manifest_sha256": "09f4a534dcd799bf252e6e47037af58ad2177256d976b37defd8c257d2949e27"
+  },
+  "resource_limits": {
+    "benchmark": {
+      "deterministic_cell_projection_method": "measured full outcome-free primitive replay",
+      "feature_rows": 39279314,
+      "finalization_peak_rss_kib": 912780,
+      "finalization_replay_wall_seconds": 134.5272172689438,
+      "observed_full_scan_peak_rss_kib_lower_bound": 463124,
+      "workers": 1
+    },
+    "candidate_beam_per_family": 5,
+    "complexity_budget_max_interaction_depth": 6,
+    "derivation": {
+      "per_cell_output_cap_bytes": 1048576,
+      "performance_cell_ceiling": 285,
+      "projected_disk_bytes": 2386558976,
+      "projected_wall_seconds": 11502.077076494694,
+      "registered_cells": 228,
+      "registered_cells_are_complete_mechanism_cartesian_products": true,
+      "runtime_safety_factor": 1.5,
+      "shared_output_cap_bytes": 2147483648,
+      "single_worker_full_replay_seconds_used_as_conservative_per_cell_cost": 134.5272172689438,
+      "workers": 4
+    },
+    "max_disk_bytes": 5368709120,
+    "max_workers": 4,
+    "maximum_cells_by_family": {
+      "KDA02B": 96,
+      "KDA02C": 48,
+      "KDX01": 84
+    },
+    "maximum_total_cells": 228,
+    "projection": "mechanism-complete 96/48/84 registry is below the benchmark-derived cell ceiling; each cell and shared writer is separately hard-capped; stop before either four hours or 5 GiB",
+    "wall_seconds": 14400
+  },
+  "search_spaces": [
+    {
+      "axes": {
+        "branch": [
+          "continuation",
+          "reversal"
+        ],
+        "horizon": [
+          "1h",
+          "3h",
+          "6h"
+        ],
+        "liquidation_context": [
+          "continuous_intensity",
+          "present_absent"
+        ],
+        "oi_axis": [
+          "raw_oi_log_change_continuous",
+          "fold_local_percentile_surface"
+        ],
+        "price_displacement_axis": [
+          "raw_bps_continuous",
+          "fold_local_rank_continuous"
+        ],
+        "price_state": [
+          "negative",
+          "positive"
+        ]
+      },
+      "continuous_surface_first": true,
+      "family_id": "KDA02B",
+      "fold_local_rank_only": true,
+      "historical_multiplicity_inherited": true,
+      "maximum_cells": 96,
+      "maximum_interaction_depth": 3,
+      "registered_cell_ids": [
+        "KDA02B_001",
+        "KDA02B_002",
+        "KDA02B_003",
+        "KDA02B_004",
+        "KDA02B_005",
+        "KDA02B_006",
+        "KDA02B_007",
+        "KDA02B_008",
+        "KDA02B_009",
+        "KDA02B_010",
+        "KDA02B_011",
+        "KDA02B_012",
+        "KDA02B_013",
+        "KDA02B_014",
+        "KDA02B_015",
+        "KDA02B_016",
+        "KDA02B_017",
+        "KDA02B_018",
+        "KDA02B_019",
+        "KDA02B_020",
+        "KDA02B_021",
+        "KDA02B_022",
+        "KDA02B_023",
+        "KDA02B_024",
+        "KDA02B_025",
+        "KDA02B_026",
+        "KDA02B_027",
+        "KDA02B_028",
+        "KDA02B_029",
+        "KDA02B_030",
+        "KDA02B_031",
+        "KDA02B_032",
+        "KDA02B_033",
+        "KDA02B_034",
+        "KDA02B_035",
+        "KDA02B_036",
+        "KDA02B_037",
+        "KDA02B_038",
+        "KDA02B_039",
+        "KDA02B_040",
+        "KDA02B_041",
+        "KDA02B_042",
+        "KDA02B_043",
+        "KDA02B_044",
+        "KDA02B_045",
+        "KDA02B_046",
+        "KDA02B_047",
+        "KDA02B_048",
+        "KDA02B_049",
+        "KDA02B_050",
+        "KDA02B_051",
+        "KDA02B_052",
+        "KDA02B_053",
+        "KDA02B_054",
+        "KDA02B_055",
+        "KDA02B_056",
+        "KDA02B_057",
+        "KDA02B_058",
+        "KDA02B_059",
+        "KDA02B_060",
+        "KDA02B_061",
+        "KDA02B_062",
+        "KDA02B_063",
+        "KDA02B_064",
+        "KDA02B_065",
+        "KDA02B_066",
+        "KDA02B_067",
+        "KDA02B_068",
+        "KDA02B_069",
+        "KDA02B_070",
+        "KDA02B_071",
+        "KDA02B_072",
+        "KDA02B_073",
+        "KDA02B_074",
+        "KDA02B_075",
+        "KDA02B_076",
+        "KDA02B_077",
+        "KDA02B_078",
+        "KDA02B_079",
+        "KDA02B_080",
+        "KDA02B_081",
+        "KDA02B_082",
+        "KDA02B_083",
+        "KDA02B_084",
+        "KDA02B_085",
+        "KDA02B_086",
+        "KDA02B_087",
+        "KDA02B_088",
+        "KDA02B_089",
+        "KDA02B_090",
+        "KDA02B_091",
+        "KDA02B_092",
+        "KDA02B_093",
+        "KDA02B_094",
+        "KDA02B_095",
+        "KDA02B_096"
+      ],
+      "registered_cells": [
+        {
+          "cell_id": "KDA02B_001",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "1h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_002",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "1h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_003",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "3h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_004",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "3h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_005",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "6h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_006",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "6h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_007",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "1h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_008",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "1h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_009",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "3h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_010",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "3h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_011",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "6h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_012",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "6h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_013",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "1h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_014",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "1h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_015",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "3h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_016",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "3h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_017",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "6h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_018",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "6h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_019",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "1h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_020",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "1h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_021",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "3h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_022",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "3h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_023",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "6h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_024",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "6h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_025",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "1h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_026",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "1h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_027",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "3h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_028",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "3h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_029",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "6h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_030",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "6h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_031",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "1h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_032",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "1h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_033",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "3h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_034",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "3h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_035",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "6h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_036",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "6h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_037",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "1h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_038",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "1h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_039",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "3h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_040",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "3h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_041",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "6h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_042",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "6h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_043",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "1h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_044",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "1h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_045",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "3h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_046",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "3h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_047",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "6h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_048",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "6h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "raw_oi_log_change_continuous",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_049",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "1h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_050",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "1h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_051",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "3h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_052",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "3h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_053",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "6h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_054",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "6h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_055",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "1h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_056",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "1h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_057",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "3h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_058",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "3h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_059",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "6h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_060",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "6h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_061",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "1h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_062",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "1h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_063",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "3h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_064",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "3h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_065",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "6h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_066",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "6h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_067",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "1h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_068",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "1h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_069",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "3h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_070",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "3h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_071",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "6h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_072",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "6h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "raw_bps_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_073",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "1h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_074",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "1h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_075",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "3h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_076",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "3h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_077",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "6h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_078",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "6h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_079",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "1h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_080",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "1h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_081",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "3h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_082",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "3h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_083",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "6h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_084",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "6h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "negative"
+          }
+        },
+        {
+          "cell_id": "KDA02B_085",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "1h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_086",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "1h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_087",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "3h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_088",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "3h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_089",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "6h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_090",
+          "parameters": {
+            "branch": "continuation",
+            "horizon": "6h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_091",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "1h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_092",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "1h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_093",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "3h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_094",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "3h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_095",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "6h",
+            "liquidation_context": "continuous_intensity",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        },
+        {
+          "cell_id": "KDA02B_096",
+          "parameters": {
+            "branch": "reversal",
+            "horizon": "6h",
+            "liquidation_context": "present_absent",
+            "oi_axis": "fold_local_percentile_surface",
+            "price_displacement_axis": "fold_local_rank_continuous",
+            "price_state": "positive"
+          }
+        }
+      ],
+      "search_space_id": "S_KDA02B_V2"
+    },
+    {
+      "axes": {
+        "breadth_form": [
+          "raw_share_continuous",
+          "fold_local_rank_continuous",
+          "isolated_vs_nonisolated_increment"
+        ],
+        "diagnostic_window": [
+          "5m",
+          "15m",
+          "30m",
+          "60m"
+        ],
+        "direction": [
+          "negative",
+          "positive"
+        ],
+        "purge_identity": [
+          "primary_z2",
+          "robust_pct95"
+        ]
+      },
+      "continuous_surface_first": true,
+      "family_id": "KDA02C",
+      "fold_local_rank_only": true,
+      "historical_multiplicity_inherited": true,
+      "maximum_cells": 48,
+      "maximum_interaction_depth": 3,
+      "registered_cell_ids": [
+        "KDA02C_001",
+        "KDA02C_002",
+        "KDA02C_003",
+        "KDA02C_004",
+        "KDA02C_005",
+        "KDA02C_006",
+        "KDA02C_007",
+        "KDA02C_008",
+        "KDA02C_009",
+        "KDA02C_010",
+        "KDA02C_011",
+        "KDA02C_012",
+        "KDA02C_013",
+        "KDA02C_014",
+        "KDA02C_015",
+        "KDA02C_016",
+        "KDA02C_017",
+        "KDA02C_018",
+        "KDA02C_019",
+        "KDA02C_020",
+        "KDA02C_021",
+        "KDA02C_022",
+        "KDA02C_023",
+        "KDA02C_024",
+        "KDA02C_025",
+        "KDA02C_026",
+        "KDA02C_027",
+        "KDA02C_028",
+        "KDA02C_029",
+        "KDA02C_030",
+        "KDA02C_031",
+        "KDA02C_032",
+        "KDA02C_033",
+        "KDA02C_034",
+        "KDA02C_035",
+        "KDA02C_036",
+        "KDA02C_037",
+        "KDA02C_038",
+        "KDA02C_039",
+        "KDA02C_040",
+        "KDA02C_041",
+        "KDA02C_042",
+        "KDA02C_043",
+        "KDA02C_044",
+        "KDA02C_045",
+        "KDA02C_046",
+        "KDA02C_047",
+        "KDA02C_048"
+      ],
+      "registered_cells": [
+        {
+          "cell_id": "KDA02C_001",
+          "parameters": {
+            "breadth_form": "raw_share_continuous",
+            "diagnostic_window": "5m",
+            "direction": "negative",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_002",
+          "parameters": {
+            "breadth_form": "raw_share_continuous",
+            "diagnostic_window": "5m",
+            "direction": "positive",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_003",
+          "parameters": {
+            "breadth_form": "fold_local_rank_continuous",
+            "diagnostic_window": "5m",
+            "direction": "negative",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_004",
+          "parameters": {
+            "breadth_form": "fold_local_rank_continuous",
+            "diagnostic_window": "5m",
+            "direction": "positive",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_005",
+          "parameters": {
+            "breadth_form": "isolated_vs_nonisolated_increment",
+            "diagnostic_window": "5m",
+            "direction": "negative",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_006",
+          "parameters": {
+            "breadth_form": "isolated_vs_nonisolated_increment",
+            "diagnostic_window": "5m",
+            "direction": "positive",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_007",
+          "parameters": {
+            "breadth_form": "raw_share_continuous",
+            "diagnostic_window": "15m",
+            "direction": "negative",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_008",
+          "parameters": {
+            "breadth_form": "raw_share_continuous",
+            "diagnostic_window": "15m",
+            "direction": "positive",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_009",
+          "parameters": {
+            "breadth_form": "fold_local_rank_continuous",
+            "diagnostic_window": "15m",
+            "direction": "negative",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_010",
+          "parameters": {
+            "breadth_form": "fold_local_rank_continuous",
+            "diagnostic_window": "15m",
+            "direction": "positive",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_011",
+          "parameters": {
+            "breadth_form": "isolated_vs_nonisolated_increment",
+            "diagnostic_window": "15m",
+            "direction": "negative",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_012",
+          "parameters": {
+            "breadth_form": "isolated_vs_nonisolated_increment",
+            "diagnostic_window": "15m",
+            "direction": "positive",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_013",
+          "parameters": {
+            "breadth_form": "raw_share_continuous",
+            "diagnostic_window": "30m",
+            "direction": "negative",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_014",
+          "parameters": {
+            "breadth_form": "raw_share_continuous",
+            "diagnostic_window": "30m",
+            "direction": "positive",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_015",
+          "parameters": {
+            "breadth_form": "fold_local_rank_continuous",
+            "diagnostic_window": "30m",
+            "direction": "negative",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_016",
+          "parameters": {
+            "breadth_form": "fold_local_rank_continuous",
+            "diagnostic_window": "30m",
+            "direction": "positive",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_017",
+          "parameters": {
+            "breadth_form": "isolated_vs_nonisolated_increment",
+            "diagnostic_window": "30m",
+            "direction": "negative",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_018",
+          "parameters": {
+            "breadth_form": "isolated_vs_nonisolated_increment",
+            "diagnostic_window": "30m",
+            "direction": "positive",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_019",
+          "parameters": {
+            "breadth_form": "raw_share_continuous",
+            "diagnostic_window": "60m",
+            "direction": "negative",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_020",
+          "parameters": {
+            "breadth_form": "raw_share_continuous",
+            "diagnostic_window": "60m",
+            "direction": "positive",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_021",
+          "parameters": {
+            "breadth_form": "fold_local_rank_continuous",
+            "diagnostic_window": "60m",
+            "direction": "negative",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_022",
+          "parameters": {
+            "breadth_form": "fold_local_rank_continuous",
+            "diagnostic_window": "60m",
+            "direction": "positive",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_023",
+          "parameters": {
+            "breadth_form": "isolated_vs_nonisolated_increment",
+            "diagnostic_window": "60m",
+            "direction": "negative",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_024",
+          "parameters": {
+            "breadth_form": "isolated_vs_nonisolated_increment",
+            "diagnostic_window": "60m",
+            "direction": "positive",
+            "purge_identity": "primary_z2"
+          }
+        },
+        {
+          "cell_id": "KDA02C_025",
+          "parameters": {
+            "breadth_form": "raw_share_continuous",
+            "diagnostic_window": "5m",
+            "direction": "negative",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_026",
+          "parameters": {
+            "breadth_form": "raw_share_continuous",
+            "diagnostic_window": "5m",
+            "direction": "positive",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_027",
+          "parameters": {
+            "breadth_form": "fold_local_rank_continuous",
+            "diagnostic_window": "5m",
+            "direction": "negative",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_028",
+          "parameters": {
+            "breadth_form": "fold_local_rank_continuous",
+            "diagnostic_window": "5m",
+            "direction": "positive",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_029",
+          "parameters": {
+            "breadth_form": "isolated_vs_nonisolated_increment",
+            "diagnostic_window": "5m",
+            "direction": "negative",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_030",
+          "parameters": {
+            "breadth_form": "isolated_vs_nonisolated_increment",
+            "diagnostic_window": "5m",
+            "direction": "positive",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_031",
+          "parameters": {
+            "breadth_form": "raw_share_continuous",
+            "diagnostic_window": "15m",
+            "direction": "negative",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_032",
+          "parameters": {
+            "breadth_form": "raw_share_continuous",
+            "diagnostic_window": "15m",
+            "direction": "positive",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_033",
+          "parameters": {
+            "breadth_form": "fold_local_rank_continuous",
+            "diagnostic_window": "15m",
+            "direction": "negative",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_034",
+          "parameters": {
+            "breadth_form": "fold_local_rank_continuous",
+            "diagnostic_window": "15m",
+            "direction": "positive",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_035",
+          "parameters": {
+            "breadth_form": "isolated_vs_nonisolated_increment",
+            "diagnostic_window": "15m",
+            "direction": "negative",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_036",
+          "parameters": {
+            "breadth_form": "isolated_vs_nonisolated_increment",
+            "diagnostic_window": "15m",
+            "direction": "positive",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_037",
+          "parameters": {
+            "breadth_form": "raw_share_continuous",
+            "diagnostic_window": "30m",
+            "direction": "negative",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_038",
+          "parameters": {
+            "breadth_form": "raw_share_continuous",
+            "diagnostic_window": "30m",
+            "direction": "positive",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_039",
+          "parameters": {
+            "breadth_form": "fold_local_rank_continuous",
+            "diagnostic_window": "30m",
+            "direction": "negative",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_040",
+          "parameters": {
+            "breadth_form": "fold_local_rank_continuous",
+            "diagnostic_window": "30m",
+            "direction": "positive",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_041",
+          "parameters": {
+            "breadth_form": "isolated_vs_nonisolated_increment",
+            "diagnostic_window": "30m",
+            "direction": "negative",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_042",
+          "parameters": {
+            "breadth_form": "isolated_vs_nonisolated_increment",
+            "diagnostic_window": "30m",
+            "direction": "positive",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_043",
+          "parameters": {
+            "breadth_form": "raw_share_continuous",
+            "diagnostic_window": "60m",
+            "direction": "negative",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_044",
+          "parameters": {
+            "breadth_form": "raw_share_continuous",
+            "diagnostic_window": "60m",
+            "direction": "positive",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_045",
+          "parameters": {
+            "breadth_form": "fold_local_rank_continuous",
+            "diagnostic_window": "60m",
+            "direction": "negative",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_046",
+          "parameters": {
+            "breadth_form": "fold_local_rank_continuous",
+            "diagnostic_window": "60m",
+            "direction": "positive",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_047",
+          "parameters": {
+            "breadth_form": "isolated_vs_nonisolated_increment",
+            "diagnostic_window": "60m",
+            "direction": "negative",
+            "purge_identity": "robust_pct95"
+          }
+        },
+        {
+          "cell_id": "KDA02C_048",
+          "parameters": {
+            "breadth_form": "isolated_vs_nonisolated_increment",
+            "diagnostic_window": "60m",
+            "direction": "positive",
+            "purge_identity": "robust_pct95"
+          }
+        }
+      ],
+      "search_space_id": "S_KDA02C_V1"
+    },
+    {
+      "axes": {
+        "component_ladder": [
+          "trade_mark_structural",
+          "trade_mark_structural_oi",
+          "trade_mark_structural_oi_liquidation",
+          "trade_mark_structural_oi_basis_level",
+          "trade_mark_structural_oi_basis_change",
+          "trade_mark_structural_oi_breadth",
+          "trade_mark_structural_oi_liquidation_basis_change"
+        ],
+        "component_scaling": [
+          "raw_unit_continuous",
+          "fold_local_rank_continuous"
+        ],
+        "direction": [
+          "continuation",
+          "reversal"
+        ],
+        "horizon": [
+          "1h",
+          "3h",
+          "6h"
+        ]
+      },
+      "continuous_surface_first": true,
+      "family_id": "KDX01",
+      "fold_local_rank_only": true,
+      "historical_multiplicity_inherited": true,
+      "maximum_cells": 84,
+      "maximum_interaction_depth": 6,
+      "registered_cell_ids": [
+        "KDX01_001",
+        "KDX01_002",
+        "KDX01_003",
+        "KDX01_004",
+        "KDX01_005",
+        "KDX01_006",
+        "KDX01_007",
+        "KDX01_008",
+        "KDX01_009",
+        "KDX01_010",
+        "KDX01_011",
+        "KDX01_012",
+        "KDX01_013",
+        "KDX01_014",
+        "KDX01_015",
+        "KDX01_016",
+        "KDX01_017",
+        "KDX01_018",
+        "KDX01_019",
+        "KDX01_020",
+        "KDX01_021",
+        "KDX01_022",
+        "KDX01_023",
+        "KDX01_024",
+        "KDX01_025",
+        "KDX01_026",
+        "KDX01_027",
+        "KDX01_028",
+        "KDX01_029",
+        "KDX01_030",
+        "KDX01_031",
+        "KDX01_032",
+        "KDX01_033",
+        "KDX01_034",
+        "KDX01_035",
+        "KDX01_036",
+        "KDX01_037",
+        "KDX01_038",
+        "KDX01_039",
+        "KDX01_040",
+        "KDX01_041",
+        "KDX01_042",
+        "KDX01_043",
+        "KDX01_044",
+        "KDX01_045",
+        "KDX01_046",
+        "KDX01_047",
+        "KDX01_048",
+        "KDX01_049",
+        "KDX01_050",
+        "KDX01_051",
+        "KDX01_052",
+        "KDX01_053",
+        "KDX01_054",
+        "KDX01_055",
+        "KDX01_056",
+        "KDX01_057",
+        "KDX01_058",
+        "KDX01_059",
+        "KDX01_060",
+        "KDX01_061",
+        "KDX01_062",
+        "KDX01_063",
+        "KDX01_064",
+        "KDX01_065",
+        "KDX01_066",
+        "KDX01_067",
+        "KDX01_068",
+        "KDX01_069",
+        "KDX01_070",
+        "KDX01_071",
+        "KDX01_072",
+        "KDX01_073",
+        "KDX01_074",
+        "KDX01_075",
+        "KDX01_076",
+        "KDX01_077",
+        "KDX01_078",
+        "KDX01_079",
+        "KDX01_080",
+        "KDX01_081",
+        "KDX01_082",
+        "KDX01_083",
+        "KDX01_084"
+      ],
+      "registered_cells": [
+        {
+          "cell_id": "KDX01_001",
+          "parameters": {
+            "component_ladder": "trade_mark_structural",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_002",
+          "parameters": {
+            "component_ladder": "trade_mark_structural",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_003",
+          "parameters": {
+            "component_ladder": "trade_mark_structural",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_004",
+          "parameters": {
+            "component_ladder": "trade_mark_structural",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_005",
+          "parameters": {
+            "component_ladder": "trade_mark_structural",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_006",
+          "parameters": {
+            "component_ladder": "trade_mark_structural",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_007",
+          "parameters": {
+            "component_ladder": "trade_mark_structural",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_008",
+          "parameters": {
+            "component_ladder": "trade_mark_structural",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_009",
+          "parameters": {
+            "component_ladder": "trade_mark_structural",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_010",
+          "parameters": {
+            "component_ladder": "trade_mark_structural",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_011",
+          "parameters": {
+            "component_ladder": "trade_mark_structural",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_012",
+          "parameters": {
+            "component_ladder": "trade_mark_structural",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_013",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_014",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_015",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_016",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_017",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_018",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_019",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_020",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_021",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_022",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_023",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_024",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_025",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_026",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_027",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_028",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_029",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_030",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_031",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_032",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_033",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_034",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_035",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_036",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_037",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_level",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_038",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_level",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_039",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_level",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_040",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_level",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_041",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_level",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_042",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_level",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_043",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_level",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_044",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_level",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_045",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_level",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_046",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_level",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_047",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_level",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_048",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_level",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_049",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_change",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_050",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_change",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_051",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_change",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_052",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_change",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_053",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_change",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_054",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_change",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_055",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_change",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_056",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_change",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_057",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_change",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_058",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_change",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_059",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_change",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_060",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_basis_change",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_061",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_breadth",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_062",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_breadth",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_063",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_breadth",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_064",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_breadth",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_065",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_breadth",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_066",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_breadth",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_067",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_breadth",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_068",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_breadth",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_069",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_breadth",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_070",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_breadth",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_071",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_breadth",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_072",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_breadth",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_073",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation_basis_change",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_074",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation_basis_change",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_075",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation_basis_change",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "continuation",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_076",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation_basis_change",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_077",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation_basis_change",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_078",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation_basis_change",
+            "component_scaling": "raw_unit_continuous",
+            "direction": "reversal",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_079",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation_basis_change",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_080",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation_basis_change",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_081",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation_basis_change",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "continuation",
+            "horizon": "6h"
+          }
+        },
+        {
+          "cell_id": "KDX01_082",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation_basis_change",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "1h"
+          }
+        },
+        {
+          "cell_id": "KDX01_083",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation_basis_change",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "3h"
+          }
+        },
+        {
+          "cell_id": "KDX01_084",
+          "parameters": {
+            "component_ladder": "trade_mark_structural_oi_liquidation_basis_change",
+            "component_scaling": "fold_local_rank_continuous",
+            "direction": "reversal",
+            "horizon": "6h"
+          }
+        }
+      ],
+      "search_space_id": "S_KDX01_V1"
+    }
+  ],
+  "selection_algorithm": {
+    "backward_information_flow": false,
+    "candidate_beam_per_family": 5,
+    "deterministic_tie_break": [
+      "higher_worst_inner_fold_utility",
+      "higher_effective_independent_cluster_count",
+      "lower_complexity",
+      "lexical_cell_id"
+    ],
+    "global_candidate_beam": 12,
+    "method": "predeclared_nested_pareto",
+    "objectives": [
+      "base_net_expectancy_after_authorized_costs",
+      "median_inner_fold_utility",
+      "worst_inner_fold_utility",
+      "cross_fold_sign_and_stability",
+      "effective_independent_cluster_count",
+      "left_tail_and_drawdown_proxy_by_archetype",
+      "opportunity_frequency",
+      "capital_occupancy",
+      "execution_margin",
+      "complexity",
+      "candidate_correlation"
+    ]
+  },
+  "stop_conditions": {
+    "family_only": [
+      "mechanically_unavailable",
+      "mechanism_underidentified",
+      "insufficient_incidence",
+      "family_specific_defect",
+      "no_development_candidate"
+    ],
+    "global": [
+      "authority_mismatch",
+      "protected_exposure",
+      "shared_timestamp_defect",
+      "unsafe_git_or_storage",
+      "deterministic_replay_failure"
+    ]
+  },
+  "version": "2.0"
+}
