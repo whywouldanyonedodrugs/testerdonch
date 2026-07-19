@@ -121,8 +121,8 @@
     },
     {
       "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/COMMANDS_AND_RESULTS.md",
-      "bytes": 2175,
-      "sha256": "a788e35896f9a639234ab0415494f5b5af2714df7c476d1d1f8de89969031018"
+      "bytes": 2397,
+      "sha256": "78077bcfcfde2448ca1e52a04d3706db5921d85c53e5e6961fdae864b241fc31"
     },
     {
       "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/COMPLETION.md",
@@ -131,8 +131,8 @@
     },
     {
       "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/DECISIONS_AND_PROGRESS.md",
-      "bytes": 1463,
-      "sha256": "3ba499880b93aa562c2274cdda9a1c8084cc511668e6611fd732b0f08ab5ae44"
+      "bytes": 1537,
+      "sha256": "c279c261da2f3ca186f728cde04ce163fa6e189871853d1b3d910d337e400d15"
     },
     {
       "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/DONCH_CONTEXT.md",
@@ -146,8 +146,8 @@
     },
     {
       "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/PLAN.md",
-      "bytes": 7780,
-      "sha256": "2054488c1e3a054bd26f84b0608e0cad95118ad2b527bcfe57884150c634ebec"
+      "bytes": 7815,
+      "sha256": "80f23c7f517cd8fd3a7ad21085e0714bec4e91c2edbe52981e074a17db552b51"
     },
     {
       "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/READ_FIRST.md",
@@ -171,8 +171,8 @@
     },
     {
       "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/VALIDATION.md",
-      "bytes": 2255,
-      "sha256": "c0c0a00252833bbe28ca251b39b2f3be6bda3b7d790756159cdcea5c8d3386e7"
+      "bytes": 2445,
+      "sha256": "ba10cad4450e2f4d29640208758420addfb58c255641844213896103ed262279"
     },
     {
       "path": "unit_tests/test_hypothesis_development_protocol.py",

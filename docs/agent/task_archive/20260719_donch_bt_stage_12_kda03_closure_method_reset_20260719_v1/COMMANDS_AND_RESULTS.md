@@ -19,5 +19,6 @@ All commands ran from the isolated Stage 12 worktree unless noted.
 | Recovery validation | 5/5 bundle-file hashes, tracked-refs bundle, reverse patch check, and 41/41 untracked metadata hashes passed. |
 | Local package | ZIP integrity and 32/32 embedded artifact-manifest entries passed; direct secret findings `0`. |
 | Drive collision/read/upload/round trip | Exact `v01` folder absent before write; 5 files uploaded without overwrite; 5/5 downloaded sizes and SHA-256 values matched. |
+| Non-force publication | Verified `origin/main` still matched `0fb0880…`, then fast-forwarded `HEAD:main`; local and remote heads matched after fetch. Final object ID is reported outside the self-referential archive. |
 
 No command imported a market reader, strategy runner, return calculator, bootstrap module, or protected/Capital.com payload.

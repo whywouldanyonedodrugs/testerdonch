@@ -38,6 +38,7 @@ optional-dependency test starts: 2 blocked before collection/import
 - Round-trip download: all 5 filenames, byte sizes, and SHA-256 values matched.
 - Retained ZIP: `/opt/testerdonch-stage12-handoffs/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1_v01/qlmg_kda03-closure-method-reset_20260719_v01.zip`, 70,504 bytes, SHA-256 `e47fb5e931a13410da657f5ca38923cf33ad845cb30ed5630ca145cdd58cd33f`.
 - Remote folder: `https://drive.google.com/open?id=12RS7Nm__TQFnA7rueVfgQMV15IWSDuVF`.
+- Git publication: non-force fast-forward to `origin/main`; remote equality rechecked after fetch. Final object ID is reported in the task response because a commit cannot embed its own ID.
 
 ## Scope checks
 

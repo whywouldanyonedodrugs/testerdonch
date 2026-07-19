@@ -15,7 +15,7 @@
 - M1 authority and recovery preflight: complete.
 - M2 documentation, registries, protocol, tags, candidate comparison, and focused test: complete.
 - M3 independent review: complete; approved with zero findings.
-- M4 archive and Drive handoff: complete; final archive commit and non-force origin/main push pending.
+- M4 archive, Drive handoff, and non-force origin/main publication: complete. Git object IDs are recorded in the final task response because a commit cannot contain its own ID.
 
 ## Economic and protected status
 

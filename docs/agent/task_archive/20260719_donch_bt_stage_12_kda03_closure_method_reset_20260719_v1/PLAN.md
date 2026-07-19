@@ -107,7 +107,7 @@ Accurately close Stage 11 without promotion, register its evidence limitations s
 | 2026-07-19 | M1 | Complete. | Implement M2. |
 | 2026-07-19 | M2 | Complete; 11 dependency-free tests passed and policy/schema/link checks passed. | Independent review. |
 | 2026-07-19 | M3 | Approved with zero findings. | Close archive, commit, push, and handoff. |
-| 2026-07-19 | M4 | Local package and approved-default Drive round trip passed 5/5 hashes. | Final archive commit and non-force push. |
+| 2026-07-19 | M4 | Local package and approved-default Drive round trip passed 5/5 hashes; task branch was committed and published non-force to origin/main. | Complete. |
 
 ## Completion record
 
