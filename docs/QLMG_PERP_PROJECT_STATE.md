@@ -8,7 +8,7 @@ Current stage:
 
 - governance integration, repository recovery, and safe worktree discipline;
 - completed Kraken analytics acquisition authority and non-economic derivatives-state generator foundation;
-- outcome-free KDA01/KDA02 event tapes and KDA03 feasibility evidence, pending a separately approved frozen economic contract;
+- outcome-free KDA02 event tape and KDA03 feasibility evidence remain unexecuted; frozen KDA01 v2 Level-3 economics completed with `KDA01_level3_no_primary_pass_stop` and no controls executed;
 - no alpha sweep, rankable economic run, protected-outcome inspection, live deployment, order placement, or private-account action is authorized by this state document.
 
 Binding research boundaries:

@@ -1,0 +1,149 @@
+{
+  "contract_hash": "d2112d8fb4f0666890761b70f7fa71c9e8cb4f43c704a04cdf9470e949a177b3",
+  "controls_executed": false,
+  "economic_outputs_computed": true,
+  "files": [
+    {
+      "bytes": 224,
+      "drive_eligible": true,
+      "path": "COMPLETION.md",
+      "sha256": "f04014a990c16569efc4568e6804f2b683f4e446c4f255d770ea74a771f72021"
+    },
+    {
+      "bytes": 15868745,
+      "drive_eligible": false,
+      "path": "FUNDING_BOUNDARY_LEDGER.parquet",
+      "sha256": "99f5f75c4cd968cd6a7579e1f1340a8fb3871db0b26e79805ab7a3cfee075a82"
+    },
+    {
+      "bytes": 15796502,
+      "drive_eligible": false,
+      "path": "KDA01_LEVEL3_ACCEPTED_EXECUTION_RECORDS.parquet",
+      "sha256": "3c3f048c513e651de90a16ceb6fe04a7a24fe1366f01d05099bd8145c1f7c748"
+    },
+    {
+      "bytes": 1820970,
+      "drive_eligible": false,
+      "path": "KDA01_LEVEL3_BOOTSTRAP_DISTRIBUTIONS.parquet",
+      "sha256": "d6fbdd57c21b83b8a26ca963352552fbb623a80d47978c3119571783501dc887"
+    },
+    {
+      "bytes": 1926,
+      "drive_eligible": true,
+      "path": "KDA01_LEVEL3_BOOTSTRAP_SUMMARY.csv",
+      "sha256": "d78df8255fb8e09d2da247daaf120977cc91145009cc0c5a9576c1e1a01e6f0e"
+    },
+    {
+      "bytes": 174,
+      "drive_eligible": true,
+      "path": "KDA01_LEVEL3_CLAIM_BOUNDARY.md",
+      "sha256": "7fb084f96cfa4eea451438abe71a1a83bb0b6a304610ba9387bfe828cca8c395"
+    },
+    {
+      "bytes": 5289,
+      "drive_eligible": true,
+      "path": "KDA01_LEVEL3_CLUSTER_SENSITIVITY.csv",
+      "sha256": "2fa688a59a25c7708561dfb9efd2c1ef1927cf376fb199376593795b83fbd14f"
+    },
+    {
+      "bytes": 1692,
+      "drive_eligible": true,
+      "path": "KDA01_LEVEL3_CONCENTRATION.csv",
+      "sha256": "470ed7afe0bad3fbde996b5924f16d2518ec91af210cd50a77cb4add52d10df4"
+    },
+    {
+      "bytes": 123,
+      "drive_eligible": true,
+      "path": "KDA01_LEVEL3_DECISION.md",
+      "sha256": "f04b5cb4da12160b496c2905677f348fc88a85a7cf16e368a96ffec223ce9c9a"
+    },
+    {
+      "bytes": 1582,
+      "drive_eligible": true,
+      "path": "KDA01_LEVEL3_DEFINITION_DECISIONS.csv",
+      "sha256": "8e66c6eabdac37c1ea7ddc9a50342a8b83502c269612d64771b89f28f58eff39"
+    },
+    {
+      "bytes": 23361,
+      "drive_eligible": true,
+      "path": "KDA01_LEVEL3_DEFINITION_METRICS.csv",
+      "sha256": "2ce4441793b588e097cbde97b0b7ab72973ccfc09f1f41874a61db003f69f886"
+    },
+    {
+      "bytes": 2618698,
+      "drive_eligible": false,
+      "path": "KDA01_LEVEL3_EXECUTION_REJECTIONS.parquet",
+      "sha256": "8bf150a7d748c8cff6b8605979b4d8b72605dfa90c017f0ea6201e6086220847"
+    },
+    {
+      "bytes": 5825,
+      "drive_eligible": true,
+      "path": "KDA01_LEVEL3_FUNDING_PARTITIONS.csv",
+      "sha256": "b62b23d84ba1c752eee40dd1b5f9548b00da224b92429de725a65523d91f06e3"
+    },
+    {
+      "bytes": 2262,
+      "drive_eligible": true,
+      "path": "KDA01_LEVEL3_GATE_MATRIX.csv",
+      "sha256": "ce7ef5a12096c49eba41684ae959a91089e68f9b9bd727ebf3357ffa89935b02"
+    },
+    {
+      "bytes": 540583,
+      "drive_eligible": false,
+      "path": "KDA01_LEVEL3_MARKET_DAY_RETURNS.parquet",
+      "sha256": "a987ae72f4492f5def9af352ae59849a0cbbf16752cc5f9fda1664991c6b7f8f"
+    },
+    {
+      "bytes": 22298,
+      "drive_eligible": true,
+      "path": "KDA01_LEVEL3_RUN_CONTRACT_SNAPSHOT.json",
+      "sha256": "ca27076b64fa2fddfbdbc09249fe6015b58f47c9f4498267a1e29296d0f90736"
+    },
+    {
+      "bytes": 34855519,
+      "drive_eligible": false,
+      "path": "KDA01_LEVEL3_TRADE_TAPE.parquet",
+      "sha256": "c6a0b688673a1af529c249650f818cfd413083f56b936eb16a460d8051076d67"
+    },
+    {
+      "bytes": 2445520,
+      "drive_eligible": true,
+      "path": "KDA01_LEVEL3_YEAR_MONTH_SYMBOL_SUMMARY.csv",
+      "sha256": "4c5e76cf3261f9fa90058031612b42a8aae454d12f3741e63b249b1b83d3de6f"
+    },
+    {
+      "bytes": 200,
+      "drive_eligible": true,
+      "path": "NEXT_ACTION.md",
+      "sha256": "d46103a31e1eac2f5120f27bb7fc34559c0c51e2841d1f2935f612e437fbb1d1"
+    },
+    {
+      "bytes": 1,
+      "drive_eligible": true,
+      "path": "PRICE_REJECTIONS.csv",
+      "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+    },
+    {
+      "bytes": 1168,
+      "drive_eligible": true,
+      "path": "REVIEW.md",
+      "sha256": "c8f5e44096e36555db82f1c218b5a2517b86e0944a64a31239e562ff7a4e9434"
+    },
+    {
+      "bytes": 1393,
+      "drive_eligible": true,
+      "path": "RUN_AUDIT.json",
+      "sha256": "5f7e5d73e9aa147578b05e7d2e88e70571203fbdde276e58558861830e19b229"
+    },
+    {
+      "bytes": 945,
+      "drive_eligible": true,
+      "path": "VALIDATION.md",
+      "sha256": "f709f56863b0d9cec08c3822efc55622a64367a160f1cc0ed116a604b48b01c2"
+    }
+  ],
+  "manifest_content_hash": "5f96644171b56d1968f65d8fb5e7d14081cbcd14a777d3a5a5ea0abe43656cea",
+  "protected_rows_opened": 0,
+  "task_id": "donch_bt_stage_8c_kda01_level3_economic_20260719_v1",
+  "terminal_decision": "KDA01_level3_no_primary_pass_stop"
+}

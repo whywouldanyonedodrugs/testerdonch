@@ -1,0 +1,2 @@
+family,translation,attempts,definitions,primary_definitions,accepted_trades,primary_passes,evidence_level,terminal_decision,controls_executed,protected_rows_opened
+KDA01,crowding_vs_price_progress_v2,primary|robustness,16,8,183744,0,level_3_frozen_economic_screen,KDA01_level3_no_primary_pass_stop,False,0

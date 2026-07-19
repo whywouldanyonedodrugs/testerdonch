@@ -1,0 +1,17 @@
+definition_id,attempt,executed_trades_ge_100,each_year_ge_20,equal_day_base_mean_positive,equal_day_base_median_positive,bootstrap_lower_ge_minus5,market_day_share_le_10pct,symbol_share_le_25pct,year_share_le_70pct,equal_day_stress_mean_ge_minus10,all_gates_pass
+kda01_v2_primary_negative_completed_failure_timeout_1h,primary,True,True,False,False,False,True,False,False,False,False
+kda01_v2_primary_negative_completed_failure_timeout_6h,primary,True,True,False,False,False,True,True,False,False,False
+kda01_v2_primary_negative_efficient_continuation_timeout_1h,primary,True,True,False,False,False,True,False,False,False,False
+kda01_v2_primary_negative_efficient_continuation_timeout_6h,primary,True,True,False,False,False,True,True,False,False,False
+kda01_v2_primary_positive_completed_failure_timeout_1h,primary,True,True,False,False,False,True,False,False,False,False
+kda01_v2_primary_positive_completed_failure_timeout_6h,primary,True,True,False,False,False,True,True,False,False,False
+kda01_v2_primary_positive_efficient_continuation_timeout_1h,primary,True,True,False,False,False,True,False,False,False,False
+kda01_v2_primary_positive_efficient_continuation_timeout_6h,primary,True,True,False,False,False,True,True,False,False,False
+kda01_v2_robustness_negative_completed_failure_timeout_1h,robustness,True,True,False,False,False,True,False,False,False,False
+kda01_v2_robustness_negative_completed_failure_timeout_6h,robustness,True,True,False,False,False,True,True,False,False,False
+kda01_v2_robustness_negative_efficient_continuation_timeout_1h,robustness,True,True,False,False,False,True,False,False,False,False
+kda01_v2_robustness_negative_efficient_continuation_timeout_6h,robustness,True,True,False,False,False,True,True,False,False,False
+kda01_v2_robustness_positive_completed_failure_timeout_1h,robustness,True,True,False,False,False,True,False,False,False,False
+kda01_v2_robustness_positive_completed_failure_timeout_6h,robustness,True,True,False,False,False,True,True,False,False,False
+kda01_v2_robustness_positive_efficient_continuation_timeout_1h,robustness,True,True,False,False,False,True,True,False,False,False
+kda01_v2_robustness_positive_efficient_continuation_timeout_6h,robustness,True,True,False,False,False,True,True,False,False,False
