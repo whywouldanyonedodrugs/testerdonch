@@ -1,0 +1,28 @@
+{
+  "applied_task_id": "donch_bt_stage_13_protocol_v2_campaign_readiness_20260719_v1",
+  "economic_run_authorized": false,
+  "effective_date": "2026-07-19",
+  "objects": [
+    {
+      "path": "docs/agent/HYPOTHESIS_DEVELOPMENT_PROTOCOL.json",
+      "sha256": "4effe3e9608377876486b1583854a7e1479c8e93d6de1661f13d35842bbc6a73",
+      "status": "active_prospective_method",
+      "version": "2.0"
+    },
+    {
+      "path": "docs/agent/FAMILY_REDEFINITION_POLICY.json",
+      "sha256": "d07b0d290e59d17f7d6a587e2a31e6e550468f9ad403250cd6183c549e685335",
+      "status": "active_prospective_policy",
+      "version": "1.0"
+    },
+    {
+      "path": "docs/agent/RESEARCH_CAMPAIGN_PROTOCOL.json",
+      "sha256": "7091156df9bf815a001423b63d673d2d4217f2616fd40e76a261f218a2d614df",
+      "status": "active_prospective_protocol",
+      "version": "1.0"
+    }
+  ],
+  "protected_outcome_access_authorized": false,
+  "route_policy_changed": false,
+  "status": "active"
+}

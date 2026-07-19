@@ -1,5 +1,9 @@
 # QLMG Kraken Backtesting Manual
 
+## Protocol-v2 campaigns
+
+Before any campaign opens outcomes, apply the active hypothesis, family-redefinition, and campaign machine contracts. Register every cell and fold, bind permissions and costs, preserve programme exposure, and require exact human authorization. Unattended progression cannot enter a phase absent from the approved manifest.
+
 Status: active program documentation amended by the 2026-07-19 Stage 10 policy application.
 
 The active research program is QLMG-inspired historical Kraken perpetual backtesting. This manual does not authorize any economic screen; a later task must approve an exact frozen contract before any rankable run.

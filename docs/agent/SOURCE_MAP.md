@@ -1,7 +1,7 @@
 ---
-status: active canonical repository source map after verified Stage 10 application
+status: active canonical repository source map after Stage 13 protocol-v2 application
 date: 2026-07-19
-revision: 4.0
+revision: 5.0
 scope: Donch source navigation, current Kraken decisions, conditional-alpha policy, and multi-platform boundaries
 authority: approved operating policy; linked sources retain stated authority
 supersedes: received `00_READ_FIRST_Project_Source_Map_2026-07-19_rev4.md`; older source maps remain provenance
@@ -50,18 +50,19 @@ Reverify at task start.
 4. `docs/agent/CURRENT_RESEARCH_DECISIONS.md`
 5. `docs/agent/RESEARCH_GATE_ROUTING_POLICY.md` and `.json`
 6. `docs/agent/KRAKEN_DERIVATIVES_LEARNINGS.md`
-7. `docs/agent/KDA_LEARNING_CONTEXT_REGISTER.csv`
-8. `docs/agent/GATE_ROUTING_MATRIX.csv`
-9. `docs/agent/CURRENT_FAMILY_HYPOTHESIS_REGISTRY.csv`
-10. `docs/agent/CURRENT_ATTEMPT_MULTIPLICITY_REGISTRY.csv`
-11. `docs/agent/CURRENT_RUN_EVIDENCE_REGISTRY.csv`
-12. `docs/agent/CURRENT_DATA_CAPABILITY_REGISTRY.csv`
-13. `docs/agent/CURRENT_DEFECT_REPAIR_REGISTRY.csv`
-14. `docs/agent/TEST_AND_EVIDENCE_STANDARDS.md`
-15. `docs/agent/BACKTEST_CLAIMS_AND_REVIEW.md`
-16. `docs/agent/RESEARCH_EFFICIENCY_AND_SEARCH_DISCIPLINE.md`
-17. `docs/agent/BACKTESTING_AGENT_OPERATING_AND_ARCHIVE_INSTRUCTIONS.md`
-18. remaining active PIT, venue, capture, multi-platform, intake and provenance sources.
+7. `docs/agent/HYPOTHESIS_DEVELOPMENT_PROTOCOL.md`, `FAMILY_REDEFINITION_POLICY.md`, `NESTED_HYPOTHESIS_SEARCH.md`, and `UNATTENDED_RESEARCH_CAMPAIGNS.md`
+8. `docs/agent/KDA_LEARNING_CONTEXT_REGISTER.csv`
+9. `docs/agent/GATE_ROUTING_MATRIX.csv`
+10. `docs/agent/CURRENT_FAMILY_HYPOTHESIS_REGISTRY.csv`
+11. `docs/agent/CURRENT_ATTEMPT_MULTIPLICITY_REGISTRY.csv`
+12. `docs/agent/CURRENT_RUN_EVIDENCE_REGISTRY.csv`
+13. `docs/agent/CURRENT_DATA_CAPABILITY_REGISTRY.csv`
+14. `docs/agent/CURRENT_DEFECT_REPAIR_REGISTRY.csv`
+15. `docs/agent/TEST_AND_EVIDENCE_STANDARDS.md`
+16. `docs/agent/BACKTEST_CLAIMS_AND_REVIEW.md`
+17. `docs/agent/RESEARCH_EFFICIENCY_AND_SEARCH_DISCIPLINE.md`
+18. `docs/agent/BACKTESTING_AGENT_OPERATING_AND_ARCHIVE_INSTRUCTIONS.md`
+19. remaining active PIT, venue, capture, multi-platform, intake and provenance sources.
 
 ## Authority order
 

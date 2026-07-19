@@ -1,12 +1,14 @@
 # Hypothesis Development Protocol
 
-Status: active prospective method, version 1.0, effective 2026-07-19.
+Status: active prospective method, version 2.0, effective 2026-07-19.
 
 Machine authority: [`HYPOTHESIS_DEVELOPMENT_PROTOCOL.json`](HYPOTHESIS_DEVELOPMENT_PROTOCOL.json). Evidence limitations use the separate [`EVIDENCE_LIMITATION_TAGS.json`](EVIDENCE_LIMITATION_TAGS.json). Research routes remain exactly those in policy v1.0; this protocol does not add or rename a route.
 
 ## Purpose
 
 A plausible hand-written translation is a testable first interpretation, not automatically the definitive confirmatory form of a qualitative mechanism. Development may characterize a mechanism in predefined folds, but it must not become unregistered same-sample rescue or leak later-fold information backward.
+
+Protocol v2 distinguishes a family from any one translation. Closing a translation does not automatically close the economic family. A materially different, prospectively registered translation may proceed under [`FAMILY_REDEFINITION_POLICY.json`](FAMILY_REDEFINITION_POLICY.json), but it inherits the parent programme exposure and multiplicity rather than receiving a clean statistical slate. Unattended work is governed by [`RESEARCH_CAMPAIGN_PROTOCOL.json`](RESEARCH_CAMPAIGN_PROTOCOL.json) and never self-authorizes an outcome-bearing phase.
 
 ## Phases
 
@@ -37,6 +39,10 @@ Repeat development, freeze, and evaluation forward through time under separately
 ### Phase 6 — controls, independent evidence, and deployment review
 
 Retain the existing requirements for mechanism-relevant controls, independent or prospective validation, protected-period sealing, and deployment/risk/capacity/execution review. A research route or evidence level never implies deployment readiness.
+
+### Phase 7 — prospective or deployment evidence
+
+Phase 7 is separate from historical campaign approval. It requires its own authorization and may not inspect the protected period merely because Phases 2–6 were approved.
 
 ## Admission to a future full Level-3 run
 

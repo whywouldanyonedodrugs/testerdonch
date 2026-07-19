@@ -1,0 +1,32 @@
+{
+  "allowed_triggers": [
+    "new_data_or_semantics",
+    "measurement_or_timestamp_repair",
+    "underidentified_first_translation",
+    "registered_development_response_shape",
+    "new_predecision_context",
+    "cross_family_synthesis_with_distinct_actor_or_state"
+  ],
+  "effective_date": "2026-07-19",
+  "family_redevelopment_allowed": true,
+  "policy_id": "qlmg_family_redefinition_policy",
+  "prohibited": [
+    "retroactive_pass_label",
+    "hidden_variant",
+    "best_year_or_symbol_rule",
+    "cosmetic_rename",
+    "claim_of_independent_replication_from_program_exposed_history"
+  ],
+  "required_fields": [
+    "parent_family_id",
+    "parent_translation_ids",
+    "new_translation_id",
+    "material_difference",
+    "search_space_id",
+    "programme_exposure_class",
+    "multiplicity_family",
+    "independent_evidence_plan"
+  ],
+  "translation_decisions_immutable": true,
+  "version": "1.0"
+}

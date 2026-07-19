@@ -13,6 +13,8 @@ This repository is governed as a historical multi-platform backtesting and resea
 - Use [docs/agent/CODE_REVIEW.md](docs/agent/CODE_REVIEW.md) for review tasks.
 - Use [docs/agent/KNOWN_FAILURE_PATTERNS.md](docs/agent/KNOWN_FAILURE_PATTERNS.md) before changing event generation, controls, or accounting.
 - Use [docs/agent/HYPOTHESIS_DEVELOPMENT_PROTOCOL.md](docs/agent/HYPOTHESIS_DEVELOPMENT_PROTOCOL.md) and its machine contract before translating a qualitative mechanism into an economic contract. Phase 2 or later outcome access always requires separate exact human approval.
+- Use [docs/agent/FAMILY_REDEFINITION_POLICY.md](docs/agent/FAMILY_REDEFINITION_POLICY.md) for redevelopment and inherit parent exposure and multiplicity.
+- Use [docs/agent/UNATTENDED_RESEARCH_CAMPAIGNS.md](docs/agent/UNATTENDED_RESEARCH_CAMPAIGNS.md) and its machine contract for campaign work. A manifest never self-authorizes economics.
 - Use [docs/agent/SOURCE_MAP.md](docs/agent/SOURCE_MAP.md) for current continuity, decisions, registries, and manual order.
 - Use [docs/agent/RESEARCH_GATE_ROUTING_POLICY.md](docs/agent/RESEARCH_GATE_ROUTING_POLICY.md) and its machine-readable JSON for future economic-contract gate classification.
 

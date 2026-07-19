@@ -1,0 +1,52 @@
+{
+  "automatic_progression": {
+    "allowed": true,
+    "requires_acceptance_checks": true,
+    "requires_phase_authorization": true,
+    "requires_review_when_manifest_says_so": true
+  },
+  "campaign_level_exact_human_approval_supported": true,
+  "economic_run_authorized_by_this_file": false,
+  "effective_date": "2026-07-19",
+  "modes": [
+    "measurement_only",
+    "registered_development_only",
+    "nested_development_and_outer_evaluation",
+    "controls_only",
+    "prospective_shadow_only"
+  ],
+  "protocol_id": "qlmg_unattended_research_campaign_protocol",
+  "required_manifest_fields": [
+    "campaign_id",
+    "repository_and_data_hashes",
+    "hypotheses",
+    "fold_schedule",
+    "search_spaces",
+    "selection_algorithm",
+    "candidate_beam",
+    "cost_and_execution",
+    "multiplicity",
+    "phase_permissions",
+    "resource_limits",
+    "stop_conditions",
+    "review_requirements",
+    "archive_and_handoff"
+  ],
+  "stop_isolation": {
+    "family_only": [
+      "mechanically_unavailable",
+      "no_development_candidate",
+      "search_budget_exhausted",
+      "mechanism_underidentified",
+      "family_specific_defect"
+    ],
+    "global": [
+      "shared_authority_failure",
+      "protected_exposure",
+      "shared_timestamp_defect",
+      "unsafe_git_or_storage",
+      "shared_replay_failure"
+    ]
+  },
+  "version": "1.0"
+}

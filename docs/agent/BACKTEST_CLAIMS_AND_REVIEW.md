@@ -11,6 +11,10 @@ known limitations: exact machine decisions and manifests remain higher authority
 
 # Backtest Claims and Review Guide
 
+## Protocol-v2 claim boundary
+
+A family may remain plausible after a translation closes, but redevelopment is a new translation, not a retroactive pass. It inherits programme exposure and multiplicity. Development folds characterize response and do not validate it; programme-exposed 2023–2025 blocks are not independent. Campaigns advance only through explicitly authorized phases and checkpoints.
+
 ## Required claim fields
 
 Every claim names:

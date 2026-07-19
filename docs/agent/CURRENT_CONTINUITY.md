@@ -11,6 +11,10 @@ known limitations: Capital.com intake remains separate; no strategy is validatio
 
 # Master Continuity Brief, rev12
 
+## Stage 13 prospective method and campaign readiness
+
+Protocol v2 is active prospectively. Historical terminal translation decisions remain unchanged. Family redevelopment requires a new translation ID, inherited programme exposure and multiplicity, material difference, and an independent-evidence plan. The first readiness root is `docs/agent/research_campaigns/kraken_research_campaign_001_readiness`; it authorizes only outcome-free Phases 0 and 1. KDA02C and KDX01 retain post-hoc/contamination labels; C17 remains outside the derivatives batch.
+
 ## Fixed programme scope
 
 ```text

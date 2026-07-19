@@ -1,0 +1,1 @@
+{"estimated_wall_time":"up to 4 hours after input sizing benchmark","limits":{"max_cells_total":36,"max_disk_bytes":5368709120,"max_workers":4,"wall_seconds":14400},"phase_0_1_actual":"stdlib metadata/count aggregation only"}

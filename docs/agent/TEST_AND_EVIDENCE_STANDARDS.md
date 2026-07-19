@@ -11,6 +11,10 @@ known limitations: no strategy is validation-grade or live-ready
 
 # Test and Evidence Standards
 
+## Campaign contract tests
+
+Campaigns must test manifest completeness, unique identities, complete explored-cell registration, phase permissions, backward-information-flow rejection, beam limits, stop isolation, transactional generations, idempotent resume, resource limits, and hash reconciliation. Readiness builders must be deterministic and must not import or invoke a market-outcome reader. Protected-period and Capital.com boundaries fail closed.
+
 ## Fixed boundaries
 
 ```text

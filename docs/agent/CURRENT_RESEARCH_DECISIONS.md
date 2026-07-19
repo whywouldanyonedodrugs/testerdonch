@@ -11,6 +11,10 @@ known limitations: routing status is not validation or deployment approval
 
 # Current Research Decisions
 
+## Stage 13 prospective registrations
+
+No historical decision changed. Four new translations are registered without economic evidence: `KDA02B_v2_oi_vacuum_redevelopment`, `KDA02C_v1_purge_breadth_context`, `KDX01_v1_downside_completed_derivatives_state_rejection`, and `C17_v1_executed_catalyst_state`. Their exact Phase 0/1 admission state is in the campaign readiness root. Registration is not a pass, validation, or authorization to open returns.
+
 ## Programme-level decision
 
 No strategy is validation-grade or live-ready. Exact terminal run decisions remain binding. Future research may preserve a profitable-looking conditional object without pretending that its failed unconditional contract passed.

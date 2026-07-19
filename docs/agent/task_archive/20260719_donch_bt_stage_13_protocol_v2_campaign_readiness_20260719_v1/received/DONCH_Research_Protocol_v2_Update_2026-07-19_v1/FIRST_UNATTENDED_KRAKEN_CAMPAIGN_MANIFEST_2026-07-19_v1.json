@@ -1,0 +1,58 @@
+{
+  "campaign_id": "kraken_research_campaign_001_readiness",
+  "candidates": [
+    {
+      "id": "KDA02B_oi_vacuum_redevelopment",
+      "lane": "derivatives_state",
+      "origin": "outcome_free_lineage",
+      "phase_0_1": true
+    },
+    {
+      "id": "KDA02C_purge_breadth_context",
+      "lane": "derivatives_state",
+      "origin": "post_hoc_context_hypothesis",
+      "phase_0_1": true
+    },
+    {
+      "id": "KDX01_downside_completed_derivatives_state_rejection",
+      "lane": "derivatives_state",
+      "origin": "cross_family_redevelopment",
+      "phase_0_1": true
+    },
+    {
+      "id": "C17_executed_catalyst_state",
+      "lane": "catalyst",
+      "origin": "fresh_family",
+      "phase_0_1": true
+    }
+  ],
+  "economic_run_authorized": false,
+  "expected_repository_start": "a457742c50e27071c7a9f4d7f4dc4c5677534ea7",
+  "phase_permissions": {
+    "phase_0": true,
+    "phase_1": true,
+    "phase_2_plus": false
+  },
+  "planned_later_batching": {
+    "derivatives_state_campaign": [
+      "KDA02B_oi_vacuum_redevelopment",
+      "KDA02C_purge_breadth_context",
+      "KDX01_downside_completed_derivatives_state_rejection"
+    ],
+    "separate_campaign": [
+      "C17_executed_catalyst_state"
+    ]
+  },
+  "rankable_interval": "[2023-01-01,2026-01-01)",
+  "required_outputs": [
+    "measurement_authority",
+    "raw_magnitude_and_frequency",
+    "actor_and_null_contract",
+    "search_space_manifest",
+    "fold_schedule",
+    "resource_projection",
+    "exact_future_campaign_approval_packet"
+  ],
+  "status": "outcome_free_setup_only",
+  "version": "1.0"
+}

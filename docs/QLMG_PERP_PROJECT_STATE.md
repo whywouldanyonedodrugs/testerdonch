@@ -1,5 +1,9 @@
 # QLMG Multi-Platform Project State
 
+## Stage 13 prospective research method
+
+Protocol v2 and the bounded unattended-campaign contract are active for future work. They preserve every historical decision and authorize no economics. The first four translations are at outcome-free Phase 0/1 only; exact blockers and exposure classes live under `docs/agent/research_campaigns/kraken_research_campaign_001_readiness/`.
+
 Status: active governance as of 2026-07-19 UTC.
 
 The active repository direction is QLMG-inspired historical research on Kraken derivatives and manifest-authorized Capital.com instruments with strict point-in-time, platform-faithful, reproducible evidence. Existing Kraken lineage remains unchanged. Donchian/V3/S1 and prior Bybit-oriented reset material are legacy provenance unless a later authority reactivates a specific component.

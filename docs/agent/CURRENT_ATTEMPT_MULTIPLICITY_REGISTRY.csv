@@ -1,13 +1,17 @@
-family,stage,attempts,definitions,decision
-C01,foundation_generator,12,0,frozen attempt register retained
-C01,level3_economic,16,16,level3_no_primary_pass_stop
-C02,resolution_aware_generator,2,0,positive resolved spot-led only advanced
-C02,level3_economic,4,4,level3_no_primary_pass_stop
-C03,PIT_authority,1,0,C03_PIT_authority_unavailable
-prior14,historical_program,not fully recoverable,not pooled,preserve external registry and multiplicity limitation
-C16,official_flow_authority,1,0,C16_flow_authority_unavailable
-KDA01,derivatives_state_foundation_and_level3,16,16,KDA01_level3_repaired_no_primary_pass_stop
-KDA02A,purge_adjudication_and_level3,9,8,KDA02_level3_no_primary_pass_stop
-KDA02B,inactive_oi_vacuum_lineage,1,0,candidate_library_only_outcomes_unopened
-KDA02C,post_hoc_context_registration,1,0,post_hoc_context_hypothesis_no_evidence
-KDA03,basis_shock_adjudication_level3_and_stage12_closure,3,24,KDA03_level3_routes_assigned; 12 primary routes and 12 robustness diagnostics preserved; no new attempt
+family,stage,attempts,definitions,decision,translation_id,parent_translation_ids,programme_exposure_class,inherited_multiplicity
+C01,foundation_generator,12,0,frozen attempt register retained,C01,,program_exposed_historical,preserved
+C01,level3_economic,16,16,level3_no_primary_pass_stop,C01,,program_exposed_historical,preserved
+C02,resolution_aware_generator,2,0,positive resolved spot-led only advanced,C02,,program_exposed_historical,preserved
+C02,level3_economic,4,4,level3_no_primary_pass_stop,C02,,program_exposed_historical,preserved
+C03,PIT_authority,1,0,C03_PIT_authority_unavailable,C03,,program_exposed_historical,preserved
+prior14,historical_program,not fully recoverable,not pooled,preserve external registry and multiplicity limitation,prior14,,program_exposed_historical,preserved
+C16,official_flow_authority,1,0,C16_flow_authority_unavailable,C16,,program_exposed_historical,preserved
+KDA01,derivatives_state_foundation_and_level3,16,16,KDA01_level3_repaired_no_primary_pass_stop,KDA01,,program_exposed_historical,preserved
+KDA02A,purge_adjudication_and_level3,9,8,KDA02_level3_no_primary_pass_stop,KDA02A,,program_exposed_historical,preserved
+KDA02B,inactive_oi_vacuum_lineage,1,0,candidate_library_only_outcomes_unopened,KDA02B,,program_exposed_historical,preserved
+KDA02C,post_hoc_context_registration,1,0,post_hoc_context_hypothesis_no_evidence,KDA02C,,program_exposed_historical,preserved
+KDA03,basis_shock_adjudication_level3_and_stage12_closure,3,24,KDA03_level3_routes_assigned; 12 primary routes and 12 robustness diagnostics preserved; no new attempt,KDA03,,program_exposed_historical,preserved
+KDA02,protocol_v2_redevelopment_registration,inherits prior plus 1 registered translation,8 planned cells; 0 explored,KDA02B v2 outcome-free registration,KDA02B_v2_oi_vacuum_redevelopment,KDA02A|KDA02B,program_exposed_historical,KDA02 prior attempts inherited; not reset
+KDA02,protocol_v2_redevelopment_registration,inherits prior plus 1 registered translation,8 planned cells; 0 explored,KDA02C v1 post-hoc outcome-free registration,KDA02C_v1_purge_breadth_context,KDA02A|KDA02C,program_exposed_historical,KDA02 prior attempts inherited; post-hoc
+KDA_cross_family,protocol_v2_redevelopment_registration,inherits KDA01 KDA02 KDA03 plus 1 registered translation,12 planned cells; 0 explored,KDX01 v1 contaminated outcome-free registration,KDX01_v1_downside_completed_derivatives_state_rejection,KDA01|KDA02A|KDA03_NEG_REJECTION_6H,program_exposed_historical,all parent family attempts inherited
+C17,protocol_v2_redevelopment_registration,not fully recoverable plus 1 registered translation,8 planned cells; 0 explored,C17 v1 outcome-free source-seed registration,C17_v1_executed_catalyst_state,C2|H39|H40|H41|H42,program_exposed_historical,prior catalyst lineage not treated as zero

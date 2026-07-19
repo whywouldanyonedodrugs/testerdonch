@@ -1,0 +1,107 @@
+{
+  "created_utc": "2026-07-19T20:43:24.082304+00:00",
+  "economic_run_authorized": false,
+  "files": [
+    {
+      "bytes": 1496,
+      "path": "00_READ_FIRST_Project_Source_Map_2026-07-19_rev5.md",
+      "sha256": "0b0f1ec95a1803e50005f40bcfc4e6772a8affe8e789afdbc606fe1e8be47768"
+    },
+    {
+      "bytes": 1227,
+      "path": "02_STATE_Master_Continuity_Brief_2026-07-19_rev12.md",
+      "sha256": "4628dbf74de0b4b8fc9f2e5291ecccfb8ba8c27c0fecc4cc3339aa10ef56bb87"
+    },
+    {
+      "bytes": 1178,
+      "path": "03_STATE_Current_Research_Decisions_2026-07-19_rev4.md",
+      "sha256": "89a0f0ae52df8aa4d00dd1adac3c7108f665c08ccd98d6391cbf20b9126abed9"
+    },
+    {
+      "bytes": 2658,
+      "path": "12_MANUAL_Test_and_Evidence_Standards_2026-07-19_rev5.md",
+      "sha256": "871a88808ba23ec69e246ee4e2f59ee9a0d17aaffe51d5ec9cc1441c2e512125"
+    },
+    {
+      "bytes": 1426,
+      "path": "13_GUIDE_Backtest_Claims_and_Review_2026-07-19_rev5.md",
+      "sha256": "0a2a0960568a1ed4906c3d07e810b73dc81b0f5c99fc4fd31c28e7703c0dd50e"
+    },
+    {
+      "bytes": 1727,
+      "path": "24_METHOD_Research_Efficiency_and_Search_Discipline_2026-07-19_rev4.md",
+      "sha256": "815e985358b14af65f97e39c286e9e4e00abcd2a0576115989ff37ea5488665c"
+    },
+    {
+      "bytes": 1860,
+      "path": "27_POLICY_Aggressive_Conditional_Alpha_and_Gate_Routing_2026-07-19_rev2.md",
+      "sha256": "6ce0b6af8cf005c2c43ec69f6808e6e3e8b023c792744307ccc455456aea4bec"
+    },
+    {
+      "bytes": 1840,
+      "path": "28_STATE_Kraken_Derivatives_Analytics_and_Research_Learnings_2026-07-19_rev2.md",
+      "sha256": "ce29c5ea0b1b82b30832fd4539095c1668db8ababb0f9ab8f17369865529a80d"
+    },
+    {
+      "bytes": 4655,
+      "path": "31_POLICY_Profitability_First_Family_Redevelopment_2026-07-19_rev1.md",
+      "sha256": "bf20d7f262daf5fe22c2bb4865665c8aa7e3f3964d9939303e7ee065e6b867e0"
+    },
+    {
+      "bytes": 6258,
+      "path": "32_METHOD_Nested_Hypothesis_Search_Response_Surfaces_and_Multiplicity_2026-07-19_rev1.md",
+      "sha256": "55af49ae22787ae252bc507373e38d2c7a8eaf376f7aa6e08e6b9aa179f32c51"
+    },
+    {
+      "bytes": 4147,
+      "path": "33_METHOD_Unattended_Multi_Hypothesis_Campaigns_2026-07-19_rev1.md",
+      "sha256": "981fed4494e04b217d9d1d6a080c9d537864a3f000d6c87385de3c1d03e19939"
+    },
+    {
+      "bytes": 1402,
+      "path": "BACKTESTING_AGENT_OPERATING_AND_ARCHIVE_INSTRUCTIONS_2026-07-19_rev5.md",
+      "sha256": "823f9a1209365c33773e8d14aa603f14ab4e261bc080814500bed137f91c4981"
+    },
+    {
+      "bytes": 6431,
+      "path": "DONCH_TO_BACKTESTING_Stage_13_Protocol_V2_and_Unattended_Campaign_Readiness_2026-07-19_v1.md",
+      "sha256": "ec1e9dc27a4cdc902570e6b04e30f1043379349ea5a4d70ec5d578a01eb99975"
+    },
+    {
+      "bytes": 650,
+      "path": "DONCH_TO_BACKTESTING_TASK_ARCHIVE_TEMPLATE_2026-07-19_rev3.md",
+      "sha256": "35095325d5d00a8c0f4204a6adea2908a8397f4915367576df6dec6bbb2c9583"
+    },
+    {
+      "bytes": 909,
+      "path": "FAMILY_REDEFINITION_POLICY_2026-07-19_v1.json",
+      "sha256": "d07b0d290e59d17f7d6a587e2a31e6e550468f9ad403250cd6183c549e685335"
+    },
+    {
+      "bytes": 1578,
+      "path": "FIRST_UNATTENDED_KRAKEN_CAMPAIGN_MANIFEST_2026-07-19_v1.json",
+      "sha256": "d534b7b1b5ad422de231a40cce794988d5b0ba82bdeabdef34eaf1e985ac618c"
+    },
+    {
+      "bytes": 903,
+      "path": "FIRST_UNATTENDED_KRAKEN_CAMPAIGN_PLAN_2026-07-19_v1.md",
+      "sha256": "64c3907117e69166f2b1f92582038a328a18f671dd0ddc1948742165b9b77f84"
+    },
+    {
+      "bytes": 3113,
+      "path": "HYPOTHESIS_DEVELOPMENT_PROTOCOL_2026-07-19_v2.json",
+      "sha256": "4effe3e9608377876486b1583854a7e1479c8e93d6de1661f13d35842bbc6a73"
+    },
+    {
+      "bytes": 611,
+      "path": "README_RESEARCH_PROTOCOL_V2_UPDATE.md",
+      "sha256": "e5b629edeb35123945ac34115130c2b19aad55879ae1e284ae4fedd488514e25"
+    },
+    {
+      "bytes": 1357,
+      "path": "RESEARCH_CAMPAIGN_PROTOCOL_2026-07-19_v1.json",
+      "sha256": "7091156df9bf815a001423b63d673d2d4217f2616fd40e76a261f218a2d614df"
+    }
+  ],
+  "package_id": "donch_research_protocol_v2_update_20260719_v1"
+}

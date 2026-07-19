@@ -11,6 +11,10 @@ known limitations: repository state and Capital.com intake must be reverified pe
 
 # Backtesting Agent Operating and Archive Instructions
 
+## Unattended campaign administration
+
+Bind an exact manifest, permissions, hashes, complete cell registry, fold/exposure map, limits, stops, review checkpoints, and archive contract before launch. State writes are transactional and generation-checked; resume requires the same manifest hash. A readiness or protocol file cannot grant economic or protected-period authority.
+
 ## Start
 
 Verify root, `AGENTS.md`, branch/commit/remotes, working tree, commands, data roots, source manifests, archive convention and Drive target. Use an isolated worktree for consequential changes. Preserve unrelated user files.

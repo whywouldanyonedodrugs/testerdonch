@@ -57,6 +57,11 @@ Current active docs:
 - `docs/agent/CURRENT_RESEARCH_DECISIONS.md`
 - `docs/agent/RESEARCH_GATE_ROUTING_POLICY.md`
 - `docs/agent/RESEARCH_GATE_ROUTING_POLICY.json`
+- `docs/agent/HYPOTHESIS_DEVELOPMENT_PROTOCOL.json`
+- `docs/agent/ACTIVE_RESEARCH_METHODS.json`
+- `docs/agent/FAMILY_REDEFINITION_POLICY.json`
+- `docs/agent/RESEARCH_CAMPAIGN_PROTOCOL.json`
+- `docs/agent/research_campaigns/kraken_research_campaign_001_readiness/`
 - `docs/agent/KRAKEN_DERIVATIVES_LEARNINGS.md`
 - `docs/agent/TEST_AND_EVIDENCE_STANDARDS.md`
 - `docs/agent/BACKTEST_CLAIMS_AND_REVIEW.md`
@@ -89,6 +94,13 @@ Superseded pre-governance docs are preserved under `docs/agent/superseded/202607
 - Future gate routing is governed by `RESEARCH_GATE_ROUTING_POLICY.json`. It cannot supersede a historical run contract or terminal decision.
 
 ## Repository Commands
+
+Stage 13 outcome-free campaign checks:
+
+```bash
+python3 -m unittest unit_tests.test_qlmg_research_campaign -v
+python3 tools/build_research_campaign_readiness.py --output <readiness-directory>
+```
 
 Discovered from the repository root:
 

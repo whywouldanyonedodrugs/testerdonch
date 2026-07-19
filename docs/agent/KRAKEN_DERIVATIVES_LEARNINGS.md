@@ -11,6 +11,10 @@ known limitations: analytics units are inferred; universe is current-roster/life
 
 # Kraken Derivatives Analytics and Research Learnings
 
+## Stage 13 readiness note
+
+The outcome-free Stage 8 OI-vacuum onset matrix contains 1,176,354 events across 186 symbols: 143,358 in 2023, 455,948 in 2024, and 577,048 in 2025. These are false-to-true onsets, not durations or outcomes. KDA02C breadth and KDX01 joint-state incidence remain unmaterialized; registration supports no economic conclusion.
+
 ## Current state
 
 Kraken historical analytics are now acquired and source-authorized for the rankable period:

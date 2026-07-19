@@ -11,6 +11,10 @@ known limitations: no economic work is authorized by this method
 
 # Research Efficiency and Search Discipline
 
+## Registered nested search
+
+Use bounded response-surface, incrementality, sparse-model, constrained-grammar, and horizon/payoff lanes. Register every cell, retain failures, cap beams, use deterministic tie-breaks, and freeze before the next outer block. Later-fold information never flows backward. Family stops isolate; shared authority, timestamp, protected-exposure, storage, or replay failures stop globally.
+
 ## Objective
 
 Use computation to distinguish:
