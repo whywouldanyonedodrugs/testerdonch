@@ -1,0 +1,183 @@
+{
+  "schema_version": "1.0",
+  "task_id": "donch_bt_stage_12_kda03_closure_method_reset_20260719_v1",
+  "snapshot_status": "complete_post_remote_handoff",
+  "base_commit": "0fb08802a1eaa44d379618d10882198a3c9d0e9a",
+  "implementation_commit": "3e6217354ec2bc8d2966aa18de4b2a28c738ae13",
+  "final_archive_commit": "commit_containing_this_manifest",
+  "policy_v1_sha256": "c54d4a3445da249c6dbd34613b770ad9624f861e0d7c345b3cba944aa6cdf1aa",
+  "protocol_sha256": "1d405f6cc94f6c5d9409751bafc5d911e26b508f320506343f66ab1de52957a9",
+  "evidence_limitation_tags_sha256": "06d6705cf6c81f60a82fc3f7936974bd187025d96a28ca931efe24281573ef97",
+  "economic_outputs_computed": false,
+  "protected_rows_opened": 0,
+  "drive_handoff": {
+    "path": "qlmg_sweep_drive:20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1_v01/",
+    "folder_id": "12RS7Nm__TQFnA7rueVfgQMV15IWSDuVF",
+    "roundtrip_files_verified": 5,
+    "zip_name": "qlmg_kda03-closure-method-reset_20260719_v01.zip",
+    "zip_bytes": 70504,
+    "zip_sha256": "e47fb5e931a13410da657f5ca38923cf33ad845cb30ed5630ca145cdd58cd33f"
+  },
+  "artifacts": [
+    {
+      "path": "AGENTS.md",
+      "bytes": 7272,
+      "sha256": "04a832d2a17b3f500471b22b8a226edbe1de285a94481ce06de5898757e71b7c"
+    },
+    {
+      "path": "KDA03_STAGE11_LESSONS.md",
+      "bytes": 4357,
+      "sha256": "2267af950827f1e9135d313f6f685af923c15356395ca056a9d36a5082552d0c"
+    },
+    {
+      "path": "NEXT_HYPOTHESIS_DEVELOPMENT_CANDIDATES.md",
+      "bytes": 7401,
+      "sha256": "7cf3a4b87c504419d2a660bbb213541f118b9a54f6608a0a038e704ac8bcddfd"
+    },
+    {
+      "path": "docs/QLMG_PERP_PROJECT_STATE.md",
+      "bytes": 3849,
+      "sha256": "870437c6fbae8cfdafecc912f7df0d94c31f07f0d072dcaca100a0136226dbb4"
+    },
+    {
+      "path": "docs/agent/BACKTEST_CLAIMS_AND_REVIEW.md",
+      "bytes": 4066,
+      "sha256": "8f9794f9fbb1138f22f7f1364831315cd9a11539d7d3c30bbb38cadb90826013"
+    },
+    {
+      "path": "docs/agent/CURRENT_ATTEMPT_MULTIPLICITY_REGISTRY.csv",
+      "bytes": 1015,
+      "sha256": "1f3f3a805c1bdc84f920034a406cba751abcea073528798a415a3c1252696c29"
+    },
+    {
+      "path": "docs/agent/CURRENT_CONTINUITY.md",
+      "bytes": 5094,
+      "sha256": "df32cb56f3251f730c1d8556f201398b6d6f1ab09682927e4726fe54fafb692f"
+    },
+    {
+      "path": "docs/agent/CURRENT_FAMILY_HYPOTHESIS_REGISTRY.csv",
+      "bytes": 7656,
+      "sha256": "fae79bdb778d632eb3ef713c3e38432e590b7c90ae409febd81fba4616223b7c"
+    },
+    {
+      "path": "docs/agent/CURRENT_RESEARCH_DECISIONS.md",
+      "bytes": 5821,
+      "sha256": "dd091ecb5d4faeadd9aa93508dab232b1286c25b871ee2203d88bdcda31ddd7d"
+    },
+    {
+      "path": "docs/agent/CURRENT_RUN_EVIDENCE_REGISTRY.csv",
+      "bytes": 2415,
+      "sha256": "9567edeb3fd566ba05a0e80de990bda37fdc213bba7bcbdeae6b99bace8d72d9"
+    },
+    {
+      "path": "docs/agent/EVIDENCE_LIMITATION_TAGS.json",
+      "bytes": 1893,
+      "sha256": "06d6705cf6c81f60a82fc3f7936974bd187025d96a28ca931efe24281573ef97"
+    },
+    {
+      "path": "docs/agent/EXECUTION_PLAN_TEMPLATE.md",
+      "bytes": 4180,
+      "sha256": "ab87aaea44757043cc9b2968d81eb605e6af7af2227995ce1419ef220479c524"
+    },
+    {
+      "path": "docs/agent/GATE_ROUTING_MATRIX.csv",
+      "bytes": 3377,
+      "sha256": "846f6228c7ffbc4b8d14bead0e759ab3be8d63cf4be3d457fb226046157af6ac"
+    },
+    {
+      "path": "docs/agent/HYPOTHESIS_DEVELOPMENT_PROTOCOL.json",
+      "bytes": 5114,
+      "sha256": "1d405f6cc94f6c5d9409751bafc5d911e26b508f320506343f66ab1de52957a9"
+    },
+    {
+      "path": "docs/agent/HYPOTHESIS_DEVELOPMENT_PROTOCOL.md",
+      "bytes": 4152,
+      "sha256": "9e7c69f80b175f21750636d56a52c40f1e0e517304d33869c7cba55eb467d6a6"
+    },
+    {
+      "path": "docs/agent/KDA_LEARNING_CONTEXT_REGISTER.csv",
+      "bytes": 3685,
+      "sha256": "8e75865d7d333777c3e4f2cd5a8e62661671a182df4df3fa3b35749c4a0ff83d"
+    },
+    {
+      "path": "docs/agent/KRAKEN_DERIVATIVES_LEARNINGS.md",
+      "bytes": 13703,
+      "sha256": "5a81b6653b2e7df1c4ffd8b7033515320660004bbfce76fd70c55c6404d9f8a1"
+    },
+    {
+      "path": "docs/agent/RESEARCH_EFFICIENCY_AND_SEARCH_DISCIPLINE.md",
+      "bytes": 4068,
+      "sha256": "f960ffbf1f324b366610258a8faef78485a8b92ba9694e048ecd9c438a33baa6"
+    },
+    {
+      "path": "docs/agent/TEST_AND_EVIDENCE_STANDARDS.md",
+      "bytes": 7157,
+      "sha256": "60412cd91092303fe81b6558493ee9d095f64506b86d76bb8df211ffde0e2458"
+    },
+    {
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/CHANGED_FILES.md",
+      "bytes": 1784,
+      "sha256": "81084b670b1752ecb531af73fe4cccb8411c57a4e9a49fa2c1a21f6fb1f2e3aa"
+    },
+    {
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/COMMANDS_AND_RESULTS.md",
+      "bytes": 2175,
+      "sha256": "a788e35896f9a639234ab0415494f5b5af2714df7c476d1d1f8de89969031018"
+    },
+    {
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/COMPLETION.md",
+      "bytes": 1457,
+      "sha256": "f2f9641f83da8eaabdb419f3bf9b50786d5f22bdf20e364c14e2ebb773fd4d40"
+    },
+    {
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/DECISIONS_AND_PROGRESS.md",
+      "bytes": 1463,
+      "sha256": "3ba499880b93aa562c2274cdda9a1c8084cc511668e6611fd732b0f08ab5ae44"
+    },
+    {
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/DONCH_CONTEXT.md",
+      "bytes": 740,
+      "sha256": "9b3f01390338ca97263dcac28b4dcbcc7e62529d3d77456d193a341231328c27"
+    },
+    {
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/NEXT_ACTION.md",
+      "bytes": 609,
+      "sha256": "1987f425958391eab81b5e9cd8b5254247a75a03e1af5e0e6b3e431cbc590ce4"
+    },
+    {
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/PLAN.md",
+      "bytes": 7780,
+      "sha256": "2054488c1e3a054bd26f84b0608e0cad95118ad2b527bcfe57884150c634ebec"
+    },
+    {
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/READ_FIRST.md",
+      "bytes": 645,
+      "sha256": "d9422129b2bd18a0882c41f17e2c8b195455031a45e3224c2d0211aa75c9b77c"
+    },
+    {
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/RECOVERY_SUMMARY.md",
+      "bytes": 1014,
+      "sha256": "ea346edb93e4efa0bedfe81ae546bd08f3934f824357d7f428a7e9ce168b2966"
+    },
+    {
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/REVIEW.md",
+      "bytes": 1471,
+      "sha256": "3652506e2ddb5a311ecb9e3f42629488ce86e37a84a6ebdaff1a53844e62875b"
+    },
+    {
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/TASK_SPEC.md",
+      "bytes": 11987,
+      "sha256": "057ac06f23008b81dd2b2b21aa87750e9979921896940b5a773b5fe84ddafe63"
+    },
+    {
+      "path": "docs/agent/task_archive/20260719_donch_bt_stage_12_kda03_closure_method_reset_20260719_v1/VALIDATION.md",
+      "bytes": 2255,
+      "sha256": "c0c0a00252833bbe28ca251b39b2f3be6bda3b7d790756159cdcea5c8d3386e7"
+    },
+    {
+      "path": "unit_tests/test_hypothesis_development_protocol.py",
+      "bytes": 6654,
+      "sha256": "77abe89fbe068059a0d0932330ecda1fe9711b2f63bd6b8d38a46f83a5c329d6"
+    }
+  ]
+}
