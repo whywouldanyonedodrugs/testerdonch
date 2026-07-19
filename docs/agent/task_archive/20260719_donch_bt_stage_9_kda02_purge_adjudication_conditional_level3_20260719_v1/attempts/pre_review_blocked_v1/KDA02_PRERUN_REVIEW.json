@@ -1,0 +1,45 @@
+{
+  "approved": false,
+  "blocking_findings": [
+    {
+      "id": "KDA02-PRERUN-001",
+      "severity": "blocking",
+      "summary": "Exact-window predicates accept irregular interior timestamps.",
+      "smallest_remedy": "Require every adjacent timestamp in each feature and episode window to be a distinct five-minute successor, add irregular/duplicate timestamp regressions, and rebuild all dependent hashes and artifacts."
+    },
+    {
+      "id": "KDA02-PRERUN-002",
+      "severity": "blocking",
+      "summary": "An epsilon residual OI reduction is treated as materially retained parent-qualified OI reset.",
+      "smallest_remedy": "Explicitly freeze the quantitative retained-material-OI rule before outcomes, add equality and epsilon boundary tests, and rebuild all dependent hashes and artifacts."
+    },
+    {
+      "id": "KDA02-PRERUN-003",
+      "severity": "blocking",
+      "summary": "Funding attachment uses a candidate address duplicated across the 1h and 6h definitions and fails one-to-one after prices are opened.",
+      "smallest_remedy": "Attach funding with the unique Level-3 definition-event address, preserve the candidate address separately, and add a two-horizon funding identity regression."
+    }
+  ],
+  "economic_run_gate_open": false,
+  "level3_contract_hash": "36b9c5443fecbe09091e987518fbef484f33a003c920c3c616365bdb02df46f4",
+  "outcome_free_review": true,
+  "pf_trade_open_values_accessed": false,
+  "economic_returns_accessed": false,
+  "funding_outcomes_accessed": false,
+  "protected_rows_accessed": false,
+  "controls_executed": false,
+  "kda01_outcomes_accessed": false,
+  "kda02b_outcomes_accessed": false,
+  "capitalcom_payload_accessed": false,
+  "reviewed_sha256": {
+    "contract": "66197adbb023e52a416ef4b92d17764a265eb7e888bc95e4c43b825829f082dc",
+    "definitions": "6f0165c58009b554d0877db58282cad204d837444c16e39fb17cc264a55846fb",
+    "events": "47c06004745da84e20f0f2909e883564f7800220ce822b90ceaab31c91c96ba2",
+    "parents": "c5cbcec56cb2ac7a06b440add2ac4a29015a994c58a37d25f8a83e0c59e34af0",
+    "feasibility_gates": "51c4854bf4dd3cc9ddbe3a86593e3cee3894bcf37cad1d5266030ab7ca3635f9",
+    "feature_module": "e959a74a487288d100e4a2e96ec6a7678ad290e4890b881b94ee39fad364530b",
+    "builder": "90535e3296f34398475a603b1d8826c45249a21e78cf86aaab8e8c0867214cdb",
+    "calculation_module": "c1a17082219d2b38933bf59b1091902ed7a9a21b15949c51b348a0d3096f2d3e",
+    "runner": "f82ed88b0d76a435a49724ddea53587a4fb508e25b59eb4875647ca0bf09f69c"
+  }
+}

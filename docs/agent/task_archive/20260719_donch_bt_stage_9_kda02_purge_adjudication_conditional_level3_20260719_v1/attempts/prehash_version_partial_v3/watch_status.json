@@ -1,0 +1,9 @@
+{
+  "elapsed_seconds": 51.40986454486847,
+  "events": 268,
+  "parent_episodes": 443,
+  "peak_rss_gib": 1.6680641174316406,
+  "stage": "outcome_free_generation",
+  "symbols_completed": 8,
+  "symbols_total": 187
+}

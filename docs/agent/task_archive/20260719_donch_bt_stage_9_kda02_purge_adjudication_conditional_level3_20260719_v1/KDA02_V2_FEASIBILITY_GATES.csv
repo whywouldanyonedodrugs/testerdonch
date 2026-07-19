@@ -1,0 +1,9 @@
+branch_id,definition_id,timeout_hours,accepted_events,events_2023,events_2024,events_2025,symbol_count,maximum_symbol_share,candidate_events_ge_100,each_year_ge_20,symbols_ge_20,maximum_symbol_share_le_25pct,duplicate_event_ids_zero,duplicate_economic_addresses_zero,protected_rows_zero,definition_mechanically_feasible,branch_mechanically_feasible
+primary_negative_active_purge_continuation,kda02_v2_primary_negative_active_purge_continuation_timeout_1h,1,359,5,143,211,46,0.052924791086350974,True,False,True,True,True,True,True,False,False
+primary_negative_active_purge_continuation,kda02_v2_primary_negative_active_purge_continuation_timeout_6h,6,355,5,142,208,46,0.05352112676056338,True,False,True,True,True,True,True,False,False
+primary_negative_completed_purge_reversal,kda02_v2_primary_negative_completed_purge_reversal_timeout_1h,1,2812,104,1125,1583,54,0.04907539118065434,True,True,True,True,True,True,True,True,True
+primary_negative_completed_purge_reversal,kda02_v2_primary_negative_completed_purge_reversal_timeout_6h,6,2643,101,1063,1479,54,0.04842981460461597,True,True,True,True,True,True,True,True,True
+primary_positive_active_purge_continuation,kda02_v2_primary_positive_active_purge_continuation_timeout_1h,1,52,6,9,37,27,0.09615384615384616,False,False,True,True,True,True,True,False,False
+primary_positive_active_purge_continuation,kda02_v2_primary_positive_active_purge_continuation_timeout_6h,6,50,6,9,35,27,0.1,False,False,True,True,True,True,True,False,False
+primary_positive_completed_purge_reversal,kda02_v2_primary_positive_completed_purge_reversal_timeout_1h,1,1017,73,376,568,51,0.06293018682399214,True,True,True,True,True,True,True,True,True
+primary_positive_completed_purge_reversal,kda02_v2_primary_positive_completed_purge_reversal_timeout_6h,6,988,72,366,550,51,0.06477732793522267,True,True,True,True,True,True,True,True,True

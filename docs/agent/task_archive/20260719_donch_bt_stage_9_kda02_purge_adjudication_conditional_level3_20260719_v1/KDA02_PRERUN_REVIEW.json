@@ -1,0 +1,25 @@
+{
+  "approved": true,
+  "blocking_findings": [],
+  "level3_contract_hash": "b24097a1ef1e1babe8d03c68405410b9587fd2ac821bed0b444b16fcb639b9b8",
+  "outcome_free_review": true,
+  "pf_trade_open_values_accessed": false,
+  "economic_returns_accessed": false,
+  "funding_outcomes_accessed": false,
+  "protected_rows_accessed": false,
+  "controls_executed": false,
+  "kda01_outcomes_accessed": false,
+  "kda02b_outcomes_accessed": false,
+  "capitalcom_outcomes_accessed": false,
+  "reviewed_sha256": {
+    "contract": "1d595603a46359dd61552280f7ce169d2455f19f7515dad69bab9f6da672b255",
+    "definitions": "6f0165c58009b554d0877db58282cad204d837444c16e39fb17cc264a55846fb",
+    "events": "ed777c58a3fac84007d49be8b9a7f7d04b7ab50911b12363fc1a5a575005a378",
+    "parents": "f5bc2dfb4b315d005e4444656cd69ef17a48751c4711ffe8409cdaef45280206",
+    "feasibility_gates": "866fd4f740c1ac22accba1a1bfd964c659948946d0a26fa5548152fbc9133f33",
+    "feature_module": "2588bbe362488c7d8a753718ea47b7c573176047bc98a37689e5b396d13b1873",
+    "builder": "90535e3296f34398475a603b1d8826c45249a21e78cf86aaab8e8c0867214cdb",
+    "calculation_module": "c1a17082219d2b38933bf59b1091902ed7a9a21b15949c51b348a0d3096f2d3e",
+    "runner": "dc2d788a389d942e9e0458e43cdf24c56128fdded7962c0eeece960fa043b3ed"
+  }
+}

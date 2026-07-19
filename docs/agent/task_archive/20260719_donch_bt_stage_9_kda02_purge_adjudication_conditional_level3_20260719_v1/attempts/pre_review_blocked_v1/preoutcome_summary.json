@@ -1,0 +1,18 @@
+{
+  "definition_count": 8,
+  "economic_outputs_computed": 0,
+  "event_count": 5905,
+  "feasible_primary_branches": 2,
+  "feature_extension_hash": "2d117dcbe3bb40f261263a53e985c97c5ba1e4b0b80eddaa0f8d06e3c892bd87",
+  "generator_hash": "f69751c1826c7d393dc4c7fa203a7820c6d72f8c63a704a99c15fb0e8a2ab5fc",
+  "level3_contract_hash": "36b9c5443fecbe09091e987518fbef484f33a003c920c3c616365bdb02df46f4",
+  "mechanical_status": "preoutcome_review_required",
+  "parent_episode_count": 8281,
+  "peak_rss_gib": 1.9729690551757812,
+  "protected_rows_opened": 0,
+  "runtime_seconds": 1417.2170805856586,
+  "stage8a_commit": "41b64b52a9146669eb26dcf25a86523a35219b8d",
+  "stage8a_kda02_sha256": "c4d553267e2107beeb042bc22f3280013c41a962d1674b4942d2b7f0de5e2b43",
+  "starting_commit": "baaa10c224807e1dc7e32bfee7227711cb0c1279",
+  "task_id": "donch_bt_stage_9_kda02_purge_adjudication_conditional_level3_20260719_v1"
+}

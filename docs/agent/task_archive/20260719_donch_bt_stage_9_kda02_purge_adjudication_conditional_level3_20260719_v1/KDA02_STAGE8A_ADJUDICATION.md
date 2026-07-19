@@ -1,0 +1,3 @@
+# KDA02 Stage 8A Adjudication
+
+Stage 8A is preserved as valid outcome-free feasibility provenance, not a code defect. Its primary active purge required liquidation z>=2 plus any negative one-hour OI change; primary completed purge used prior-bar liquidation extremity, current OI decline, and aligned five-minute trade/one-hour mark direction; primary OI vacuum required any OI decline and modest one-hour price displacement without liquidation. Reconciled counts are 21,241 / 43,946 / 1,176,354 primary and 3,089 / 7,602 robust active/completed; robust OI vacuum remains a killed semantic duplicate with zero tape. No Stage 8A artifact or attempt identity was changed.

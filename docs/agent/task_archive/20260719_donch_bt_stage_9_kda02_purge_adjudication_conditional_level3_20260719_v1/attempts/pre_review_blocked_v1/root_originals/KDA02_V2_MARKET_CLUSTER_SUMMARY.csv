@@ -1,0 +1,13 @@
+cluster_type,attempt,year,cluster_count,total_events,largest_cluster_event_share,events_per_cluster_median,events_per_cluster_max,symbols_per_cluster_median,symbols_per_cluster_max
+market_day_primary,primary,2023,119,226,0.03982300884955752,1.0,9,1.0,5
+market_day_primary,primary,2024,316,1847,0.033567948023822416,3.0,62,3.0,26
+market_day_primary,primary,2025,340,2848,0.02422752808988764,5.0,69,4.0,34
+market_day_primary,robustness,2023,33,45,0.08888888888888889,1.0,4,1.0,3
+market_day_primary,robustness,2024,156,398,0.05778894472361809,1.5,23,1.0,17
+market_day_primary,robustness,2025,188,541,0.066543438077634,2.0,36,1.0,27
+market_6h_sensitivity,primary,2023,160,226,0.035398230088495575,1.0,8,1.0,5
+market_6h_sensitivity,primary,2024,645,1847,0.01949106659447753,2.0,36,1.0,23
+market_6h_sensitivity,primary,2025,841,2848,0.01720505617977528,2.0,49,2.0,34
+market_6h_sensitivity,robustness,2023,39,45,0.044444444444444446,1.0,2,1.0,2
+market_6h_sensitivity,robustness,2024,198,398,0.052763819095477386,1.0,21,1.0,15
+market_6h_sensitivity,robustness,2025,280,541,0.059149722735674676,1.0,32,1.0,27
