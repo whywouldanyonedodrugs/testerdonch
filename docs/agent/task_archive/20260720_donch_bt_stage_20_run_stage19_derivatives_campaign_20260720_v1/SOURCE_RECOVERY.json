@@ -1,0 +1,21 @@
+{
+  "economic_outcomes_opened": false,
+  "recovered_from_local_codex_audit_log": true,
+  "recovery_reason": "Stage 17 source was deleted while its compiled module remained; Stage 20 required reviewable source before launch",
+  "recorded_deleted_sources": {
+    "tools/qlmg_stage17_campaign.py": {
+      "bytes": 59573,
+      "sha256": "889c9f44b1a078822b99c73d2ebfc76f115ba9c01246b70ca18ce9273aaef6ba"
+    },
+    "tools/run_stage17_campaign.py": {
+      "bytes": 3887,
+      "sha256": "0631b28eb90bea42fb9dbfa7f555bd27a47196b9f4c40d0aa33a37dbb7b67a4e"
+    },
+    "unit_tests/test_stage17_campaign.py": {
+      "bytes": 7201,
+      "sha256": "aec3d9c15ab00860f4f03815394aa0102ea5bef51a787ef3511755f6752d8af6"
+    }
+  },
+  "stage17_protected_funding_access_incident_preserved": true,
+  "stage19_protected_funding_partitioning_treatment": "authorized_non_outcome_engineering_not_incident"
+}

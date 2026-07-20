@@ -1,0 +1,74 @@
+{
+  "binding_context": {
+    "approval_packet_sha256": "3fde09f16efff2479ee847fe26c859a67ef1d516b0f0acbcbaec141154a87bd6",
+    "approval_sha256": "57d521488e88373afd557eb457ffd119089aac0d863a0c319e73d70cf9f7690c",
+    "approved_lanes": [
+      "KDA02B",
+      "KDA02C",
+      "KDX01"
+    ],
+    "approved_phases": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "campaign_id": "kraken_derivatives_campaign_001_stage19_exact_funding",
+    "campaign_manifest_sha256": "e7d618a2a24c574c9ba83d323df605a6434c2e816fe24c465d183ba5d6256990",
+    "executable_cells": 186,
+    "inherited_non_executable_attempts": 42,
+    "programme_attempts": 228,
+    "repository_commit": "245b375b00167f1b4a81f6a4449e7de1d1db83a2"
+  },
+  "created_at_utc": "2026-07-20T14:43:29.040309Z",
+  "files": [
+    {
+      "bytes": 5009,
+      "path": "/opt/testerdonch-stage20-20260720/tools/finalize_stage20_launch.py",
+      "sha256": "82f8b15a0143295cf3c77c5c359da564c3443af9a1e96f495cb392551d80a770"
+    },
+    {
+      "bytes": 52308,
+      "path": "/opt/testerdonch-stage20-20260720/tools/qlmg_stage20_campaign.py",
+      "sha256": "cd86e3edeab11c4e7a76fd95b7c1d73f02341d08174856829120d13d2fa00e54"
+    },
+    {
+      "bytes": 9950,
+      "path": "/opt/testerdonch-stage20-20260720/tools/qlmg_stage20_launch_gates.py",
+      "sha256": "f952420d31a19f5d245a14fae5bd2349cdce43fdd58b9c7752e4aeee7c85757e"
+    },
+    {
+      "bytes": 4113,
+      "path": "/opt/testerdonch-stage20-20260720/tools/run_stage20_campaign.py",
+      "sha256": "12e45cb6f52dace7c9febfca3ac1410b5597251106735a78545e164e342f6054"
+    },
+    {
+      "bytes": 36422,
+      "path": "/opt/testerdonch-stage20-20260720/tools/run_stage20_economic_campaign.py",
+      "sha256": "4bd035e955826c8b2a7d6d3fd72c316d5e830cc3ab060f7a2910a3a00ce9e95a"
+    },
+    {
+      "bytes": 9509,
+      "path": "/opt/testerdonch-stage20-20260720/tools/stage20_phase2_5_canary.py",
+      "sha256": "93b3089bb53a3c62e8747e3e7af87ee354cbf6c2d2d52be3a2a375d0d828be67"
+    },
+    {
+      "bytes": 3667,
+      "path": "/opt/testerdonch-stage20-20260720/tools/validate_stage20_event_replay.py",
+      "sha256": "960cd5cddd35d7e953f4fe2b7ccf0d4845309710588054267a6cbdff09c2e620"
+    },
+    {
+      "bytes": 3075,
+      "path": "/opt/testerdonch-stage20-20260720/tools/validate_stage20_telegram.py",
+      "sha256": "dc91e87b0b86e3f6b7acbc7942de54e9cb137769c4488f3874648ff24d127d18"
+    },
+    {
+      "bytes": 11815,
+      "path": "/opt/testerdonch-stage20-20260720/unit_tests/test_stage20_campaign.py",
+      "sha256": "5e547ee6c76153a13bcae5574faa1c0c8b448c670615e426770aca54a7e94019"
+    }
+  ],
+  "manifest_sha256": "a7d7dc862f72148d11bd5c2acd00cab8d9eb12c47c9d0036ceaa079660b463e7",
+  "schema": "stage20_reviewed_source_manifest_v1",
+  "status": "frozen"
+}

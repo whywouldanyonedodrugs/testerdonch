@@ -1,0 +1,40 @@
+{
+  "Capitalcom_payload_opened": false,
+  "campaign_complete": false,
+  "large_staging_included": false,
+  "large_staging_root": "/opt/testerdonch/results/rebaseline/phase_kraken_derivatives_campaign_stage20_20260720_v01/staging",
+  "partial_candidate_freezes_included": false,
+  "protected_rows_opened": 0,
+  "status": "genuine_bound_stop_incomplete_campaign",
+  "repository_evidence": {
+    "archive_files_excluding_this_manifest": 15,
+    "implementation_files": 8,
+    "test_files": 1,
+    "reviewed_source_manifest_sha256": "a7d7dc862f72148d11bd5c2acd00cab8d9eb12c47c9d0036ceaa079660b463e7"
+  },
+  "run_evidence": [
+    {"path": "BOUND_STOP_RECONCILIATION.json", "bytes": 1158, "sha256": "d18a108578b6e3044a9c3f76d0c67d98b809e2dffca9f7beba267497d5c892bd"},
+    {"path": "CAMPAIGN_LAUNCH_MANIFEST.json", "bytes": 790, "sha256": "4dc8e1fa4152d48c5f8c31f4d911616848b30b014566beab7a66e828c917ef51"},
+    {"path": "CAMPAIGN_STATE.json", "bytes": 1533, "sha256": "812e05bad86499c73c073caf1215e129b9999026028b0e9e7d5137982fbd5448"},
+    {"path": "FULL_ATTEMPT_REGISTRY.json", "bytes": 53914, "sha256": "1bba412d30dd64f556868d2cdeb526a06206e43c45f2de44db7fbe720e0478bf"},
+    {"path": "HUMAN_APPROVAL.json", "bytes": 9177, "sha256": "57d521488e88373afd557eb457ffd119089aac0d863a0c319e73d70cf9f7690c"},
+    {"path": "LAUNCH_BOUNDARY_VERIFICATION.json", "bytes": 4824, "sha256": "e0efff35959c18a4abfd7d2465b83249489493bc17521b28a048d63c0db7d674"},
+    {"path": "MULTIPLICITY_RECONCILIATION.json", "bytes": 275, "sha256": "72bc0d6c7fa48f264fb7e5472c25e75ed816fb03f27d53b1ae12cde38639bdfe"},
+    {"path": "PREOUTCOME_AUTHORITY_AND_HASH_AUDIT.json", "bytes": 2929, "sha256": "f61fdd404eee178348b493a1928393d24541a6e0c1139e0c7aa84f12e4303321"},
+    {"path": "preflight/DETERMINISTIC_EVENT_REPLAY_VALIDATION.json", "bytes": 3674, "sha256": "259cc8958e3e70281d445fad5625d77426c00d28fdd71146b8c8020707aea84e"},
+    {"path": "preflight/FINAL_LAUNCH_AUTHORITY_GATE.json", "bytes": 3338, "sha256": "ad9b9c4577f891abd2249aee7718cf0a1c3d5396b946efb6041eedbeb0415ff2"},
+    {"path": "preflight/INDEPENDENT_PREOUTCOME_REVIEW_GATE.json", "bytes": 3190, "sha256": "0350e3aa9fba5fcc518e1aff641ec31f13f8135bf14b2b9d3e6b9f89652bdf4b"},
+    {"path": "preflight/STAGE19_LAUNCH_READINESS.json", "bytes": 456, "sha256": "2c1affdf09593008431b5e22f2679a521f0c578249b0c7c4a977a859e3c2b66c"},
+    {"path": "preflight/SYNTHETIC_PHASE2_5_CANARY.json", "bytes": 3681, "sha256": "065b1fbcea3031f8735b9275c97d750a8f2849d05bd59003d2f7d2a5c085359f"},
+    {"path": "preflight/TELEGRAM_VALIDATION_EVIDENCE.json", "bytes": 267, "sha256": "87335d2f32044f9f9ea755784b4b556b834f94a7aba2179aa0f77fb38e3cd159"},
+    {"path": "preflight/TELEGRAM_VALIDATION_GATE.json", "bytes": 3295, "sha256": "93e9888d69a5547daca5ff28ba0fce93e047a91351b02697228d476e28363764"}
+  ],
+  "staging_reconciliation": {
+    "artifact_claim_count": 3193,
+    "artifact_claims_sha256": "06346a213ff8d2bf364696d08a0254a9003f6ee753612956505a8b7d6ed80407",
+    "failed_reconciliations": 0,
+    "marker_count": 6459,
+    "marker_inventory_sha256": "5a94431f604471597b8b6a74e9f980b20183d6d94e3660a68e14fb88787e8f79",
+    "registered_cell_identities": 126
+  }
+}

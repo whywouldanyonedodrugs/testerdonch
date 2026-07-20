@@ -1,0 +1,16 @@
+{
+  "authority_read_order": [
+    "DONCH_STAGE19_AUTHORITY_VERIFICATION_AND_SOURCE_REFRESH_DECISION_2026-07-20.md",
+    "HUMAN_APPROVAL_Kraken_Derivatives_Campaign_001_Stage19_Phases_2_5_2026-07-20_v1.json",
+    "DONCH_TO_BACKTESTING_Stage20_Run_Stage19_Derivatives_Campaign_2026-07-20_v1.md"
+  ],
+  "members": {
+    "DONCH_STAGE19_AUTHORITY_VERIFICATION_AND_SOURCE_REFRESH_DECISION_2026-07-20.md": "a2df6dc9ced07e9915d5c3674580547ef565ddfc43fc3767105fa74a54c08cd4",
+    "DONCH_TO_BACKTESTING_Stage20_Run_Stage19_Derivatives_Campaign_2026-07-20_v1.md": "49a8b6de271c666e3552c66a781dbbc0a60566e438f6a4a54ce468f2fd3bcde4",
+    "HUMAN_APPROVAL_Kraken_Derivatives_Campaign_001_Stage19_Phases_2_5_2026-07-20_v1.json": "57d521488e88373afd557eb457ffd119089aac0d863a0c319e73d70cf9f7690c"
+  },
+  "status": "pass",
+  "structural_zip_test": "pass",
+  "zip": "research_inputs/DONCH_Stage20_Approval_and_Agent_Prompt_2026-07-20_v1.zip",
+  "zip_sha256": "7f17b5f1f1d1708e87bcf3cc483aca13a232708a0c612c16ee2e5a84c6c80802"
+}

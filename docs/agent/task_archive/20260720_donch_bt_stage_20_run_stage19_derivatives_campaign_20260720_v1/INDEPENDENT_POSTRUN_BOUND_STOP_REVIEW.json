@@ -1,0 +1,23 @@
+{
+  "Capitalcom_payload_opened": false,
+  "artifact_claims_reconciled": 3193,
+  "blocking_scope": "terminal campaign completion and terminal economic handoff",
+  "campaign_complete": false,
+  "checks": {
+    "no_completion_claim": "pass",
+    "notification": "pass",
+    "persisted_reconciliation": "pass",
+    "protected_isolation": "pass",
+    "safe_bound_stop": "pass"
+  },
+  "completed_job_markers_reconciled": 6459,
+  "health_release_status": "pending",
+  "independent_reviewer": true,
+  "maximum_in_flight_observed": 4,
+  "partial_economic_values_inspected": false,
+  "protected_rows_opened": 0,
+  "status": "pass_safe_bound_stop_incomplete_campaign",
+  "stop_cause": "ProcessLookupError: [Errno 3] No such process",
+  "telegram_global_stop_delivered": true,
+  "workers_remaining_after_shutdown": 0
+}

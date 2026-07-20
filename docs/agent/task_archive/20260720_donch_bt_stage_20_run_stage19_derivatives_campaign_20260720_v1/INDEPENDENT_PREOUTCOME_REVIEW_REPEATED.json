@@ -1,0 +1,28 @@
+{
+  "acceptance_criteria": {
+    "atomic_final_launch_revalidation": "pass",
+    "bounded_lazy_scheduling": "pass",
+    "cryptographic_gate_binding": "pass",
+    "empty_inner_fold_preservation": "pass",
+    "health_release": "pass",
+    "supported_direct_invocation": "pass",
+    "synthetic_end_to_end_canary": "pass"
+  },
+  "blocking_findings": [],
+  "evidence": {
+    "bound_canary_gate_sha256": "cd4bc932550b50fb8a438ab0f1fab1d0d855814c07303b47ae8e6cb46aa3634f",
+    "bound_replay_gate_sha256": "836d133dedc2033d5830cbfd0da7429d248f11f06b226824bb6844e09c111aef",
+    "focused_tests_passed": 21,
+    "funding_package_sha256_prefix": "6c096972",
+    "funding_symbols_verified": 187,
+    "native_event_partitions_verified": 187,
+    "protected_or_Capitalcom_outcomes_opened": 0,
+    "reviewed_source_manifest_sha256": "a7d7dc862f72148d11bd5c2acd00cab8d9eb12c47c9d0036ceaa079660b463e7"
+  },
+  "nonblocking_later_items": [
+    "Canary evidence serializes one NumPy boolean through default=str; behavior and focused test are correct.",
+    "The process-pool canary emits Python's fork deprecation warning on this host."
+  ],
+  "reviewer_independent": true,
+  "status": "pass"
+}

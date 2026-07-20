@@ -1,0 +1,170 @@
+{
+  "approval_id": "human_approval_kraken_derivatives_campaign_001_stage19_phases_2_5_20260720_v1",
+  "approval_packet_file_sha256": "3fde09f16efff2479ee847fe26c859a67ef1d516b0f0acbcbaec141154a87bd6",
+  "approval_packet_payload_canonical_sha256": "5f0927cfb1e6c6f337172ecbf7ae8f07559006e460e616257913d32d108cf6c3",
+  "approved_executable_cells": {
+    "KDA02B": 96,
+    "KDA02C": 48,
+    "KDX01": 42,
+    "total": 186
+  },
+  "approved_lanes": [
+    "KDA02B_v2_oi_vacuum_redevelopment",
+    "KDA02C_v1_purge_breadth_context",
+    "KDX01_v1_downside_completed_derivatives_state_rejection"
+  ],
+  "approved_phases": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "approved_repository_start": "245b375b00167f1b4a81f6a4449e7de1d1db83a2",
+  "authorization_statement": "I authorize one protocol-v2 execution of the exact Stage 19 Kraken derivatives campaign only for KDA02B, KDA02C, and KDX01 through Phases 2, 3, 4, and 5 under the bound campaign-manifest and approval-packet hashes. No broader economic, protected, data, platform, control, validation, deployment, account, order, or live-trading authority is granted.",
+  "authorized_at_utc": "2026-07-20T12:30:37Z",
+  "authorized_by": "human_operator_via_donch",
+  "bound_dependency_file_sha256": {
+    "ABSOLUTE_RATE_UNIT_VERIFICATION.csv": "9729b8a87947be3303a3e00febef47413b4c66c1d4395b1c1ac82b0b076bdc87",
+    "BOUNDARY_AND_MISSINGNESS_CONTRACT.json": "37a3b77223d84435e8932fc5fde2e48aa7fa0d001c9510bc5d674c61c6fac42f",
+    "CANDIDATE_BEAM_CONTRACT.json": "5ed0be72cea8a555790e7aa0aec9e8bfbd8de4d5de9f358ba831d1d43e11dfe3",
+    "DEVELOPMENT_METRIC_CONTRACT.json": "5132fe487d67614df81193a2ea13c35ade9a9d5ff68b037c6f4efd6fb1c6c11e",
+    "ECONOMIC_TRANSLATION_REGISTRY.json": "e48fce5186238064496c71457b72ee3beeb8f420f009b8bb66508c773d813774",
+    "ESTIMATOR_AND_RULE_INVENTORY.json": "b30b7c115d6d6e1ed765542c44d791c44117a0387f71ae4b33ec1219d4243a3b",
+    "FUNDING_COST_AND_COVERAGE_CONTRACT.json": "c0d5bf091080a681055a792a8a7cf4a1084dcd60deb17c60381339df7297c3e7",
+    "FUNDING_GAP_ALLOWANCE_CONTRACT.json": "e335200163619d217101458fe69b1ae65d0e2dec847306a4b593c311c30dc78e",
+    "FUNDING_GAP_ALLOWANCE_TABLE.csv": "4ff2c6bcbe125e6f966348a029cd2cc63f55deb752b89c454a28642c41f119b5",
+    "FUNDING_PERIOD_DUAL_ALIGNMENT_CONTRACT.json": "840729c812eed312759a63c9e85a68c2b91075309d45b9cca4849c92d6fccc50",
+    "FUNDING_SOURCE_AND_PARTITION_MANIFEST.json": "518a70c53830f8a01395d5836403b027f2371bd03f2fee05ffd3346cfca4a78d",
+    "INNER_FOLD_MAP.json": "6ee8cbc53eac9326f904eec760ae82861a533b8165be6e1ccfc440dd0fa32ba0",
+    "RESOURCE_PROJECTION.json": "3dc00c88490ae4a1cf4fb52a0de07ffdf8d96bc12258b3fdf874e487886527e1",
+    "RESPONSE_SURFACE_AND_BIN_SPEC.json": "1cc994543371a8db86f428957a27d3a62d93f390e30f99460aa3e1d973b8c67b",
+    "SEARCH_SPACE_REGISTRY.json": "5d78232ae5363fa58219c4fe12a8004db576351a4ab97ddbf2d168344d5d045f",
+    "TELEGRAM_AND_SUPERVISION_CONTRACT.json": "f23736649f4523add8618720744673a5554d51246b9bcb01bcccf0a64591e70e",
+    "UNIT_VERIFICATION_SOURCE_MANIFEST.json": "9074a6bbefe9ab7fd3c579c6b90260f1b244c8e4f52f79e60f180a170e4110f0",
+    "UTILITY_AND_PARETO_CONTRACT.json": "b121e51d79ded5b63b5b3ef869a4ca99c611377b33ad0edfc3024dd7120d4495"
+  },
+  "campaign_id": "kraken_derivatives_campaign_001_stage19_exact_funding",
+  "campaign_manifest_canonical_sha256": "e7d618a2a24c574c9ba83d323df605a6434c2e816fe24c465d183ba5d6256990",
+  "campaign_manifest_file_sha256": "e7d618a2a24c574c9ba83d323df605a6434c2e816fe24c465d183ba5d6256990",
+  "claim_limit": "protocol_v2_registered_development_and_forward_rolling_evidence_only_not_independent_validation_not_live_ready",
+  "continuity_authority": {
+    "pointer_physical_sha256": "28ef052ff9bb7c2523accec5c8acd36e4f903ac7efd84be44cd3972faaae1c00",
+    "pointer_sequence": 1,
+    "snapshot_path": "snapshots/state_000001_20260720T121247Z.json",
+    "snapshot_physical_sha256": "c3bdfa6fa7c9d9427e4b39ca109262f0becd0ff004d145a5a1674694b61094bf"
+  },
+  "execution_authorization": {
+    "allow_drive_handoff": true,
+    "allow_dynamic_continuity_publication_after_verified_handoff": true,
+    "allow_exact_packet_runtime_implementation": true,
+    "allow_existing_secure_telegram_notifier_dry_run_and_campaign_notifications": true,
+    "allow_official_rankable_funding_runtime_validation": true,
+    "allow_persistent_supervised_unattended_execution": true,
+    "allow_task_scoped_commits_fast_forward_merge_and_non_force_push": true,
+    "economic_or_selection_semantics_may_change": false,
+    "manual_outcome_conditioned_intervention": false,
+    "search_space_folds_cells_costs_funding_or_translations_may_change": false
+  },
+  "funding_authority": {
+    "campaign_symbols_mapped_and_unit_verified": 187,
+    "favourable_funding_credit_for_selection": false,
+    "protected_funding_values_used_for_statistics": 0,
+    "rankable_package_sha256": "6c0969727c882ca6439c57c3b7d03367e1b2d26ee46823e56b983756d026ef64",
+    "runtime_alignment_choice_permitted": false,
+    "selection_rule": "adverse min of zero and both exact alignments plus nonpositive rankable-only missing-hour allowance"
+  },
+  "health_release_gate": {
+    "after_pass_leave_unattended_until_terminal_completion_or_bound_stop": true,
+    "complete_and_reconcile_at_least_one_real_registered_cell": true,
+    "deliver_first_scheduled_heartbeat_minutes": 30,
+    "health_only_review_no_partial_economic_inspection": true
+  },
+  "human_authorized": true,
+  "inherited_non_executable_multiplicity_attempts": {
+    "KDX01_continuation_null": 42,
+    "campaign_total_attempts_reconciled": 228
+  },
+  "not_authorized": [
+    "phase_6_controls",
+    "phase_7_independent_validation_or_deployment",
+    "C17",
+    "protected_strategy_outcomes",
+    "protected_period_strategy_selection_or_thresholding",
+    "new_data_acquisition",
+    "Capitalcom_payload_access_or_import",
+    "cohort_expansion_or_symbol_rebuild",
+    "capture_restart",
+    "private_or_account_actions",
+    "orders",
+    "risk_changes",
+    "deployment",
+    "live_trading",
+    "packet_manifest_or_semantic_changes",
+    "search_space_fold_cell_cost_funding_or_translation_changes",
+    "manual_tuning_or_partial_result_intervention",
+    "force_push_destructive_Git_or_remote_overwrite",
+    "canonical_project_source_or_instruction_replacement"
+  ],
+  "packet_id": "kraken_derivatives_campaign_001_stage19_phase2_5_approval_request",
+  "packet_version": "4.0",
+  "programme_exposure_class": "program_exposed_historical",
+  "repository_full_name": "whywouldanyonedodrugs/testerdonch",
+  "resource_limits": {
+    "benchmark_authority": {
+      "semantic_registry_count_unchanged": true,
+      "stage14_resource_projection_sha256": "6eb572e8c09be94d462702db54d98d3fa88b4aa0ee402b2873c8a7fe66235d97"
+    },
+    "candidate_beam_per_family_fold": 5,
+    "cells_by_family": {
+      "KDA02B": 96,
+      "KDA02C": 48,
+      "KDX01": 42
+    },
+    "funding_engine": "dual alignment exact rows plus rankable-only q95/q99 gap allowances; no added cell or model axis",
+    "max_disk_bytes": 5368709120,
+    "max_memory_bytes": 5368709120,
+    "maximum_model_count": 0,
+    "maximum_rule_complexity": 8,
+    "memory_enforcement": "persistent supervisor sums RSS of supervisor and all worker descendants every heartbeat and globally stops before starting another cell when >= cap",
+    "persistent_supervisor_required": true,
+    "projection": "186 executable deterministic rule cells are below the reviewed Stage-14 228-cell no-outcome benchmark envelope; 42 KDX continuation-null attempts remain inherited multiplicity only; stop at four hours or 5 GiB",
+    "total_cells": 186,
+    "version": "stage19_v1",
+    "wall_seconds": 14400,
+    "worker_count": 4
+  },
+  "stage19_handoff": {
+    "archive_file": "qlmg_stage19_local_official_funding_packet_20260720_v01.zip",
+    "archive_sha256": "a7065fa8b88cdd9bc47e03e71c86af83735d3b31178cdacc91fdabf3343c9e90",
+    "folder_url": "https://drive.google.com/drive/folders/1Iqhr3hXx4zZYvQqr1IqA5yqXuopSFavB"
+  },
+  "status": "approved",
+  "stop_conditions": {
+    "before_outcomes": [
+      "repository_or_origin_main_not_exact_approved_start",
+      "approval_artifact_hash_mismatch",
+      "campaign_manifest_approval_packet_or_dependency_hash_mismatch",
+      "rankable_funding_boundary_hash_unit_mapping_allowance_or_runtime_failure",
+      "protected_or_outcome_firewall_access",
+      "synthetic_canary_or_independent_preoutcome_review_failure",
+      "secure_Telegram_notifier_or_preflight_delivery_failure",
+      "runtime_requires_new_economic_selection_execution_or_funding_semantics",
+      "unsafe_dirty_or_conflicted_Git_state"
+    ],
+    "during_campaign_family": [
+      "mechanically_invalid",
+      "insufficient_integrity_or_cluster_count",
+      "no_positive_development_candidate",
+      "family_specific_defect"
+    ],
+    "during_campaign_global": [
+      "authority_or_dependency_hash_drift",
+      "protected_outcome_or_Capitalcom_access",
+      "shared_temporal_execution_cost_or_funding_defect",
+      "deterministic_replay_or_attempt_reconciliation_failure",
+      "persistent_supervisor_failure",
+      "wall_memory_output_or_disk_limit",
+      "unsafe_Git_or_storage_state"
+    ]
+  }
+}
