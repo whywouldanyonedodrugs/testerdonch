@@ -1,0 +1,31 @@
+{
+  "created_utc": "2026-07-18T10:00:26.075886+00:00",
+  "drive_root_folder_id": "1vMuf1EJbojoeIjJjz8Xj1fhwLizNgLfl",
+  "files": [
+    {
+      "bytes": 1063,
+      "filename": "READ_FIRST.md",
+      "sha256": "5ab72d6010d6fddee518f9b493bbae8c9fdc7b4a602e1ac4e548cae62d840f51"
+    },
+    {
+      "bytes": 873,
+      "filename": "VALIDATION.md",
+      "sha256": "37124ed20cd9f02b66b5ab1ff8dc28edd2554e84819355df5922b07497a7fb9f"
+    },
+    {
+      "bytes": 926,
+      "filename": "REVIEW.md",
+      "sha256": "97a83bedf8d1d9e77969b07ced10b21d3341c2cb25b8a7696ac324dafebdf493"
+    },
+    {
+      "bytes": 267519,
+      "filename": "qlmg_capitalcom_expansion_preflight_20260718_v01.zip",
+      "sha256": "3f3adc45590cbf7c7f1e9e26f7baf06f066b729345451a65973a88a3eb2ec2f8"
+    }
+  ],
+  "overwrite_allowed": false,
+  "remote_identity_label": "qlmg_sweep_drive:",
+  "round_trip_verification": "pending_upload",
+  "task_folder": "20260718_donch_capitalcom_expansion_preflight_20260718_r1_v01",
+  "task_id": "DONCH_CAPITALCOM_EXPANSION_PREFLIGHT_20260718_R1"
+}

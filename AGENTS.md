@@ -24,6 +24,7 @@ Choose the smallest compliant change that satisfies the current acceptance crite
 - If the task expands materially, split it and request approval for the new scope.
 - Scale plans, archives, reviews, and completion reports to the task. Small fixes require small records.
 - Simplicity never overrides protected-data, authorization, evidence, or rollback boundaries.
+- When polling for tasks (attending the runs), use smartly scaled polling times - do not poll too often, rather, try to infer ETA and poll in relation to it, for example, if ETA is 20 minutes, polling every 10 minutes is sufficient; only poll if you are not confident to leave the task unattended.
 
 Before completion, ask: “Would a senior engineer consider this solution unnecessarily elaborate?” If yes, simplify it.
 

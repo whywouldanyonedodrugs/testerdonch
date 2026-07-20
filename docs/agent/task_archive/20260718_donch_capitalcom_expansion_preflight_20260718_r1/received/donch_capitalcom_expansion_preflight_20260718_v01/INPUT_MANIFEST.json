@@ -1,0 +1,108 @@
+{
+  "task_id": "DONCH_CAPITALCOM_EXPANSION_PREFLIGHT_20260718_R1",
+  "created_utc": "2026-07-18",
+  "files": [
+    {
+      "relative_path": "00_READ_FIRST_Project_Source_Map.md",
+      "size_bytes": 5675,
+      "sha256": "88e1dbfca157bead77d6f15daa002687edd929bfd5d88fa13576c9dca9d09daf",
+      "purpose": "task input"
+    },
+    {
+      "relative_path": "01_AUTHORITY_QLMG_Operating_Contract_2026-07-16.md",
+      "size_bytes": 8168,
+      "sha256": "cc7556ae37ba17391e64b8fc9026e118b40c575597967b78bf2e39e8dfe3f379",
+      "purpose": "task input"
+    },
+    {
+      "relative_path": "02_STATE_Master_Continuity_Brief_2026-07-16_rev8.md",
+      "size_bytes": 9739,
+      "sha256": "eff5cfce197e50ba19830545747adf9c423c6f57c6b4ce2afd80614a38613cda",
+      "purpose": "task input"
+    },
+    {
+      "relative_path": "03_STATE_Current_Research_Decisions_2026-07-16.md",
+      "size_bytes": 9588,
+      "sha256": "e8482c77a2974914dbc1b3ad30a5972c97273f7d61f5ffc16308a555a97ac0b7",
+      "purpose": "task input"
+    },
+    {
+      "relative_path": "04_REGISTRY_Hypothesis_and_Family_Status_2026-07-16.csv",
+      "size_bytes": 347739,
+      "sha256": "f5cebfea208905cfd8714389568a15329e5165ae1326f06fbd5610780e318b53",
+      "purpose": "task input"
+    },
+    {
+      "relative_path": "05_REGISTRY_Kraken_Data_and_Evidence_Capability_2026-07-16.csv",
+      "size_bytes": 11300,
+      "sha256": "d4a197e31c048542eae7d5d03b4964e5866da2d8bdd4250198de580692c54244",
+      "purpose": "task input"
+    },
+    {
+      "relative_path": "07_AUDIT_Backtester_and_Evidence_Readiness_2026-07-16.md",
+      "size_bytes": 8915,
+      "sha256": "fb4c430f4b8bf480709a789036a7d8d04a7bf58088ef1acaecfd97d86ad4b6f1",
+      "purpose": "task input"
+    },
+    {
+      "relative_path": "12_MANUAL_Test_and_Evidence_Standards_2026-07-16.md",
+      "size_bytes": 10638,
+      "sha256": "f1fe267aaf416ec219ec09130a8c52ac11acaafce32c2d991f4c8f2157fa1544",
+      "purpose": "task input"
+    },
+    {
+      "relative_path": "13_GUIDE_Backtest_Claims_and_Review_2026-07-16.md",
+      "size_bytes": 6156,
+      "sha256": "ea46a7b09369e2e5f1f2e8c5f9a09a8e57fa8bd66b55abc88c415c69b17bdab3",
+      "purpose": "task input"
+    },
+    {
+      "relative_path": "15_RUNBOOK_Human_Approval_and_Orchestration_2026-07-16(1).md",
+      "size_bytes": 10431,
+      "sha256": "d2eec99ffd0e71fc2aca70cfabef4eeb2fbc5c2a259d53742763859ba7db05ce",
+      "purpose": "task input"
+    },
+    {
+      "relative_path": "16_INDEX_Provenance_and_Supersession_Map_2026-07-16.md",
+      "size_bytes": 11981,
+      "sha256": "21fa2cdf5977c36b4c99edad1b9694972b23e8b15dc55d0f3772be9e70839be9",
+      "purpose": "task input"
+    },
+    {
+      "relative_path": "99_Karpathy.md",
+      "size_bytes": 2518,
+      "sha256": "6e22cc54cb02a5e98ae42d06d9d7292db0c1b43894831b32879beb0166b2aea7",
+      "purpose": "task input"
+    },
+    {
+      "relative_path": "BACKTESTING_AGENT_OPERATING_AND_ARCHIVE_INSTRUCTIONS.md",
+      "size_bytes": 8992,
+      "sha256": "75765e8d96ecdf3905f5caafff7437c81bf53266939493ddcfd92d9f86e6ca57",
+      "purpose": "task input"
+    },
+    {
+      "relative_path": "DONCH_CAPITALCOM_EXPANSION_PLAN_2026-07-18_rev1.md",
+      "size_bytes": 23975,
+      "sha256": "ff6cd94a18567f2f32207eb215bf16aafa472cacf6d3f672b26ca8f6da1f1d70",
+      "purpose": "task input"
+    },
+    {
+      "relative_path": "DONCH_PROJECT_INSTRUCTIONS_FULL.md",
+      "size_bytes": 32818,
+      "sha256": "ad1a2ca0fe1919f47e9c8aa5d32a1fb719e199a0770a918b3b23e7a6f41ce15d",
+      "purpose": "task input"
+    },
+    {
+      "relative_path": "DONCH_TO_BACKTESTING_CAPITALCOM_EXPANSION_PREFLIGHT_2026-07-18_rev1.md",
+      "size_bytes": 14568,
+      "sha256": "557b3dff36aba8a20f6efc8a458851a97a305a7b9fef2b23b5d43811021a7f03",
+      "purpose": "task input"
+    },
+    {
+      "relative_path": "DONCH_TO_BACKTESTING_TASK_ARCHIVE_TEMPLATE.md",
+      "size_bytes": 6016,
+      "sha256": "a8a7d05346e1eb314404c3f3af9e86e90c608cb0e3c383819c9298e4040facbd",
+      "purpose": "task input"
+    }
+  ]
+}
