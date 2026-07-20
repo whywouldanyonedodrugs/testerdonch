@@ -14,6 +14,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from .canonical import atomic_write_bytes, atomic_write_json, atomic_write_jsonl, canonical_hash, canonical_json_bytes, sha256_file
+from .budget import optimize_budget
 from .controls import compile_controls, coverage_rows
 from .family_engines import ENGINES
 from .generator import GENERATOR_ID, GENERATOR_SEED, approximate_discrepancy, approximate_nearest_neighbor, point, stream
@@ -49,20 +50,10 @@ EXPECTED_HASHES = {
     "stage22_task": "58fbec98558850dd8cd39c00cf4b9fc57d38c32cdf5064d97f0e598766fcd169",
 }
 
-# V4's 6,144 proposed additions are retained as broad coverage, and the 608
-# inherited outcome-conditional refinements are replaced one-for-one by broad
-# ex-ante coordinates. No result or candidate rank enters this allocation.
-NEW_BROAD_COUNTS = {
-    "A4_TSMOM_V7": 1376,
-    "A1_COMPRESSION_V2": 2048,
-    "A2_PRIOR_HIGH_RS_CONTEXT_V1": 1344,
-    "A3_STARTER_RETEST_V3": 1984,
-}
 EXPECTED_SOURCE_EXECUTABLE = 2913
 EXPECTED_SOURCE_CONDITIONAL = 608
-EXPECTED_LEGACY_PROJECTIONS = 3489
-EXPECTED_FINAL_ATTEMPTS = 10241
-EXPECTED_FINAL_CONTROLS = 1600
+EXPECTED_LEGACY_PROJECTIONS = 3776
+EXPECTED_FINAL_CONTROLS = 800
 
 
 @dataclass(frozen=True)
@@ -144,7 +135,7 @@ def _source_rows(path: Path) -> list[dict[str, Any]]:
     return rows
 
 
-def _legacy_config(row: Mapping[str, Any], direction: str | None = None) -> dict[str, Any]:
+def _legacy_config(row: Mapping[str, Any], direction: str | None = None, exact_parent_id: str | None = None) -> dict[str, Any]:
     family = str(row["family_id"])
     config = dict(row["config"])
     if family == "A4_TSMOM_V7":
@@ -157,7 +148,9 @@ def _legacy_config(row: Mapping[str, Any], direction: str | None = None) -> dict
             "shape_rank_scope": "symbol",
         })
     elif family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
-        binding = config.pop("parent_binding")
+        config.pop("parent_binding")
+        if exact_parent_id is None:
+            raise ValueError("A2 legacy projection requires one exact projected parent")
         enabled = any((
             config["BTC_ETH_context"] != "none",
             config["RS_rank"] != "none",
@@ -169,7 +162,7 @@ def _legacy_config(row: Mapping[str, Any], direction: str | None = None) -> dict
             config["overlay_action"] = "parent_only"
         config.update({
             "parent_binding_mode": "source_attempt",
-            "parent_source_attempt_id": binding,
+            "parent_source_attempt_id": exact_parent_id,
             "ATR_window_days_for_proximity": 20,
             "BTC_ETH_drawdown_lookback_days": 60,
             "BTC_ETH_trend_pair_days": "20_60",
@@ -208,6 +201,14 @@ def normalize_legacy(source_rows: Sequence[Mapping[str, Any]]) -> tuple[list[dic
     projections: list[dict[str, Any]] = []
     source_to_projection_count: Counter[str] = Counter()
     legacy_seen: dict[str, str] = {}
+    source_projection_ids: dict[str, tuple[str, ...]] = {}
+    for source_index, row in enumerate(source_rows, start=1):
+        family = str(row["family_id"])
+        source_attempt = str(row["attempt_id"])
+        if row["status"] != "registered_executable":
+            continue
+        count = 2 if family == "A3_STARTER_RETEST_V3" else 1
+        source_projection_ids[source_attempt] = tuple(f"{family}:S22:L:{source_index:04d}:{number}" for number in range(1, count + 1))
     duplicate_count = 0
     for source_index, row in enumerate(source_rows, start=1):
         family = str(row["family_id"])
@@ -228,12 +229,21 @@ def normalize_legacy(source_rows: Sequence[Mapping[str, Any]]) -> tuple[list[dic
                 "lineage_defect": "parent_family_parent_binding_conflict" if parent_mismatch else None,
             })
             continue
-        directions = ("long", "short") if family == "A3_STARTER_RETEST_V3" else (None,)
+        if family == "A3_STARTER_RETEST_V3":
+            projection_dimensions: tuple[tuple[str | None, str | None], ...] = (("long", None), ("short", None))
+        elif family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+            source_parent = str(row["config"]["parent_binding"])
+            parent_ids = source_projection_ids.get(source_parent)
+            if not parent_ids:
+                raise ValueError(f"A2 exact source parent is not executable: {source_parent}")
+            projection_dimensions = tuple((None, parent_id) for parent_id in parent_ids)
+        else:
+            projection_dimensions = ((None, None),)
         projection_ids = []
-        for projection_number, direction in enumerate(directions, start=1):
-            config = _legacy_config(row, direction)
+        for projection_number, (direction, exact_parent_id) in enumerate(projection_dimensions, start=1):
+            config = _legacy_config(row, direction, exact_parent_id)
             _, address = economic_address(family, config)
-            attempt_id = f"S22:{family}:L:{source_index:04d}:{projection_number}"
+            attempt_id = f"{family}:S22:L:{source_index:04d}:{projection_number}"
             disposition = "execute_once"
             duplicate_of = None
             if address in legacy_seen:
@@ -263,6 +273,14 @@ def normalize_legacy(source_rows: Sequence[Mapping[str, Any]]) -> tuple[list[dic
                     "projection_rule": "a3_directional_split_v1" if direction else "typed_legacy_projection_v1",
                 },
             }
+            if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+                template_id = canonical_hash({"mode": "source_attempt", "parent_executable_attempt_id": exact_parent_id})
+                projection.update({
+                    "parent_binding_template_id": template_id,
+                    "resolved_parent_executable_attempt_id": exact_parent_id,
+                    "parent_only_counterpart_id": canonical_hash({"template": template_id, "role": "parent_only"}),
+                    "overlay_counterpart_id": canonical_hash({"template": template_id, "overlay_address": address, "role": "context_overlay"}),
+                })
             projections.append(projection)
             projection_ids.append(attempt_id)
             source_to_projection_count[source_attempt] += 1
@@ -284,7 +302,8 @@ def normalize_legacy(source_rows: Sequence[Mapping[str, Any]]) -> tuple[list[dic
         "source_reported_executable": status_counts["registered_executable"],
         "source_reported_conditional": status_counts["registered_conditional"],
         "executable_projections": len(projections),
-        "a3_directional_split_additional_projections": len(projections) - status_counts["registered_executable"],
+        "a3_directional_split_additional_projections": sum(1 for row in source_rows if row["status"] == "registered_executable" and row["family_id"] == "A3_STARTER_RETEST_V3"),
+        "a2_exact_a3_parent_split_additional_projections": sum(1 for row in source_rows if row["status"] == "registered_executable" and row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1" and row["config"]["parent_family"] == "A3_STARTER_RETEST_V3"),
         "duplicate_projection_count": duplicate_count,
         "unique_economic_addresses": len({row["canonical_economic_address_sha256"] for row in projections}),
         "conditional_replacement_budget": EXPECTED_SOURCE_CONDITIONAL,
@@ -292,13 +311,13 @@ def normalize_legacy(source_rows: Sequence[Mapping[str, Any]]) -> tuple[list[dic
     return ledger, projections, audit
 
 
-def generate_new_broad(existing_rows: Sequence[Mapping[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
+def generate_new_broad(existing_rows: Sequence[Mapping[str, Any]], broad_counts: Mapping[str, int]) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     existing_addresses = {str(row["canonical_economic_address_sha256"]) for row in existing_rows}
     rows: list[dict[str, Any]] = []
     coordinate_rows: list[dict[str, Any]] = []
     family_summary: dict[str, Any] = {}
     for family in FAMILY_ORDER:
-        if family not in NEW_BROAD_COUNTS:
+        if family not in broad_counts:
             continue
         specs = search_axes(family)
         accepted = 0
@@ -341,8 +360,8 @@ def generate_new_broad(existing_rows: Sequence[Mapping[str, Any]]) -> tuple[list
             assert normalized is not None and address is not None
             accepted += 1
             accepted_points.append(coordinates)
-            attempt_id = f"S22:{family}:B:{accepted:05d}"
-            rows.append({
+            attempt_id = f"{family}:S22:B:{accepted:05d}"
+            new_row = {
                 "campaign_id": CAMPAIGN_ID,
                 "executable_attempt_id": attempt_id,
                 "source_attempt_id": None,
@@ -362,9 +381,19 @@ def generate_new_broad(existing_rows: Sequence[Mapping[str, Any]]) -> tuple[list
                     "coordinate_sha256": canonical_hash(list(coordinates)),
                     "purpose": "v4_broad_coverage_plus_conditional_replacement",
                 },
-            })
+            }
+            if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+                parent_slot = f"{normalized['parent_family']}:{normalized['parent_fold_id']}:beam:{int(normalized['parent_beam_rank']):02d}"
+                template_id = canonical_hash({"mode": "beam_slot", "parent_slot": parent_slot})
+                new_row.update({
+                    "parent_binding_template_id": template_id,
+                    "resolved_parent_executable_attempt_id": None,
+                    "parent_only_counterpart_id": canonical_hash({"template": template_id, "role": "parent_only"}),
+                    "overlay_counterpart_id": canonical_hash({"template": template_id, "overlay_address": address, "role": "context_overlay"}),
+                })
+            rows.append(new_row)
             existing_addresses.add(address)
-            if accepted == NEW_BROAD_COUNTS[family]:
+            if accepted == broad_counts[family]:
                 family_summary[family] = {
                     "accepted": accepted,
                     "coordinates_consumed": stream_index + 1,
@@ -374,23 +403,24 @@ def generate_new_broad(existing_rows: Sequence[Mapping[str, Any]]) -> tuple[list
                     "approximate_nearest_neighbor": approximate_nearest_neighbor(accepted_points),
                 }
                 break
-    if len(rows) != sum(NEW_BROAD_COUNTS.values()):
+    if len(rows) != sum(broad_counts.values()):
         raise AssertionError("new broad count mismatch")
     return rows, coordinate_rows, family_summary
 
 
-def _coverage(final_rows: Sequence[Mapping[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
+def _coverage(final_rows: Sequence[Mapping[str, Any]], broad_families: set[str]) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     marginal: list[dict[str, Any]] = []
     pairwise: list[dict[str, Any]] = []
     unrepresented: list[dict[str, Any]] = []
     summary: dict[str, Any] = {}
     for family in FAMILY_ORDER:
         family_rows = [row for row in final_rows if row["family_id"] == family]
-        configs = [row["config"] for row in family_rows]
+        coverage_rows_for_family = [row for row in family_rows if row["lane"] == "broad_space_filling"] if family in broad_families else family_rows
+        configs = [row["config"] for row in coverage_rows_for_family]
         family_marginal_failures = 0
         for field, level in marginal_levels(family):
             count = sum(config.get(field) == level for config in configs)
-            minimum = 50 if family in NEW_BROAD_COUNTS else 1
+            minimum = 50 if family in broad_families else 1
             status = "pass" if count >= minimum else "fail"
             family_marginal_failures += status == "fail"
             marginal.append({"family": family, "field": field, "level_json": json.dumps(level, separators=(",", ":")), "count": count, "minimum": minimum, "status": status})
@@ -412,7 +442,7 @@ def _coverage(final_rows: Sequence[Mapping[str, Any]]) -> tuple[list[dict[str, A
                     except SchemaError:
                         logically_valid = False
                     count = sum(config.get(field_a) == value_a and config.get(field_b) == value_b for config in configs)
-                    minimum = 20 if logically_valid and family in NEW_BROAD_COUNTS else 0 if not logically_valid else 1
+                    minimum = 20 if logically_valid and family in broad_families else 0 if not logically_valid else 1
                     status = "unavailable_logical_constraint" if not logically_valid else "pass" if count >= minimum else "fail"
                     family_pair_failures += status == "fail"
                     pairwise.append({
@@ -429,6 +459,7 @@ def _coverage(final_rows: Sequence[Mapping[str, Any]]) -> tuple[list[dict[str, A
                         unrepresented.append({"family": family, "region_type": "priority_pair", "field_a": field_a, "value_a_json": json.dumps(value_a), "field_b": field_b, "value_b_json": json.dumps(value_b), "reason": "below_minimum_coverage"})
         summary[family] = {
             "attempt_rows": len(family_rows),
+            "broad_coverage_rows": len(coverage_rows_for_family),
             "unique_addresses": len({row["canonical_economic_address_sha256"] for row in family_rows}),
             "marginal_failures": int(family_marginal_failures),
             "priority_pair_failures": int(family_pair_failures),
@@ -502,7 +533,7 @@ def compile_deterministic(paths: SourcePaths, output_root: Path) -> dict[str, An
     atomic_write_json(output_root / "SOURCE_AUTHORITY.json", {"schema": "stage22_source_authority_v1", "status": "pass", "sources": authority})
     schema_doc = schema_document()
     atomic_write_json(output_root / "FAMILY_AXIS_SCHEMA.json", schema_doc)
-    atomic_write_bytes(output_root / "FAMILY_AXIS_SCHEMA.sha256", (schema_hash() + "  FAMILY_AXIS_SCHEMA.json\n").encode("utf-8"))
+    atomic_write_bytes(output_root / "FAMILY_AXIS_SCHEMA.sha256", (sha256_file(output_root / "FAMILY_AXIS_SCHEMA.json") + "  FAMILY_AXIS_SCHEMA.json\n").encode("utf-8"))
 
     source_rows = _source_rows(paths.strategy_registry)
     legacy_ledger, legacy_projections, legacy_audit = normalize_legacy(source_rows)
@@ -521,19 +552,43 @@ def compile_deterministic(paths: SourcePaths, output_root: Path) -> dict[str, An
     )
     atomic_write_bytes(output_root / "LEGACY_DUPLICATE_AND_SUPERSESSION_AUDIT.md", duplicate_report.encode("utf-8"))
 
-    new_rows, raw_coordinates, generator_summary = generate_new_broad(legacy_projections)
+    existing_counts = Counter(row["family_id"] for row in legacy_projections)
+    budget = optimize_budget(dict(existing_counts))
+    broad_counts = budget["new_broad_counts"]
+    atomic_write_json(output_root / "OUTCOME_FREE_BUDGET_OPTIMIZER.json", budget)
+    new_rows, raw_coordinates, generator_summary = generate_new_broad(legacy_projections, broad_counts)
     final_rows = sorted(
         [*legacy_projections, *new_rows],
         key=lambda row: (FAMILY_ORDER.index(row["family_id"]), 0 if row["lane"] == "legacy_projection" else 1, row["executable_attempt_id"]),
     )
-    if len(final_rows) != EXPECTED_FINAL_ATTEMPTS:
-        raise AssertionError(f"final attempt count {len(final_rows)} != {EXPECTED_FINAL_ATTEMPTS}")
+    expected_final_attempts = int(budget["target_total_attempt_rows"])
+    if len(final_rows) != expected_final_attempts:
+        raise AssertionError(f"final attempt count {len(final_rows)} != {expected_final_attempts}")
     if len({row["executable_attempt_id"] for row in final_rows}) != len(final_rows):
         raise AssertionError("duplicate executable attempt IDs")
     atomic_write_jsonl(output_root / "FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl", final_rows)
+    execution_rows = [row for row in final_rows if row["execution_disposition"] in {"execute_once", "execute_if_parent_available"}]
+    if len({row["canonical_economic_address_sha256"] for row in execution_rows}) != len(execution_rows):
+        raise AssertionError("execute-once registry still contains duplicate economic addresses")
+    atomic_write_jsonl(output_root / "FINAL_EXECUTION_REGISTRY.jsonl", execution_rows)
+    a2_counterparts = [{
+        "a2_executable_attempt_id": row["executable_attempt_id"],
+        "parent_binding_mode": row["config"]["parent_binding_mode"],
+        "parent_binding_template_id": row["parent_binding_template_id"],
+        "parent_family": row["config"]["parent_family"],
+        "parent_fold_id": row["config"].get("parent_fold_id"),
+        "parent_beam_rank": row["config"].get("parent_beam_rank"),
+        "resolved_parent_executable_attempt_id": row["resolved_parent_executable_attempt_id"],
+        "missing_parent_behavior": "unavailable_no_parent",
+        "parent_only_counterpart_id": row["parent_only_counterpart_id"],
+        "overlay_counterpart_id": row["overlay_counterpart_id"],
+        "overlay_economic_address_sha256": row["canonical_economic_address_sha256"],
+        "atomic_binding_compiler": "stage22_a2_parent_counterpart_v1",
+    } for row in final_rows if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1" and row["execution_disposition"] != "multiplicity_only_duplicate"]
+    atomic_write_jsonl(output_root / "A2_PARENT_COUNTERPART_REGISTRY.jsonl", a2_counterparts)
     _write_parquet(output_root / "RAW_SPACE_FILLING_COORDINATES.parquet", raw_coordinates)
 
-    marginal, pairwise, unrepresented, coverage_summary = _coverage(final_rows)
+    marginal, pairwise, unrepresented, coverage_summary = _coverage(final_rows, set(broad_counts))
     _write_csv(output_root / "SEARCH_SPACE_COVERAGE_MATRIX.csv", ("family", "field", "level_json", "count", "minimum", "status"), marginal)
     _write_parquet(output_root / "PAIRWISE_COVERAGE_MATRIX.parquet", pairwise)
     _write_csv(output_root / "UNREPRESENTED_VALID_REGIONS.csv", ("family", "region_type", "field_a", "value_a_json", "field_b", "value_b_json", "reason"), unrepresented)
@@ -548,7 +603,7 @@ def compile_deterministic(paths: SourcePaths, output_root: Path) -> dict[str, An
         "generator": {"id": GENERATOR_ID, "seed": GENERATOR_SEED},
         "fixed_points": {
             family: [{"stream_index": index, "coordinates": list(point(family, index, min(4, len(search_axes(family)))))} for index in range(3)]
-            for family in NEW_BROAD_COUNTS
+            for family in broad_counts
         },
         "registry": {
             "rows": len(final_rows),
@@ -559,7 +614,8 @@ def compile_deterministic(paths: SourcePaths, output_root: Path) -> dict[str, An
     }
     atomic_write_json(output_root / "REGISTRY_REPLAY_FIXTURES.json", fixtures)
 
-    controls = compile_controls()
+    source_control_rows = _source_rows(paths.control_registry)
+    controls = compile_controls(source_control_rows)
     atomic_write_jsonl(output_root / "FINAL_CONTROL_REGISTRY.jsonl", controls)
     control_coverage = list(coverage_rows(controls))
     _write_csv(output_root / "CONTROL_COVERAGE_MATRIX.csv", ("family", "control_id", "rows", "folds", "beam_slots", "unique_addresses", "status"), control_coverage)
@@ -575,15 +631,24 @@ def compile_deterministic(paths: SourcePaths, output_root: Path) -> dict[str, An
     engine_dir = output_root / "ENGINE_CONTRACTS"
     for family in FAMILY_ORDER:
         atomic_write_json(engine_dir / f"{family}.json", {"family": family, **ENGINES[family].contract()})
-    engine_coverage = [{
-        "family": row["family"],
-        "field": row["field"],
-        "value_json": row["value_json"],
-        "formula_id": row["formula_id"],
-        "fixture": row["focused_test"],
-        "status": "pass",
-    } for row in semantic]
-    _write_csv(output_root / "ENGINE_COVERAGE_MATRIX.csv", ("family", "field", "value_json", "formula_id", "fixture", "status"), engine_coverage)
+    # Import after module initialization to avoid a compiler/validator import
+    # cycle; these probes execute the real dispatcher and accounting path.
+    from .validators import accounting_probe, control_engine_probe, selection_route_probe, semantic_engine_probe
+    engine_probe = semantic_engine_probe()
+    control_probe = control_engine_probe()
+    route_probe = selection_route_probe()
+    account_probe = accounting_probe()
+    if not all(item["pass"] for item in (engine_probe, control_probe, route_probe, account_probe)):
+        raise AssertionError("an executable semantic/control/accounting/selection probe failed")
+    _write_csv(output_root / "ENGINE_COVERAGE_MATRIX.csv", ("family", "field", "value_json", "formula_id", "interpreter", "fixture", "ledger_rows", "status"), engine_probe["coverage"])
+    _write_csv(output_root / "CONTROL_EXECUTION_COVERAGE_MATRIX.csv", ("family", "control_id", "dispatcher", "ledger_rows", "observation_rows", "status"), control_probe["coverage"])
+    _write_csv(output_root / "SELECTION_ROUTE_MATRIX.csv", ("family", "case", "route", "status"), route_probe["rows"])
+    exit_rows = [row for row in engine_probe["coverage"] if row["field"] in {"exit", "fixed_target_R", "direction", "add_fraction", "adjudication_variant"}]
+    _write_csv(output_root / "EXIT_ACCOUNTING_MATRIX.csv", ("family", "field", "value_json", "formula_id", "interpreter", "fixture", "ledger_rows", "status"), exit_rows)
+    atomic_write_json(output_root / "ENGINE_PROBE_AUDIT.json", engine_probe)
+    atomic_write_json(output_root / "CONTROL_ENGINE_PROBE_AUDIT.json", control_probe)
+    atomic_write_json(output_root / "SELECTION_ROUTE_PROBE_AUDIT.json", route_probe)
+    atomic_write_json(output_root / "ACCOUNTING_PROBE_AUDIT.json", account_probe)
     atomic_write_json(output_root / "SAFE_PRUNING_POLICY.json", safe_pruning_policy())
     atomic_write_json(output_root / "SHARED_SEMANTIC_CACHE_CONTRACT.json", {
         "schema": "stage22_shared_semantic_cache_contract_v1",
@@ -614,11 +679,14 @@ def compile_deterministic(paths: SourcePaths, output_root: Path) -> dict[str, An
         "campaign_id": CAMPAIGN_ID,
         "schema_sha256": schema_hash(),
         "legacy_audit": legacy_audit,
-        "new_broad_counts": NEW_BROAD_COUNTS,
+        "budget_optimizer": budget,
+        "new_broad_counts": broad_counts,
         "generator_summary": generator_summary,
         "final_attempt_rows": len(final_rows),
+        "final_execution_rows": len(execution_rows),
         "final_unique_economic_addresses": len({row["canonical_economic_address_sha256"] for row in final_rows}),
         "final_control_rows": len(controls),
+        "a2_parent_counterpart_rows": len(a2_counterparts),
         "coverage_summary": coverage_summary,
         "unrepresented_valid_region_count": len(unrepresented),
         "economic_outcomes_opened": False,

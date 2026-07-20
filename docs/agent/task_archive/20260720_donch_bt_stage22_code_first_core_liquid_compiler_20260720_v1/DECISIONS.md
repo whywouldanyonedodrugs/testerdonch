@@ -18,3 +18,36 @@ contracts, valid-domain coverage and measured synthetic runtime.
 - Empty folds remain explicit unavailable observations in every denominator.
 - The space-filling design and final count will be frozen from domain coverage,
   source multiplicity and synthetic runtime only.
+
+## Consolidated implementation decisions
+
+- The 2,913 source-executable rows project to 3,776 typed rows. All A3 rows
+  become separate long/short identities; A2 rows bound to A3 are atomically
+  rebound to both exact directional projections. Five projected duplicate
+  economic addresses retain multiplicity and are excluded from execution.
+- The outcome-free optimizer selects 9,088 registered rows, 9,083 unique
+  executions and 800 source-preserving five-slot conditional controls. The
+  608 old adaptive rows remain non-executed lineage and are replaced by broad
+  ex-ante coordinates.
+- All engines consume point-in-time `FamilyInput` objects and regenerate events,
+  fills, costs, funding, non-overlap and aggregates. KDA02B decodes its frozen
+  96-cell Cartesian identity and evaluates current/previous raw derivative
+  features in code; predicate booleans are not an executor input.
+- Favourable funding is report-only. Adverse exact funding and the registered
+  adverse gap allowance enter selection arithmetic. KDA identity replay uses
+  the minimum of the two registered funding boundary alignments.
+- A semantic cache frame must match exact source, universe, funding and cache
+  contract hashes, a SHA-256-verified physical artifact and the canonical hash
+  of its deserialized content.
+- Finalization requires a structured PASS that binds the implementation commit,
+  target bytes, source tree, physical schema, strategy/execution/control/A2
+  registry bytes and complete generated-artifact inventory.
+
+## Isolation disclosure
+
+No economic campaign or market-data outcome reader was executed. During
+source-provenance tracing, a repository search surfaced the header and several
+lines of an existing `program_exposed_historical` Stage-20 summary. No displayed
+value was used to choose or modify an axis, budget, threshold, rule, cost,
+selection criterion or candidate identity. This disclosure is included in the
+independent review scope.

@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import math
+from dataclasses import replace
+from datetime import timedelta
 from typing import Any, Mapping, Sequence
 
 from ..canonical import canonical_hash
-from .common import EngineInputError, log_return, path_smoothness, sample_standard_deviation
+from ..engine_types import FamilyInput, require_contiguous_5m
+from .common import EngineInputError, log_return, path_smoothness, percentile_from_population, require_utc, sample_standard_deviation, wilder_atr
 
 
 ENGINE_ID = "a1_compression_engine_v1"
@@ -18,8 +21,8 @@ def realized_volatility(closes: Sequence[float]) -> float:
 def features(impulse_closes: Sequence[float], base_closes: Sequence[float], baseline_closes: Sequence[float], side: int) -> dict[str, float]:
     if side not in (-1, 1):
         raise EngineInputError("A1 side must be long or short")
-    if len(base_closes) != len(baseline_closes):
-        raise EngineInputError("contraction baseline must match base duration")
+    if len(baseline_closes) not in {len(base_closes), 5 * len(base_closes)}:
+        raise EngineInputError("contraction baseline must be equal-duration or trailing-five-times duration")
     baseline_vol = realized_volatility(baseline_closes)
     if baseline_vol <= 0:
         raise EngineInputError("collapsed contraction baseline")
@@ -38,6 +41,154 @@ def confirmation_pass(closes: Sequence[float], frozen_extreme: float, side: int,
         return False
     selected = closes[-required:]
     return all(value > frozen_extreme for value in selected) if side == 1 else all(value < frozen_extreme for value in selected)
+
+
+def _bar_count(duration: str) -> int:
+    units = {"h": 12, "d": 288}
+    try:
+        return int(duration[:-1]) * units[duration[-1]]
+    except (KeyError, ValueError) as exc:
+        raise EngineInputError(f"unsupported A1 clock: {duration}") from exc
+
+
+def _population(frame: FamilyInput, name: str) -> Sequence[float]:
+    try:
+        population = frame.threshold_populations[name]
+    except KeyError as exc:
+        raise EngineInputError(f"missing threshold population: {name}") from exc
+    population.validate(pooled="global" in name or "liquidity_decile" in name)
+    return population.values
+
+
+def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str | None = None) -> list[dict[str, Any]]:
+    """Run the complete A1 episode state machine from completed five-minute bars."""
+    frame.validate()
+    bars = frame.five_minute_bars
+    require_contiguous_5m(bars)
+    impulse_n = _bar_count(str(config["impulse_window"]))
+    base_n = _bar_count(str(config["base_duration"]))
+    baseline_n = base_n if config["contraction_baseline"] == "adjacent_equal_duration" else 5 * base_n
+    if control_id == "A1_MATCHED_PSEUDO_EVENT_MAIN_NULL":
+        pseudo_side = int(frame.metadata["pseudo_side"])
+        if pseudo_side not in (-1, 1):
+            raise EngineInputError("A1 pseudo-event side is invalid")
+        sides = (pseudo_side,)
+    else:
+        sides = (1, -1) if config["direction"] == "symmetric" else (1 if config["direction"] == "long" else -1,)
+    threshold = int(str(config["impulse_rank_min"])[1:]) / 100.0
+    armed = {side: True for side in sides}
+    previous_percentile = {side: -math.inf for side in sides}
+    episodes: list[dict[str, Any]] = []
+    minimum_index = max(impulse_n, baseline_n)
+    index = minimum_index
+    while index + base_n + 4 < len(bars):
+        side_candidates: list[tuple[float, int, float]] = []
+        for side in sides:
+            impulse = [bar.close for bar in bars[index - impulse_n:index + 1]]
+            score = side * log_return(impulse[0], impulse[-1])
+            population_name = f"A1_impulse:{config['impulse_rank_scope']}:{side}"
+            percentile, passes = percentile_from_population(score, _population(frame, population_name), str(config["impulse_rank_min"]))
+            if not armed[side] and percentile < 0.50:
+                armed[side] = True
+                if len(sides) == 2:
+                    armed[-side] = True
+            pseudo_match = control_id == "A1_MATCHED_PSEUDO_EVENT_MAIN_NULL" and require_utc(bars[index].close_ts) == require_utc(frame.decision_ts)
+            crossed = pseudo_match or (armed[side] and passes and previous_percentile[side] < threshold)
+            if crossed:
+                side_candidates.append((percentile - threshold, side, score))
+            previous_percentile[side] = percentile
+        if len(side_candidates) == 2 and math.isclose(side_candidates[0][0], side_candidates[1][0], rel_tol=0.0, abs_tol=0.0):
+            for side in sides:
+                armed[side] = False
+            index += 1
+            continue
+        if not side_candidates:
+            index += 1
+            continue
+        _, side, impulse_score = max(side_candidates, key=lambda item: item[0])
+        for blocked_side in sides:
+            armed[blocked_side] = False
+        impulse_bars = bars[index - impulse_n:index + 1]
+        extreme = max(bar.close for bar in impulse_bars) if side == 1 else min(bar.close for bar in impulse_bars)
+        base_start = index + 1
+        base_end = base_start + base_n
+        base_bars = bars[base_start:base_end]
+        if len(base_bars) != base_n:
+            break
+        if any(side * (bar.close - extreme) > 0 for bar in base_bars):
+            index = base_end
+            continue
+        baseline_bars = bars[base_start - baseline_n:base_start]
+        if len(baseline_bars) != baseline_n:
+            index += 1
+            continue
+        computed = features(
+            [bar.close for bar in impulse_bars],
+            [bar.close for bar in base_bars],
+            [bar.close for bar in baseline_bars],
+            side,
+        )
+        contraction_ok = True
+        if config["contraction_rank_max"] != "none" and control_id not in {"A1_CONTRACTION_REMOVED", "A1_PRICE_ONLY_IMPULSE"}:
+            contraction_percentile, _ = percentile_from_population(
+                computed["contraction_ratio"],
+                _population(frame, f"A1_contraction:{config['shape_rank_scope']}"),
+            )
+            contraction_ok = contraction_percentile <= int(str(config["contraction_rank_max"])[1:]) / 100.0
+        smoothness_ok = True
+        if config["smoothness_rank_min"] != "none" and control_id not in {"A1_SMOOTHNESS_REMOVED", "A1_PRICE_ONLY_IMPULSE"}:
+            _, smoothness_ok = percentile_from_population(
+                computed["base_smoothness"],
+                _population(frame, f"A1_smoothness:{config['shape_rank_scope']}"),
+                str(config["smoothness_rank_min"]),
+            )
+        if not contraction_ok or not smoothness_ok:
+            index = base_end
+            continue
+        first_confirmation = base_end
+        confirmation = str(config["confirmation"])
+        if confirmation == "one_close":
+            confirmation_indices = (first_confirmation,)
+        elif confirmation == "two_closes":
+            confirmation_indices = (first_confirmation, first_confirmation + 1)
+        elif confirmation == "close_plus_bounded_15m_delay":
+            confirmation_indices = (first_confirmation, first_confirmation + 3)
+        else:
+            raise EngineInputError(f"unsupported A1 confirmation: {confirmation}")
+        if max(confirmation_indices) >= len(bars):
+            break
+        confirmation_bars = [bars[item] for item in confirmation_indices]
+        if confirmation == "close_plus_bounded_15m_delay" and require_utc(confirmation_bars[1].close_ts) - require_utc(confirmation_bars[0].close_ts) != timedelta(minutes=15):
+            raise EngineInputError("A1 delayed confirmation is not exactly fifteen minutes")
+        if not all(side * (bar.close - extreme) > 0 for bar in confirmation_bars):
+            index = max(confirmation_indices) + 1
+            continue
+        final_confirmation = confirmation_bars[-1]
+        entry_index = max(confirmation_indices) + 1
+        if entry_index >= len(bars) or require_utc(bars[entry_index].open_ts) - require_utc(final_confirmation.close_ts) > timedelta(minutes=10):
+            index = entry_index
+            continue
+        structural_level = min(bar.close for bar in base_bars) if side == 1 else max(bar.close for bar in base_bars)
+        atr_window = int(config["ATR_window_days"] or 20)
+        daily = frame.daily_bars[-(atr_window + 1):]
+        atr = wilder_atr([bar.high for bar in daily], [bar.low for bar in daily], [bar.close for bar in daily], atr_window) if str(config["exit"]).startswith("ATR_") else None
+        context_multiplier = 1.0
+        if config["context_overlay"] != "none" and control_id != "A1_CONTEXT_REMOVED":
+            from .a2_context import named_context_multiplier
+            context_multiplier = named_context_multiplier(replace(frame, decision_ts=require_utc(final_confirmation.close_ts)), str(config["context_overlay"]), side)
+        episodes.append({
+            "event_id": event_id(frame.symbol, side, require_utc(impulse_bars[0].close_ts).isoformat(), require_utc(impulse_bars[-1].close_ts).isoformat(), require_utc(base_bars[0].close_ts).isoformat(), require_utc(base_bars[-1].close_ts).isoformat(), require_utc(final_confirmation.close_ts).isoformat()),
+            "side": side,
+            "decision_ts": require_utc(final_confirmation.close_ts),
+            "entry_index": entry_index,
+            "structural_level": structural_level if config["exit"] == "base_failure" else None,
+            "atr": atr,
+            "impulse_score": impulse_score,
+            "features": computed,
+            "context_multiplier": context_multiplier,
+        })
+        index = entry_index
+    return episodes
 
 
 def event_id(symbol: str, side: int, impulse_start: str, impulse_end: str, base_start: str, base_end: str, confirmation_ts: str) -> str:
@@ -70,4 +221,4 @@ def contract() -> dict[str, Any]:
     }
 
 
-__all__ = ["confirmation_pass", "contract", "event_id", "features"]
+__all__ = ["confirmation_pass", "contract", "evaluate", "event_id", "features"]

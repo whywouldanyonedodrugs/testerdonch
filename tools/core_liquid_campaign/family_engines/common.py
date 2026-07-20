@@ -85,6 +85,24 @@ def type7_quantile(values: Sequence[float], probability: float) -> float:
     return finite[lower] + (h - lower) * (finite[upper] - finite[lower])
 
 
+def type7_quantile_with_negative_infinity(values: Sequence[float], probability: float) -> float:
+    """Frozen Type-7 arithmetic where explicit empty folds are negative infinity."""
+    ordered = sorted(float(value) for value in values)
+    if not ordered or not 0 <= probability <= 1 or any(math.isnan(value) or value == math.inf for value in ordered):
+        raise EngineInputError("invalid Type-7-with-negative-infinity input")
+    if len(ordered) == 1:
+        return ordered[0]
+    h = (len(ordered) - 1) * probability
+    lower = int(math.floor(h))
+    upper = int(math.ceil(h))
+    fraction = h - lower
+    if fraction == 0:
+        return ordered[lower]
+    if ordered[lower] == -math.inf or ordered[upper] == -math.inf:
+        return -math.inf
+    return ordered[lower] + fraction * (ordered[upper] - ordered[lower])
+
+
 def weak_percentile(value: float, population: Sequence[float]) -> float:
     finite = [float(item) for item in population if math.isfinite(float(item))]
     if len(finite) < 30 or len(set(finite)) < 20:
@@ -134,3 +152,27 @@ def arithmetic_mean(values: Iterable[float]) -> float:
     if not items:
         raise EngineInputError("empty arithmetic mean")
     return sum(items) / len(items)
+
+
+def wilder_atr(highs: Sequence[float], lows: Sequence[float], closes: Sequence[float], window: int) -> float:
+    if window <= 0 or len(highs) != len(lows) or len(highs) != len(closes) or len(closes) < window + 1:
+        raise EngineInputError("Wilder ATR requires window+1 consecutive completed daily bars")
+    true_ranges = []
+    for index in range(1, len(closes)):
+        high, low, previous = float(highs[index]), float(lows[index]), float(closes[index - 1])
+        if min(high, low, previous) <= 0 or high < low:
+            raise EngineInputError("invalid daily input for ATR")
+        true_ranges.append(max(high - low, abs(high - previous), abs(low - previous)))
+    atr = sum(true_ranges[:window]) / window
+    for value in true_ranges[window:]:
+        atr = (atr * (window - 1) + value) / window
+    return atr
+
+
+def percentile_from_population(value: float, population: Sequence[float], threshold_name: str | None = None) -> tuple[float, bool]:
+    percentile = weak_percentile(value, population)
+    if threshold_name is None or threshold_name == "none":
+        return percentile, True
+    if not threshold_name.startswith("q"):
+        raise EngineInputError(f"unknown quantile threshold: {threshold_name}")
+    return percentile, percentile >= int(threshold_name[1:]) / 100.0

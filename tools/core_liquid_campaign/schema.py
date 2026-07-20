@@ -223,7 +223,7 @@ def _schemas() -> dict[str, FamilySchema]:
             axis("parent_family", ("A1_COMPRESSION_V2", "A3_STARTER_RETEST_V3"), ordered=False, formula_id="a2_parent_family_v1"),
             axis("parent_source_attempt_id", None, value_type="string", ordered=False, active_if=eq("parent_binding_mode", "source_attempt"), formula_id="exact_source_parent_id_v1", distance=False, scale="excluded_identifier", search_new_broad=False),
             axis("parent_fold_id", OUTER_FOLDS, ordered=True, active_if=eq("parent_binding_mode", "beam_slot"), formula_id="exact_parent_outer_fold_slot_v1"),
-            axis("parent_beam_rank", tuple(range(1, 9)), active_if=eq("parent_binding_mode", "beam_slot"), formula_id="exact_parent_beam_rank_v1"),
+            axis("parent_beam_rank", tuple(range(1, 6)), active_if=eq("parent_binding_mode", "beam_slot"), formula_id="exact_parent_beam_rank_v1"),
             axis("BTC_ETH_context", ("none", "trend", "volatility", "drawdown"), ordered=False, formula_id="btc_eth_context_component_v1"),
             axis("RS_lookback_days", (5, 10, 20, 60), active_if=ne("RS_rank", "none"), formula_id="btc_relative_strength_v1"),
             axis("RS_rank", ("none", "continuous", "q40", "q60", "q80"), formula_id="component_threshold_v1", population="registered RS_population_scope"),
@@ -259,7 +259,7 @@ def _schemas() -> dict[str, FamilySchema]:
             axis("retest_depth_ATR", (0.25, 0.5, 1.0, 1.5), active_if=ne("add_fraction", 0.0), formula_id="a3_retest_band_v1"),
             axis("retest_window", ("6h", "1d", "3d"), active_if=ne("add_fraction", 0.0), formula_id="a3_retest_window_v1"),
             axis("starter_fraction", (0.25, 0.5, 0.75, 1.0), formula_id="a3_starter_fraction_v1"),
-            axis("ATR_window_days", (10, 20, 40, 60), active_if=isin("exit", ATR_EXITS), formula_id="wilder_daily_atr_v1"),
+            axis("ATR_window_days", (10, 20, 40, 60), formula_id="wilder_daily_atr_v1"),
             axis("breakout_rank_scope", ("symbol_side", "liquidity_decile_side", "global_side"), ordered=False, formula_id="fold_local_threshold_population_v1"),
         ),
         (("starter_fraction", "add_fraction"), ("retest_depth_ATR", "retest_window"), ("breakout_rank_min", "breakout_rank_scope"), ("direction", "context_overlay")),
@@ -373,7 +373,7 @@ def _validate_family_rules(family_id: str, config: Mapping[str, Any]) -> None:
             parent = str(config["parent_source_attempt_id"])
             if not parent.startswith(str(config["parent_family"]) + ":"):
                 raise SchemaError("A2 source parent family and exact parent ID disagree")
-        elif config["parent_fold_id"] not in OUTER_FOLDS or not 1 <= int(config["parent_beam_rank"]) <= 8:
+        elif config["parent_fold_id"] not in OUTER_FOLDS or not 1 <= int(config["parent_beam_rank"]) <= 5:
             raise SchemaError("A2 beam-slot parent binding is incomplete")
 
 

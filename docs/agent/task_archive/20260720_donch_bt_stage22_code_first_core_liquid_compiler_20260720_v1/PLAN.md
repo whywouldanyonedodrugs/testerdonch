@@ -1,6 +1,6 @@
 # Stage 22 code-first core-liquid campaign compiler
 
-Status: `in_progress`
+Status: `implementation_repair_complete_review_pending`
 Owner: backtesting agent
 Created UTC: `2026-07-20T21:55:06Z`
 Updated UTC: `2026-07-20T21:55:06Z`
@@ -86,8 +86,8 @@ Build one typed, executable, deterministic and outcome-free campaign compiler th
 
 ## Validation commands
 
-- `/opt/testerdonch/.venv/bin/python -m unittest unit_tests.test_core_liquid_campaign -v`
-- `/opt/testerdonch/.venv/bin/python tools/build_stage22_core_liquid_campaign.py ...`
+- `.venv/bin/python -m unittest unit_tests.test_core_liquid_campaign -v`
+- `.venv/bin/python -m tools.build_stage22_core_liquid_campaign ...`
 - Independent replay through `tools.core_liquid_campaign.validators`.
 - Repository-supported continuity validation and publication commands.
 - `git diff --check`, package manifest replay and secret scan.
@@ -111,3 +111,5 @@ Build one typed, executable, deterministic and outcome-free campaign compiler th
 | UTC | Milestone | Result | Next action |
 |---|---|---|---|
 | 2026-07-20T21:55:06Z | M1 | authority and continuity verified; worktree created | implement typed source of truth |
+| 2026-07-20 | M2 | consolidated ten-finding independent review received; all ten implementation classes repaired | full deterministic rebuild and tests |
+| 2026-07-20 | M3 | broad-only coverage replay passed at 9,088 rows / 9,083 executions / 800 controls | commit candidate and repeat independent review |
