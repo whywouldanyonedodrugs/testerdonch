@@ -1,0 +1,20 @@
+{
+  "active_task_spec": {
+    "path": "/root/.codex/attachments/8de9cd8d-7b76-4c5b-b4ec-48e912ebc944/pasted-text.txt",
+    "sha256": "dc7812747538deaa936197c468f4338deb3d616b48421cf0f4ec739f25408d8b"
+  },
+  "actual_starting_commit": "8b8e4b15c0bc89d68a0748c2e26823e024a0279b",
+  "stage15_validator_repair_commit": "9c6b08730de6f3dbf16d22d70e1e64646e21a248",
+  "stage15_artifact_manifest_sha256": "0df098d4526d8ec29702ab6f17d24b096f52397db6fbc66ef6dedb2fef147324",
+  "stage15_zip_sha256": "d4245f4dc59954ed0fd8124effa505e8ae61615337a15bf76da02dbe7a1cb16c",
+  "stage14_campaign_manifest_sha256": "61119ce30ff142efdf0b40e8796e5ffb2efae0764f835b64e179b624db05f632",
+  "stage14_approval_packet_sha256": "c029830526ab7a8cd443acb0f9ec5441e1e50967200c8a95184cf8b46d71c313",
+  "stage14_search_registry_sha256": "a533c8e507f78989963a2631115bd1a3f70c3dc34cb59d749bec57b53577294b",
+  "stage14_resource_projection_sha256": "6eb572e8c09be94d462702db54d98d3fa88b4aa0ee402b2873c8a7fe66235d97",
+  "stage14_local_state_tape_manifest_sha256": "838be528ea0bcaeed132c4b95401594e2bb9a726178ece3f51de44dbbcd96380",
+  "analytics_manifest_sha256": "f1520fd3875578a9a2101b10d5e15b7b88c58a6ffcf6067dd91f582352d92a6d",
+  "authorized_cohort_sha256": "5df5b304d8e735d3579e220d25a000e81013435320c6e8fb2480c1ed565a3636",
+  "outcome_files_opened": 0,
+  "protected_rows_opened": 0,
+  "Capitalcom_payloads_opened": 0
+}
