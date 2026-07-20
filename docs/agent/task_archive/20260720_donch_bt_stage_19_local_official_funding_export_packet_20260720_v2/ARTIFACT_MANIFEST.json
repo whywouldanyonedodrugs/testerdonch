@@ -1,4 +1,5 @@
 {
+  "drive_round_trip_verified": true,
   "economic_outputs_computed": false,
   "files": [
     {
@@ -37,9 +38,9 @@
       "sha256": "b4d5e3bdeba82426c8216390000fb207e2f7c434e3b553a37052e2c193d02aa2"
     },
     {
-      "bytes": 1611,
+      "bytes": 1864,
       "path": "COMMANDS_AND_RESULTS.md",
-      "sha256": "74e8377ee2938ccda2363fe92a93f0886369a802ff0410d02fc1380e5bf0dc77"
+      "sha256": "f10e5ae0c879850947a73032b25e22061acdba882540edd423cec7d06734e174"
     },
     {
       "bytes": 1145,
@@ -50,6 +51,11 @@
       "bytes": 2998,
       "path": "DEVELOPMENT_METRIC_CONTRACT.json",
       "sha256": "5132fe487d67614df81193a2ea13c35ade9a9d5ff68b037c6f4efd6fb1c6c11e"
+    },
+    {
+      "bytes": 1632,
+      "path": "DRIVE_HANDOFF_VERIFICATION.json",
+      "sha256": "f5bec80f177ba07e842d4370d8c135f754300833f1c115e985284b2b1291c928"
     },
     {
       "bytes": 733056,
