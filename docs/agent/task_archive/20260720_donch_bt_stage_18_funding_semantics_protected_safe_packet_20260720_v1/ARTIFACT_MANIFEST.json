@@ -37,6 +37,11 @@
       "sha256": "f3beb7d43c1885c1d9a96968ef31911206bf04bf366e241122744659a2852b8e"
     },
     {
+      "bytes": 1663,
+      "path": "DRIVE_HANDOFF_VERIFICATION.json",
+      "sha256": "970d4b9b6386c8ce34947f731b036c849c13f5d0a80b033cba419d7217cef812"
+    },
+    {
       "bytes": 570,
       "path": "FUNDING_ADVERSE_ALLOWANCE_CONTRACT.json",
       "sha256": "e53eccd3d9011af2c1304cf758e734296d6b90dd82d4e726adc99b015168cd5a"

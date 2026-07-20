@@ -1,0 +1,22 @@
+{
+  "files": [
+    {"bytes": 851, "path": "READ_FIRST.md", "sha256": "810b034248045431384fa86a22bea639bb2bdf6b0d33bd3916d76a8b43134604"},
+    {"bytes": 2259, "path": "REVIEW.md", "sha256": "9f8638b920b8bbfd6d8f13139c99f73944f5a063710466eea84e781565c643f5"},
+    {"bytes": 1027, "path": "TRANSFER_MANIFEST.json", "sha256": "a81cb2d7202655f2e2333c0c622d3589ec11a2ff7ad2b6e3644270b7fd93f0c7"},
+    {"bytes": 797, "path": "VALIDATION.md", "sha256": "028c721a5931b853db17f5431c67f6d69aa35ffc273fe7277797069db569f518"},
+    {"bytes": 68906, "path": "qlmg_stage18_protected_safe_funding_blocked_evidence_20260720_v01.zip", "sha256": "23ffbec52602baea3f9392f4424a54dfd5c4624c6e928190ea6f5570a6c5d5a2"}
+  ],
+  "local_archive_retained": true,
+  "local_archive_path": "results/rebaseline/phase_kraken_rankable_exact_funding_safe_20260720_v2/handoff/20260720_donch_bt_stage_18_funding_semantics_protected_safe_packet_v01/qlmg_stage18_protected_safe_funding_blocked_evidence_20260720_v01.zip",
+  "premature_empty_download_attempt_recorded_as_verification": false,
+  "remote_file_count": 5,
+  "remote_identity_label": "qlmg_sweep_drive:",
+  "remote_path": "qlmg_sweep_drive:20260720_donch_bt_stage_18_funding_semantics_protected_safe_packet_v01/",
+  "round_trip_method": "wait_for_upload_completion_then_separate_rclone_download_with_nonempty_file_count_and_SHA256_byte_comparison",
+  "round_trip_verified": true,
+  "task_folder_id": "1WwEWB_iir0bB8-awDpXaQO6gVL2QU52J",
+  "task_folder_url": "https://drive.google.com/drive/folders/1WwEWB_iir0bB8-awDpXaQO6gVL2QU52J",
+  "tool_version": "rclone v1.60.1-DEV",
+  "upload_blocker": null,
+  "verified_utc": "2026-07-20T08:58:46Z"
+}
