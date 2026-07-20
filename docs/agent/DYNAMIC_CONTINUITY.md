@@ -11,8 +11,8 @@ qlmg_sweep_drive:_DONCH_CONTINUITY/
 --drive-root-folder-id 1vMuf1EJbojoeIjJjz8Xj1fhwLizNgLfl
 ```
 
-Stable folder ID: `1TEmlPRFbks5yWsrXkfkmh7a2apn-M232`  
-Stable folder URL: `https://drive.google.com/drive/folders/1TEmlPRFbks5yWsrXkfkmh7a2apn-M232`
+- Stable folder ID: `1TEmlPRFbks5yWsrXkfkmh7a2apn-M232`
+- Stable folder URL: `https://drive.google.com/drive/folders/1TEmlPRFbks5yWsrXkfkmh7a2apn-M232`
 
 Its required structure is:
 

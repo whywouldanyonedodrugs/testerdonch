@@ -69,3 +69,5 @@ Implement and verify a dependency-free continuity publisher/validator, bootstrap
 | UTC | Milestone | Result | Next action |
 |---|---|---|---|
 | 2026-07-20T11:52:32Z | Preflight | Clean exact base, ZIP integrity and supplied hash semantics verified | Implement tool and tests |
+| 2026-07-20T11:59:37Z | Stable ledger bootstrap | `_DONCH_CONTINUITY` created; sequence-0 immutable state and pointer published | Independent round-trip verification |
+| 2026-07-20T12:03:53Z | Bootstrap verification | Separate download and ledger validation passed | Close repository archive and handoff |

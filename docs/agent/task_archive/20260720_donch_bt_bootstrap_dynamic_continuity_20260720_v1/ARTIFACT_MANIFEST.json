@@ -1,0 +1,95 @@
+{
+  "capitalcom_payloads_opened": false,
+  "continuity_folder_id": "1TEmlPRFbks5yWsrXkfkmh7a2apn-M232",
+  "economic_outputs_computed": false,
+  "files": [
+    {
+      "bytes": 1320,
+      "path": "BOOTSTRAP_DRIVE_VERIFICATION.json",
+      "sha256": "e1ee7360d662e0d04d847a4f378477f7ad8eadeb2b134b6aeef70ced53919859"
+    },
+    {
+      "bytes": 1047,
+      "path": "CHANGED_FILES.md",
+      "sha256": "3c7528f2e7befd1f7eb24280442274ba839cf8532f9a443895e882d09f4534a3"
+    },
+    {
+      "bytes": 1402,
+      "path": "COMMANDS_AND_RESULTS.md",
+      "sha256": "84a5d12adfc64e5ac3a9831b3653f31d553b662ab3d17a6875ebbc76ebbbafd4"
+    },
+    {
+      "bytes": 1004,
+      "path": "COMPLETION.md",
+      "sha256": "26b466ffbd9f9e25369c4e636c83b085381b6a100644ddd013b2ec68ea03d343"
+    },
+    {
+      "bytes": 641,
+      "path": "NEXT_ACTION.md",
+      "sha256": "55e4f8f706248303e2bba1a12b83fc17e7ad551e7194e5ea1ade68a42d3285e3"
+    },
+    {
+      "bytes": 4856,
+      "path": "PLAN.md",
+      "sha256": "9c140ce74c0111e2de3f004f078648d45e345713340e74b8a914fbafce4d8833"
+    },
+    {
+      "bytes": 1339,
+      "path": "REVIEW.md",
+      "sha256": "64f2ffa08f6075e4e4c21be773a79af014e1058d940b8fd0fc47e8148f8d91a6"
+    },
+    {
+      "bytes": 2166,
+      "path": "VALIDATION.md",
+      "sha256": "50c02ca9dc5b05a83f65de00d5348e1b750eace008f9c06ad2f7c9edbb3ed067"
+    },
+    {
+      "bytes": 831,
+      "path": "received/CONTINUITY_EVENT_TEMPLATE_v1.json",
+      "sha256": "1b81594e59410d3f9e43ac2e9fb6a7b69062a8900c29a4055bc7e391cd0fec01"
+    },
+    {
+      "bytes": 1268,
+      "path": "received/DAILY_OR_NEW_CHAT_SOURCE_REFRESH_CHECKLIST.md",
+      "sha256": "87fae488f62379971f16697039b23c0b1b8c316242064280e1c822ff4c30d31c"
+    },
+    {
+      "bytes": 1915,
+      "path": "received/DONCH_CONTINUITY_SCHEMA_v1.json",
+      "sha256": "c169706478305a885d4a47eb576823f22c1ffa3fc3b776a9e1201f98d7ba2e7a"
+    },
+    {
+      "bytes": 1398,
+      "path": "received/DONCH_NEW_CHAT_START_PROMPT_AFTER_SOURCE_COMPACTION_2026-07-20.md",
+      "sha256": "276ed0db4afb2c5256617eb7fc4f4536e7161a7c4463953acfc1652356bcf2e0"
+    },
+    {
+      "bytes": 6990,
+      "path": "received/DONCH_PROJECT_SETTINGS_UNDER_8000_CHARS_2026-07-20.txt",
+      "sha256": "3d700169f8b83fb86ed2955f7da013a5995ed96121ecceaefb4a75c356a3c7d3"
+    },
+    {
+      "bytes": 2305,
+      "path": "received/DONCH_TO_BACKTESTING_Bootstrap_Dynamic_Continuity_2026-07-20_v1.md",
+      "sha256": "8ee3b26b61bc9e4ecd0746908bd4024d983be3b2b6d5b6f86c29e9a6c4396440"
+    },
+    {
+      "bytes": 330,
+      "path": "received/INITIAL_CURRENT_STATE_POINTER.json",
+      "sha256": "c1ccd47c396d47900973ad5856a7a30e12b36317929d9ab13325da6639948687"
+    },
+    {
+      "bytes": 2320,
+      "path": "received/INITIAL_STATE_SNAPSHOT_000000_STAGE19.json",
+      "sha256": "7a7bec1583f39480a290761f23ba3fcc3ee43fbaf201fd7a48afc343e8bedcd9"
+    }
+  ],
+  "implementation_commit": "4754292855ba466884012132b473d3f9399f4cc5",
+  "initial_pointer_sha256": "c1ccd47c396d47900973ad5856a7a30e12b36317929d9ab13325da6639948687",
+  "initial_snapshot_sha256": "7a7bec1583f39480a290761f23ba3fcc3ee43fbaf201fd7a48afc343e8bedcd9",
+  "private_account_data_opened": false,
+  "protected_payloads_opened": false,
+  "starting_commit": "03092c5e20a3738ddc7994b9382df01366937776",
+  "status": "implementation_and_sequence_0_bootstrap_complete",
+  "task_id": "donch_bt_bootstrap_dynamic_continuity_20260720_v1"
+}
