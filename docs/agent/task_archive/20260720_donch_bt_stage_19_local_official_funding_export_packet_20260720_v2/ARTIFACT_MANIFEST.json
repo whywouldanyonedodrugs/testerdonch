@@ -1,0 +1,239 @@
+{
+  "economic_outputs_computed": false,
+  "files": [
+    {
+      "bytes": 149810,
+      "path": "ABSOLUTE_RATE_UNIT_VERIFICATION.csv",
+      "sha256": "9729b8a87947be3303a3e00febef47413b4c66c1d4395b1c1ac82b0b076bdc87"
+    },
+    {
+      "bytes": 1569,
+      "path": "BOUNDARY_AND_MISSINGNESS_CONTRACT.json",
+      "sha256": "37a3b77223d84435e8932fc5fde2e48aa7fa0d001c9510bc5d674c61c6fac42f"
+    },
+    {
+      "bytes": 3415,
+      "path": "CAMPAIGN_MANIFEST.json",
+      "sha256": "e7d618a2a24c574c9ba83d323df605a6434c2e816fe24c465d183ba5d6256990"
+    },
+    {
+      "bytes": 262,
+      "path": "CAMPAIGN_PACKET_LAUNCH_READINESS.md",
+      "sha256": "36888caaf683a6c6bd1a89484f13c2dc44f810cd716c368b8f9d440ce7188baa"
+    },
+    {
+      "bytes": 13266,
+      "path": "CAMPAIGN_SYMBOL_FUNDING_MAPPING.csv",
+      "sha256": "4e202c944f11a00464aaa3f142bd085e5ac644ae1d6333d75196a801e99a10a0"
+    },
+    {
+      "bytes": 651,
+      "path": "CANDIDATE_BEAM_CONTRACT.json",
+      "sha256": "5ed0be72cea8a555790e7aa0aec9e8bfbd8de4d5de9f358ba831d1d43e11dfe3"
+    },
+    {
+      "bytes": 1236,
+      "path": "CHANGED_FILES.md",
+      "sha256": "b4d5e3bdeba82426c8216390000fb207e2f7c434e3b553a37052e2c193d02aa2"
+    },
+    {
+      "bytes": 1611,
+      "path": "COMMANDS_AND_RESULTS.md",
+      "sha256": "74e8377ee2938ccda2363fe92a93f0886369a802ff0410d02fc1380e5bf0dc77"
+    },
+    {
+      "bytes": 1145,
+      "path": "COMPLETION.md",
+      "sha256": "4aba79e27a859a5d452dad8e4f1166168c36f85322aca026e47a15d09e1190c0"
+    },
+    {
+      "bytes": 2998,
+      "path": "DEVELOPMENT_METRIC_CONTRACT.json",
+      "sha256": "5132fe487d67614df81193a2ea13c35ade9a9d5ff68b037c6f4efd6fb1c6c11e"
+    },
+    {
+      "bytes": 733056,
+      "path": "ECONOMIC_TRANSLATION_REGISTRY.json",
+      "sha256": "e48fce5186238064496c71457b72ee3beeb8f420f009b8bb66508c773d813774"
+    },
+    {
+      "bytes": 2317,
+      "path": "ESTIMATOR_AND_RULE_INVENTORY.json",
+      "sha256": "b30b7c115d6d6e1ed765542c44d791c44117a0387f71ae4b33ec1219d4243a3b"
+    },
+    {
+      "bytes": 1180,
+      "path": "FUNDING_CALIBRATION_AND_ALIGNMENT_SUMMARY.md",
+      "sha256": "63c45233747b2e795f21b81a647a718dff0b6d32fd0342f7dad529075af79c1f"
+    },
+    {
+      "bytes": 1720,
+      "path": "FUNDING_COST_AND_COVERAGE_CONTRACT.json",
+      "sha256": "c0d5bf091080a681055a792a8a7cf4a1084dcd60deb17c60381339df7297c3e7"
+    },
+    {
+      "bytes": 734,
+      "path": "FUNDING_GAP_ALLOWANCE_CONTRACT.json",
+      "sha256": "e335200163619d217101458fe69b1ae65d0e2dec847306a4b593c311c30dc78e"
+    },
+    {
+      "bytes": 16917,
+      "path": "FUNDING_GAP_ALLOWANCE_TABLE.csv",
+      "sha256": "4ff2c6bcbe125e6f966348a029cd2cc63f55deb752b89c454a28642c41f119b5"
+    },
+    {
+      "bytes": 611,
+      "path": "FUNDING_PERIOD_DUAL_ALIGNMENT_CONTRACT.json",
+      "sha256": "840729c812eed312759a63c9e85a68c2b91075309d45b9cca4849c92d6fccc50"
+    },
+    {
+      "bytes": 796,
+      "path": "FUNDING_SOURCE_AND_PARTITION_MANIFEST.json",
+      "sha256": "518a70c53830f8a01395d5836403b027f2371bd03f2fee05ffd3346cfca4a78d"
+    },
+    {
+      "bytes": 2791,
+      "path": "FUTURE_DERIVATIVES_CAMPAIGN_APPROVAL_PACKET.json",
+      "sha256": "3fde09f16efff2479ee847fe26c859a67ef1d516b0f0acbcbaec141154a87bd6"
+    },
+    {
+      "bytes": 561,
+      "path": "FUTURE_DERIVATIVES_CAMPAIGN_APPROVAL_PACKET.md",
+      "sha256": "8994addf3d5336ae45c9b4451b47d403fd66efa29de94fed6df1f128e4738a61"
+    },
+    {
+      "bytes": 98771,
+      "path": "INNER_FOLD_MAP.json",
+      "sha256": "6ee8cbc53eac9326f904eec760ae82861a533b8165be6e1ccfc440dd0fa32ba0"
+    },
+    {
+      "bytes": 1250,
+      "path": "KRAKEN_NEXT_DATA_ACQUISITION_PRIORITIES.md",
+      "sha256": "878f7879a1329ab3572f395705908375dbb5b685776b508e0677bb6071edf077"
+    },
+    {
+      "bytes": 2406,
+      "path": "KRAKEN_OFFICIAL_HISTORICAL_DATA_SURFACE_AUDIT.md",
+      "sha256": "1cc04b575ec98c693ac2ddecdb7a83cfd1a5512b4ea4b0346416e74a21fbb9a6"
+    },
+    {
+      "bytes": 9559,
+      "path": "KRAKEN_OFFICIAL_HISTORICAL_DATA_SURFACE_REGISTRY.csv",
+      "sha256": "5069c305460fe63f69639e1fd02d47c4ec76096f21f720e8dfc5ba66343f5ebe"
+    },
+    {
+      "bytes": 1363,
+      "path": "LOCAL_OFFICIAL_FUNDING_EXPORT_AUTHORITY.md",
+      "sha256": "76ccc5e881c09a4f6a930c57105cadccbb71a9ae7746ab49c07482043c8b685c"
+    },
+    {
+      "bytes": 714,
+      "path": "NEXT_ACTION.md",
+      "sha256": "3425583ee90d8d666237e3e90eeb2748e2e935b51003f3adc711b38a96f3750d"
+    },
+    {
+      "bytes": 99667,
+      "path": "OFFICIAL_EXPORT_COVERAGE.csv",
+      "sha256": "23d5b8c99bed70a5b501ccd37e76abbfe0acdfc408cad6dce55117a2d67855c5"
+    },
+    {
+      "bytes": 30565,
+      "path": "OFFICIAL_EXPORT_IDENTITY_COMPARISON.csv",
+      "sha256": "45cba9046549880acbcc76ce76e895ae846234e523d7c250fa39b2cf4e5e7c2e"
+    },
+    {
+      "bytes": 152154,
+      "path": "OFFICIAL_EXPORT_MEMBER_INVENTORY.csv",
+      "sha256": "d407e2f8acb64edf50082e7eedc5216946d4a424b43c3539498f5b2dafc9b29f"
+    },
+    {
+      "bytes": 110208,
+      "path": "OFFICIAL_EXPORT_PARTITION_LEDGER.csv",
+      "sha256": "7839b304f4275a8f2da7ce4b8f8720dc69166a12c62bfda6c3ed1642fdc2425b"
+    },
+    {
+      "bytes": 1038,
+      "path": "OFFICIAL_EXPORT_SCHEMA.json",
+      "sha256": "d6bf582c4fe8f3966a29b9bb4d3578e45302ca54471005d140f248be3b75886d"
+    },
+    {
+      "bytes": 1017,
+      "path": "OFFICIAL_EXPORT_SOURCE_MANIFEST.json",
+      "sha256": "fb79324bbc7548502fdb563af50184e34d0817f3f1ca2d716f97b25c7c9efc57"
+    },
+    {
+      "bytes": 1616,
+      "path": "PLAN.md",
+      "sha256": "cd7481accf7f10912b32dfcbdb7185c618d2739762ba8c1ae759c17c418fa3ec"
+    },
+    {
+      "bytes": 657,
+      "path": "PROTECTED_FUNDING_PARTITION_AUDIT.json",
+      "sha256": "a1265aba386f23dde0645b3d8cfaebecbf67cdc2b0c57be8249d8742a2a0bc95"
+    },
+    {
+      "bytes": 604,
+      "path": "RANKABLE_FUNDING_PACKAGE_MANIFEST.json",
+      "sha256": "e048915160a6f55b313568f9a2df908b196c04557fb719273ad07957efcb6f9b"
+    },
+    {
+      "bytes": 1000,
+      "path": "RESOURCE_PROJECTION.json",
+      "sha256": "3dc00c88490ae4a1cf4fb52a0de07ffdf8d96bc12258b3fdf874e487886527e1"
+    },
+    {
+      "bytes": 10386,
+      "path": "RESPONSE_SURFACE_AND_BIN_SPEC.json",
+      "sha256": "1cc994543371a8db86f428957a27d3a62d93f390e30f99460aa3e1d973b8c67b"
+    },
+    {
+      "bytes": 1224,
+      "path": "REVIEW.md",
+      "sha256": "f8ad6bba967f6d0dc42e0a24349c912fd5c337ee411e8db696f0ace8da732219"
+    },
+    {
+      "bytes": 23858,
+      "path": "SEARCH_SPACE_REGISTRY.json",
+      "sha256": "5d78232ae5363fa58219c4fe12a8004db576351a4ab97ddbf2d168344d5d045f"
+    },
+    {
+      "bytes": 699,
+      "path": "SYNTHETIC_CANARY.json",
+      "sha256": "dea99650cbb3a84c3450fe7dbee07c88d332328ee3f97bb2034a9fe3e53bbab6"
+    },
+    {
+      "bytes": 19630,
+      "path": "TASK_SPEC.md",
+      "sha256": "3d6cec755a85bcedf6f0f641b8eb1478a9c430f62aa71d278098d9eb02685cbc"
+    },
+    {
+      "bytes": 702,
+      "path": "TELEGRAM_AND_SUPERVISION_CONTRACT.json",
+      "sha256": "f23736649f4523add8618720744673a5554d51246b9bcb01bcccf0a64591e70e"
+    },
+    {
+      "bytes": 119595,
+      "path": "UNIT_VERIFICATION_SOURCE_MANIFEST.json",
+      "sha256": "9074a6bbefe9ab7fd3c579c6b90260f1b244c8e4f52f79e60f180a170e4110f0"
+    },
+    {
+      "bytes": 2419,
+      "path": "UTILITY_AND_PARETO_CONTRACT.json",
+      "sha256": "b121e51d79ded5b63b5b3ef869a4ca99c611377b33ad0edfc3024dd7120d4495"
+    },
+    {
+      "bytes": 2861,
+      "path": "VALIDATION.md",
+      "sha256": "cee3a8e894a082f1c3e98fd354827909718387d20330388ae753fe6b3ab8c091"
+    }
+  ],
+  "implementation_commit": "f6a0780514dc5aed7c95dec462f317de744808cb",
+  "new_exact_human_approval_required": true,
+  "packet_regenerated": true,
+  "protected_funding_values_used_for_statistics": 0,
+  "protected_strategy_price_or_return_rows_opened": 0,
+  "rankable_funding_package_sha256": "6c0969727c882ca6439c57c3b7d03367e1b2d26ee46823e56b983756d026ef64",
+  "starting_commit": "3f5e94eb8e6b8becb4dfaa5457742682ac31f7e9",
+  "status": "complete_non_authorizing_packet_human_approval_required",
+  "task_id": "donch_bt_stage_19_local_official_funding_export_packet_20260720_v2"
+}
