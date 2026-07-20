@@ -4,8 +4,14 @@
 from __future__ import annotations
 
 import bisect
+import csv
+import hashlib
+import io
+import zipfile
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+from pathlib import Path
+from types import MappingProxyType
 from typing import Iterable, Mapping
 
 
@@ -98,6 +104,9 @@ def dual_alignment_cashflow_bps(
     absolute_rates: Mapping[datetime, Decimal], base_gap_bps_per_hour: Decimal,
     stress_gap_bps_per_hour: Decimal,
 ) -> dict[str, Decimal]:
+    if (not base_gap_bps_per_hour.is_finite() or not stress_gap_bps_per_hour.is_finite()
+            or base_gap_bps_per_hour < 0 or stress_gap_bps_per_hour < base_gap_bps_per_hour):
+        raise ValueError("gap allowances must be finite, nonnegative, and stress>=base")
     output: dict[str, Decimal] = {}
     for alignment in ("alignment_start", "alignment_end"):
         cursor = entry.replace(minute=0, second=0, microsecond=0)
@@ -125,3 +134,76 @@ def dual_alignment_cashflow_bps(
     output["base_gap_cost_bps"] = -base_gap_bps_per_hour * worst_missing
     output["stress_gap_cost_bps"] = -stress_gap_bps_per_hour * worst_missing
     return output
+
+
+class Stage19FundingEngine:
+    """Hash-bound campaign adapter for the immutable rankable funding package."""
+
+    def __init__(
+        self, rankable_zip: Path, expected_package_sha256: str,
+        allowance_table: Path, expected_allowance_sha256: str,
+    ) -> None:
+        if self._sha256(rankable_zip) != expected_package_sha256:
+            raise RuntimeError("rankable funding package hash mismatch")
+        if self._sha256(allowance_table) != expected_allowance_sha256:
+            raise RuntimeError("funding allowance table hash mismatch")
+        self.rankable_zip = rankable_zip
+        self._rates_cache: dict[str, Mapping[datetime, Decimal]] = {}
+        self.allowances: dict[str, tuple[Decimal, Decimal]] = {}
+        with allowance_table.open(newline="", encoding="utf-8") as handle:
+            for row in csv.DictReader(handle):
+                symbol = row["symbol"]
+                base = Decimal(row["base_gap_allowance_bps_per_hour"])
+                stress = Decimal(row["stress_gap_allowance_bps_per_hour"])
+                if symbol in self.allowances or not base.is_finite() or not stress.is_finite() or base < 0 or stress < base:
+                    raise RuntimeError("invalid or duplicate funding allowance")
+                self.allowances[symbol] = (base, stress)
+
+    @staticmethod
+    def _sha256(path: Path) -> str:
+        digest = hashlib.sha256()
+        with path.open("rb") as handle:
+            for block in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(block)
+        return digest.hexdigest()
+
+    def load_symbol(self, symbol: str) -> Mapping[datetime, Decimal]:
+        if symbol in self._rates_cache:
+            return self._rates_cache[symbol]
+        member = f"rankable_2023_2025/{symbol}.csv"
+        rates: dict[datetime, Decimal] = {}
+        with zipfile.ZipFile(self.rankable_zip) as archive:
+            if member not in archive.namelist():
+                raise RuntimeError(f"rankable funding member missing: {symbol}")
+            with archive.open(member) as raw:
+                for row in csv.DictReader(io.TextIOWrapper(raw, encoding="ascii", newline="")):
+                    stamp = datetime.strptime(row["timestamp"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+                    if not datetime(2023, 1, 1, tzinfo=timezone.utc) <= stamp < datetime(2026, 1, 1, tzinfo=timezone.utc):
+                        raise RuntimeError("rankable funding timestamp boundary violation")
+                    if row["tradeable"] != symbol or stamp in rates:
+                        raise RuntimeError("funding identity or duplicate timestamp violation")
+                    rate = Decimal(row["absolute_rate"])
+                    if not rate.is_finite():
+                        raise RuntimeError("non-finite absolute funding rate")
+                    rates[stamp] = rate
+        frozen = MappingProxyType(rates)
+        self._rates_cache[symbol] = frozen
+        return frozen
+
+    def evaluate_trade(
+        self, *, symbol: str, entry: datetime, exit_: datetime,
+        position_sign: int, entry_trade_open: Decimal,
+    ) -> dict[str, Decimal]:
+        rankable_start = datetime(2023, 1, 1, tzinfo=timezone.utc)
+        protected_start = datetime(2026, 1, 1, tzinfo=timezone.utc)
+        if (entry.tzinfo is None or exit_.tzinfo is None or entry.utcoffset() != timedelta(0)
+                or exit_.utcoffset() != timedelta(0) or not rankable_start <= entry < exit_ < protected_start):
+            raise RuntimeError("trade interval outside aware-UTC rankable boundary")
+        if symbol not in self.allowances:
+            raise RuntimeError(f"campaign symbol allowance missing: {symbol}")
+        base, stress = self.allowances[symbol]
+        return dual_alignment_cashflow_bps(
+            entry=entry, exit_=exit_, position_sign=position_sign,
+            entry_trade_open=entry_trade_open, absolute_rates=self.load_symbol(symbol),
+            base_gap_bps_per_hour=base, stress_gap_bps_per_hour=stress,
+        )

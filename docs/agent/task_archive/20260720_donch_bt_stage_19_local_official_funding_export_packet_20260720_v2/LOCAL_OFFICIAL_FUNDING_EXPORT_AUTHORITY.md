@@ -8,4 +8,4 @@ Authority classification: `human_transferred_official_export + official_support_
 
 The 964 members comprise 480 funding CSVs, 482 AppleDouble metadata files, one `.DS_Store`, and one directory entry. AppleDouble and `.DS_Store` are explicitly excluded Finder metadata; every other non-directory member is required to be an exact `exports/*.csv` funding payload.
 
-The immutable local packages are under `/opt/testerdonch/results/rebaseline/phase_kraken_local_official_funding_export_20260720_v2`. Campaign code may access only `kraken_funding_rankable_2023_2025.zip`.
+The final immutable streaming packages are under `/opt/testerdonch/results/rebaseline/phase_kraken_local_official_funding_export_20260720_v4`. Campaign code may access only `kraken_funding_rankable_2023_2025.zip`.

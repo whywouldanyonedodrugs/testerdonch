@@ -13,7 +13,7 @@ known limitations: Capital.com intake remains separate; no strategy is validatio
 
 ## Stage 19 official funding authority — 2026-07-20
 
-The human-transferred official Kraken export was security-audited and physically partitioned. The campaign-accessible package contains 5,658,890 rows across 476 symbols strictly inside `[2023-01-01, 2026-01-01)`; its SHA-256 is `c38acacbc401dfa656068f14f0a59a5a4b0da0de4a5522b605a26712aadd628c`. A separate quarantine contains 236,786 protected funding rows. Protected funding values supplied zero statistics, and no protected strategy price/return row was opened.
+The human-transferred official Kraken export was security-audited and physically partitioned by direct raw-line streaming. The campaign-accessible package contains 5,658,890 rows across 476 symbols strictly inside `[2023-01-01, 2026-01-01)`; its SHA-256 is `6c0969727c882ca6439c57c3b7d03367e1b2d26ee46823e56b983756d026ef64`. A separate quarantine contains 236,786 protected funding rows. Protected and pre-rankable rate tails supplied zero statistics, and no protected strategy price/return row was opened.
 
 All 187 campaign symbols map exactly and have official `flexible_futures`, `contractSize=1`, base-unit/USD-quote verification plus contemporaneous rankable trade/mark sanity anchors. Funding selection freezes both timestamp alignments and uses only `min(0,start,end)` plus nonpositive rankable-only missing-hour allowances. The replacement packet remains non-authorizing and requires independent review plus a new exact human approval before Phase 2+ economics.
 

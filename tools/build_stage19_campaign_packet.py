@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import csv
 import copy
 import hashlib
 import json
@@ -28,7 +29,7 @@ from tools.qlmg_stage19_funding import dual_alignment_cashflow_bps
 ROOT = Path(__file__).resolve().parents[1]
 ARCHIVE = ROOT / "docs/agent/task_archive/20260720_donch_bt_stage_19_local_official_funding_export_packet_20260720_v2"
 STAGE16 = ROOT / "docs/agent/task_archive/20260720_donch_bt_stage_16_complete_campaign_semantics_git_cleanup_20260720_v1"
-LOCAL = Path("/opt/testerdonch/results/rebaseline/phase_kraken_local_official_funding_export_20260720_v2")
+LOCAL = Path("/opt/testerdonch/results/rebaseline/phase_kraken_local_official_funding_export_20260720_v4")
 FIXED = "2026-07-20T11:00:00Z"
 
 
@@ -51,7 +52,7 @@ def write_json(path: Path, value: Any) -> None:
 def stage19_funding_contract() -> dict[str, Any]:
     return {
         "version": "stage19_v1", "instrument": "Kraken linear PF; quantity is base/contract unit; quote and PnL USD",
-        "source_rankable_package_sha256": "c38acacbc401dfa656068f14f0a59a5a4b0da0de4a5522b605a26712aadd628c",
+        "source_rankable_package_sha256": "6c0969727c882ca6439c57c3b7d03367e1b2d26ee46823e56b983756d026ef64",
         "dual_alignment_contract_sha256": file_sha256(LOCAL / "FUNDING_PERIOD_DUAL_ALIGNMENT_CONTRACT.json"),
         "gap_allowance_table_sha256": file_sha256(LOCAL / "FUNDING_GAP_ALLOWANCE_TABLE.csv"),
         "unit_verification_sha256": file_sha256(LOCAL / "ABSOLUTE_RATE_UNIT_VERIFICATION.csv"),
@@ -119,6 +120,10 @@ def boundary_contract(funding_hash: str) -> dict[str, Any]:
 
 
 def funding_canary(registry: dict[str, Any]) -> dict[str, Any]:
+    with (LOCAL / "FUNDING_GAP_ALLOWANCE_TABLE.csv").open(newline="", encoding="utf-8") as handle:
+        allowance = next(csv.DictReader(handle))
+    base_allowance = Decimal(allowance["base_gap_allowance_bps_per_hour"])
+    stress_allowance = Decimal(allowance["stress_gap_allowance_bps_per_hour"])
     entry = datetime(2025, 1, 1, 0, 30, tzinfo=timezone.utc)
     exit_ = entry + timedelta(hours=2)
     rates = {
@@ -126,12 +131,12 @@ def funding_canary(registry: dict[str, Any]) -> dict[str, Any]:
         datetime(2025, 1, 1, 1, tzinfo=timezone.utc): Decimal("-0.02"),
         datetime(2025, 1, 1, 2, tzinfo=timezone.utc): Decimal("0.03"),
     }
-    long = dual_alignment_cashflow_bps(entry=entry, exit_=exit_, position_sign=1, entry_trade_open=Decimal(100), absolute_rates=rates, base_gap_bps_per_hour=Decimal("2"), stress_gap_bps_per_hour=Decimal("4"))
-    short = dual_alignment_cashflow_bps(entry=entry, exit_=exit_, position_sign=-1, entry_trade_open=Decimal(100), absolute_rates=rates, base_gap_bps_per_hour=Decimal("2"), stress_gap_bps_per_hour=Decimal("4"))
+    long = dual_alignment_cashflow_bps(entry=entry, exit_=exit_, position_sign=1, entry_trade_open=Decimal(100), absolute_rates=rates, base_gap_bps_per_hour=base_allowance, stress_gap_bps_per_hour=stress_allowance)
+    short = dual_alignment_cashflow_bps(entry=entry, exit_=exit_, position_sign=-1, entry_trade_open=Decimal(100), absolute_rates=rates, base_gap_bps_per_hour=base_allowance, stress_gap_bps_per_hour=stress_allowance)
     repeat = translation_registry(stage19_funding_contract())
     prior = stage16_canary()
-    return {
-        "status": "pass", "both_alignments_exercised": long["signed_alignment_start_bps"] != long["signed_alignment_end_bps"],
+    checks = {
+        "both_alignments_exercised": long["signed_alignment_start_bps"] != long["signed_alignment_end_bps"],
         "partial_hour_exercised": True, "long_short_sign_reversal": long["signed_alignment_start_bps"] == -short["signed_alignment_start_bps"],
         "positive_and_negative_rates_exercised": True,
         "favourable_funding_ignored_for_selection": long["adverse_exact_funding_bps"] <= 0 and short["adverse_exact_funding_bps"] <= 0,
@@ -141,18 +146,27 @@ def funding_canary(registry: dict[str, Any]) -> dict[str, Any]:
         "runtime_semantic_discretion": False, "stage16_semantic_canary_pass": prior["registered_cells"] == 186,
         "protected_rows_opened": 0, "economic_outputs_computed": 0,
     }
+    boolean_checks = [value for key, value in checks.items() if isinstance(value, bool) and key != "runtime_semantic_discretion"]
+    if not all(boolean_checks) or checks["runtime_semantic_discretion"] is not False or checks["campaign_cell_count"] != 186:
+        raise RuntimeError("Stage 19 synthetic canary failed")
+    return {
+        "status": "pass", **checks, "allowance_symbol": allowance["symbol"],
+        "base_q95_allowance_bps_per_hour": str(base_allowance),
+        "stress_q99_allowance_bps_per_hour": str(stress_allowance),
+        "allowance_table_sha256": file_sha256(LOCAL / "FUNDING_GAP_ALLOWANCE_TABLE.csv"),
+    }
 
 
 def build(implementation_commit: str) -> dict[str, Any]:
     ARCHIVE.mkdir(parents=True, exist_ok=True)
-    for name in ["FUNDING_PERIOD_DUAL_ALIGNMENT_CONTRACT.json", "FUNDING_GAP_ALLOWANCE_CONTRACT.json", "FUNDING_GAP_ALLOWANCE_TABLE.csv", "ABSOLUTE_RATE_UNIT_VERIFICATION.csv"]:
+    for name in ["FUNDING_PERIOD_DUAL_ALIGNMENT_CONTRACT.json", "FUNDING_GAP_ALLOWANCE_CONTRACT.json", "FUNDING_GAP_ALLOWANCE_TABLE.csv", "ABSOLUTE_RATE_UNIT_VERIFICATION.csv", "UNIT_VERIFICATION_SOURCE_MANIFEST.json"]:
         shutil.copyfile(LOCAL / name, ARCHIVE / name)
     source_partition = {
         "version": "stage19_v1",
         "source_zip_sha256": "65ba6712a6ab657389d2795d3ed77bedb4270841dfe711147ae9df16e366edab",
-        "rankable_package": {"sha256": "c38acacbc401dfa656068f14f0a59a5a4b0da0de4a5522b605a26712aadd628c", "rows": 5658890, "symbols": 476, "interval": "[2023-01-01T00:00:00Z,2026-01-01T00:00:00Z)"},
-        "protected_quarantine": {"sha256": "e26b898b859ef933866f4d9a7d4bcd8cfa79dabdc6b56e5e81f79561fc8cc5a1", "rows": 236786, "symbols": 320, "campaign_access": False},
-        "pre_rankable_excluded": {"sha256": "64296f259a51184c468d7dfd5a5f15fa223df727abcb2e715bf094a511208703", "rows": 277640, "campaign_access": False},
+        "rankable_package": {"sha256": "6c0969727c882ca6439c57c3b7d03367e1b2d26ee46823e56b983756d026ef64", "rows": 5658890, "symbols": 476, "interval": "[2023-01-01T00:00:00Z,2026-01-01T00:00:00Z)"},
+        "protected_quarantine": {"sha256": "0957b7253e76840f6062f23290ed8b53aea4714f5c3cbaa314e7fba0975b37d0", "rows": 236786, "symbols": 320, "campaign_access": False},
+        "pre_rankable_excluded": {"sha256": "5e3ca567998e0e35f9f4e6db027533a14bc8f778738fcc1eff744ec6bc7e73e3", "rows": 277640, "campaign_access": False},
         "unknown_or_invalid": {"sha256": "8739c76e681f900923b900c9df0ef75cf421d39cabb54650c4b9ad19b6a76d85", "rows": 0},
         "protected_funding_values_used_for_statistics": 0, "protected_strategy_price_or_return_rows_opened": 0,
     }
@@ -181,7 +195,7 @@ def build(implementation_commit: str) -> dict[str, Any]:
     resource["total_cells"] = 186
     write_json(ARCHIVE / "RESOURCE_PROJECTION.json", resource)
 
-    dependencies = sorted([*contracts, "SEARCH_SPACE_REGISTRY.json", "RESOURCE_PROJECTION.json", "FUNDING_SOURCE_AND_PARTITION_MANIFEST.json", "FUNDING_PERIOD_DUAL_ALIGNMENT_CONTRACT.json", "FUNDING_GAP_ALLOWANCE_CONTRACT.json", "FUNDING_GAP_ALLOWANCE_TABLE.csv", "ABSOLUTE_RATE_UNIT_VERIFICATION.csv"])
+    dependencies = sorted([*contracts, "SEARCH_SPACE_REGISTRY.json", "RESOURCE_PROJECTION.json", "FUNDING_SOURCE_AND_PARTITION_MANIFEST.json", "FUNDING_PERIOD_DUAL_ALIGNMENT_CONTRACT.json", "FUNDING_GAP_ALLOWANCE_CONTRACT.json", "FUNDING_GAP_ALLOWANCE_TABLE.csv", "ABSOLUTE_RATE_UNIT_VERIFICATION.csv", "UNIT_VERIFICATION_SOURCE_MANIFEST.json"])
     raw_hashes = {name: file_sha256(ARCHIVE / name) for name in dependencies}
     manifest = {
         "campaign_id": "kraken_derivatives_campaign_001_stage19_exact_funding",
@@ -215,7 +229,7 @@ def build(implementation_commit: str) -> dict[str, Any]:
     packet_hash = file_sha256(ARCHIVE / "FUTURE_DERIVATIVES_CAMPAIGN_APPROVAL_PACKET.json")
     (ARCHIVE / "FUTURE_DERIVATIVES_CAMPAIGN_APPROVAL_PACKET.md").write_text(
         "# Future Derivatives Campaign Approval Packet\n\nStatus: `human_approval_required_not_authorized`. No economics are authorized.\n\n"
-        f"Campaign manifest SHA-256: `{manifest_hash}`  \nApproval packet SHA-256: `{packet_hash}`\n\n"
+        f"Campaign manifest SHA-256: `{manifest_hash}`<br>\nApproval packet SHA-256: `{packet_hash}`\n\n"
         "Funding selection uses the adverse minimum of zero and both exact timestamp alignments, plus nonpositive rankable-only q95/q99 missing-hour allowances. All 187 campaign PF units and symbols are covered. A new exact human approval is required.\n",
         encoding="utf-8",
     )

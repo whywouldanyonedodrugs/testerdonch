@@ -2,10 +2,11 @@ import csv
 import tempfile
 import unittest
 import zipfile
+import inspect
 from pathlib import Path
 
 from tools.ingest_kraken_official_funding_export import (
-    decimal_rate, parse_hour, safe_member_kind,
+    decimal_rate, ingest, parse_hour, safe_member_kind,
 )
 
 
@@ -37,6 +38,12 @@ class FundingExportIngestionTests(unittest.TestCase):
         self.assertEqual(safe_member_kind(zipfile.ZipInfo("exports/.DS_Store")), "finder_metadata_excluded")
         with self.assertRaises(RuntimeError):
             safe_member_kind(zipfile.ZipInfo("exports/readme.txt"))
+
+    def test_partitioner_has_no_whole_member_materialization(self):
+        source = inspect.getsource(ingest)
+        self.assertNotIn("archive.read(", source)
+        self.assertNotIn("splitlines(", source)
+        self.assertIn("for line_number, raw_line in enumerate(source", source)
 
 
 if __name__ == "__main__":

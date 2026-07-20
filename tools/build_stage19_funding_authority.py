@@ -94,9 +94,10 @@ def load_price_chunk_index(manifest: Path) -> dict[str, list[dict[str, str]]]:
                 continue
             key = (row["symbol"], row["chunk_start"], row["chunk_end"])
             pairs.setdefault(key, {})[row["dataset"]] = row["parquet_path"]
+            pairs.setdefault(key, {})[f"{row['dataset']}_sha256"] = row["parquet_sha256"]
     output: dict[str, list[dict[str, str]]] = {}
     for (symbol, start, end), paths in pairs.items():
-        if len(paths) == 2:
+        if len(paths) == 4:
             output.setdefault(symbol, []).append({"start": start, "end": end, **paths})
     for rows in output.values():
         rows.sort(key=lambda row: row["start"])
@@ -140,6 +141,12 @@ def unit_audit(
         if selected is None:
             raise RuntimeError(f"no contemporaneous rankable unit anchor: {symbol}")
         chunk, stamp, absolute, relative, trade, mark = selected
+        trade_path = Path(chunk["historical_trade_candles_5m"])
+        mark_path = Path(chunk["historical_mark_candles_5m"])
+        trade_hash = sha256_file(trade_path)
+        mark_hash = sha256_file(mark_path)
+        if trade_hash != chunk["historical_trade_candles_5m_sha256"] or mark_hash != chunk["historical_mark_candles_5m_sha256"]:
+            raise RuntimeError(f"unit-anchor source hash mismatch: {symbol}")
         implied = absolute / relative
         trade_error = abs(implied / trade - 1)
         mark_error = abs(implied / mark - 1)
@@ -154,6 +161,8 @@ def unit_audit(
             "implied_price_absolute_over_relative": str(implied), "trade_open": str(trade), "mark_open": str(mark),
             "trade_relative_error": str(trade_error), "mark_relative_error": str(mark_error),
             "trade_error_limit": "0.25", "mark_error_limit": "0.10",
+            "trade_source_path": str(trade_path), "trade_source_sha256": trade_hash,
+            "mark_source_path": str(mark_path), "mark_source_sha256": mark_hash,
             "unit_status": "verified_one_contract_unit_equals_one_base_unit_no_hidden_multiplier",
         })
     return output
@@ -201,6 +210,18 @@ def build(
 
     allowance_hash = write_csv("FUNDING_GAP_ALLOWANCE_TABLE.csv", allowances)
     unit_hash = write_csv("ABSOLUTE_RATE_UNIT_VERIFICATION.csv", audit)
+    source_manifest = {
+        "instrument_snapshot": {"path": str(instruments_path), "sha256": sha256_file(instruments_path)},
+        "acquisition_manifest": {"path": str(acquisition_manifest), "sha256": sha256_file(acquisition_manifest)},
+        "anchor_source_files": [
+            {"symbol": row["symbol"], "trade_path": row["trade_source_path"], "trade_sha256": row["trade_source_sha256"],
+             "mark_path": row["mark_source_path"], "mark_sha256": row["mark_source_sha256"]}
+            for row in audit
+        ],
+        "unit_audit_sha256": unit_hash, "campaign_symbols": len(audit),
+        "protected_price_or_return_rows_opened": 0,
+    }
+    (output / "UNIT_VERIFICATION_SOURCE_MANIFEST.json").write_bytes(canonical_bytes(source_manifest))
     dual_contract = {
         "version": "stage19_v1", "row_timestamp_timezone": "UTC_hour_boundary",
         "unresolved_timestamp_semantics": True,
@@ -225,6 +246,7 @@ def build(
     (output / "FUNDING_GAP_ALLOWANCE_CONTRACT.json").write_bytes(canonical_bytes(gap_contract))
     result = {
         "campaign_symbols": len(campaign), "unit_verified": len(audit), "unit_audit_sha256": unit_hash,
+        "unit_source_manifest_sha256": sha256_file(output / "UNIT_VERIFICATION_SOURCE_MANIFEST.json"),
         "unit_compatible_pool_symbols": len(eligible), "allowance_table_sha256": allowance_hash,
         "dual_alignment_contract_sha256": sha256_file(output / "FUNDING_PERIOD_DUAL_ALIGNMENT_CONTRACT.json"),
         "gap_contract_sha256": sha256_file(output / "FUNDING_GAP_ALLOWANCE_CONTRACT.json"),

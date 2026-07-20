@@ -91,15 +91,11 @@ def safe_member_kind(info: zipfile.ZipInfo) -> str:
     raise RuntimeError(f"unexpected ZIP payload: {name!r}")
 
 
-def deterministic_zip(path: Path, members: list[tuple[str, bytes]]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as target:
-        for name, payload in sorted(members):
-            info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
-            info.compress_type = zipfile.ZIP_DEFLATED
-            info.external_attr = 0o100444 << 16
-            target.writestr(info, payload, compress_type=zipfile.ZIP_DEFLATED, compresslevel=9)
-    os.chmod(path, 0o444)
+def deterministic_member_info(name: str) -> zipfile.ZipInfo:
+    info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+    info.compress_type = zipfile.ZIP_DEFLATED
+    info.external_attr = 0o100444 << 16
+    return info
 
 
 def load_universes(path: Path) -> tuple[set[str], set[str], set[str]]:
@@ -123,105 +119,139 @@ def ingest(source_zip: Path, output: Path, universe_csv: Path) -> dict[str, Any]
     inventory: list[dict[str, Any]] = []
     coverage: list[dict[str, Any]] = []
     ledger: list[dict[str, Any]] = []
-    rankable_members: list[tuple[str, bytes]] = []
-    protected_members: list[tuple[str, bytes]] = []
-    pre_rankable_members: list[tuple[str, bytes]] = []
-    invalid_members: list[tuple[str, bytes]] = []
     export_symbols: set[str] = set()
 
-    with zipfile.ZipFile(source_zip) as archive:
+    rankable_zip = output / "kraken_funding_rankable_2023_2025.zip"
+    protected_zip = output / "kraken_funding_protected_2026_plus_quarantine.zip"
+    invalid_zip = output / "kraken_funding_unknown_or_invalid.zip"
+    pre_rankable_zip = output / "kraken_funding_pre_rankable_before_2023_excluded.zip"
+
+    with (
+        zipfile.ZipFile(source_zip) as archive,
+        zipfile.ZipFile(rankable_zip, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as rankable_target,
+        zipfile.ZipFile(protected_zip, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as protected_target,
+        zipfile.ZipFile(invalid_zip, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as invalid_target,
+        zipfile.ZipFile(pre_rankable_zip, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as pre_rankable_target,
+    ):
         infos = archive.infolist()
         names = [info.filename for info in infos]
         duplicates = sorted(name for name, count in Counter(names).items() if count > 1)
         if duplicates:
             raise RuntimeError(f"duplicate ZIP member names: {duplicates[:5]}")
-        for info in infos:
+        for info in sorted(infos, key=lambda item: item.filename):
             kind = safe_member_kind(info)
-            payload = archive.read(info)
-            if len(payload) != info.file_size:
+            if kind != "funding_csv":
+                member_digest = hashlib.sha256()
+                member_bytes = 0
+                with archive.open(info) as source:
+                    for block in iter(lambda: source.read(1024 * 1024), b""):
+                        member_digest.update(block); member_bytes += len(block)
+                if member_bytes != info.file_size:
+                    raise RuntimeError(f"member length mismatch: {info.filename}")
+                inventory.append({
+                    "member_name": info.filename, "member_kind": kind,
+                    "compressed_bytes": info.compress_size, "uncompressed_bytes": info.file_size,
+                    "compression_ratio": round(info.file_size / max(1, info.compress_size), 6),
+                    "uncompressed_sha256": member_digest.hexdigest(),
+                    "exclusion_reason": (
+                        "Finder AppleDouble metadata; not a funding CSV" if kind == "appledouble_metadata_excluded"
+                        else "Finder directory metadata; not a funding CSV" if kind == "finder_metadata_excluded"
+                        else ""
+                    ),
+                })
+                continue
+            symbol = CSV_NAME.fullmatch(info.filename).group(1)  # type: ignore[union-attr]
+            export_symbols.add(symbol)
+            first: datetime | None = None
+            last: datetime | None = None
+            prior: datetime | None = None
+            rankable_count = protected_count = pre_rankable_count = invalid_count = gap_hours = zero_pairs = 0
+            source_rows = source_bytes = 0
+            source_digest = hashlib.sha256()
+            partition_handles: dict[str, Any] = {}
+            partition_digests = {name: hashlib.sha256() for name in ("rankable", "protected", "pre_rankable", "invalid")}
+
+            def route(partition: str, target: zipfile.ZipFile, member_name: str, line: bytes) -> None:
+                if partition not in partition_handles:
+                    handle = target.open(deterministic_member_info(member_name), "w", force_zip64=True)
+                    handle.write(EXPECTED_HEADER + b"\n")
+                    partition_digests[partition].update(EXPECTED_HEADER + b"\n")
+                    partition_handles[partition] = handle
+                partition_handles[partition].write(line)
+                partition_digests[partition].update(line)
+
+            try:
+                with archive.open(info) as source:
+                    header = source.readline()
+                    source_digest.update(header); source_bytes += len(header)
+                    if header.rstrip(b"\r\n") != EXPECTED_HEADER:
+                        raise RuntimeError(f"header mismatch: {info.filename}")
+                    for line_number, raw_line in enumerate(source, start=2):
+                        source_digest.update(raw_line); source_bytes += len(raw_line); source_rows += 1
+                        raw = raw_line.rstrip(b"\r\n")
+                        normalized = raw + b"\n"
+                        prefix = raw.split(b",", 2)
+                        if len(prefix) != 3:
+                            route("invalid", invalid_target, f"unknown_or_invalid/{symbol}.csv", normalized)
+                            invalid_count += 1; continue
+                        raw_ts, raw_tradeable, rate_tail = prefix
+                        try:
+                            stamp = parse_hour(raw_ts)
+                            tradeable = raw_tradeable.decode("ascii")
+                        except (ValueError, UnicodeDecodeError):
+                            route("invalid", invalid_target, f"unknown_or_invalid/{symbol}.csv", normalized)
+                            invalid_count += 1; continue
+                        if tradeable != symbol:
+                            raise RuntimeError(f"filename/tradeable mismatch: {info.filename}:{line_number}")
+                        if prior is not None:
+                            if stamp <= prior:
+                                raise RuntimeError(f"duplicate or unordered timestamp: {info.filename}:{line_number}")
+                            gap_hours += max(0, int((stamp - prior).total_seconds() // 3600) - 1)
+                        first = first or stamp; last = stamp; prior = stamp
+                        if stamp >= PROTECTED_START:
+                            # Rate bytes are never split, converted, or accumulated.
+                            route("protected", protected_target, f"protected_2026_plus_quarantine/{symbol}.csv", normalized)
+                            protected_count += 1
+                            continue
+                        if stamp < RANKABLE_START:
+                            # Pre-rankable rates are also routed opaquely; only
+                            # campaign-admissible rows receive Decimal parsing.
+                            route("pre_rankable", pre_rankable_target, f"pre_rankable_before_2023_excluded/{symbol}.csv", normalized)
+                            pre_rankable_count += 1
+                            continue
+                        rate_fields = rate_tail.split(b",")
+                        if len(rate_fields) != 2:
+                            raise RuntimeError(f"non-protected field count mismatch: {info.filename}:{line_number}")
+                        absolute, relative = map(decimal_rate, rate_fields)
+                        if (absolute == 0) != (relative == 0):
+                            raise RuntimeError(f"zero/zero mismatch: {info.filename}:{line_number}")
+                        if absolute == 0:
+                            zero_pairs += 1
+                        elif absolute.is_signed() != relative.is_signed():
+                            raise RuntimeError(f"rate sign mismatch: {info.filename}:{line_number}")
+                        route("rankable", rankable_target, f"rankable_2023_2025/{symbol}.csv", normalized)
+                        rankable_count += 1
+            finally:
+                for handle in partition_handles.values():
+                    handle.close()
+            if source_bytes != info.file_size:
                 raise RuntimeError(f"member length mismatch: {info.filename}")
             inventory.append({
                 "member_name": info.filename, "member_kind": kind,
                 "compressed_bytes": info.compress_size, "uncompressed_bytes": info.file_size,
                 "compression_ratio": round(info.file_size / max(1, info.compress_size), 6),
-                "uncompressed_sha256": sha256_bytes(payload),
-                "exclusion_reason": (
-                    "Finder AppleDouble metadata; not a funding CSV" if kind == "appledouble_metadata_excluded"
-                    else "Finder directory metadata; not a funding CSV" if kind == "finder_metadata_excluded"
-                    else ""
-                ),
+                "uncompressed_sha256": source_digest.hexdigest(), "exclusion_reason": "",
             })
-            if kind != "funding_csv":
-                continue
-            symbol = CSV_NAME.fullmatch(info.filename).group(1)  # type: ignore[union-attr]
-            export_symbols.add(symbol)
-            lines = payload.splitlines(keepends=True)
-            if not lines or lines[0].rstrip(b"\r\n") != EXPECTED_HEADER:
-                raise RuntimeError(f"header mismatch: {info.filename}")
-            rankable = [EXPECTED_HEADER + b"\n"]
-            protected = [EXPECTED_HEADER + b"\n"]
-            pre_rankable = [EXPECTED_HEADER + b"\n"]
-            invalid = [EXPECTED_HEADER + b"\n"]
-            first: datetime | None = None
-            last: datetime | None = None
-            prior: datetime | None = None
-            rankable_count = protected_count = pre_rankable_count = invalid_count = gap_hours = zero_pairs = 0
-            for line_number, raw_line in enumerate(lines[1:], start=2):
-                raw = raw_line.rstrip(b"\r\n")
-                prefix = raw.split(b",", 2)
-                if len(prefix) != 3:
-                    invalid.append(raw + b"\n"); invalid_count += 1; continue
-                raw_ts, raw_tradeable, rate_tail = prefix
-                try:
-                    stamp = parse_hour(raw_ts)
-                    tradeable = raw_tradeable.decode("ascii")
-                except (ValueError, UnicodeDecodeError):
-                    invalid.append(raw + b"\n"); invalid_count += 1; continue
-                if tradeable != symbol:
-                    raise RuntimeError(f"filename/tradeable mismatch: {info.filename}:{line_number}")
-                if prior is not None:
-                    if stamp <= prior:
-                        raise RuntimeError(f"duplicate or unordered timestamp: {info.filename}:{line_number}")
-                    gap_hours += max(0, int((stamp - prior).total_seconds() // 3600) - 1)
-                first = first or stamp; last = stamp; prior = stamp
-                if stamp >= PROTECTED_START:
-                    # The rate tail stays opaque: it is neither split nor converted.
-                    protected.append(raw + b"\n"); protected_count += 1
-                    continue
-                rate_fields = rate_tail.split(b",")
-                if len(rate_fields) != 2:
-                    raise RuntimeError(f"rankable field count mismatch: {info.filename}:{line_number}")
-                absolute, relative = map(decimal_rate, rate_fields)
-                if (absolute == 0) != (relative == 0):
-                    raise RuntimeError(f"zero/zero mismatch: {info.filename}:{line_number}")
-                if absolute == 0:
-                    zero_pairs += 1
-                elif absolute.is_signed() != relative.is_signed():
-                    raise RuntimeError(f"rate sign mismatch: {info.filename}:{line_number}")
-                if stamp < RANKABLE_START:
-                    pre_rankable.append(raw + b"\n"); pre_rankable_count += 1
-                else:
-                    rankable.append(raw + b"\n"); rankable_count += 1
-            if invalid_count:
-                invalid_members.append((f"unknown_or_invalid/{symbol}.csv", b"".join(invalid)))
-            rankable_payload = b"".join(rankable)
-            protected_payload = b"".join(protected)
-            pre_rankable_payload = b"".join(pre_rankable)
-            rankable_members.append((f"rankable_2023_2025/{symbol}.csv", rankable_payload))
-            if protected_count:
-                protected_members.append((f"protected_2026_plus_quarantine/{symbol}.csv", protected_payload))
-            if pre_rankable_count:
-                pre_rankable_members.append((f"pre_rankable_before_2023_excluded/{symbol}.csv", pre_rankable_payload))
             coverage.append({
-                "symbol": symbol, "source_member": info.filename, "source_rows": len(lines) - 1,
+                "symbol": symbol, "source_member": info.filename, "source_rows": source_rows,
                 "first_timestamp_utc": first.isoformat().replace("+00:00", "Z") if first else "",
                 "last_timestamp_utc": last.isoformat().replace("+00:00", "Z") if last else "",
                 "rankable_rows": rankable_count, "protected_rows": protected_count,
                 "pre_rankable_excluded_rows": pre_rankable_count,
                 "unknown_or_invalid_rows": invalid_count, "missing_hour_count": gap_hours,
                 "rankable_zero_zero_rows": zero_pairs,
-                "rankable_member_sha256": sha256_bytes(rankable_payload),
-                "protected_member_sha256": sha256_bytes(protected_payload) if protected_count else "",
+                "rankable_member_sha256": partition_digests["rankable"].hexdigest() if rankable_count else "",
+                "protected_member_sha256": partition_digests["protected"].hexdigest() if protected_count else "",
             })
             ledger.extend([
                 {"symbol": symbol, "partition": "rankable_2023_2025", "row_count": rankable_count, "numeric_rate_parsing": "Decimal"},
@@ -256,14 +286,8 @@ def ingest(source_zip: Path, output: Path, universe_csv: Path) -> dict[str, Any]
     if missing_campaign:
         raise RuntimeError(f"campaign symbols lack export coverage: {missing_campaign}")
 
-    rankable_zip = output / "kraken_funding_rankable_2023_2025.zip"
-    protected_zip = output / "kraken_funding_protected_2026_plus_quarantine.zip"
-    invalid_zip = output / "kraken_funding_unknown_or_invalid.zip"
-    pre_rankable_zip = output / "kraken_funding_pre_rankable_before_2023_excluded.zip"
-    deterministic_zip(rankable_zip, rankable_members)
-    deterministic_zip(protected_zip, protected_members)
-    deterministic_zip(invalid_zip, invalid_members)
-    deterministic_zip(pre_rankable_zip, pre_rankable_members)
+    for package in (rankable_zip, protected_zip, invalid_zip, pre_rankable_zip):
+        os.chmod(package, 0o444)
 
     def write_csv(name: str, rows: list[dict[str, Any]]) -> None:
         path = output / name
@@ -276,6 +300,24 @@ def ingest(source_zip: Path, output: Path, universe_csv: Path) -> dict[str, Any]
     write_csv("OFFICIAL_EXPORT_COVERAGE.csv", sorted(coverage, key=lambda row: row["symbol"]))
     write_csv("OFFICIAL_EXPORT_PARTITION_LEDGER.csv", sorted(ledger, key=lambda row: (row["symbol"], row["partition"])))
     write_csv("CAMPAIGN_SYMBOL_FUNDING_MAPPING.csv", campaign_mapping)
+    identity_comparison = []
+    for symbol in sorted(export_symbols | reconciled | k0 | campaign):
+        in_export, in_reconciled, in_k0, in_campaign = (
+            symbol in export_symbols, symbol in reconciled, symbol in k0, symbol in campaign
+        )
+        identity_comparison.append({
+            "symbol": symbol, "in_export": in_export, "in_reconciled_479": in_reconciled,
+            "in_k0_included_460": in_k0, "in_campaign_187": in_campaign,
+            "comparison_status": (
+                "campaign_exact_mapped" if in_campaign and in_export
+                else "campaign_missing_export_global_stop" if in_campaign
+                else "k0_missing_export_noncampaign" if in_k0 and not in_export
+                else "reconciled_missing_export_noncampaign" if in_reconciled and not in_export
+                else "export_only_not_reconciled" if in_export and not in_reconciled
+                else "reconciled_and_export_noncampaign"
+            ),
+        })
+    write_csv("OFFICIAL_EXPORT_IDENTITY_COMPARISON.csv", identity_comparison)
     result = {
         "source": {
             "path": str(source_zip), "byte_size": source_zip.stat().st_size,
@@ -293,6 +335,12 @@ def ingest(source_zip: Path, output: Path, universe_csv: Path) -> dict[str, Any]
         },
         "sample_anchors_verified": sorted(anchors),
         "campaign_mapping": {"mapped": len(campaign_mapping), "mechanically_excluded": 0},
+        "identity_comparison": {
+            "export_only": len(export_symbols - reconciled),
+            "reconciled_missing_export": len(reconciled - export_symbols),
+            "k0_missing_export": len(k0 - export_symbols),
+            "campaign_missing_export": len(campaign - export_symbols),
+        },
         "protected_funding_rows_opened_for_partition": True,
         "protected_funding_values_used_for_statistics": 0,
         "protected_strategy_price_or_return_rows_opened": 0,
