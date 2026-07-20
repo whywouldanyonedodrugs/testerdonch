@@ -55,3 +55,18 @@ changed-file credential/private-key pattern scan
 ```
 
 Result: PASS; no syntax failure, whitespace error or credential-like match.
+
+## Candidate-build serialization regression
+
+The first `v02` build stopped before review because strict JSON correctly
+rejected an internal negative-infinity empty-fold sentinel. After adding an
+explicit JSON-safe unavailable representation, the focused suite was repeated:
+
+```text
+.venv/bin/python -m unittest unit_tests.test_core_liquid_campaign -v
+Ran 18 tests in 22.140s
+OK
+```
+
+The failed `v02` root was preserved and is not a review candidate. The repaired
+candidate is built in a new versioned root.

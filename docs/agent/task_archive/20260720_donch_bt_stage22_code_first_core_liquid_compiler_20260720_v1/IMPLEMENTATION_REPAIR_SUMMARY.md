@@ -24,3 +24,11 @@ pre-outcome repair pass addressed them as follows:
     sidecar hash.
 
 No launch is performed by Stage 22.
+
+The first full candidate build then exposed one additional mechanical defect:
+the audit writer could not encode the internal negative-infinity sentinel used
+for empty inner folds as strict JSON. The arithmetic remains unchanged. The
+audit now serializes each empty fold as `unavailable_empty_fold` and its
+negative-infinity quantile as `negative_infinity_due_to_empty_fold`, while the
+selection engine continues to retain and calculate with explicit negative
+infinity internally.

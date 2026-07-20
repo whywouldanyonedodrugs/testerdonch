@@ -230,7 +230,21 @@ def aggregate_materialized_probe() -> dict[str, Any]:
     policy = materialization_policy([{"canonical_economic_address_sha256": "01" + "0" * 62, "beam_survivor": True, "passed": True}, {"canonical_economic_address_sha256": "02" + "0" * 62, "near_miss": True, "near_miss_rule": "one_failed_nonintegrity_gate_within_10pct", "passed": False}])
     exact = aggregate == materialized
     empties = inner["vector"].count(-math.inf) == 2 and inner["p20_with_negative_infinity"] == -math.inf
-    return {"schema": "stage22_aggregate_vs_materialized_probe_v2", "aggregate": aggregate, "materialized": materialized, "exact_equal": exact, "inner_fold_vector": inner, "empty_inner_folds_preserved": empties, "materialization_policy_addresses": policy, "pass": exact and empties and len(policy) == 2, "economic_outcomes_opened": False}
+    serialized_inner = {
+        **inner,
+        "vector": [
+            {"status": "unavailable_empty_fold"}
+            if value == -math.inf
+            else {"status": "available", "value": value}
+            for value in inner["vector"]
+        ],
+        "p20_with_negative_infinity": (
+            {"status": "negative_infinity_due_to_empty_fold"}
+            if inner["p20_with_negative_infinity"] == -math.inf
+            else {"status": "available", "value": inner["p20_with_negative_infinity"]}
+        ),
+    }
+    return {"schema": "stage22_aggregate_vs_materialized_probe_v2", "aggregate": aggregate, "materialized": materialized, "exact_equal": exact, "inner_fold_vector": serialized_inner, "empty_inner_folds_preserved": empties, "materialization_policy_addresses": policy, "pass": exact and empties and len(policy) == 2, "economic_outcomes_opened": False}
 
 
 def validate_compiled(root: Path) -> dict[str, Any]:

@@ -244,7 +244,17 @@ class SelectionTests(unittest.TestCase):
         inner = inner_fold_summary([1.0, None, -1.0, None])
         self.assertEqual(inner["vector"].count(-math.inf), 2)
         self.assertEqual(inner["p20_with_negative_infinity"], -math.inf)
-        self.assertTrue(aggregate_materialized_probe()["pass"])
+        probe = aggregate_materialized_probe()
+        self.assertTrue(probe["pass"])
+        self.assertEqual(
+            [item["status"] for item in probe["inner_fold_vector"]["vector"]],
+            ["available", "unavailable_empty_fold", "available", "unavailable_empty_fold"],
+        )
+        self.assertEqual(
+            probe["inner_fold_vector"]["p20_with_negative_infinity"],
+            {"status": "negative_infinity_due_to_empty_fold"},
+        )
+        json.dumps(probe, allow_nan=False)
 
     def test_plateau_medoid_refinement_beam_dedup_and_routes(self) -> None:
         configs = []
