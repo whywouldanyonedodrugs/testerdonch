@@ -19,9 +19,14 @@
       "sha256": "84a5d12adfc64e5ac3a9831b3653f31d553b662ab3d17a6875ebbc76ebbbafd4"
     },
     {
-      "bytes": 1004,
+      "bytes": 964,
       "path": "COMPLETION.md",
-      "sha256": "26b466ffbd9f9e25369c4e636c83b085381b6a100644ddd013b2ec68ea03d343"
+      "sha256": "0f1061e8b108384a977c9ce5702dbe02752ea030556768558c39d42f5ff9906a"
+    },
+    {
+      "bytes": 1596,
+      "path": "DRIVE_HANDOFF_VERIFICATION.json",
+      "sha256": "979e21429b283947f0934cd20f8e9cd0a5b440415689d6c5f1e575afb93fe1a9"
     },
     {
       "bytes": 641,
@@ -29,9 +34,9 @@
       "sha256": "55e4f8f706248303e2bba1a12b83fc17e7ad551e7194e5ea1ade68a42d3285e3"
     },
     {
-      "bytes": 4856,
+      "bytes": 4993,
       "path": "PLAN.md",
-      "sha256": "9c140ce74c0111e2de3f004f078648d45e345713340e74b8a914fbafce4d8833"
+      "sha256": "c2779f863dc28e25b2427d0a7c661be52e7464028f9ed740734baa5e68953c38"
     },
     {
       "bytes": 1339,
@@ -87,9 +92,10 @@
   "implementation_commit": "4754292855ba466884012132b473d3f9399f4cc5",
   "initial_pointer_sha256": "c1ccd47c396d47900973ad5856a7a30e12b36317929d9ab13325da6639948687",
   "initial_snapshot_sha256": "7a7bec1583f39480a290761f23ba3fcc3ee43fbaf201fd7a48afc343e8bedcd9",
+  "ordinary_drive_round_trip_verified": true,
   "private_account_data_opened": false,
   "protected_payloads_opened": false,
   "starting_commit": "03092c5e20a3738ddc7994b9382df01366937776",
-  "status": "implementation_and_sequence_0_bootstrap_complete",
+  "status": "complete_non_economic_continuity_bootstrap",
   "task_id": "donch_bt_bootstrap_dynamic_continuity_20260720_v1"
 }

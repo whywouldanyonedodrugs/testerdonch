@@ -1,0 +1,22 @@
+{
+  "files": [
+    {"bytes": 600, "path": "READ_FIRST.md", "sha256": "49379f1b5b0e16a3c28a2540d6ad72e472426a4109828bb6d244f0de89f8a670"},
+    {"bytes": 1339, "path": "REVIEW.md", "sha256": "64f2ffa08f6075e4e4c21be773a79af014e1058d940b8fd0fc47e8148f8d91a6"},
+    {"bytes": 1138, "path": "TRANSFER_MANIFEST.json", "sha256": "0679f99ccc9ced824cd32193a82d64e95ebe613e98eaf89f6c9f530d4c0b2eb5"},
+    {"bytes": 2166, "path": "VALIDATION.md", "sha256": "50c02ca9dc5b05a83f65de00d5348e1b750eace008f9c06ad2f7c9edbb3ed067"},
+    {"bytes": 21872, "path": "qlmg_dynamic_continuity_bootstrap_20260720_v01.zip", "sha256": "ed337d25da6101d44c2059a6ea36c645ddafe34138efe0deb404a3e5f43bdbac"}
+  ],
+  "local_archive_retained": true,
+  "local_archive_path": "/opt/testerdonch/results/rebaseline/phase_donch_dynamic_continuity_bootstrap_20260720_v1/handoff/20260720_donch_bt_bootstrap_dynamic_continuity_20260720_v1_v01/qlmg_dynamic_continuity_bootstrap_20260720_v01.zip",
+  "private_or_protected_payloads_uploaded": false,
+  "remote_file_count": 5,
+  "remote_identity_label": "qlmg_sweep_drive:",
+  "remote_path": "qlmg_sweep_drive:20260720_donch_bt_bootstrap_dynamic_continuity_20260720_v1_v01/",
+  "round_trip_method": "separate rclone download followed by byte-for-byte directory comparison and SHA-256 verification",
+  "round_trip_verified": true,
+  "task_folder_id": "1SOPIfM6slUj3vqrfDgfbfHeR2r4xV9-Q",
+  "task_folder_url": "https://drive.google.com/drive/folders/1SOPIfM6slUj3vqrfDgfbfHeR2r4xV9-Q",
+  "tool_version": "rclone v1.60.1-DEV",
+  "upload_blocker": null,
+  "verified_utc": "2026-07-20T12:11:03Z"
+}
