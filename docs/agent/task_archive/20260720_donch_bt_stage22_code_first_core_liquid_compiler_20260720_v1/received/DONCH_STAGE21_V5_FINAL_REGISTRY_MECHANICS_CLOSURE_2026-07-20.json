@@ -1,0 +1,185 @@
+{
+  "A2_parent_binding_and_corroboration": {
+    "A2_beam": "A2 is selected on its own paired-uplift development surface; it never borrows the parent's absolute return rank.",
+    "binding": "Every A2 row binds one exact V5 parent attempt ID and one exact parent-only counterpart ID. The counterpart differs only by removal of the tested A2 context overlay.",
+    "development_uplift": "paired parent-minus-counterpart UTC-day mean >0, 5000-replicate day-cluster bootstrap q05>0, and paired coverage>=0.70",
+    "fixed_context_A1_A3_anchor": "An A1/A3 legacy fixed-context row may enter the primary development beam only when its exact A2 context counterpart passes development_uplift in that fold. Otherwise it remains an anchor/ablation only.",
+    "outer_evaluation": "Freeze parent, counterpart, context and multiplier before outer access; report both absolute parent performance and paired context uplift.",
+    "parent_availability": "both ledgers must be valid and use identical parent event IDs before context permission/sizing"
+  },
+  "attempt_budget": {
+    "adaptive_refinement_attempts": 0,
+    "campaign_total": 9665,
+    "legacy_source_attempts": 3521,
+    "new_v5_broad_attempts": {
+      "A1_COMPRESSION_V2": 1856,
+      "A2_PRIOR_HIGH_RS_CONTEXT_V1": 1216,
+      "A3_STARTER_RETEST_V3": 1856,
+      "A4_TSMOM_V7": 1216
+    },
+    "new_v5_total": 6144,
+    "reason": "All V4 refinement reserve is converted to additional ex-ante broad space-filling attempts. No outcomes are used to create new economic addresses."
+  },
+  "axis_identity": {
+    "active_mask": "Evaluate the axis schema's frozen active_if expression after parent axes are canonicalized. Inactive axes must equal __NA__; any other value is invalid.",
+    "canonical_address": "Include every declared axis name, canonical value, active boolean, family, translation version, fold-independent economic semantics and contract hashes. Exclude attempt ID, fold, runtime and artifact paths.",
+    "duplicate_rule": "Equal canonical economic-address hashes are duplicate attempts. Preserve all source rows in multiplicity, but execute only the lexically first V5 attempt ID; later duplicates are unavailable_duplicate_address.",
+    "inactive_sentinel": "__NA__",
+    "legacy_absent_sentinel": "__LEGACY_UNSEARCHED__"
+  },
+  "bound_inputs": {
+    "prior_outcomes_opened": 0,
+    "repository_authority": "56059c1a2e86c91c32087bd4e4da9257b632fbd9",
+    "v2_control_registry_sha256": "491d341e915e7598e1672c337a6cbedc1c80ddf59cd84043ee98a5e0571cab0f",
+    "v2_registry_sha256": "7221956dbc520797b178da3a744ee35fc3d3c6115c4ca7ea5b6f7e1bc4903ea1",
+    "v3_executable_contract_sha256": "b7ea01f0537bae1efac468bc5a6c8f1ec292c5fe1edddbd98b13444339382f0e",
+    "v4_expansion_addendum_sha256": "3985e316ba175a96e6d3a969f8a1671d1aa318e0de092ee7763975bc594cd87a",
+    "v4_zip_sha256": "5879983ff5182a16d6d088d33d47a745d7c16de3d241bf127806176a674b7ce5"
+  },
+  "campaign_id": "kraken_core_liquid_discovery_campaign_002_final_v5",
+  "control_allocation": {
+    "active_control_ids": "Use the V2/V3 control definitions whose family includes the quota family, ordered by UTF-8 control_id.",
+    "conditional_binding": "At runtime a slot binds the frozen candidate occupying its family/fold/beam_rank. Missing candidate makes the slot unavailable_no_candidate; it is not reassigned.",
+    "control_attempt_id": "sha256(canonical_json({V5 closure hash, family, control_id, outer_fold_id, beam_rank, replicate_index}))",
+    "new_800_quotas": {
+      "A1_COMPRESSION_V2": 240,
+      "A2_PRIOR_HIGH_RS_CONTEXT_V1": 160,
+      "A3_STARTER_RETEST_V3": 240,
+      "A4_TSMOM_V7": 160,
+      "KDA02B_SURVIVOR_ADJUDICATION_V1": 0
+    },
+    "no_extra_controls": true,
+    "original_800": "preserve exact V2 control rows and identities; rebind execution under V3/V5 using the legacy rule",
+    "quota_split": "For family quota Q and k active control IDs, each receives floor(Q/k) slots; the first Q mod k ordered IDs receive one additional slot.",
+    "slot_order": "Within a control ID enumerate tuples lexically by outer_fold_id, beam_rank 1..8, replicate_index 0..infinity. Take the first allocated count."
+  },
+  "distance_and_complexity": {
+    "Gower": {
+      "both_inactive_or_both_legacy_absent": "axis omitted",
+      "categorical": "0 if equal else 1",
+      "numeric": "absolute difference divided by full registered domain max-min; zero-range axis omitted",
+      "one_inactive_or_legacy_absent_and_other_active": 1.0,
+      "ordered_categorical": "absolute declared-level-index difference divided by k-1",
+      "row_distance": "arithmetic mean of included axis distances; no included axes=>0",
+      "weights": "1 for every included axis"
+    },
+    "complexity": "number of active economic search axes plus number of enabled optional context components plus one when A3 has a nonzero add leg. Do not score which categorical value was chosen. __NA__, __LEGACY_UNSEARCHED__, IDs, hashes and metadata contribute zero.",
+    "eligible_axes": "all declared economic search axes; exclude IDs, hashes, lineage, fold, runtime and artifact metadata",
+    "primary_selection": "use the V3 primary plateau radius 0.15, minimum five members and beam width five",
+    "robustness_only": "compact and broad selection specifications are recomputed after the primary result. They cannot select, replace or promote a candidate."
+  },
+  "launch_authority": {
+    "claim_scope": "program_exposed_historical only",
+    "detached_supervisor": true,
+    "deterministic_hashes_authorized": true,
+    "economic_scope": "the V3/V4/V5 9,665-attempt, 1,600-control campaign",
+    "interactive_polling": false,
+    "launch_after_pass": true,
+    "runtime": "V3 renewable checkpoint, memory, disk-reserve, retry, heartbeat and outcome-blind repair rules"
+  },
+  "legacy_rebinding": {
+    "execution": "Legacy source coordinates are re-executed under the V3 economic contract. The V5 attempt ID, not the historical source ID, is the executable identity.",
+    "lineage_fields": [
+      "source_attempt_id",
+      "source_economic_address_sha256",
+      "source_registry_sha256",
+      "programme_exposure_class"
+    ],
+    "new_axis_projection": "A legacy row receives the value __LEGACY_UNSEARCHED__ for every V4 axis absent from its source schema. This is distinct from an economically inactive __NA__ value.",
+    "prior_economic_outputs_reused": false,
+    "selection_roles": "Legacy rows may serve as source anchors, ablations and ordinary screening nodes. A __LEGACY_UNSEARCHED__ field is excluded from Gower distance and complexity for comparisons among legacy rows, and yields distance 1 against an active searched value.",
+    "source_rows_immutable": true,
+    "v5_attempt_id": "sha256(canonical_json({source_attempt_id,source_economic_address_sha256,v3_contract_sha256,v4_axis_schema_sha256,v5_closure_sha256}))"
+  },
+  "new_axis_formulas": {
+    "ATR_window_days": "Use the V3 Wilder ATR formula with exactly the registered 10,20,40 or 60 consecutive valid completed UTC daily true ranges; unavailable until the complete window exists.",
+    "BTC_ETH_drawdown_lookback_days": "drawdown_magnitude=1-close/max_completed_close_over_registered_N_days; long uses 1-percentile, short uses percentile.",
+    "BTC_ETH_trend_pair_days": "For pair a_b, compute each asset's a-day and b-day completed-daily log return fold-training percentiles, average the two percentiles within asset, side-align, then arithmetic-mean BTC and ETH.",
+    "BTC_ETH_volatility_lookback_days": "Annualized sample_sd of completed-daily log returns over registered N days; use 1-percentile for both sides.",
+    "breadth_return_lookback_days": "Among known PIT members, fraction whose completed-daily log return over the registered 5,20 or 60 days is >0.",
+    "contraction_baselines": {
+      "adjacent_equal_duration": "sample_sd base adjacent 5-minute log returns divided by sample_sd of the immediately preceding equal-duration adjacent-return window",
+      "trailing_5x_base_duration": "sample_sd base adjacent returns divided by sample_sd of the immediately preceding window containing five times the base-duration number of completed bars"
+    },
+    "dispersion_return_lookback_days": "Median absolute deviation from the cross-sectional median of completed-daily log returns over the registered 5,20 or 60 days.",
+    "parkinson_volatility": "For registered N valid completed UTC daily bars: sqrt((365/(4*ln(2)))*mean((ln(high/low))^2)). Require finite positive high/low and the V3 valid-day rule for every day.",
+    "rank_ties": "average ranks; percentile=(average_rank-1)/(n-1); n<5 makes the observation unavailable",
+    "signal_or_shape_rank_scopes": {
+      "global_PIT_or_global_side": "Pool every PIT-eligible training observation, preserving side separation when named.",
+      "liquidity_decile_or_decile_side": "Pool observations whose one-day-lagged 30-day median quote-notional PIT decile equals the observation's decile; preserve side separation when named. Minimum five symbols.",
+      "parent_liquidity_universe": "At each decision, average-rank only members inside the exact parent's registered lagged-liquidity universe.",
+      "symbol_or_symbol_side": "Empirical Type-7 time-series percentile from the exact symbol or symbol-side fold-training population."
+    }
+  },
+  "pairwise_coverage": {
+    "claim_rule": "Unrepresented or thin regions cap family-exhaustion claims and are future-search gaps. They do not permit adding hidden attempts after outcomes.",
+    "definitions": "For each pair of categorical active axes, count each valid level pair among the 6,144 new addresses. Rows where either axis is __NA__ or __LEGACY_UNSEARCHED__ do not enter that pair's denominator.",
+    "reports": [
+      "marginal level count and share",
+      "pairwise level-pair count and share",
+      "unrepresented logically valid level pairs",
+      "Sobol discrepancy",
+      "nearest-neighbor Gower distribution"
+    ],
+    "role": "diagnostic_not_gate"
+  },
+  "preoutcome_gate": {
+    "requirements": [
+      "rebuild all 9,665 attempt rows and 1,600 controls twice with byte-identical outputs",
+      "replay Sobol stream indices and canonical addresses independently",
+      "map every V4 axis value to one formula or explicit metadata-only role",
+      "prove all inactive-axis values obey active_if and sentinel rules",
+      "prove every A2 parent and counterpart identity exists",
+      "reconcile control quotas and every conditional slot",
+      "recompute Gower and complexity from an independent validator",
+      "report all coverage diagnostics",
+      "run synthetic ledgers covering every new axis level and each control family"
+    ],
+    "review": "One consolidated independent review must inspect all nine prior blocked categories. If another unresolved economic semantic exists, return the full remaining list in one report before outcomes."
+  },
+  "prohibited": [
+    "protected strategy outcomes",
+    "Capital.com payload access",
+    "new acquisition",
+    "capture restart",
+    "C17",
+    "hidden variants",
+    "outcome-conditioned packet repair",
+    "private/account actions",
+    "orders",
+    "deployment",
+    "live trading",
+    "force push"
+  ],
+  "schema": "donch_stage21_v5_final_registry_mechanics_closure_v1",
+  "sobol_generation": {
+    "block_algorithm": "For block b=0,1,... create a fresh scrambled Sobol engine with the family seed, fast_forward(b*4096), then call random_base2(12) to obtain exactly 4096 points. Process points in block/index order. Canonicalize dependencies, reject logically invalid rows, source-address duplicates and earlier V5 duplicates, but every examined point retains its stream index. Continue blocks until the family quota of unique valid addresses is filled.",
+    "coverage": "Marginal, pairwise, discrepancy and nearest-neighbor coverage are mandatory diagnostics only. They do not regenerate, select, reject, or reorder attempts.",
+    "dimension_order": "For each family, order all V4 search-axis names by UTF-8 lexical order. Conditional axes remain dimensions; inactive values are canonicalized to __NA__ after dependency evaluation.",
+    "failure": "if 64 blocks do not fill a family quota, stop packet construction and report the valid-domain defect",
+    "implementation": "scipy.stats.qmc.Sobol",
+    "implementation_binding": "Record Python, scipy, Sobol direction-number table and scipy source-file SHA-256 in the packet. The independent reviewer must replay the exact rows byte-for-byte.",
+    "level_order": "Use the literal value order in the V4 axis declaration. Do not alphabetize axis values.",
+    "point_mapping": "For an axis with k declared levels, index=min(floor(u*k),k-1). Continuous axes, if any, use the declared closed interval affine mapping and canonical 15-significant-digit decimal serialization.",
+    "selection": "first required unique valid addresses in stream order; no outcome-free coverage optimizer changes their order",
+    "streams": {
+      "A1_COMPRESSION_V2": {
+        "required": 1856,
+        "seed": 2026072102
+      },
+      "A2_PRIOR_HIGH_RS_CONTEXT_V1": {
+        "required": 1216,
+        "seed": 2026072103
+      },
+      "A3_STARTER_RETEST_V3": {
+        "required": 1856,
+        "seed": 2026072104
+      },
+      "A4_TSMOM_V7": {
+        "required": 1216,
+        "seed": 2026072101
+      }
+    }
+  },
+  "supersession": "V5 supersedes V4 wherever V4 called for Sobol continuation, adaptive refinement, pairwise-coverage regeneration, or undefined V4 identity/distance/control allocation. V3 economic/accounting semantics and V4 economic search axes remain binding."
+}

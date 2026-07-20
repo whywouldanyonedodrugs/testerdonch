@@ -1,0 +1,683 @@
+# DONCH → Backtesting Agent
+# Stage 22 — Code-First Core-Liquid Campaign Compiler, Executor, Benchmark, and Final Approval Packet
+# Date: 2026-07-20
+# Version: 1
+
+```text
+task_id:
+    donch_bt_stage22_code_first_core_liquid_compiler_20260720_v1
+
+repository:
+    /opt/testerdonch
+
+mode:
+    direct_apply_in_isolated_worktree
+
+drive_handoff:
+    approved_default
+
+economic_outcomes_authorized:
+    no
+
+protected_outcomes_authorized:
+    no
+
+Capitalcom_payload_access:
+    no
+
+new_acquisition:
+    no
+
+capture_restart:
+    no
+
+commit_authorized:
+    yes — task-scoped commits only
+
+push_authorized:
+    yes — non-force only, after independent review
+
+purpose:
+    replace the layered Stage-21 V1–V5 prose/packet stack with one typed,
+    executable campaign compiler and tested family engines; produce one final
+    hash-bound economic approval packet, but do not launch economics in this task
+```
+
+## 1. Authority and starting verification
+
+At task start, independently verify:
+
+1. repository identity, remotes, `AGENTS.md`, branch, worktrees, current `main`,
+   `origin/main`, and cleanliness;
+2. the latest stable dynamic-continuity pointer, referenced snapshot and hashes;
+3. the Stage-21 V1 handoff and all immutable stopped-launch evidence available
+   locally;
+4. the exact bytes and hashes listed below.
+
+Expected repository authority reported by the last stopped task:
+
+```text
+56059c1a2e86c91c32087bd4e4da9257b632fbd9
+```
+
+Treat this as an expected starting watermark, not permission to ignore a newer
+verified `main`. Stop on unexplained authority divergence.
+
+Bound source packages:
+
+```text
+Stage-21 V1 packet ZIP:
+    DONCH_Stage21_Research_Adequacy_and_Core_Discovery_Packet_2026-07-20_v1.zip
+    SHA-256:
+    d5c7c8a99e55e6c0fa27a366d9cd838b19bdecb5320ffb02c936d10c5d14e960
+
+Stage-21 V3 contract:
+    b7ea01f0537bae1efac468bc5a6c8f1ec292c5fe1edddbd98b13444339382f0e
+
+Stage-21 V4 addendum:
+    3985e316ba175a96e6d3a969f8a1671d1aa318e0de092ee7763975bc594cd87a
+
+Stage-21 V5 ZIP:
+    0f7bb1ff3d62b2cfb0f1e14a6cfbd6a52d0bfd3d26e7331ed69f694dd570d8b9
+
+Stage-21 V5 closure:
+    6b21272f61ef808f65f59d3c26dd70ff8f6808a94bd69b87149f2858fbdd5c18
+
+V2 configuration registry:
+    7221956dbc520797b178da3a744ee35fc3d3c6115c4ca7ea5b6f7e1bc4903ea1
+
+V2 control registry:
+    491d341e915e7598e1672c337a6cbedc1c80ddf59cd84043ee98a5e0571cab0f
+```
+
+Required stopped-task evidence includes, when present:
+
+```text
+/opt/testerdonch-stage21-launch-20260720/docs/agent/task_archive/
+  20260720_donch_bt_stage21_v5_final_closure_launch_20260720_v1/
+    CONSOLIDATED_PREOUTCOME_REVIEW.md
+    AUTHORITY_VERIFICATION.json
+    PREOUTCOME_AUDIT_EVIDENCE.json
+```
+
+Preserve local evidence commits such as `7c89813`, `411c7db`,
+`b3f783fa3958e0caf91a73c5bcf560e0de7cfe37`, and
+`8e7749a5398e3a4c8fed60d6e05db3e4e4ea7fd4` when they exist. They are
+provenance, not current repository authority. Do not merge them blindly.
+
+## 2. Decision and scope
+
+The latest review shows that V1–V5 never became one executable contract. Do not
+write V6 as another prose amendment. Do not try to launch from V5.
+
+Build one code-owned source of truth:
+
+```text
+typed family schemas
++ deterministic registry compiler
++ deterministic control compiler
++ exact family engines
++ exact selection engine
++ exact runtime supervisor
++ independent validators
+= final campaign packet
+```
+
+The code, typed schemas, generated registries and fixtures must agree
+byte-for-byte. Narrative reports summarize them; narrative prose is not the
+economic interpreter.
+
+Families retained:
+
+```text
+A4_TSMOM_V7
+A1_COMPRESSION_V2
+A2_PRIOR_HIGH_RS_CONTEXT_V1
+A3_STARTER_RETEST_V3
+KDA02B_SURVIVOR_ADJUDICATION_V1
+```
+
+Preserve:
+
+- all historical terminal decisions and programme exposure;
+- the exact rejected status of old translations;
+- the original Stage-21 source registries as immutable lineage;
+- protocol-v2 development and programme-exposed claim limits;
+- rankable interval `[2023-01-01, 2026-01-01)`;
+- protected-period isolation;
+- Kraken-specific funding, lifecycle and execution semantics;
+- no C17, Capital.com, capture, account, order, deployment or live-trading work.
+
+## 3. Single typed schema
+
+Create a versioned package such as:
+
+```text
+tools/core_liquid_campaign/
+    schema.py
+    compiler.py
+    controls.py
+    selection.py
+    accounting.py
+    runtime.py
+    validators.py
+    family_engines/
+        a4_tsmom.py
+        a1_compression.py
+        a2_context.py
+        a3_starter_retest.py
+        kda02b_adjudication.py
+```
+
+The exact repository layout may differ if a smaller design is clearer.
+
+Every family must have one typed schema defining, for every field:
+
+```text
+field name
+type
+ordered or unordered
+allowed values or numeric bounds
+default policy: prohibited unless explicitly economic
+active_if expression
+valid_if expression
+formula/interpreter ID
+feature availability
+threshold-population scope
+missingness
+economic-identity inclusion
+distance inclusion and scale
+complexity contribution
+control compatibility
+serialization
+```
+
+Generate:
+
+```text
+FAMILY_AXIS_SCHEMA.json
+FAMILY_AXIS_SCHEMA.sha256
+SEMANTIC_COVERAGE_MATRIX.csv
+ACTIVE_IF_TRUTH_TABLE.csv
+INVALID_COMBINATION_MATRIX.csv
+```
+
+Requirements:
+
+- no hidden defaults;
+- no `__LEGACY_UNSEARCHED__` or provenance field inside economic identity;
+- provenance and executable projection are separate objects;
+- inactive economic axes use one explicit typed null and are excluded from
+  execution;
+- every distinct registered value maps to an interpreter and focused test;
+- unknown fields or values fail packet compilation before outcomes.
+
+## 4. Legacy registry handling
+
+The original 3,521 rows remain immutable lineage and multiplicity evidence.
+
+Classify them mechanically:
+
+```text
+2,913 source rows reported as registered_executable
+608 source rows reported as registered_conditional refinement
+```
+
+Do not pretend the 608 conditional rows are unconditional.
+
+Recommended treatment:
+
+1. normalize the 2,913 source-executable coordinates into the new typed schema;
+2. preserve every original source row and source hash;
+3. classify the 608 old conditional-refinement rows as
+   `inherited_conditional_not_executed_in_new_broad_screen`, unless the compiler
+   can prove an exact, outcome-independent center and activation condition;
+4. replace any non-executed refinement budget with new ex-ante broad
+   space-filling addresses, preserving total multiplicity;
+5. separate:
+   - source attempt ID;
+   - executable attempt ID;
+   - canonical economic-address hash;
+   - lineage and supersession metadata.
+
+Economically identical executable projections share one canonical economic
+address. Execute once; retain all source attempts in multiplicity.
+
+Produce:
+
+```text
+LEGACY_NORMALIZATION_LEDGER.parquet
+LEGACY_EXECUTABLE_PROJECTION.jsonl
+LEGACY_DUPLICATE_AND_SUPERSESSION_AUDIT.md
+```
+
+## 5. Research-space construction
+
+Use the V1 mechanisms and V4 proposed economic axes as priors, not as an
+unquestioned executable schema.
+
+Before outcomes, the agent owns the routine technical task of deciding whether
+an axis is:
+
+```text
+economic_search_axis
+fixed_mechanism_semantic
+robustness_only
+metadata_only
+removed_as_duplicate_or_unsupported
+```
+
+The decision must be outcome-free and justified from mechanism, available data,
+prior source contracts and executable meaning.
+
+Examples that must be resolved explicitly:
+
+- A4 `signal_rank_scope`: define its actual signal transform and consumer, or
+  remove it from economic identity;
+- A2: define a generable exact parent/counterpart grammar;
+- A3: use separate long and short executable identities; any symmetric portfolio
+  is derived reporting only;
+- rank scopes and liquidity deciles: one consistent normalization contract;
+- context-bearing A1/A3 source rows: anchor/ablation status cannot silently make
+  them main-beam candidates;
+- unsupported data-dependent axes are removed or marked unavailable rather than
+  proxied.
+
+Generate the final broad attempt budget from an outcome-free budget optimizer
+that uses only:
+
+```text
+valid-domain size
+categorical and pairwise coverage
+mechanism priority
+engine runtime benchmark
+memory and disk projection
+existing multiplicity
+```
+
+It must not use returns, PnL or candidate ranks.
+
+Target a substantial but computationally justified campaign. A final total near
+8,000–12,000 strategy/adjudication addresses is reasonable, but the compiler
+must report and justify the exact count. Do not preserve `9,665` merely because
+V4 stated it if a different count gives better coverage per compute.
+
+Space-filling generator requirements:
+
+- use an API-valid deterministic generator;
+- bind library and source hashes;
+- persist raw unit-cube coordinates;
+- persist mapped typed values and rejected invalid coordinates;
+- generate the exact registry twice with byte-identical results;
+- include small fixed fixtures independently verified without using the same
+  implementation path;
+- do not depend on invalid `fast_forward`/`random_base2` combinations;
+- after the registry is frozen, registry bytes outrank generator convenience.
+
+Produce:
+
+```text
+FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl
+RAW_SPACE_FILLING_COORDINATES.parquet
+SEARCH_SPACE_COVERAGE_MATRIX.csv
+PAIRWISE_COVERAGE_MATRIX.parquet
+UNREPRESENTED_VALID_REGIONS.csv
+REGISTRY_REPLAY_FIXTURES.json
+```
+
+## 6. A2 parent and context design
+
+A2 is an overlay, not an independent trade generator.
+
+Implement one exact grammar. Prefer a staged conditional-template model:
+
+1. A1 and A3 parent candidates are developed without hidden A2 promotion.
+2. Parent beam slots are frozen deterministically.
+3. Pre-registered A2 templates bind to exact family/fold/beam slots.
+4. Parent-only counterpart and context-overlay identity are generated
+   atomically before A2 outcome access.
+5. Missing parent slot means `unavailable_no_parent`, never reassignment.
+6. Paired event IDs, exposure, gross return, costs, funding and occupancy are
+   identical except for the context permission/size action.
+7. Context promotion requires a registered paired-uplift rule and control.
+8. Legacy A2 rows with inconsistent `parent_family`/`parent_binding` remain
+   lineage defects unless an unambiguous source correction is proven.
+
+The agent may choose a simpler exact grammar if it provides complete typed
+identities and preserves the mechanism. Record the choice before outcomes.
+
+## 7. Exact controls
+
+Compile one finite control table after the strategy registry and conditional
+slot grammar are frozen.
+
+Each row must include:
+
+```text
+control_attempt_id
+control_id
+family
+fold
+parent slot or exact parent
+replicate index
+effective seed
+transformation/allocator version
+missing-parent behavior
+duplicate behavior
+economic-address hash
+```
+
+Control budget should be conditional on frozen survivors. Do not evaluate all
+controls for failed/unselected definitions merely to use CPU.
+
+Controls must include the packet-required main null and component ablations for
+each selected family object. Generate:
+
+```text
+FINAL_CONTROL_REGISTRY.jsonl
+CONTROL_COVERAGE_MATRIX.csv
+CONTROL_REPLAY_FIXTURES.json
+```
+
+## 8. Code-first family-engine gate
+
+Implement exact engines before creating an approval request.
+
+Each engine must define:
+
+```text
+event type
+event identity
+feature formulas
+side grammar
+entry
+exit
+stop/target/trail
+leg and parent accounting
+non-overlap
+cost and funding treatment
+threshold populations
+aggregate metrics
+ledger regeneration
+controls
+stress tests
+```
+
+Before any full economic run:
+
+1. run representative synthetic and outcome-free fixtures for every registered
+   axis level and every exit/accounting path;
+2. benchmark each engine on authorized non-outcome measurement/cache work;
+3. regenerate a bounded materialized ledger and compare it with the aggregate
+   engine exactly;
+4. prove protected and Capital.com readers remain closed;
+5. independently review source code, schema and generated bytes.
+
+Produce:
+
+```text
+ENGINE_CONTRACTS/*.json
+ENGINE_COVERAGE_MATRIX.csv
+AGGREGATE_VS_MATERIALIZED_PROBE_AUDIT.json
+ENGINE_BENCHMARK_SUMMARY.csv
+```
+
+## 9. Efficient economic campaign architecture
+
+Design the future approved run for minimum wasted computation without losing
+important information.
+
+### 9.1 Shared semantic caches
+
+Build and reuse hash-bound caches for:
+
+```text
+decision calendar
+PIT universe and lagged liquidity
+daily and 5-minute feature panels
+prior highs/lows
+ATR and volatility estimators
+breadth/dispersion
+BTC/ETH context
+funding
+entry/exit lookup arrays
+event keys
+```
+
+A harmless wrapper/report change must not invalidate a semantic cache. A change
+to feature meaning, source manifest, schema, protected boundary or selected
+event keys must invalidate it.
+
+### 9.2 Aggregate-first coarse evaluation
+
+Evaluate every final registered configuration using exact aggregate summaries.
+Do not write full event ledgers for all definitions.
+
+Persist enough statistics to reproduce selection:
+
+```text
+event count
+market days
+symbol/month/year contributions
+base and stress net
+median/trimmed mean
+inner-fold vector including empties
+coverage
+concentration
+opportunity frequency
+component metrics
+```
+
+### 9.3 Conditional materialization
+
+Materialize full event ledgers only for a predeclared set:
+
+```text
+all deterministic beam survivors
+all mechanism anchors and main component nulls
+near-misses under a frozen rule
+a stratified random failed audit sample
+objects needed for controls/forensics
+```
+
+The near-miss and failed-audit rules must be frozen before outcomes.
+
+### 9.4 Safe pruning
+
+Safe pre-outcome pruning:
+
+```text
+invalid combinations
+duplicate economic addresses
+inactive-axis duplicates
+unavailable required data
+failed source/hash/integrity gate
+impossible minimum sample or coverage after complete data enumeration
+```
+
+Safe stage-boundary pruning after complete registered development:
+
+```text
+no eligible plateau/candidate under the frozen rule
+component-null equality showing exact economic duplication
+family-specific integrity failure
+```
+
+Do not cancel a configuration merely because its first chronological folds,
+symbols or months are unprofitable. That can discard regime-dependent
+opportunities and biases the research.
+
+Do not use stochastic bandit/successive-halving pruning unless it is separately
+registered and proves that all information required for the final response
+surface is retained. Default: do not use it.
+
+Outer evaluation and controls are already the main compute-saving gates:
+
+- only frozen beam candidates enter outer folds;
+- only frozen survivors receive conditional controls;
+- unrelated families continue after a family stop.
+
+A family may stop future economic work when the frozen route makes success
+logically impossible and the remaining folds cannot affect any permitted
+scientific claim. If later-fold behavior would still inform regime/context
+interpretation, continue the fixed diagnostic subset instead of declaring the
+family exhausted.
+
+### 9.5 Runtime
+
+Benchmark and choose the maximum independently safe worker count not exceeding:
+
+```text
+logical CPU count
+memory ceiling
+storage write throughput
+```
+
+Use four workers on the currently reported four-logical-CPU host unless a fresh
+benchmark proves a better safe setting.
+
+Use:
+
+```text
+persistent detached supervisor
+lazy bounded scheduling
+atomic state
+idempotent restart
+30-minute Telegram heartbeats
+worker-death retry
+no-progress detection
+renewable checkpoints
+no interactive polling
+```
+
+Memory and free-disk reserves are safety boundaries, not economic rejection
+rules. Compact and hash-archive closed artifacts before storage pressure. Never
+delete unique or unverified evidence.
+
+Incrementally publish hash-verified artifacts when a measurement, family,
+development fold, beam, outer fold, control tranche or forensic stage completes.
+Do not expose partial winner rankings through Telegram and do not use interim
+outcomes to change the run.
+
+## 10. Final packet and one remaining approval
+
+This task does not launch economics.
+
+Only after the code, exact registry, exact controls, executor, benchmark,
+coverage matrices and independent review pass, generate:
+
+```text
+FINAL_CAMPAIGN_MANIFEST.json
+FINAL_HUMAN_APPROVAL_REQUEST.json
+FINAL_LAUNCH_TASK.md
+FINAL_PACKET_HASH_INVENTORY.json
+```
+
+The final approval request must bind every economic and selection dependency by
+SHA-256 and state:
+
+```text
+no post-approval economic invention remains
+executor already exists and passed semantic coverage
+registry and controls already exist
+synthetic and aggregate/materialized probes passed
+runtime projection is measured
+```
+
+Return one concise approval block naming the final manifest and approval-request
+hashes. That one later approval should authorize launch, runtime-only repairs,
+idempotent recovery, terminal review, Git publication, Drive handoff and
+continuity publication.
+
+Do not ask for approval of intermediate schemas or routine implementation
+choices.
+
+## 11. Tests and review
+
+At minimum:
+
+```text
+unit tests for every axis value and active_if branch
+property tests for identity/serialization
+duplicate and invalid-address tests
+generator replay tests
+A2 parent/counterpart tests
+all exit/accounting paths
+control replay tests
+PIT and leakage tests
+protected/Capital.com firewall tests
+aggregate/materialized equality
+deterministic selection replay
+runtime stop/recovery
+secret scan
+git diff --check
+```
+
+An independent reviewer must inspect the complete implementation, not only the
+packet prose. Any remaining semantic gap must be reported in one complete list
+before publication.
+
+## 12. Required archive and completion
+
+Archive:
+
+```text
+received task and source hashes
+plan
+decisions
+typed schemas
+source code
+tests
+commands/results
+generated registries
+coverage matrices
+benchmarks
+independent review
+artifact manifest
+Drive verification
+completion
+next action
+```
+
+Finish with:
+
+- clean original checkout and task worktree;
+- non-force `main`/`origin/main` update if review passes;
+- round-trip verified compact Drive handoff;
+- dynamic continuity publication after immutable handoff;
+- no economic result, protected access, Capital.com access, order or deployment
+  claim.
+
+## 13. Final response format
+
+```text
+status:
+actual_starting_commit:
+current_continuity_sequence:
+source_packages_verified:
+root_cause_resolution:
+typed_schema_complete:
+legacy_rows_normalized:
+final_strategy_attempt_count:
+final_control_count:
+families:
+search_space_coverage:
+engine_coverage:
+aggregate_materialized_probe:
+runtime_projection:
+safe_pruning_policy:
+independent_review:
+final_manifest_sha256:
+final_approval_request_sha256:
+final_launch_task:
+files_and_commits:
+origin_main_updated:
+task_archive:
+Drive_handoff:
+continuity_publication:
+economic_outcomes_opened: no
+protected_rows_opened: no
+Capitalcom_payload_opened: no
+remaining_limits:
+exact_next_human_action:
+```

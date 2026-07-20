@@ -1,0 +1,464 @@
+{
+  "authority": {
+    "attempt_count": 3521,
+    "capitalcom_payloads_opened": 0,
+    "conditional_control_count": 800,
+    "local_evidence_commits_not_authority": [
+      "7c89813",
+      "411c7db"
+    ],
+    "outcomes_opened_by_stopped_launches": 0,
+    "outer_fold_count": 8,
+    "protected_rows_opened": 0,
+    "repository_main": "56059c1a2e86c91c32087bd4e4da9257b632fbd9",
+    "supersession": "The V1 and V2 Stage 21 packets remain immutable provenance but are non-authorizing. V3 must preserve their Sobol points, family axes, attempt/control budgets, folds, costs, funding, and historical multiplicity except where this contract explicitly closes semantics.",
+    "v2_configuration_registry_sha256": "7221956dbc520797b178da3a744ee35fc3d3c6115c4ca7ea5b6f7e1bc4903ea1",
+    "v2_control_registry_sha256": "491d341e915e7598e1672c337a6cbedc1c80ddf59cd84043ee98a5e0571cab0f",
+    "v2_human_approval_sha256": "3b58abf97fad367bf0a9fcba79034788373da06d9bc39350fe88019b53428abe",
+    "v2_manifest_sha256": "d198bf73d6ab2230d26f5934ddaa696424a50eb9785df7096d8d17b9df99b003"
+  },
+  "authorization_limits": {
+    "C17": false,
+    "capitalcom_payloads": false,
+    "capture_restart": false,
+    "deployment": false,
+    "force_push": false,
+    "independent_validation_claim": false,
+    "live_trading": false,
+    "new_acquisition": false,
+    "orders": false,
+    "private_account_actions": false,
+    "protected_outcomes": false,
+    "rankable_interval": "[2023-01-01,2026-01-01)"
+  },
+  "campaign_id": "kraken_core_liquid_discovery_campaign_002_executable_v3",
+  "control_determinism": {
+    "A2_context_permutation": "within symbol x UTC-month x lagged-liquidity-decile, sort parent IDs and permute the complete ordered component vector without replacement; group size<2=>unavailable_control",
+    "A3_retest_time_permutation": "within symbol x UTC-quarter x side, encode each parent as integer add lag in 5-minute bars or NO_ADD; sort parent IDs and permute without replacement. Numeric assigned lag creates a synthetic add at first authorized open after starter_entry+lag*5m if starter is still open and within the registered window; it does not require the true reclaim predicate. Otherwise unavailable_control",
+    "A4_sign_permutation": "within symbol x UTC-year, sort decisions; permute complete scalar signs including zeros without replacement; preserve magnitude, exposure, context, entry and exit",
+    "duplicate": "economically identical transformed controls are unavailable_duplicate_address",
+    "hash_seed": "first unsigned big-endian 64 bits of SHA256(canonical tuple)",
+    "matched_pseudo_event_allocator": {
+      "A1": "pseudo decision uses the same trailing impulse/base clocks and frozen structure, but is selected from timestamps failing at least one primary A1 signal gate; apply the same side, entry and exit grammar",
+      "A3": "pseudo candidate is a same-side first-close prior-level crossing using the same lookback that fails at least one breakout-rank or confirmation gate; apply the same starter/add/exit grammar",
+      "KDA02B": "match side, month, 2-hour slot, liquidity decile, 20-day volatility decile and exact price-move-magnitude decile while excluding the derivatives-state predicate",
+      "no_candidate": "unavailable_control",
+      "pool": "same symbol, side, UTC month, 2-hour UTC slot, lagged-liquidity decile and 20-day realized-volatility decile; PIT/lifecycle/data/execution valid; not a true parent event; no overlap within the parent's maximum registered holding window with a true or already allocated pseudo event",
+      "selection": "candidate with minimum SHA256(seed,control_id,parent_event_id,candidate_ts); allocation without replacement in lexical parent order"
+    },
+    "seed": 20260721
+  },
+  "controls_forensics_and_routes": {
+    "claim_caps": "all routes are program_exposed_historical; forensic tags limit claim scope and do not become independent validation or deployment",
+    "common_candidate_gate": {
+      "main_null_pass_folds_min": 5,
+      "nonempty_outer_folds_min": 5,
+      "outer_median_base_gt_bps": 0,
+      "outer_median_stress_gt_bps": -18,
+      "outer_p20_base_gt_bps": 0,
+      "positive_outer_folds_min": 5
+    },
+    "component_ablation_pass": "parent primary-control primary>0 and parent stress>=control stress-5bps",
+    "family_outer_vector": "eight family-fold values, each the median of that fold's selected beam candidate metrics; a fold with no selected candidate is -inf",
+    "forensic_tags": {
+      "concentrated": "max symbol/day/year concentration>0.50 or worst leave-one-symbol/month net<=0",
+      "execution_sensitive": "32bps stress<=0 or 15-minute delayed-entry base<=0",
+      "funding_sensitive": "funding-zero or one boundary alignment changes the sign of base net",
+      "parameter_sensitive": "fewer than 60% of available registered one-axis refinement neighbors have positive base net",
+      "sample_limited": "fewer than 5 nonempty outer folds or fewer than 30 events in any reported survivor ledger",
+      "severely_concentrated": "max concentration>0.80"
+    },
+    "main_null_pass": "mean paired uplift>0 and bootstrap_q05>0 with control coverage>=0.70",
+    "paired_control_metric": "parent minus assigned control net contribution by parent assignment; aggregate to parent UTC-day means; report mean and 5000-replicate day-cluster bootstrap Type-7 q05",
+    "routes": {
+      "A1_COMPRESSION_V2": "control_supported_rolling_candidate when common gate and matched-pseudo main null pass and complete signal beats price-only impulse; execution/sample-limited routes as above; otherwise translation_rejected",
+      "A2_PRIOR_HIGH_RS_CONTEXT_V1": "context_uplift_candidate only when common gate, context-permuted main null, and parent-only paired uplift pass; sample_limited_context_candidate when positive with insufficient coverage; otherwise overlay_rejected",
+      "A3_STARTER_RETEST_V3": "starter_plus_add_candidate when common gate, retest-time main null, and starter-only paired uplift pass for add_fraction>0; starter_only_candidate when common gate passes for add_fraction=0 or the starter passes while add does not; execution/sample-limited routes as applicable; otherwise translation_rejected",
+      "A4_TSMOM_V7": "control_supported_rolling_candidate when common gate passes, sign-permuted main null passes, and generic signed-return uplift is positive; execution_sensitive_candidate when base gate passes but stress/delay fails; sample_limited_candidate when positive but fold/control coverage is insufficient; otherwise translation_rejected",
+      "KDA02B_SURVIVOR_ADJUDICATION_V1": "component_supported_survivor only when identity base>0, identity-price_only paired uplift q05>0, identity-OI_removed uplift q05>0, identity-generic_structure uplift q05>0, 32bps stress>0, and 15-minute delay base>0. Base positive but stress/delay failure=>execution_sensitive_candidate. Base positive but controls/coverage weak=>sample_limited_candidate. Otherwise survivor_rejected"
+    }
+  },
+  "economic_accounting": {
+    "A1": {
+      "base_exposure": 1.0,
+      "effective_exposure": "base_exposure*parent_context_multiplier",
+      "event_value": "the single leg's weighted gross/cost/funding/net"
+    },
+    "A2": {
+      "application": "A2 multiplies every exposure of its exact bound A1/A3 parent. The multiplier is frozen at the parent decision and applies equally to gross return, costs, funding, gap allowance, occupancy, and all parent legs",
+      "linear_size_0_to_1": "product over enabled components of clip(2*p-1,0,1); no enabled components gives 1",
+      "no_double_count": "A2 reports contextual uplift against the same bound parent and never adds a second trade ledger",
+      "permission": "1 when every enabled component percentile>=0.50, otherwise 0",
+      "standalone_trades": false,
+      "tercile_size": "use min enabled component: <1/3=>0, [1/3,2/3)=>0.5, >=2/3=>1; no enabled components gives 1"
+    },
+    "A3": {
+      "add_exposure": "add_fraction*parent_context_multiplier when a valid add exists, else 0",
+      "leg_exit": "starter and add are separately attributed legs and each applies the registered exit module from its own fill. The parent remains occupied until max(starter_exit_ts,add_exit_ts); a missing add does not reject the starter",
+      "parent_value": "sum of starter and add weighted gross/cost/funding/net contributions",
+      "starter_exposure": "starter_fraction*parent_context_multiplier",
+      "unused_notional": "cash with zero return; never redistributed"
+    },
+    "A4": {
+      "cohort_contribution": "weight*(gross_bps-cost_bps+funding_bps+gap_allowance_bps)",
+      "context_multiplier": "frozen [0,1]",
+      "empty_cohort": "no opportunity, not zero return",
+      "exposure": "1 when target none, else clip(target_vol/entry_realized_vol,0.25,2)",
+      "preserve_v2_weighting": true,
+      "symbol_utility_bps": "side*(exit_open/entry_open-1)*10000",
+      "weight": "exposure*context_multiplier/accepted_symbol_count_at_rebalance; no post-scaling renormalization"
+    },
+    "base_round_trip_cost_bps": 14,
+    "per_leg_cost": "exposure*round_trip_cost_bps, exactly once for each completed leg",
+    "per_leg_exposure": "nonnegative frozen notional fraction at leg entry. It remains fixed until that leg exits and is not renormalized after other symbols or legs become unavailable",
+    "per_leg_funding": "exposure*(adverse_exact_funding_bps+registered_gap_allowance_bps) over the leg's actual entry-to-exit interval; favourable funding cannot rescue, activate, rank, or select",
+    "per_leg_gross_bps": "side*(exit_trade_open/entry_trade_open-1)*10000",
+    "per_leg_net_bps": "exposure*gross_bps - exposure*round_trip_cost_bps + per_leg_funding",
+    "side": {
+      "long": 1,
+      "short": -1
+    },
+    "stress_round_trip_cost_bps": 32
+  },
+  "family_semantics": {
+    "A1_COMPRESSION_V2": {
+      "episode_state_machine": {
+        "armed_start": true,
+        "base": "next exact registered base_duration contiguous completed bars",
+        "confirmation": {
+          "close_plus_bounded_15m_delay": "first post-base close is beyond the extreme and the completed close exactly 15 minutes later remains beyond it",
+          "one_close": "first post-base completed close strictly beyond frozen impulse extreme",
+          "two_closes": "first two post-base completed closes both strictly beyond frozen impulse extreme"
+        },
+        "confirmation_failure": "reject; do not wait for a later breakout from the same impulse/base",
+        "contraction": "sample_sd(base adjacent 5m log returns)/sample_sd(immediately preceding equal-duration adjacent returns)",
+        "early_breakout": "before the base completes, any close beyond the frozen impulse extreme in signal direction rejects breakout_before_confirmation",
+        "entry": "next authorized 5-minute open after final confirmation close",
+        "impulse_extreme": {
+          "long": "maximum completed 5-minute close in the impulse window",
+          "short": "minimum completed 5-minute close in the impulse window"
+        },
+        "impulse_score": {
+          "long": "log(close_t/close_at_or_before_t_minus_impulse_window)",
+          "short": "-log(close_t/close_at_or_before_t_minus_impulse_window)"
+        },
+        "rearm": "after accepted or rejected episode, same side remains disarmed until its impulse percentile is strictly below q50. In symmetric mode the opposite side is also blocked until the owning side rearms",
+        "smoothness": "abs(log(last_base_close/first_base_close))/sum(abs(adjacent 5m log returns in complete base))",
+        "start": "first eligible timestamp whose side-specific impulse percentile is >= impulse_rank_min and immediately previous eligible timestamp was below it",
+        "symmetric_side": "evaluate both sides; select greater percentile excess over its threshold. Exact tie is ambiguous_side and no episode starts"
+      },
+      "exit_modules": {
+        "ATR_stop_1.5": "initial adverse ATR20*1.5 close trigger, hard 10-day cap",
+        "ATR_stop_2.5": "initial adverse ATR20*2.5 close trigger, hard 10-day cap",
+        "ATR_trail_2": "trail 2*ATR20 from best completed close, hard 10-day cap",
+        "ATR_trail_3": "trail 3*ATR20 from best completed close, hard 10-day cap",
+        "base_failure": "structural_exit above, with hard 10-day cap",
+        "time_10d": "entry+10 calendar days",
+        "time_1d": "entry+1 calendar day",
+        "time_3d": "entry+3 calendar days",
+        "time_5d": "entry+5 calendar days"
+      },
+      "fixed_target": "valid only with ATR_stop exit; target distance=fixed_target_R*initial ATR stop distance; completed-close trigger, next-open fill",
+      "prior_high_RS_context": {
+        "RS": "symbol 20-day log return minus BTC 20-day log return; multiply by side",
+        "RS_lookback": "20 completed calendar days",
+        "long_level": "previous 60-day daily high",
+        "long_proximity": "(decision_close-prior_high)/ATR20",
+        "multiplier": "1 if pass else 0",
+        "pass": "symbol-local side-specific proximity training percentile>=0.50 and same-timestamp PIT RS rank>=0.50",
+        "prior_level_lookback": "60 completed UTC daily bars, excluding decision day",
+        "short_level": "previous 60-day daily low",
+        "short_proximity": "(prior_low-decision_close)/ATR20"
+      },
+      "structural_exit": {
+        "base_failure_long": "first completed close strictly below minimum completed close in the frozen base",
+        "base_failure_short": "first completed close strictly above maximum completed close in the frozen base",
+        "fill": "next authorized open"
+      }
+    },
+    "A2_PRIOR_HIGH_RS_CONTEXT_V1": {
+      "BTC_ETH": {
+        "aggregation": "compute BTC and ETH separately, then arithmetic mean",
+        "drawdown": "60d drawdown-magnitude percentile; long uses 1-p, short uses p",
+        "trend": "mean of 20d and 60d time-series trend percentiles per asset; long uses p, short uses 1-p",
+        "volatility": "1-percentile(20d realized volatility) for both sides"
+      },
+      "RS": "side*(symbol log return-BTC log return) over registered RS_lookback_days, average-rank cross-sectionally at decision",
+      "breadth_dispersion_component": {
+        "both": "arithmetic mean of enabled breadth and dispersion components",
+        "breadth_long": "time-series percentile of raw PIT breadth",
+        "breadth_short": "1-breadth_long",
+        "dispersion": "1-time-series percentile of raw PIT dispersion for both sides"
+      },
+      "component_thresholds": {
+        "continuous": "use percentile p directly",
+        "none": "component disabled",
+        "q40": "enabled only if p>=0.40",
+        "q60": "enabled only if p>=0.60",
+        "q80": "enabled only if p>=0.80"
+      },
+      "parent_binding": "exact registry parent_binding; parent family/address cannot be replaced after outcomes",
+      "prior_level": {
+        "continuous_distance_long": "(decision_close-prior_high)/ATR20",
+        "continuous_distance_short": "(prior_low-decision_close)/ATR20",
+        "first_close_above_long": "decision close>prior_high and immediately prior completed close<=prior_high",
+        "first_close_above_short_mirror": "decision close<prior_low and immediately prior completed close>=prior_low",
+        "long": "previous completed-daily high over registered prior_high_lookback_days excluding decision day",
+        "short": "previous completed-daily low over the same lookback"
+      }
+    },
+    "A3_STARTER_RETEST_V3": {
+      "breakout_failure_exit": {
+        "fill": "next authorized open",
+        "long": "first completed close strictly below frozen L",
+        "short": "first completed close strictly above frozen L"
+      },
+      "breakout_level_freeze": "At the first qualifying crossing close, freeze L as the previous maximum completed UTC daily high for long or previous minimum completed daily low for short over breakout_lookback_days, excluding decision day. Confirmation variants use this same L",
+      "breakout_magnitude": {
+        "gate": "symbol-side fold-local percentile>=breakout_rank_min",
+        "long": "(initial_crossing_close-L)/ATR20",
+        "short": "(L-initial_crossing_close)/ATR20"
+      },
+      "confirmation": {
+        "close_plus_15m_delay": "initial crossing and completed close exactly 15 minutes later remain beyond L",
+        "one_close": "the initial crossing close",
+        "two_closes": "initial crossing and immediately next completed close both remain beyond L"
+      },
+      "exit_modules": "apply the registered time, ATR stop/trail, fixed-target, or breakout_failure module independently from each leg fill; simultaneous triggers use stop/structure, trail, target, signal reversal, then time priority",
+      "retest": {
+        "add_entry": "next authorized 5-minute open after reclaim",
+        "first_only": true,
+        "long_activation": "first completed close entering [L-D*ATR20,L+D*ATR20] from above, with prior close above upper band and activation close<prior close",
+        "long_invalidation": "completed close strictly below lower band before reclaim",
+        "long_reclaim": "first later close >L, >activation close, and >immediately previous close",
+        "separate_bars": true,
+        "short_activation": "first completed close entering the band from below, with prior close below lower band and activation close>prior close",
+        "short_invalidation": "completed close strictly above upper band before reclaim",
+        "short_reclaim": "first later close <L, <activation close, and <immediately previous close",
+        "unavailable_add": "add entry after retest window, after starter exit, or with invalidation/no reclaim gives zero add exposure and preserves starter"
+      },
+      "retest_window": "half-open interval [starter_entry_ts, starter_entry_ts+registered_retest_window); search only while starter remains open",
+      "side": "generate mirrored long prior-high and short prior-low breakouts. If both qualify at the same timestamp reject ambiguous_side",
+      "starter_entry": "next authorized 5-minute open after final confirmation close"
+    },
+    "A4_TSMOM_V7": {
+      "definition_symbol_nonoverlap": "new opportunity only when flat; actual exit blocks intervening opportunities",
+      "direction": {
+        "long_flat": "long only for scalar>0",
+        "long_short": "long for scalar>0, short for scalar<0, flat at zero",
+        "short_flat": "short only for scalar<0"
+      },
+      "preserve_existing_v2_feature_semantics": true,
+      "rebalance": {
+        "1d": [
+          "00:00"
+        ],
+        "8h": [
+          "00:00",
+          "08:00",
+          "16:00"
+        ]
+      },
+      "signal_reversal": "at registered rebalance strict sign change, next authorized open",
+      "time_and_ATR_exits": "as already registered, with completed-close triggers, next-open fills, and hard 10-day cap on ATR/trail"
+    }
+  },
+  "general_resolution_rules": {
+    "bar_timeframe": "native completed UTC 5-minute Kraken trade bars unless a daily calculation is explicitly named",
+    "decision_information": "only fields with source_close_ts<=decision_ts and feature_available_ts<=decision_ts",
+    "edge_case_policy": "rare runtime/data edge cases not changing a registered economic meaning fail the affected observation/address closed with a reason. They do not stop unrelated families. Unrecognized registered field values or common accounting divergence stop globally.",
+    "execution": "entry or exit is the first authorized trade open at or after the trigger-completion timestamp; maximum lookup delay is 10 minutes; missing open, lifecycle invalidity, or fold crossing rejects locally",
+    "missingness": "a missing or invalid observation makes only that symbol-side-event/address observation unavailable unless a common authority, accounting, or implementation defect affects the campaign",
+    "no_hidden_defaults": true,
+    "no_partial_outcome_guided_changes": true,
+    "strict_trigger": "all price triggers use completed trade closes; equality does not trigger unless a threshold rule explicitly says equality passes",
+    "tie_break": "numeric score ties use the lexically smaller canonical economic address; event-side ties are rejected as ambiguous_side; timestamp ties use the earlier timestamp; group-key ties use lexical key"
+  },
+  "market_features": {
+    "ATR20": {
+      "availability": "available after daily close only",
+      "initialization": "arithmetic mean of first 20 consecutive valid true ranges",
+      "missing_day": "reset continuity; ATR unavailable until 20 new consecutive valid true ranges",
+      "source": "completed UTC daily trade OHLC; use canonical daily bars when available, else aggregate authorized 5-minute bars",
+      "true_range": "max(high-low,abs(high-previous_close),abs(low-previous_close))",
+      "update": "(previous_ATR*19+current_true_range)/20",
+      "valid_day": "finite OHLC and close, first/last expected UTC-day bar present, at least 274 of 288 five-minute bars, and no missing run longer than 15 minutes"
+    },
+    "PIT_membership": {
+      "gate": "known_count>=10 and known_count/potential_count>=0.70",
+      "known_member": "potential member with valid contiguous 20-day daily return",
+      "liquidity_rank": "average-rank ties by one-day-lagged 30-day median quote-notional; select registered top N",
+      "potential_member": "instrument exists in the machine-authorized current-roster bar-existence cohort at timestamp, is not known suspended/wound down/settled, has listing age>=30 calendar days, and has a finite one-day-lagged 30-day median canonical quote-notional",
+      "survivorship_label": "current_roster_bar_existence_cohort"
+    },
+    "breadth": "known members with 20-day log return>0 divided by known_count",
+    "breadth_dispersion_rank": "raw market-level breadth and dispersion are each fit to a fold-local time-series empirical distribution over eligible decision timestamps; they are not cross-sectionally ranked",
+    "dispersion": "median absolute deviation from the cross-sectional median of known-member 20-day log returns",
+    "path_smoothness": {
+      "coverage": "100% contiguous expected 5-minute bars",
+      "formula": "abs(log(last_close/first_close))/sum(abs(adjacent log returns))",
+      "zero_denominator": "unavailable"
+    },
+    "realized_volatility": {
+      "annualization": "sqrt(365*288)",
+      "estimator": "sample standard deviation ddof=1",
+      "minimum": "ceil(0.95*expected_return_count) adjacent returns",
+      "returns": "log close-to-close returns only for adjacent expected 5-minute timestamps; never bridge a gap",
+      "zero_variance": "valid zero unless used as divisor, where the address observation is unavailable"
+    }
+  },
+  "metric_denominators": {
+    "bootstrap": "IID resample complete nonempty UTC-day means with replacement, same length, 5000 PCG64 replicates using frozen hash seed; Type-7 q05",
+    "concentration": "max absolute grouped sum/sum absolute event contributions; zero denominator=>unavailable",
+    "day_metric": "arithmetic mean of event/parent/cohort net contributions entering that UTC day",
+    "eligible_calendar_days": "number of UTC dates intersecting the fold interval",
+    "event_count": "accepted actual-exit-nonoverlapping parent events; A3 parent counts once regardless of add",
+    "family_fold_summary": "median of the selected beam candidates' outer metrics; no best-candidate substitution",
+    "inner_fold_vector": "fixed complete registered vector; empty/unavailable values are negative infinity and never omitted",
+    "market_days": "unique UTC parent-entry dates with at least one accepted event/cohort",
+    "occupancy": "sum of actual leg exposure*holding_seconds divided by sum over every completed 5-minute timestamp of PIT-eligible-member-count*300",
+    "opportunity_frequency": "30*accepted_parent_event_count/eligible_calendar_days",
+    "primary": "arithmetic mean of nonempty UTC-day metrics",
+    "stress": "same with stress costs and gap allowance",
+    "type7_with_negative_infinity": "sort including -inf; h=(n-1)q, j=floor(h), g=h-j. If g=0 return x[j]. If either positively weighted endpoint is -inf return -inf; otherwise linear interpolation"
+  },
+  "preoutcome_completeness_gate": {
+    "configuration_fields_expected": 45,
+    "control_definitions_expected": 20,
+    "local_failure_scope": "a rare data observation edge case covered by this contract is marked unavailable locally; only an unmapped registered semantic or common accounting contradiction blocks launch",
+    "requirements": [
+      "emit SEMANTIC_COVERAGE_MATRIX.json mapping every distinct family/config field and value to interpreter function, formula, missingness, and tests",
+      "emit CONTROL_COVERAGE_MATRIX.json mapping all 20 control definitions to deterministic transformer/allocator and tests",
+      "emit EXIT_ACCOUNTING_MATRIX.json covering every family, exit, target, side, leg, cost, funding, and simultaneous-trigger path",
+      "emit SELECTION_ROUTE_MATRIX.json covering plateau, medoid, overlap, refinement, beam, control pass, forensic tag, and route branch",
+      "focused synthetic micro-ledgers exercise every distinct registered value and every route branch",
+      "no unknown/unmapped value, default branch, TODO, placeholder, or reviewer-invented semantic remains",
+      "independent reviewer verifies matrices against all 3521+800 registry rows before any outcome reader opens"
+    ]
+  },
+  "runtime": {
+    "disk_reserve": "max(8 GiB,10% filesystem capacity); compact/deduplicate/hash-archive before reserve",
+    "epochs": "renewable 24-hour checkpoints continuing automatically under the same approval",
+    "heartbeat_minutes": 30,
+    "interactive_polling": false,
+    "memory_ceiling": "75% of physical RAM for complete process tree",
+    "runtime_repairs": "narrow outcome-blind mechanical repairs may be tested, independently reviewed, committed and resumed without new approval when economic/data/selection semantics and authority hashes remain unchanged",
+    "stall_detection": {
+      "action": "restart supervisor once from last atomic generation",
+      "after_maximum": "global resumable bound stop with Telegram alert",
+      "condition": "no new committed marker and no state-generation advance for 120 minutes while unfinished work exists",
+      "maximum_consecutive_restarts": 3
+    },
+    "supervisor": "persistent detached remote process, independent of chat/browser/local computer",
+    "total_wall_stop": null,
+    "worker_death": "requeue uncommitted job under retry policy; committed valid marker is reused",
+    "worker_retry": {
+      "common_failure": "global safe stop",
+      "delays_seconds": [
+        60,
+        300,
+        900
+      ],
+      "job_specific_exhaustion": "family stop with exact reason; unrelated families continue",
+      "maximum_per_job": 3
+    },
+    "workers": "maximum independently benchmarked safe count<=logical CPU count; current target 4"
+  },
+  "schema": "donch_stage21_v3_executable_economic_contract_v1",
+  "selection_and_refinement": {
+    "beam": {
+      "eligibility": [
+        "final stable neighborhood",
+        "accepted_trades>=30",
+        "market_days>=20",
+        "finite base metric",
+        "base_net>0",
+        "threshold_coverage>=0.70"
+      ],
+      "manual_selection": false,
+      "maximum_per_family_fold": 5,
+      "order": [
+        "plateau_support_count descending",
+        "day_cluster_bootstrap_q05 descending",
+        "p20_inner_fold descending",
+        "stress_net descending",
+        "opportunity_frequency descending",
+        "complexity ascending",
+        "canonical_address ascending"
+      ]
+    },
+    "distance": "existing equal-axis-weight Gower distance over every family axis, including explicit none levels",
+    "event_overlap_deduplication": "after final stable regions, candidates are ordered by the frozen beam order; reject a later candidate when Jaccard overlap of development accepted economic-event IDs with an earlier candidate exceeds 0.80",
+    "medoid": "member minimizing sum of Gower distances to all members; tie by canonical address",
+    "neighborhood": "for each node c, all nodes with Gower distance<=0.15 from c, including c",
+    "refinement": {
+      "allocation": "take first unused reserved IDs up to the family reserve; remaining reserve IDs unavailable_no_plateau",
+      "center": "retained stable-region medoid",
+      "deduplication": "remove existing canonical addresses and duplicates",
+      "final_plateau": "recompute the same stable-neighborhood algorithm over screening, anchors and executed refinements",
+      "neighbors": "generate every valid one-axis +/- one listed-level neighbor and every valid mechanism-card-listed pairwise combination of such adjacent moves; no three-way moves",
+      "ordering": "canonical JSON address ascending",
+      "registration": "atomically hash-register all selected refinement configs before opening any refinement outcome"
+    },
+    "region_overlap": "sort stable neighborhoods by support descending then medoid address. Greedily retain a region only when its member-set Jaccard overlap with every retained region is <0.50",
+    "screening_nodes": "all integrity-valid screening and anchor/ablation addresses in the family/fold",
+    "stable_neighborhood": {
+      "median_base_net_gt_bps": 0,
+      "median_stress_net_gt_bps": -18,
+      "minimum_axes_varied": 2,
+      "minimum_distinct_cells": 5,
+      "minimum_nonempty_inner_fold_fraction": 0.75,
+      "positive_base_fraction": 0.6
+    }
+  },
+  "threshold_contract": {
+    "audit": "persist counts by feature, address, fold, symbol, side and month; denominator, numerator, exclusions, unique values, thresholds, and hashes",
+    "coverage_gate": {
+      "address_fold_minimum_fraction": 0.7,
+      "denominator": "all symbol-side decision observations passing PIT, lifecycle, listing age, base data, and required raw-history prerequisites before applying a fitted threshold",
+      "failure_scope": "address-fold unavailable; unrelated addresses/families continue",
+      "numerator": "denominator observations with valid threshold estimate and finite evaluation feature"
+    },
+    "granularity": {
+      "market_time_series": [
+        "BTC/ETH trend",
+        "BTC/ETH volatility",
+        "BTC/ETH drawdown",
+        "PIT breadth",
+        "PIT dispersion"
+      ],
+      "same_timestamp_cross_section": [
+        "RS",
+        "PIT liquidity"
+      ],
+      "symbol": [
+        "A1 contraction",
+        "A1 base smoothness",
+        "A4 estimator winsorization/MAD",
+        "A4 realized volatility",
+        "A4 path smoothness"
+      ],
+      "symbol_side": [
+        "A1 impulse",
+        "A1 prior-high proximity",
+        "A3 breakout magnitude",
+        "funding burden"
+      ]
+    },
+    "populations": {
+      "A1_base_features": "one observation per eligible symbol at every completed 5-minute boundary treated as hypothetical end of the registered base, using trailing base and immediately preceding equal-duration window; not only successful episodes",
+      "A1_impulse": "one observation per eligible symbol-side at every completed 5-minute boundary with complete impulse window",
+      "A2_market": "one observation per eligible completed 5-minute timestamp, independent of parent events or returns",
+      "A3_breakout": "one observation per eligible first completed-close prior-level crossing by symbol-side before confirmation/retest/outcome",
+      "A4": "one observation per eligible symbol at every registered rebalance with complete address-specific history",
+      "funding": "one observation per eligible symbol-side timestamp using only published/paid funding available by that timestamp"
+    },
+    "quantile": {
+      "equality": "threshold equality passes the registered >= or <= gate",
+      "method": "Hyndman-Fan Type 7",
+      "minimum_finite_observations": 30,
+      "minimum_unique_values": 20
+    },
+    "training_interval": "[2023-01-01,evaluation_start-10 calendar days)"
+  }
+}

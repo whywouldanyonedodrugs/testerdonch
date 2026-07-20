@@ -1,0 +1,253 @@
+{
+  "campaign_id": "kraken_core_liquid_discovery_campaign_002_expanded_v4",
+  "core_distinction": {
+    "fixed_before_outcomes": [
+      "data eligibility and point-in-time membership",
+      "which observations may fit a threshold",
+      "fold boundaries and embargo",
+      "feature formulas for a named estimator",
+      "entry/exit fill convention",
+      "cashflow, cost and funding accounting",
+      "event identity and non-overlap",
+      "missing-data handling",
+      "control randomization",
+      "multiplicity accounting",
+      "candidate-selection arithmetic"
+    ],
+    "principle": "A population must be defined exactly so outcomes cannot determine who enters it. Where several defensible population scopes exist, each scope is registered as a separate attempt or robustness specification before outcomes; the favorable scope may not be chosen retrospectively.",
+    "registered_search_axes": [
+      "economically plausible horizons and lookbacks",
+      "direction",
+      "feature estimator or normalization where several mechanisms are plausible",
+      "threshold granularity and pooling scope",
+      "entry confirmation, retest and exit variants",
+      "context components and context horizons",
+      "risk and sizing parameters"
+    ],
+    "robustness_only_not_selectable": [
+      "PIT membership hygiene strictness",
+      "plateau radius and minimum support",
+      "beam width",
+      "route thresholds",
+      "bootstrap seed"
+    ]
+  },
+  "coverage_requirements": {
+    "minimum_axis_level_coverage": "Every categorical level must appear in at least 50 broad-screen attempts per family unless the total valid domain makes that impossible; otherwise regenerate outcome-free Sobol points before launch.",
+    "no_runtime_duration_target_as_quality": true,
+    "pairwise_coverage": "Every mechanism-card-listed pairwise interaction must have at least 20 attempts per valid level pair or be explicitly unavailable by logical constraint.",
+    "space_filling": "Report marginal level counts, pairwise level counts, discrepancy, nearest-neighbor distance and uncovered economically allowed categories for each family before outcomes."
+  },
+  "expanded_attempt_budget": {
+    "control_budget_total": 1600,
+    "generation": "Continue the deterministic scrambled Sobol design with new family-specific nonoverlapping stream offsets. Preserve the original 3,521 addresses exactly. Deduplicate by canonical economic address; duplicates remain registered unavailable_duplicate and do not reduce multiplicity.",
+    "new_attempts_total": 6144,
+    "new_broad_sobol_attempts": {
+      "A1_COMPRESSION_V2": 1536,
+      "A2_PRIOR_HIGH_RS_CONTEXT_V1": 1024,
+      "A3_STARTER_RETEST_V3": 1536,
+      "A4_TSMOM_V7": 1024
+    },
+    "new_refinement_reserve": {
+      "A1_COMPRESSION_V2": 320,
+      "A2_PRIOR_HIGH_RS_CONTEXT_V1": 192,
+      "A3_STARTER_RETEST_V3": 320,
+      "A4_TSMOM_V7": 192
+    },
+    "original_attempts": 3521,
+    "v4_attempts_total": 9665
+  },
+  "expanded_axes": {
+    "A1_COMPRESSION_V2": {
+      "additional_axes": {
+        "ATR_window_days": [
+          10,
+          20,
+          40,
+          60
+        ],
+        "contraction_baseline": [
+          "adjacent_equal_duration",
+          "trailing_5x_base_duration"
+        ],
+        "impulse_rank_scope": [
+          "symbol_side",
+          "liquidity_decile_side",
+          "global_side"
+        ],
+        "shape_rank_scope": [
+          "symbol",
+          "liquidity_decile",
+          "global_PIT"
+        ]
+      },
+      "context_rule": "prior_high_RS, BTC_ETH and breadth_dispersion are researched through A2. Existing A1 fixed-context addresses remain anchors but are not main-beam eligible without A2 corroboration.",
+      "main_discovery_context_overlay": [
+        "none",
+        "funding_veto"
+      ]
+    },
+    "A2_PRIOR_HIGH_RS_CONTEXT_V1": {
+      "additional_axes": {
+        "ATR_window_days_for_proximity": [
+          10,
+          20,
+          40,
+          60
+        ],
+        "BTC_ETH_drawdown_lookback_days": [
+          20,
+          60,
+          120
+        ],
+        "BTC_ETH_trend_pair_days": [
+          "5_20",
+          "20_60",
+          "60_120"
+        ],
+        "BTC_ETH_volatility_lookback_days": [
+          10,
+          20,
+          40,
+          60
+        ],
+        "RS_population_scope": [
+          "global_PIT",
+          "liquidity_decile",
+          "parent_liquidity_universe"
+        ],
+        "breadth_return_lookback_days": [
+          5,
+          20,
+          60
+        ],
+        "dispersion_return_lookback_days": [
+          5,
+          20,
+          60
+        ]
+      },
+      "notes": "Existing prior-level lookback, RS lookback/rank, proximity rank, reclaim, parent family, breadth/dispersion component and overlay-action axes remain."
+    },
+    "A3_STARTER_RETEST_V3": {
+      "additional_axes": {
+        "ATR_window_days": [
+          10,
+          20,
+          40,
+          60
+        ],
+        "breakout_rank_scope": [
+          "symbol_side",
+          "liquidity_decile_side",
+          "global_side"
+        ],
+        "direction": [
+          "long",
+          "short"
+        ]
+      },
+      "context_rule": "prior_high_RS, BTC_ETH and breadth_dispersion are researched through A2. Existing A3 fixed-context addresses remain anchors but are not main-beam eligible without A2 corroboration.",
+      "derived_report_only": {
+        "symmetric_portfolio": "Combine separately frozen long and short candidates after selection for reporting. It is not an extra searched candidate and cannot hide side-specific failure."
+      },
+      "main_discovery_context_overlay": [
+        "none",
+        "funding_veto"
+      ]
+    },
+    "A4_TSMOM_V7": {
+      "additional_axes": {
+        "ATR_window_days_for_ATR_exits": [
+          10,
+          20,
+          40,
+          60
+        ],
+        "signal_rank_scope": [
+          "symbol",
+          "liquidity_decile",
+          "global_PIT"
+        ],
+        "volatility_estimator": [
+          "close_to_close",
+          "parkinson"
+        ]
+      },
+      "notes": "Existing lookback, estimator, volatility window, direction, rebalance, liquidity, smoothness, context, target-vol and exit axes remain. Parkinson uses completed OHLC and is unavailable where daily high/low integrity fails."
+    },
+    "KDA02B_SURVIVOR_ADJUDICATION_V1": {
+      "change": "none",
+      "reason": "This lane is exact survivor adjudication, not open discovery."
+    }
+  },
+  "inherits_executable_contract": {
+    "filename": "DONCH_STAGE21_V3_EXECUTABLE_ECONOMIC_CONTRACT_2026-07-20.json",
+    "rule": "All V3 accounting, event identity, execution, missingness, PIT eligibility, outcome firewall, control determinism and runtime semantics remain binding unless this addendum explicitly changes whether an economically uncertain value is fixed, searched, or robustness-only.",
+    "sha256": "b7ea01f0537bae1efac468bc5a6c8f1ec292c5fe1edddbd98b13444339382f0e"
+  },
+  "interpretation": {
+    "negative_translation_rule": "A rejected exact translation remains rejected. A broader family is exhausted only when the registered mechanism dimensions and controls were adequately covered and no materially distinct undeveloped branch remains.",
+    "no_finite_sweep_guarantee": "No finite search can prove that all profitable translations were found. V4 improves defensible coverage and quantifies remaining uncovered regions; it must not claim family exhaustion solely from this campaign."
+  },
+  "launch": {
+    "new_manifest_registry_and_approval_hashes_required": true,
+    "preoutcome_review": "Review both semantic completeness from V3 and research-space classification/coverage from V4 against all 9,665 attempts and 1,600 controls in one consolidated pass.",
+    "regenerate_v4_packet": true,
+    "same_human_approval_may_authorize_deterministic_v4_hashes": true,
+    "unattended_runtime": "Persistent detached supervisor, ordinary compute workers, renewable checkpoints, no interactive polling, incremental hash-verified stage artifacts and Telegram health notifications."
+  },
+  "membership_robustness_not_search": {
+    "standard": {
+      "minimum_known_fraction": 0.7,
+      "minimum_known_members": 10
+    },
+    "strict": {
+      "minimum_known_fraction": 0.8,
+      "minimum_known_members": 20
+    },
+    "use": "Primary research uses standard hygiene. Recompute final candidates under strict hygiene as a robustness report. Never select a candidate because one hygiene regime is more favorable."
+  },
+  "original_registry_treatment": {
+    "no_attempt_deletion": true,
+    "original_attempts_are_subset_of_v4": true,
+    "original_fixed_context_addresses": "A1/A3 addresses using prior_high_RS, BTC_ETH or breadth_dispersion remain registered source-prior anchors/ablations. They may not alone win a main discovery beam. Context promotion must be corroborated by the expanded A2 overlay search.",
+    "preserve_all_original_attempts": 3521,
+    "preserve_all_original_controls": 800
+  },
+  "schema": "donch_stage21_v4_research_space_expansion_addendum_v1",
+  "selection_robustness_not_search": {
+    "rule": "The primary specification determines execution. Compact and broad are frozen robustness analyses. A survivor found only under primary is tagged selection_sensitive. A conclusion may not be upgraded using the most favorable specification.",
+    "specifications": [
+      {
+        "beam_width": 3,
+        "gower_radius": 0.1,
+        "id": "compact",
+        "minimum_members": 5
+      },
+      {
+        "beam_width": 5,
+        "gower_radius": 0.15,
+        "id": "primary",
+        "minimum_members": 5
+      },
+      {
+        "beam_width": 8,
+        "gower_radius": 0.2,
+        "id": "broad",
+        "minimum_members": 8
+      }
+    ]
+  },
+  "threshold_population_search": {
+    "global_scope": "Pool all PIT-eligible training observations, separated by side where the feature is directional.",
+    "liquidity_decile_scope": "Pool training observations within side and one-day-lagged 30-day median quote-notional decile. Decile boundaries are fit point-in-time inside the training interval.",
+    "minimums": {
+      "finite_observations": 30,
+      "unique_symbols_for_pooled_scope": 5,
+      "unique_values": 20
+    },
+    "small_sample": "No fallback from one scope to another. The address-fold is unavailable when its registered scope does not meet minimums.",
+    "symbol_scope": "Feature values and thresholds are fit per symbol or symbol-side, using only that address's eligible training observations."
+  }
+}

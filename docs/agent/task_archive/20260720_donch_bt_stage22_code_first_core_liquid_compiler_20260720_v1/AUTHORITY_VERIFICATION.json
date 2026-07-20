@@ -1,0 +1,33 @@
+{
+  "capitalcom_payload_opened": false,
+  "continuity": {
+    "pointer_bytes_sha256": "361d1bc61f23bcc6840ec53b37ed4be17443f388eed82f33444e7441d74dd57e",
+    "sequence": 4,
+    "snapshot_path": "snapshots/state_000004_20260720T183908Z.json",
+    "snapshot_physical_sha256": "3eb58cc86c2e49f43cbf7d113e7a2b3ed30178d96aaf6f8d2b9d3df14beaeccf",
+    "validation": "pass"
+  },
+  "economic_outcomes_opened": false,
+  "original_checkout_clean": true,
+  "protected_rows_opened": 0,
+  "repository": {
+    "base_commit": "56059c1a2e86c91c32087bd4e4da9257b632fbd9",
+    "main": "56059c1a2e86c91c32087bd4e4da9257b632fbd9",
+    "origin_main": "56059c1a2e86c91c32087bd4e4da9257b632fbd9",
+    "root": "/opt/testerdonch",
+    "task_branch": "agent/stage22-code-first-core-liquid-20260720",
+    "task_worktree": "/opt/testerdonch-stage22-20260720"
+  },
+  "schema": "stage22_authority_verification_v1",
+  "source_hashes": {
+    "stage21_v1_zip": "d5c7c8a99e55e6c0fa27a366d9cd838b19bdecb5320ffb02c936d10c5d14e960",
+    "stage21_v2_control_registry": "491d341e915e7598e1672c337a6cbedc1c80ddf59cd84043ee98a5e0571cab0f",
+    "stage21_v2_strategy_registry": "7221956dbc520797b178da3a744ee35fc3d3c6115c4ca7ea5b6f7e1bc4903ea1",
+    "stage21_v3_contract": "b7ea01f0537bae1efac468bc5a6c8f1ec292c5fe1edddbd98b13444339382f0e",
+    "stage21_v4_addendum": "3985e316ba175a96e6d3a969f8a1671d1aa318e0de092ee7763975bc594cd87a",
+    "stage21_v5_closure": "6b21272f61ef808f65f59d3c26dd70ff8f6808a94bd69b87149f2858fbdd5c18",
+    "stage21_v5_zip": "0f7bb1ff3d62b2cfb0f1e14a6cfbd6a52d0bfd3d26e7331ed69f694dd570d8b9",
+    "stage22_task": "58fbec98558850dd8cd39c00cf4b9fc57d38c32cdf5064d97f0e598766fcd169"
+  },
+  "status": "pass"
+}
