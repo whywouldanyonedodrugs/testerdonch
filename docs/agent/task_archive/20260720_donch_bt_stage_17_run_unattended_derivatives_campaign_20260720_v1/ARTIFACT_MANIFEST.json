@@ -7,6 +7,7 @@
     {"bytes": 471, "path": "CHANGED_FILES.md", "sha256": "9b0e217564fd0250703430e68763ada138e9f6e4837176034c1b08075bf92d0f"},
     {"bytes": 872, "path": "COMMANDS_AND_RESULTS.md", "sha256": "27d4f2bc8929dc5c674adab82638f8568f036278ece793175fd9bf12f7ee995b"},
     {"bytes": 675, "path": "COMPLETION.md", "sha256": "a9be25734478f2463bc6ce1f20bbff40d763b1e86ab47cd0d645e5b030ee899b"},
+    {"bytes": 1664, "path": "DRIVE_HANDOFF_VERIFICATION.json", "sha256": "744434ef11b0ce3c271d73ff9c67c30aa4db5ffcdc874521f400943742ebf88a"},
     {"bytes": 1977, "path": "FUNDING_BOUNDARY_EXTENSION_MANIFEST.json", "sha256": "72b1f7430c48b91d066b928a4e3ec6c6ce330991ec1c3d614b6faa2d173b4c3e"},
     {"bytes": 6858, "path": "HUMAN_APPROVAL.json", "sha256": "fe57d5c1efca3af3cb83c3e07b399e03c51f5dbe635b03bd48201944506c6853"},
     {"bytes": 800, "path": "NEXT_ACTION.md", "sha256": "48429506c86312675324dd8a95becb779f8b15a13158b7113ecfea3e3c793122"},

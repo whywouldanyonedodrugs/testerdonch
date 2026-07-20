@@ -1,0 +1,40 @@
+{
+  "files": [
+    {
+      "bytes": 26300,
+      "path": "20260720_donch_bt_stage_17_run_unattended_derivatives_campaign_archive_v01.zip",
+      "sha256": "c41b21ecb7d2957d9355e6a8cf06804c8b900eaf8cd64e7f083f91d645dbe94c"
+    },
+    {
+      "bytes": 694,
+      "path": "READ_FIRST.md",
+      "sha256": "c07d6d959488d3e18cddf08967de755e5452376b8d67f17559b32892f91da97d"
+    },
+    {
+      "bytes": 638,
+      "path": "REVIEW.md",
+      "sha256": "6884ed0a21bc0b26abf90ad43fd5be13fab8bb6c574c1e6f60c022347f4ccadf"
+    },
+    {
+      "bytes": 1134,
+      "path": "TRANSFER_MANIFEST.json",
+      "sha256": "b3011fe617e7c4f3fd0de662a574fda2708c0cda20f8f029f2da33e3589b0721"
+    },
+    {
+      "bytes": 973,
+      "path": "VALIDATION.md",
+      "sha256": "8dab5d7732f0a16c7a082a4edf9a13ee04dede7b18ac2cd7f6c176f32b6cc16c"
+    }
+  ],
+  "local_archive_retained": true,
+  "local_archive_path": "results/rebaseline/phase_kraken_derivatives_campaign_stage17_20260720_v5/handoff/20260720_donch_bt_stage_17_run_unattended_derivatives_campaign_v01/20260720_donch_bt_stage_17_run_unattended_derivatives_campaign_archive_v01.zip",
+  "remote_identity_label": "qlmg_sweep_drive:",
+  "remote_path": "qlmg_sweep_drive:20260720_donch_bt_stage_17_run_unattended_derivatives_campaign_v01/",
+  "round_trip_method": "separate rclone download followed by local SHA-256 and byte-size comparison",
+  "round_trip_verified": true,
+  "task_folder_id": "1tlwxLo_hW3jHet-Ojo7zBUKYQYYJxNTe",
+  "task_folder_url": "https://drive.google.com/drive/folders/1tlwxLo_hW3jHet-Ojo7zBUKYQYYJxNTe",
+  "tool_version": "rclone v1.60.1-DEV",
+  "upload_blocker": null,
+  "verified_utc": "2026-07-20T08:23:58Z"
+}
