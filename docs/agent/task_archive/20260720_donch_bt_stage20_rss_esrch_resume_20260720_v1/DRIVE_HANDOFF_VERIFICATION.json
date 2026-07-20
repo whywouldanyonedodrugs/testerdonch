@@ -1,0 +1,20 @@
+{
+  "status": "pass",
+  "verified_at_utc": "2026-07-20T16:23:33Z",
+  "remote_label": "qlmg_sweep_drive:",
+  "drive_root_folder_id": "1vMuf1EJbojoeIjJjz8Xj1fhwLizNgLfl",
+  "task_folder": "20260720_donch_bt_stage20_terminal_completion_v01",
+  "task_folder_id": "1pvPYQAE56-wGQp9lW7ggt4u8u9rMALdj",
+  "task_folder_url": "https://drive.google.com/drive/folders/1pvPYQAE56-wGQp9lW7ggt4u8u9rMALdj",
+  "round_trip_byte_and_sha256_match": true,
+  "files": [
+    {"name": "READ_FIRST.md", "bytes": 745, "sha256": "f26ff5ba520c1ee6abf6b1431c119c5bdb3f0877aa592d0c630448b432562d09"},
+    {"name": "VALIDATION.md", "bytes": 723, "sha256": "c2574042665bbdc952b32c35a7ce3153a8764d21b97aadab9204fd1799caac19"},
+    {"name": "REVIEW.md", "bytes": 606, "sha256": "0794fa3ac699f01842396eecd04e01f23754a6bebc226d9e8272d992bf6c1cb3"},
+    {"name": "TRANSFER_MANIFEST.json", "bytes": 1303, "sha256": "86ed573999a011c626af29d08f7357d92f852c31049a05b79ba467a4d68b4f4c"},
+    {"name": "DONCH_Stage20_Terminal_Completion_2026-07-20_v1.zip", "bytes": 3307214, "sha256": "3a3fd639f9e9bb0cb2b7d87828310aa27a82aef689ae085f1e6624e8d020526c"}
+  ],
+  "local_archive_retained": "/opt/testerdonch/results/rebaseline/stage20_terminal_completion_handoff_20260720_v01/DONCH_Stage20_Terminal_Completion_2026-07-20_v1.zip",
+  "large_staging_uploaded": false,
+  "credentials_or_private_data_uploaded": false
+}

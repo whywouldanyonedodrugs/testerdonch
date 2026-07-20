@@ -8,14 +8,19 @@
       "sha256": "dc6ca4b2dec58586c5f26f5266b96bfe5afe4f7931351b8d28589d7b47f741de"
     },
     {
-      "bytes": 803,
+      "bytes": 858,
       "path": "docs/agent/task_archive/20260720_donch_bt_stage20_rss_esrch_resume_20260720_v1/COMPLETION.md",
-      "sha256": "a907001ffcd371426dd1079e6d0216ff401e61b18e5098731befc8d3d3196f8e"
+      "sha256": "e130fa4e22954b997275025ab6c657bce6dcc8701651c56ba3532c684d9d9a4d"
     },
     {
       "bytes": 959,
       "path": "docs/agent/task_archive/20260720_donch_bt_stage20_rss_esrch_resume_20260720_v1/DECISIONS.md",
       "sha256": "75c8584c57c0a430e91a41eb73b9cdeea7a463512e27319c0a6529f631f58e0e"
+    },
+    {
+      "bytes": 1370,
+      "path": "docs/agent/task_archive/20260720_donch_bt_stage20_rss_esrch_resume_20260720_v1/DRIVE_HANDOFF_VERIFICATION.json",
+      "sha256": "0f3be98c0cc32840eec9a135804f5c6fdab5b5a8835375a127a064dbb66259d7"
     },
     {
       "bytes": 2056,
@@ -222,16 +227,18 @@
     }
   ],
   "controls_executed": false,
-  "created_at_utc": "2026-07-20T16:19:54.623338Z",
+  "created_at_utc": "2026-07-20T16:24:13.504911Z",
+  "drive_handoff_round_trip_verified": true,
   "external_approval_sha256": "57d521488e88373afd557eb457ffd119089aac0d863a0c319e73d70cf9f7690c",
+  "implementation_publication_commit": "efb77c9",
   "large_staging_included": false,
   "large_staging_root": "/opt/testerdonch/results/rebaseline/phase_kraken_derivatives_campaign_stage20_20260720_v01/staging",
-  "manifest_sha256": "18f01e28e194ef1a861b48bafa7191c8aada86e4909730736eec78bb51f250f6",
+  "manifest_sha256": "e092d13142ab5a6004ac5963622f635de1de11165ad311d813ce265baa7818cf",
   "protected_rows_opened": 0,
   "reviewed_source_manifest_sha256": "a8834d76eaa17561cd581a1df1bb0e3573bc587506b51237b484dd82cca3c798",
   "schema": "stage20_terminal_task_artifact_manifest_v1",
   "starting_repository_authority": "7e7c7b47a7693b7923097f01c22b4b7287b6d971",
-  "status": "terminal_complete_review_passed",
+  "status": "terminal_complete_handoff_verified",
   "task_id": "donch_bt_stage20_rss_esrch_resume_20260720_v1",
   "terminal_reconciliation_sha256": "cc93d7b87109e2cd49c9e99f71ae534e5cf477dc335c190ff0beb63da99b2621"
 }
