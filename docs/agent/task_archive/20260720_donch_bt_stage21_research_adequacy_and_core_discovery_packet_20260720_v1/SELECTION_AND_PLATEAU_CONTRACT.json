@@ -1,0 +1,86 @@
+{
+  "Gower_distance": "equal weight per registered config field. Listed numeric/ordinal fields map to their zero-based listed-level index/(levels-1); categorical fields contribute 0 if exact equal else 1; singleton fields contribute 0. Distance is the arithmetic mean over every family axis, including inactive none values; no outcome-derived weights.",
+  "beam": {
+    "eligibility": [
+      "stable_region",
+      "accepted_trades>=30",
+      "market_days>=20",
+      "finite base metric",
+      "base_net>0"
+    ],
+    "lexicographic_order": [
+      "integrity",
+      "plateau_support_count_desc",
+      "cluster_bootstrap_lower_desc",
+      "p20_inner_fold_desc",
+      "stress_net_desc",
+      "opportunity_frequency_desc",
+      "complexity_asc",
+      "canonical_address_asc"
+    ],
+    "manual_selection": false,
+    "maximum_per_family_outer_fold": 5
+  },
+  "campaign_id": "kraken_core_liquid_discovery_campaign_002",
+  "complexity": "base 1 for the primary signal; +1 for equal_weight_ensemble; +1 for each active non-none context; +1 for each active secondary feature (smoothness, contraction, reclaim, RS, BTC/ETH, breadth or dispersion); +1 for confirmation other than one_close; +1 for non-time structural/ATR/trail exit; +1 for fixed_target_R; +1 for A3 add_fraction>0; +1 for sizing other than fixed unit/permission. KDA02B inherits the exact Stage20 complexity. Ties use lower complexity.",
+  "development_metrics": {
+    "UTC_hour_clusters": "unique UTC entry YYYY-MM-DDTHH",
+    "bootstrap": "IID resample complete UTC-day means with replacement, same length, numpy PCG64 seed=first unsigned 64 bits SHA256(20260721,canonical_address,fold_id), 5000 replicates; lower bound is Type-7 q05",
+    "bootstrap_replicates": 5000,
+    "bootstrap_seed": 20260721,
+    "concentration": "for symbol, UTC day and UTC year separately: max absolute grouped sum / sum absolute event base_net_bps; report all three and their maximum",
+    "inner_fold_values": "each inner fold's equal-day primary metric; empty/unavailable is persisted and treated as negative infinity for ordering and quantiles, never omitted",
+    "left_tail_utility": "negative maximum drawdown of chronologically ordered UTC-day mean base-net cumulative sum",
+    "market_day_clusters": "unique UTC entry dates",
+    "median_inner_fold": "Type-7 q50 over the complete registered inner-fold vector under empty=-infinity",
+    "median_trade_bps": "Type-7 q50 of event/weighted-address base_net_bps",
+    "occupancy": "sum actual leg holding seconds/(eligible_symbols*evaluation_interval_seconds)",
+    "opportunity_frequency": "30*accepted_event_count/eligible_calendar_days",
+    "p20_inner_fold": "Type-7 q20 over the same complete vector",
+    "primary": "mean of UTC-market-day means of base_net_bps",
+    "quantiles": "Hyndman-Fan Type 7 / numpy method=linear",
+    "required": [
+      "trade_count",
+      "market_day_clusters",
+      "UTC_hour_clusters",
+      "median_trade_bps",
+      "median_inner_fold",
+      "p20_inner_fold",
+      "5pct day-cluster bootstrap lower",
+      "stress_net",
+      "symbol/day/year concentration",
+      "opportunity_frequency",
+      "occupancy",
+      "left_tail_utility"
+    ],
+    "stress_net": "mean of UTC-day means under 32bps and stress gap funding",
+    "trade_count": "accepted actual-exit-nonoverlapping legs/events"
+  },
+  "freeze": "complete economic addresses, transformations, directions, context, entry, exit, costs, funding, seed and multiplicity are atomically frozen before each outer reader opens",
+  "hard_integrity": [
+    "all PIT/timestamp/lifecycle checks pass",
+    "all attempted folds represented including empty",
+    "actual-exit non-overlap",
+    "cost/funding reconciliation",
+    "no protected rows",
+    "no hidden attempt"
+  ],
+  "outer": "forward-only quarterly; no outer result transfers backward; rolling replication reported by family and complete address",
+  "route_caps": {
+    "deployment_claim": false,
+    "independent_validation_claim": false,
+    "program_exposed_historical": true
+  },
+  "schema": "selection_and_plateau_contract_v1",
+  "stable_region": {
+    "distance": "exact Gower_distance above",
+    "medians": "Type-7 q50; empty cells are not positive and remain in denominators",
+    "minimum_axes_varied": 2,
+    "minimum_distinct_cells": 5,
+    "minimum_nonempty_inner_fold_fraction": 0.75,
+    "positive_base_fraction": 0.6,
+    "radius": 0.15,
+    "region_median_base_net_gt_bps": 0,
+    "region_median_stress_net_gt_bps": -18
+  }
+}

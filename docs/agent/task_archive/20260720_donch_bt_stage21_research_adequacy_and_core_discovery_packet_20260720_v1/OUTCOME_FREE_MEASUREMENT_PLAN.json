@@ -1,0 +1,67 @@
+{
+  "benchmark_summary": {
+    "basis": "existing terminal Stage20 runtime plus prior-family runtime/memory records and current host capacity",
+    "current_disk_free_bytes": 36596535296,
+    "current_logical_cpus": 4,
+    "current_memory_total_bytes": 16369111040,
+    "performed_without_new_outcomes": true,
+    "prior_a1_peak_rss_bytes": 5110345728,
+    "prior_a1_runtime_seconds": 62772.83027601242,
+    "stage20_elapsed_seconds": 712,
+    "stage20_jobs": 8415,
+    "stage20_output_bytes": 1111965563
+  },
+  "campaign_id": "kraken_core_liquid_discovery_campaign_002",
+  "domain_binding": "Only symbolic quantile labels and bounded source-prior anchors listed in REGISTERED_DISCOVERY_SPACE may be used. For an inner validation month, numeric values are Type-7 quantiles fit on [2023-01-01, validation_start-10d). For an outer quarter, they are refit on [2023-01-01, outer_start-10d), then hash-frozen before the outer reader opens. Missing values are excluded only from fitting and remain unavailable in evaluation; ties receive the weak percentile (# strictly less + # equal)/N; no return information enters fitting.",
+  "hard_gates": {
+    "minimum_events_per_family_development_fold": 20,
+    "minimum_exact_funding_mapping_symbols": 187,
+    "minimum_unique_values_for_rank": 20,
+    "on_failure": "family stop; no threshold substitution or scope broadening",
+    "protected_rows_opened": 0,
+    "required_feature_coverage": 0.95,
+    "required_lifecycle_coverage": 1.0
+  },
+  "measurement_quantiles_type7": [
+    0.05,
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9,
+    0.95
+  ],
+  "outcome_firewall": {
+    "Capitalcom": false,
+    "allowed": "timestamps, lifecycle, coverage, units, feature distributions, event counts, metadata, cost/funding availability and cache hashes",
+    "forward_returns_or_PnL": false,
+    "protected_rows": 0
+  },
+  "outputs": [
+    "MEASUREMENT_MANIFEST.json",
+    "FEATURE_COVERAGE.csv",
+    "EVENT_FREQUENCY.csv",
+    "FEATURE_DISTRIBUTIONS.csv",
+    "UNIT_AND_TIMESTAMP_AUDIT.json",
+    "CACHE_REPLAY.json"
+  ],
+  "required_checks": [
+    "file and row-group time bounds before payload read",
+    "source_close_ts and feature_available_ts",
+    "units and finite ranges",
+    "PIT lifecycle and daily lagged-liquidity membership",
+    "event identity uniqueness",
+    "coverage by symbol/month/family",
+    "feature quantiles",
+    "event frequency",
+    "exact funding coverage and missing-hour partitions",
+    "base/stress cost scale",
+    "cache deterministic replay",
+    "TSMOM path MAE/MFE coverage"
+  ],
+  "schema": "outcome_free_measurement_plan_v1"
+}

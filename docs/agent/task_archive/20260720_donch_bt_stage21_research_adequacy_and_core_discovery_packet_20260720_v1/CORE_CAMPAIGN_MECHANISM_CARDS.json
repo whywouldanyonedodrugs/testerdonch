@@ -1,0 +1,140 @@
+{
+  "campaign_id": "kraken_core_liquid_discovery_campaign_002",
+  "common": {
+    "PIT_universe_and_liquidity_scope": "Kraken native linear PF instruments in the existing current-roster/lifecycle-capped authority; eligible at decision, known lifecycle, >=90 calendar days since first authorized bar, ranked daily using only lagged 30-day median quote notional; top-N is part of the registered address; no historical-completeness claim",
+    "boundary": "decision, entry, and actual executable exit must remain in the authorized fold; crossing events reject and are never force-closed",
+    "cost_funding": "14 bps base and 32 bps stress pre-funding round trip; exact signed funding at both start/end boundary alignments with adverse=min(0,start,end); rankable-only nonpositive gap allowance; favourable funding cannot rescue selection",
+    "entry_semantics": "first authorized native PF 5m trade open at or after decision_ts, maximum lookup delay 10 minutes; missing price or lifecycle rejects before outcome",
+    "feature_availability": "all inputs require source_close_ts<=decision_ts and feature_available_ts<=decision_ts; completed-bar fields become usable at the next native 5m decision boundary",
+    "programme_exposure": "all 2023-2025 results are program_exposed_historical"
+  },
+  "excluded_routes": {
+    "C17": "excluded",
+    "Capitalcom": "excluded",
+    "KDA02C": "freeze sample_limited_prospective_candidate; no 2023-2025 tuning",
+    "KDX01": "preserve translation_rejected; only a future materially different translation ID may reopen",
+    "protected_period": "excluded"
+  },
+  "families": [
+    {
+      "component_ablations": [
+        "single-horizon",
+        "no-vol-scaling",
+        "no-path-smoothness",
+        "no-context",
+        "no-funding-veto"
+      ],
+      "failure_mode": "turnover/cost dominance, crash reversal, single-symbol concentration, or no stable neighborhood",
+      "falsification_rule": "stop family if no predeclared plateau passes integrity, base-cost positivity and replication requirements or if generic price-only TSMOM is not improved by the claimed component",
+      "family_id": "A4_TSMOM_V7",
+      "lineage": [
+        "A4",
+        "H02",
+        "tsmom_v6"
+      ],
+      "main_null_control": "same rebalance/universe/vol scaling with lagged direction signs permuted within symbol-year before returns are opened",
+      "material_difference": "continuous multi-horizon ensemble plus explicit path-quality coverage and MAE/MFE repair; not a relabel of v6 fixed curated definitions",
+      "mechanism_and_compelled_actor": "Slow trend followers, hedgers and risk-targeting allocators adjust exposures gradually; persistent liquid-perpetual moves may outlast the first rebalance.",
+      "multiplicity_lineage": "inherit all v1-v6 attempts and unresolved historical count; do not reset or claim a complete numeric prior total",
+      "observable_Kraken_state": "causal multi-horizon signed return, EMA slope, breakout-distance rank, realized volatility, path smoothness, lagged liquidity and exact funding",
+      "payoff_archetype": "symmetric directional persistence with volatility-scaled exposure"
+    },
+    {
+      "component_ablations": [
+        "price-only impulse",
+        "no-compression",
+        "no-smoothness",
+        "no-relative-strength",
+        "no-context",
+        "generic breakout"
+      ],
+      "failure_mode": "duplicate episodes, false compression, broad-market beta, cost dominance or unstable thresholds",
+      "falsification_rule": "stop if episode identity is non-unique, controls explain the effect, or no stable development plateau replicates forward",
+      "family_id": "A1_COMPRESSION_V2",
+      "lineage": [
+        "A1",
+        "H01",
+        "H06",
+        "H12",
+        "H13"
+      ],
+      "main_null_control": "liquidity/lifecycle/month-matched completed-bar pseudo-episodes with the same hold grammar",
+      "material_difference": "one episode contributes once per definition and portfolio claims are equal-episode/equal-day, replacing pooled row-weighted evidence",
+      "mechanism_and_compelled_actor": "Liquid leaders with a causal impulse and orderly low-volatility base can retain under-positioned follow-through as slower participants enter after confirmation.",
+      "multiplicity_lineage": "inherit the full A1/compression programme including prior 180-shard and targeted-materialization attempts; prior total is not fully recoverable",
+      "observable_Kraken_state": "episode-level impulse magnitude, base duration, contraction, path smoothness, close confirmation, relative strength and lagged liquidity",
+      "payoff_archetype": "right-skewed continuation from a uniquely identified impulse/base episode"
+    },
+    {
+      "component_ablations": [
+        "prior-high only",
+        "relative-strength only",
+        "BTC/ETH only",
+        "breadth only",
+        "parent signal without context"
+      ],
+      "failure_mode": "no matched uplift, unstable direction, low coverage or current-roster concentration",
+      "falsification_rule": "reject overlay if matched uplift is nonpositive or context removal does not degrade the complete address",
+      "family_id": "A2_PRIOR_HIGH_RS_CONTEXT_V1",
+      "lineage": [
+        "A2_filter",
+        "H03",
+        "H04",
+        "prior_high_reclaim_v2",
+        "rs_breakout_btc"
+      ],
+      "main_null_control": "parent A1/A3 signal with context score permuted within decision month and liquidity decile",
+      "material_difference": "continuous ranks with explicit in/out and feature-removal ablations, not retuned binary gates",
+      "mechanism_and_compelled_actor": "Prior highs and cross-sectional strength proxy latent supply and leadership; they may condition, size or permit another causal continuation entry rather than create an opaque standalone regime.",
+      "multiplicity_lineage": "inherit prior-high v1/v2, reclaim and RS-vs-BTC attempts; no same-sample binary-gate rescue",
+      "observable_Kraken_state": "continuous prior-high proximity/reclaim rank, BTC-relative strength rank, PIT breadth/dispersion and BTC/ETH trend/volatility/drawdown",
+      "payoff_archetype": "contextual uplift to A1/A3 continuation; never a standalone candidate in this campaign"
+    },
+    {
+      "component_ablations": [
+        "starter-only",
+        "starter-plus-add",
+        "confirmation-to-one-close",
+        "no-context",
+        "matched pseudo-event"
+      ],
+      "failure_mode": "failed breakouts, delayed untradeable adds, double-counting legs, or no incremental retest contribution",
+      "falsification_rule": "reject retest mechanism if the separately attributed add is nonpositive or the starter/retest identity cannot be reconciled without duplication",
+      "family_id": "A3_STARTER_RETEST_V3",
+      "lineage": [
+        "A3",
+        "H05",
+        "breakout_retest_v2"
+      ],
+      "main_null_control": "same breakout and starter with retest/add timestamps permuted among eligible episodes before return access",
+      "material_difference": "mandatory-retest-only entry remains closed; every address has an immediate starter and the retest is a separately accounted optional add that never substitutes for the starter",
+      "mechanism_and_compelled_actor": "Close-confirmed breakout can start continuation immediately while a later orderly retest may provide separate confirmation and sizing capacity.",
+      "multiplicity_lineage": "inherit all A3 and breakout-retest attempts; mandatory-retest-only route remains terminally closed",
+      "observable_Kraken_state": "completed breakout close, causal range/ATR, immediate starter, separately timestamped retest and reclaim, and context ranks",
+      "payoff_archetype": "convex continuation with separately attributed starter and optional add legs"
+    },
+    {
+      "component_ablations": [
+        "OI removed",
+        "liquidation removed",
+        "price-only",
+        "time-matched generic structure"
+      ],
+      "failure_mode": "price-only/null equivalence, funding or cost sensitivity, contributor concentration or execution delay fragility",
+      "falsification_rule": "do not advance an address unless components add value and all predeclared execution/forensic checks are reconciled",
+      "family_id": "KDA02B_SURVIVOR_ADJUDICATION_V1",
+      "lineage": [
+        "KDA02",
+        "KDA02B",
+        "Stage20"
+      ],
+      "main_null_control": "exact price-only and generic-structure controls frozen before outcomes",
+      "material_difference": "none; this is adjudication only, never threshold rescue or redevelopment",
+      "mechanism_and_compelled_actor": "OI-vacuum with agreed trade/mark impulse and liquidation may reflect forced inventory clearing whose continuation/reversal depends on execution and derivative-state components.",
+      "multiplicity_lineage": "inherits all 228 Stage20 programme attempts; 19 unique selected cells are adjudicated without retuning",
+      "observable_Kraken_state": "the exact 19 unique Stage20 selected cell identities and their frozen event/execution semantics",
+      "payoff_archetype": "unchanged Stage20 symmetric directional addresses"
+    }
+  ],
+  "schema": "core_campaign_mechanism_cards_v1"
+}

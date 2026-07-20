@@ -1,0 +1,1237 @@
+{
+  "KDA02B_adjudication": "reuse exact Stage20 nine-fold identities and frozen outputs; controls/forensics only",
+  "campaign_id": "kraken_core_liquid_discovery_campaign_002",
+  "empty_fold_rule": "persist empty/unavailable observation and include it in all stability denominators; never silently omit",
+  "families_using_map": [
+    "A4_TSMOM_V7",
+    "A1_COMPRESSION_V2",
+    "A2_PRIOR_HIGH_RS_CONTEXT_V1",
+    "A3_STARTER_RETEST_V3"
+  ],
+  "maximum_horizon_days": 10,
+  "outer_folds": [
+    {
+      "boundary": "decision, entry and actual exit inside quarter; crossing events reject; no artificial close",
+      "development_start": "2023-01-01T00:00:00Z",
+      "embargo_days": 10,
+      "exposure_class": "program_exposed_historical",
+      "inner_folds": [
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202307",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-06-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-08-01T00:00:00Z",
+          "validation_start": "2023-07-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202308",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-07-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-09-01T00:00:00Z",
+          "validation_start": "2023-08-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202309",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-08-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-10-01T00:00:00Z",
+          "validation_start": "2023-09-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202310",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-09-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-11-01T00:00:00Z",
+          "validation_start": "2023-10-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202311",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-10-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-12-01T00:00:00Z",
+          "validation_start": "2023-11-01T00:00:00Z"
+        }
+      ],
+      "no_backward_transfer": true,
+      "outer_evaluation_end_exclusive": "2024-04-01T00:00:00Z",
+      "outer_evaluation_start": "2024-01-01T00:00:00Z",
+      "outer_fold_id": "2024Q1",
+      "purge_days": 10
+    },
+    {
+      "boundary": "decision, entry and actual exit inside quarter; crossing events reject; no artificial close",
+      "development_start": "2023-01-01T00:00:00Z",
+      "embargo_days": 10,
+      "exposure_class": "program_exposed_historical",
+      "inner_folds": [
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202307",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-06-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-08-01T00:00:00Z",
+          "validation_start": "2023-07-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202308",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-07-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-09-01T00:00:00Z",
+          "validation_start": "2023-08-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202309",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-08-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-10-01T00:00:00Z",
+          "validation_start": "2023-09-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202310",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-09-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-11-01T00:00:00Z",
+          "validation_start": "2023-10-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202311",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-10-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-12-01T00:00:00Z",
+          "validation_start": "2023-11-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202312",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-11-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-01-01T00:00:00Z",
+          "validation_start": "2023-12-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202401",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-12-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-02-01T00:00:00Z",
+          "validation_start": "2024-01-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202402",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-01-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-03-01T00:00:00Z",
+          "validation_start": "2024-02-01T00:00:00Z"
+        }
+      ],
+      "no_backward_transfer": true,
+      "outer_evaluation_end_exclusive": "2024-07-01T00:00:00Z",
+      "outer_evaluation_start": "2024-04-01T00:00:00Z",
+      "outer_fold_id": "2024Q2",
+      "purge_days": 10
+    },
+    {
+      "boundary": "decision, entry and actual exit inside quarter; crossing events reject; no artificial close",
+      "development_start": "2023-01-01T00:00:00Z",
+      "embargo_days": 10,
+      "exposure_class": "program_exposed_historical",
+      "inner_folds": [
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202307",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-06-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-08-01T00:00:00Z",
+          "validation_start": "2023-07-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202308",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-07-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-09-01T00:00:00Z",
+          "validation_start": "2023-08-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202309",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-08-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-10-01T00:00:00Z",
+          "validation_start": "2023-09-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202310",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-09-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-11-01T00:00:00Z",
+          "validation_start": "2023-10-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202311",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-10-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-12-01T00:00:00Z",
+          "validation_start": "2023-11-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202312",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-11-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-01-01T00:00:00Z",
+          "validation_start": "2023-12-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202401",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-12-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-02-01T00:00:00Z",
+          "validation_start": "2024-01-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202402",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-01-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-03-01T00:00:00Z",
+          "validation_start": "2024-02-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202403",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-02-20T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-04-01T00:00:00Z",
+          "validation_start": "2024-03-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202404",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-03-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-05-01T00:00:00Z",
+          "validation_start": "2024-04-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202405",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-04-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-06-01T00:00:00Z",
+          "validation_start": "2024-05-01T00:00:00Z"
+        }
+      ],
+      "no_backward_transfer": true,
+      "outer_evaluation_end_exclusive": "2024-10-01T00:00:00Z",
+      "outer_evaluation_start": "2024-07-01T00:00:00Z",
+      "outer_fold_id": "2024Q3",
+      "purge_days": 10
+    },
+    {
+      "boundary": "decision, entry and actual exit inside quarter; crossing events reject; no artificial close",
+      "development_start": "2023-01-01T00:00:00Z",
+      "embargo_days": 10,
+      "exposure_class": "program_exposed_historical",
+      "inner_folds": [
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202307",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-06-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-08-01T00:00:00Z",
+          "validation_start": "2023-07-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202308",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-07-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-09-01T00:00:00Z",
+          "validation_start": "2023-08-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202309",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-08-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-10-01T00:00:00Z",
+          "validation_start": "2023-09-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202310",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-09-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-11-01T00:00:00Z",
+          "validation_start": "2023-10-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202311",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-10-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-12-01T00:00:00Z",
+          "validation_start": "2023-11-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202312",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-11-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-01-01T00:00:00Z",
+          "validation_start": "2023-12-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202401",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-12-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-02-01T00:00:00Z",
+          "validation_start": "2024-01-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202402",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-01-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-03-01T00:00:00Z",
+          "validation_start": "2024-02-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202403",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-02-20T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-04-01T00:00:00Z",
+          "validation_start": "2024-03-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202404",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-03-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-05-01T00:00:00Z",
+          "validation_start": "2024-04-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202405",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-04-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-06-01T00:00:00Z",
+          "validation_start": "2024-05-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202406",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-05-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-07-01T00:00:00Z",
+          "validation_start": "2024-06-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202407",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-06-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-08-01T00:00:00Z",
+          "validation_start": "2024-07-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202408",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-07-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-09-01T00:00:00Z",
+          "validation_start": "2024-08-01T00:00:00Z"
+        }
+      ],
+      "no_backward_transfer": true,
+      "outer_evaluation_end_exclusive": "2025-01-01T00:00:00Z",
+      "outer_evaluation_start": "2024-10-01T00:00:00Z",
+      "outer_fold_id": "2024Q4",
+      "purge_days": 10
+    },
+    {
+      "boundary": "decision, entry and actual exit inside quarter; crossing events reject; no artificial close",
+      "development_start": "2023-01-01T00:00:00Z",
+      "embargo_days": 10,
+      "exposure_class": "program_exposed_historical",
+      "inner_folds": [
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202307",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-06-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-08-01T00:00:00Z",
+          "validation_start": "2023-07-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202308",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-07-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-09-01T00:00:00Z",
+          "validation_start": "2023-08-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202309",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-08-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-10-01T00:00:00Z",
+          "validation_start": "2023-09-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202310",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-09-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-11-01T00:00:00Z",
+          "validation_start": "2023-10-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202311",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-10-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-12-01T00:00:00Z",
+          "validation_start": "2023-11-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202312",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-11-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-01-01T00:00:00Z",
+          "validation_start": "2023-12-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202401",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-12-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-02-01T00:00:00Z",
+          "validation_start": "2024-01-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202402",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-01-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-03-01T00:00:00Z",
+          "validation_start": "2024-02-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202403",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-02-20T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-04-01T00:00:00Z",
+          "validation_start": "2024-03-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202404",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-03-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-05-01T00:00:00Z",
+          "validation_start": "2024-04-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202405",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-04-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-06-01T00:00:00Z",
+          "validation_start": "2024-05-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202406",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-05-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-07-01T00:00:00Z",
+          "validation_start": "2024-06-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202407",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-06-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-08-01T00:00:00Z",
+          "validation_start": "2024-07-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202408",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-07-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-09-01T00:00:00Z",
+          "validation_start": "2024-08-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202409",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-08-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-10-01T00:00:00Z",
+          "validation_start": "2024-09-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202410",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-09-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-11-01T00:00:00Z",
+          "validation_start": "2024-10-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202411",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-10-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-12-01T00:00:00Z",
+          "validation_start": "2024-11-01T00:00:00Z"
+        }
+      ],
+      "no_backward_transfer": true,
+      "outer_evaluation_end_exclusive": "2025-04-01T00:00:00Z",
+      "outer_evaluation_start": "2025-01-01T00:00:00Z",
+      "outer_fold_id": "2025Q1",
+      "purge_days": 10
+    },
+    {
+      "boundary": "decision, entry and actual exit inside quarter; crossing events reject; no artificial close",
+      "development_start": "2023-01-01T00:00:00Z",
+      "embargo_days": 10,
+      "exposure_class": "program_exposed_historical",
+      "inner_folds": [
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202307",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-06-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-08-01T00:00:00Z",
+          "validation_start": "2023-07-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202308",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-07-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-09-01T00:00:00Z",
+          "validation_start": "2023-08-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202309",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-08-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-10-01T00:00:00Z",
+          "validation_start": "2023-09-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202310",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-09-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-11-01T00:00:00Z",
+          "validation_start": "2023-10-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202311",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-10-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-12-01T00:00:00Z",
+          "validation_start": "2023-11-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202312",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-11-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-01-01T00:00:00Z",
+          "validation_start": "2023-12-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202401",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-12-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-02-01T00:00:00Z",
+          "validation_start": "2024-01-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202402",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-01-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-03-01T00:00:00Z",
+          "validation_start": "2024-02-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202403",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-02-20T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-04-01T00:00:00Z",
+          "validation_start": "2024-03-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202404",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-03-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-05-01T00:00:00Z",
+          "validation_start": "2024-04-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202405",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-04-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-06-01T00:00:00Z",
+          "validation_start": "2024-05-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202406",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-05-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-07-01T00:00:00Z",
+          "validation_start": "2024-06-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202407",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-06-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-08-01T00:00:00Z",
+          "validation_start": "2024-07-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202408",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-07-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-09-01T00:00:00Z",
+          "validation_start": "2024-08-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202409",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-08-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-10-01T00:00:00Z",
+          "validation_start": "2024-09-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202410",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-09-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-11-01T00:00:00Z",
+          "validation_start": "2024-10-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202411",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-10-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-12-01T00:00:00Z",
+          "validation_start": "2024-11-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202412",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-11-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-01-01T00:00:00Z",
+          "validation_start": "2024-12-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202501",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-12-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-02-01T00:00:00Z",
+          "validation_start": "2025-01-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202502",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2025-01-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-03-01T00:00:00Z",
+          "validation_start": "2025-02-01T00:00:00Z"
+        }
+      ],
+      "no_backward_transfer": true,
+      "outer_evaluation_end_exclusive": "2025-07-01T00:00:00Z",
+      "outer_evaluation_start": "2025-04-01T00:00:00Z",
+      "outer_fold_id": "2025Q2",
+      "purge_days": 10
+    },
+    {
+      "boundary": "decision, entry and actual exit inside quarter; crossing events reject; no artificial close",
+      "development_start": "2023-01-01T00:00:00Z",
+      "embargo_days": 10,
+      "exposure_class": "program_exposed_historical",
+      "inner_folds": [
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202307",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-06-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-08-01T00:00:00Z",
+          "validation_start": "2023-07-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202308",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-07-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-09-01T00:00:00Z",
+          "validation_start": "2023-08-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202309",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-08-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-10-01T00:00:00Z",
+          "validation_start": "2023-09-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202310",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-09-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-11-01T00:00:00Z",
+          "validation_start": "2023-10-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202311",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-10-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-12-01T00:00:00Z",
+          "validation_start": "2023-11-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202312",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-11-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-01-01T00:00:00Z",
+          "validation_start": "2023-12-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202401",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-12-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-02-01T00:00:00Z",
+          "validation_start": "2024-01-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202402",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-01-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-03-01T00:00:00Z",
+          "validation_start": "2024-02-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202403",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-02-20T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-04-01T00:00:00Z",
+          "validation_start": "2024-03-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202404",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-03-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-05-01T00:00:00Z",
+          "validation_start": "2024-04-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202405",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-04-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-06-01T00:00:00Z",
+          "validation_start": "2024-05-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202406",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-05-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-07-01T00:00:00Z",
+          "validation_start": "2024-06-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202407",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-06-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-08-01T00:00:00Z",
+          "validation_start": "2024-07-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202408",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-07-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-09-01T00:00:00Z",
+          "validation_start": "2024-08-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202409",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-08-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-10-01T00:00:00Z",
+          "validation_start": "2024-09-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202410",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-09-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-11-01T00:00:00Z",
+          "validation_start": "2024-10-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202411",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-10-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-12-01T00:00:00Z",
+          "validation_start": "2024-11-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202412",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-11-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-01-01T00:00:00Z",
+          "validation_start": "2024-12-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202501",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-12-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-02-01T00:00:00Z",
+          "validation_start": "2025-01-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202502",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2025-01-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-03-01T00:00:00Z",
+          "validation_start": "2025-02-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202503",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2025-02-19T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-04-01T00:00:00Z",
+          "validation_start": "2025-03-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202504",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2025-03-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-05-01T00:00:00Z",
+          "validation_start": "2025-04-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202505",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2025-04-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-06-01T00:00:00Z",
+          "validation_start": "2025-05-01T00:00:00Z"
+        }
+      ],
+      "no_backward_transfer": true,
+      "outer_evaluation_end_exclusive": "2025-10-01T00:00:00Z",
+      "outer_evaluation_start": "2025-07-01T00:00:00Z",
+      "outer_fold_id": "2025Q3",
+      "purge_days": 10
+    },
+    {
+      "boundary": "decision, entry and actual exit inside quarter; crossing events reject; no artificial close",
+      "development_start": "2023-01-01T00:00:00Z",
+      "embargo_days": 10,
+      "exposure_class": "program_exposed_historical",
+      "inner_folds": [
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202307",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-06-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-08-01T00:00:00Z",
+          "validation_start": "2023-07-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202308",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-07-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-09-01T00:00:00Z",
+          "validation_start": "2023-08-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202309",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-08-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-10-01T00:00:00Z",
+          "validation_start": "2023-09-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202310",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-09-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-11-01T00:00:00Z",
+          "validation_start": "2023-10-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202311",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-10-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2023-12-01T00:00:00Z",
+          "validation_start": "2023-11-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202312",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-11-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-01-01T00:00:00Z",
+          "validation_start": "2023-12-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202401",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2023-12-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-02-01T00:00:00Z",
+          "validation_start": "2024-01-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202402",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-01-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-03-01T00:00:00Z",
+          "validation_start": "2024-02-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202403",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-02-20T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-04-01T00:00:00Z",
+          "validation_start": "2024-03-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202404",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-03-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-05-01T00:00:00Z",
+          "validation_start": "2024-04-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202405",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-04-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-06-01T00:00:00Z",
+          "validation_start": "2024-05-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202406",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-05-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-07-01T00:00:00Z",
+          "validation_start": "2024-06-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202407",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-06-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-08-01T00:00:00Z",
+          "validation_start": "2024-07-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202408",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-07-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-09-01T00:00:00Z",
+          "validation_start": "2024-08-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202409",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-08-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-10-01T00:00:00Z",
+          "validation_start": "2024-09-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202410",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-09-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-11-01T00:00:00Z",
+          "validation_start": "2024-10-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202411",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-10-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2024-12-01T00:00:00Z",
+          "validation_start": "2024-11-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202412",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-11-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-01-01T00:00:00Z",
+          "validation_start": "2024-12-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202501",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2024-12-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-02-01T00:00:00Z",
+          "validation_start": "2025-01-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202502",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2025-01-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-03-01T00:00:00Z",
+          "validation_start": "2025-02-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202503",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2025-02-19T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-04-01T00:00:00Z",
+          "validation_start": "2025-03-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202504",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2025-03-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-05-01T00:00:00Z",
+          "validation_start": "2025-04-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202505",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2025-04-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-06-01T00:00:00Z",
+          "validation_start": "2025-05-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202506",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2025-05-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-07-01T00:00:00Z",
+          "validation_start": "2025-06-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202507",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2025-06-21T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-08-01T00:00:00Z",
+          "validation_start": "2025-07-01T00:00:00Z"
+        },
+        {
+          "event_rule": "decision, entry and actual exit inside validation month; otherwise reject",
+          "inner_fold_id": "M_202508",
+          "purge_before_validation_days": 10,
+          "training_latest_exit_exclusive": "2025-07-22T00:00:00Z",
+          "training_start": "2023-01-01T00:00:00Z",
+          "validation_end_exclusive": "2025-09-01T00:00:00Z",
+          "validation_start": "2025-08-01T00:00:00Z"
+        }
+      ],
+      "no_backward_transfer": true,
+      "outer_evaluation_end_exclusive": "2026-01-01T00:00:00Z",
+      "outer_evaluation_start": "2025-10-01T00:00:00Z",
+      "outer_fold_id": "2025Q4",
+      "purge_days": 10
+    }
+  ],
+  "rankable_interval": "[2023-01-01T00:00:00Z,2026-01-01T00:00:00Z)",
+  "schema": "core_campaign_inner_outer_fold_map_v1",
+  "warmup": "January-June 2023 is feature warmup/training only; first inner validation is July 2023"
+}

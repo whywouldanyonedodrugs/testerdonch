@@ -1,0 +1,63 @@
+{
+  "campaign_id": "kraken_core_liquid_discovery_campaign_002",
+  "economic_interpreter_rule": "The future executor is a mechanical interpreter of the complete registry and ordered semantic authorities. It may not add a field, default, threshold, tie rule, missingness rule, address, context, control, selection rule or execution convention.",
+  "outcome_firewall": {
+    "Capitalcom": false,
+    "implementation_and_tests": "synthetic or timestamp/coverage/unit data only",
+    "partial_outcome_guided_patch": false,
+    "protected_rows": 0
+  },
+  "phase_order": [
+    "outcome-free measurement/cache validation",
+    "registered development",
+    "component ablations/sparse discovery",
+    "pre-registered conditional refinement",
+    "plateau/deduplication",
+    "deterministic beam and numeric-threshold freeze",
+    "forward quarterly outer",
+    "registered survivor controls",
+    "forensics",
+    "route decision"
+  ],
+  "post_approval_implementation_gate": {
+    "authorized_without_second_human_cycle": true,
+    "on_any_semantic_gap": "global stop; a new human approval and packet version are required",
+    "requirements": [
+      "implementation changes are task-scoped mechanical transcription only",
+      "focused deterministic unit tests cover every formula and boundary",
+      "synthetic full-registry supervisor/canary passes",
+      "independent pre-outcome semantic-equivalence review passes",
+      "source files and tests are SHA-256 bound in a final launch-boundary record",
+      "all packet and economic dependency hashes remain exact",
+      "no outcome reader opens before the gate"
+    ]
+  },
+  "runtime_reference_source": {
+    "path": "synthetic_campaign_supervisor.py",
+    "scope": "transactional state, bounded lazy scheduling, process-tree RSS, atomic markers, heartbeat, bound stop and idempotent recovery; contains no economic outcome reader",
+    "sha256": "e036decd288620b05796ba8179f5a0cd200edd5196c0337365682ed52282daa5"
+  },
+  "schema": "campaign_execution_spec_v1",
+  "semantic_authority_order": [
+    "CORE_CAMPAIGN_MECHANISM_CARDS.json",
+    "REGISTERED_DISCOVERY_SPACE.json",
+    "FULL_REGISTERED_CONFIGURATION_REGISTRY.jsonl",
+    "CONTEXT_AND_ABLATION_REGISTRY.json",
+    "INNER_OUTER_FOLD_MAP.json",
+    "SELECTION_AND_PLATEAU_CONTRACT.json",
+    "CONTROL_AND_FORENSIC_CONTRACT.json",
+    "FULL_CONTROL_TEMPLATE_REGISTRY.jsonl",
+    "OUTCOME_FREE_MEASUREMENT_PLAN.json"
+  ],
+  "semantic_authority_sha256": {
+    "CONTEXT_AND_ABLATION_REGISTRY.json": "1c031307e045ac159133cfef556d4a5bd633bd99de0369ef37ab3a058048b780",
+    "CONTROL_AND_FORENSIC_CONTRACT.json": "f5ae0edc76959f07a9906ba3f883b80cf745b6fd664e8fcdb504d46695ec8d57",
+    "CORE_CAMPAIGN_MECHANISM_CARDS.json": "6675c9dc5092f3b3f7ccb3b175325584b5392d3add07abadddf864c00114d3cb",
+    "FULL_CONTROL_TEMPLATE_REGISTRY.jsonl": "f407c05288b05dc8f27d4978faed00f4cb35eeda245481beb5e4dab47a948ab2",
+    "FULL_REGISTERED_CONFIGURATION_REGISTRY.jsonl": "d582d8e2e5390f7f833849494cd7b4751eff667db99221ce7a8a8c27bf42f8b3",
+    "INNER_OUTER_FOLD_MAP.json": "dcb8ce67acdbf987945dd6b000bb3a13954a0a3eabaf019aa7ecba6c0d48f6e2",
+    "OUTCOME_FREE_MEASUREMENT_PLAN.json": "23d3c971cb3ca5ef1e53905b98e1cbdef3b380bfe8838e86e72be9f9ab9a9bb6",
+    "REGISTERED_DISCOVERY_SPACE.json": "e64a22ae26ec64693daea476b9df692e785ba5e82d2e1fd6aa0c632607899ab9",
+    "SELECTION_AND_PLATEAU_CONTRACT.json": "ead09df4f3f08d5c5afcaf97eda91dfa485ce6d183c767a625807ce3c2bef7a8"
+  }
+}

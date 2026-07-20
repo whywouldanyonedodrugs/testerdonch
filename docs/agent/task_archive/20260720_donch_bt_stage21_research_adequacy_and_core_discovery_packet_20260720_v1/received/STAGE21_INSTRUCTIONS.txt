@@ -1,0 +1,261 @@
+# Stage 21 — Audit Stage 20 research adequacy and construct one comprehensive unattended core-alpha campaign packet
+
+```text
+task_id: donch_bt_stage21_research_adequacy_and_core_discovery_packet_20260720_v1
+repository: /opt/testerdonch
+mode: direct_apply_in_isolated_worktree
+drive_handoff: approved_default
+new_economic_run_authorized: no
+existing_Stage20_terminal_outcome_review_authorized: yes, terminal artifacts only
+protected_strategy_outcomes_authorized: no
+Capitalcom_payload_access_authorized: no
+new_data_acquisition_authorized: no
+capture_restart_authorized: no
+orders_private_actions_live_trading: no
+commit_authorized: yes, task-scoped reviewed packet/audit only
+push_authorized: yes, non-force only
+```
+
+## Objective
+
+Verify the Stage 20 terminal handoff and determine exactly what was and was not researched. Then construct one complete, machine-readable campaign packet for a broad, profitability-first, unattended Kraken core-alpha discovery campaign. Do not launch economics in this task. Return one final manifest and one approval-request hash so that only one later human approval is needed.
+
+## Authority to verify
+
+Start from the latest verified dynamic continuity pointer and immutable Stage 20 terminal handoff, not this prose. Verify:
+
+```text
+reported terminal repository main/origin main:
+    405878887780f7e85fe90a601a643bee502d7d5c
+
+reported terminal Drive folder:
+    https://drive.google.com/drive/folders/1pvPYQAE56-wGQp9lW7ggt4u8u9rMALdj
+
+reported terminal ZIP:
+    DONCH_Stage20_Terminal_Completion_2026-07-20_v1.zip
+    SHA-256 prefix/suffix: 3a3fd639...0526c
+
+reported continuity:
+    sequence 3
+    event physical SHA-256: 9af26ed353de635b0bb49e7369bcac16af5c067054720f9f8bb70d486ee2e776
+    snapshot physical SHA-256: 1d6eb5f9750dfec7c831005aff4b1075eed2c5982402238f65642ecd695bb9a8
+    pointer physical SHA-256: c66ef3fd9ae0a3d7c4cc87f25b18bcdc0bca58a13cc73a5c4c68d171ab59436e
+```
+
+Stop only if the current pointer, immutable handoff, repository, or terminal artifact hashes cannot be reconciled.
+
+## Part A — Stage 20 research-adequacy audit
+
+Read the actual terminal response surfaces, beam registry, fold decisions, outer results, route matrix, code, and independent reviews. Do not rely on the prose completion summary alone.
+
+Produce `STAGE20_RESEARCH_ADEQUACY_AUDIT.md` and a compact machine-readable companion covering:
+
+1. Exact development and outer-fold counts by family and quarter. Explain the reported 954 development rows and 45 outer rows against 96 KDA02B, 48 KDA02C, 42 KDX01 cells and nine potential outer blocks per family.
+2. Every selected candidate ID by fold, with base/stress means, median, p20 inner-fold result, bootstrap lower bound, opportunity count, symbol/day/year concentration, funding/cost decomposition, and outer result.
+3. The exact fold at which each family continued or stopped and why.
+4. A tested-versus-untested search map for feature windows, thresholds, transformations, directions, contexts, entries, exits, stops, targets, trails, overlap, costs, and execution assumptions.
+5. Provenance of every exact translation choice, classified as:
+   `source_prior`, `mechanism_derived`, `outcome_free_measurement_derived`, `registered_design_choice`, or `unsupported_guess`.
+6. Whether the three terminal routes are supported by the machine evidence. Preserve Stage 20 decisions unless a calculation or authority defect is proven.
+7. A direct conclusion separating:
+   - execution correctness of the frozen packet;
+   - search completeness within each family;
+   - family exhaustion;
+   - validation or live readiness.
+
+The independent review's zero metric mismatch verifies arithmetic and replay, not search completeness. State this distinction explicitly.
+
+## Part B — next campaign scope
+
+Construct one campaign packet named provisionally:
+
+```text
+kraken_core_liquid_discovery_campaign_002
+```
+
+The packet should prioritize the previously identified Kraken Tier-1 liquid tranche, but only after reconciling every prior attempt and defect:
+
+```text
+A4/H02: volatility-managed liquid TSMOM
+A1/H01 + H06/H12/H13: liquid-leader continuation and compression
+A2_filter/H03-H04: prior-high / reclaim continuation context
+A3/H05: close-confirmed post-breakout retest
+```
+
+Do not rerun old translations under new names. In particular:
+
+- TSMOM must inherit the v6 incomplete-path and reproducibility history, reuse valid cache/infrastructure work, and repair evidence coverage before new economics.
+- A1/compression must be definition- and episode-level, not a pooled row-weighted portfolio claim. A new lane requires an explicit material difference.
+- prior-high and relative strength should enter first as continuous ranks/contexts with ablations, not retuned binary hard gates.
+- the old mandatory-retest-only entry is closed; a new A3 lane must distinguish immediate starter and separately accounted retest/add or otherwise state the material mechanism change.
+
+Also include one bounded survivor-adjudication lane for Stage 20 KDA02B:
+
+```text
+KDA02B: component controls, execution forensics, and cost/funding sensitivity only;
+        no same-sample threshold rescue or cosmetic redevelopment.
+```
+
+Route the other Stage 20 families as follows unless the terminal audit proves a defect:
+
+```text
+KDA02C: freeze as sample-limited prospective candidate; no further 2023-2025 tuning.
+KDX01: preserve exact translation_rejected; reopen only under a materially different translation ID and mechanism.
+```
+
+Do not include C17/catalyst economics in this campaign. The catalyst collection remains sample-limited and lifecycle/timestamp constrained. Do not include Capital.com or protected-period strategy outcomes.
+
+## Translation construction: measurement first, not magic numbers
+
+For every family, bind:
+
+```text
+mechanism_and_compelled_actor
+observable_Kraken_state
+payoff_archetype
+PIT_universe_and_liquidity_scope
+feature_availability
+entry_and_exit_semantics
+failure_mode
+main_null_control
+component_ablations
+falsification_rule
+multiplicity_lineage
+```
+
+Before any outcome-bearing search, perform outcome-free measurement validation for feature coverage, event frequency, distributions, units, timestamp availability, and plausible cost scale. Use those results plus public/mechanism priors to define bounded parameter domains. Do not choose exact thresholds from forward returns.
+
+The registered discovery design must:
+
+- use a space-filling deterministic design such as Sobol or Latin-hypercube sampling for broad mixed parameter domains rather than an arbitrary full Cartesian grid;
+- include explicit anchor definitions from source priors and component-null definitions;
+- register every configuration, seed, transformation, direction, context, entry, exit, and payoff variant before outcomes;
+- use hierarchical sparse interactions, normally no more than pairwise unless a three-way interaction is compelled by the mechanism;
+- preserve all negative and unavailable attempts;
+- search stable response regions and local plateaus, not isolated maxima;
+- run local neighborhood refinement only around predeclared stable regions and count all refinement attempts;
+- use deterministic candidate beams and freeze complete economic addresses before outer evaluation.
+
+The packet must set an exact compute budget after a no-outcome benchmark. The intended scale is materially broader than Stage 20 and should normally include at least several hundred registered screening configurations per main family plus ablations and local-neighborhood cells, subject to the measured resource envelope. Runtime is not itself a quality criterion, but the cold full campaign should be designed to use a realistic multi-hour budget rather than finish because the search grammar is tiny.
+
+## Required research axes
+
+Use only causally available and currently authorized data. At minimum evaluate mechanism-appropriate subsets of:
+
+```text
+signal/lookback duration
+impulse or trend magnitude
+base/retest/consolidation duration
+volatility contraction and path smoothness
+prior-high lookback and proximity/reclaim state
+volatility estimation and scaling
+entry confirmation and bounded delay
+fixed, structural, ATR, trail, and time exits where economically coherent
+BTC/ETH trend, volatility, and drawdown context
+PIT breadth/dispersion context
+lagged liquidity and listing-age context
+exact funding state and funding veto/cap
+cost, funding, entry-delay, and execution stress
+```
+
+Contexts must be component overlays or permission/sizing questions, not an opaque regime label. Preserve the current-roster/lifecycle limitation in every cross-sectional claim.
+
+## Evaluation sequence
+
+Bind this order in the packet:
+
+1. Outcome-free measurement and cache validation.
+2. Registered broad development response surfaces on development folds only.
+3. Component ablations and bounded sparse discovery.
+4. Neighborhood-stability and deduplication analysis.
+5. Deterministic beam and translation freeze.
+6. Forward-only quarterly outer evaluation and rolling replication.
+7. Predeclared controls for survivors, including price-only/generic-structure controls and feature-removal controls.
+8. Forensics: leave-one-symbol, leave-one-month, leave-one-symbol-month, top-contributor removal, cost/funding stress, entry-delay stress, and parameter-neighborhood stability.
+9. Route decisions with all 2023-2025 evidence labelled `program_exposed_historical`, never independent validation.
+
+No event sampling, event caps, alphabetical/static symbol selection, hidden variants, manual winner selection, or backward leakage.
+
+## Unattended execution contract to bind now
+
+Design the eventual campaign so one exact later approval authorizes the whole frozen campaign and routine mechanical administration.
+
+Required runtime properties:
+
+```text
+persistent detached supervisor
+transactional campaign state
+atomic sharded artifacts
+idempotent resume
+bounded lazy scheduling
+family/global stop isolation
+resource and wall limits from benchmark
+complete attempt reconciliation
+secure Telegram preflight
+initial health heartbeat then 30-minute heartbeats
+phase/fold/family/stop/completion notifications
+no partial economic rankings in notifications
+```
+
+Authorize the future executing agent, once the exact packet is approved, to repair and test routine mechanical runtime defects and resume automatically without another human approval only when all of the following hold:
+
+- no economic, selection, data, funding, execution, or protected semantic changes;
+- no partial outcomes are inspected to guide the repair;
+- the patch is narrow, tested, independently reviewed, logged, and hash-bound;
+- authority and packet hashes still match.
+
+Semantic changes, protected access, new acquisition, unsafe Git, or an unresolved common economic defect remain hard stops.
+
+After launch, the future agent should verify the persistent process, one reconciled real partition/cell, Telegram delivery, and the first scheduled heartbeat; then return one short health receipt and stop interactive polling. The detached supervisor continues. The human will return after Telegram terminal completion or a genuine bound stop. Terminal review, packaging, Git publication, Drive handoff, and continuity refresh may be completed automatically if already bound by the final approval.
+
+## Deliverables
+
+Keep the package compact. Required:
+
+```text
+STAGE20_RESEARCH_ADEQUACY_AUDIT.md
+STAGE20_SEARCH_COVERAGE_MATRIX.csv
+STAGE20_FOLD_AND_CANDIDATE_SUMMARY.csv
+CORE_CAMPAIGN_MECHANISM_CARDS.json
+OUTCOME_FREE_MEASUREMENT_PLAN.json
+REGISTERED_DISCOVERY_SPACE.json
+CONTEXT_AND_ABLATION_REGISTRY.json
+INNER_OUTER_FOLD_MAP.json
+SELECTION_AND_PLATEAU_CONTRACT.json
+CONTROL_AND_FORENSIC_CONTRACT.json
+UNATTENDED_RUNTIME_AND_RECOVERY_CONTRACT.json
+RESOURCE_PROJECTION.json
+CAMPAIGN_MANIFEST.json
+HUMAN_APPROVAL_REQUEST.json
+VALIDATION.md
+REVIEW.md
+ARTIFACT_MANIFEST.json
+COMPLETION.md
+NEXT_ACTION.md
+```
+
+The approval request must name every economic dependency hash and require only one human approval before launch. If any economic or selection meaning would still need to be invented after approval, the packet fails and must not be presented as launch-ready.
+
+## Final response
+
+Return concisely:
+
+```text
+status
+verified_current_authority
+Stage20_execution_correctness
+Stage20_search_completeness_by_family
+954_and_45_row_decomposition
+terminal_route_review
+new_campaign_families_and_attempt_scale
+outcome_free_measurement_summary
+search_design_summary
+controls_and_forensics
+projected_cold_runtime_and_resources
+manifest_sha256
+approval_request_sha256
+repository_commit_and_cleanliness
+Drive_handoff_and_round_trip_verification
+remaining_limits
+exact_next_action: one human approval or blocked reason
+```

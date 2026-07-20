@@ -1,0 +1,75 @@
+{
+  "campaign_id": "kraken_core_liquid_discovery_campaign_002",
+  "context_definition": "Each context is a separately addressed component overlay or permission/sizing rule. No opaque regime label is allowed.",
+  "contexts": [
+    {
+      "ablations": [
+        "BTC_only",
+        "ETH_only",
+        "both_removed"
+      ],
+      "actions": [
+        "none",
+        "permission",
+        "linear_size"
+      ],
+      "id": "BTC_ETH_TREND",
+      "inputs": "completed BTC and ETH 20d/60d continuous trend ranks"
+    },
+    {
+      "ablations": [
+        "vol_removed",
+        "drawdown_removed"
+      ],
+      "actions": [
+        "none",
+        "permission",
+        "linear_size"
+      ],
+      "id": "BTC_ETH_VOL_DRAWDOWN",
+      "inputs": "completed 20d realized-vol ranks and causal rolling drawdowns"
+    },
+    {
+      "ablations": [
+        "breadth_removed",
+        "dispersion_removed"
+      ],
+      "actions": [
+        "none",
+        "permission",
+        "linear_size"
+      ],
+      "id": "PIT_BREADTH_DISPERSION",
+      "inputs": "eligible current-roster/lifecycle-capped PIT members using same decision timestamp"
+    },
+    {
+      "ablations": [
+        "topN_constant",
+        "listing_age_removed"
+      ],
+      "actions": [
+        "top10",
+        "top20",
+        "top40"
+      ],
+      "id": "LAGGED_LIQUIDITY_LISTING_AGE",
+      "inputs": "one-day-lagged 30d median quote notional rank and causal listing age"
+    },
+    {
+      "ablations": [
+        "zero_funding",
+        "no_veto"
+      ],
+      "actions": [
+        "no_veto",
+        "veto_positive_payer_q90",
+        "linear_cap_q90"
+      ],
+      "id": "EXACT_FUNDING",
+      "inputs": "signed exact start/end alignment and rankable-only missing-hour allowance"
+    }
+  ],
+  "matched_comparisons": "same parent events, fold, symbol, month, liquidity bin and executable timing; context on versus component removed",
+  "outcome_use": "contexts cannot redefine a parent family after outer results and cannot be used to form a post-hoc subgroup claim",
+  "schema": "context_and_ablation_registry_v1"
+}

@@ -1,0 +1,20 @@
+{
+  "Capitalcom_payload_opened": false,
+  "completed_jobs": 3521,
+  "elapsed_seconds": 25.35977401584387,
+  "heartbeats": 25,
+  "idempotent_resume_markers": 3521,
+  "jobs_per_second": 138.841931233307,
+  "max_in_flight": 4,
+  "maxrss_ru_bytes": 204103680,
+  "outcome_reader_opened": false,
+  "peak_output_bytes": 1298682,
+  "peak_sampled_process_tree_rss_bytes": 37380096,
+  "protected_rows_opened": 0,
+  "registered_jobs": 3521,
+  "registry_sha256": "d582d8e2e5390f7f833849494cd7b4751eff667db99221ce7a8a8c27bf42f8b3",
+  "schema": "no_outcome_runtime_benchmark_v1",
+  "state_generation": 2352,
+  "status": "terminal_complete",
+  "workers": 4
+}

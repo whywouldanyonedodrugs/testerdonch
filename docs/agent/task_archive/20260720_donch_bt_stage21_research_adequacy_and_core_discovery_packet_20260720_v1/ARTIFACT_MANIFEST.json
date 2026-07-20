@@ -1,0 +1,183 @@
+{
+  "artifact_count": 35,
+  "artifacts": [
+    {
+      "bytes": 3455,
+      "path": "CAMPAIGN_EXECUTION_SPEC.json",
+      "sha256": "1eaf6d9cbfeeac604cd0247b126fb988e010c5d3cccd4d92f63f7331e6f61ad8"
+    },
+    {
+      "bytes": 6680,
+      "path": "CAMPAIGN_MANIFEST.json",
+      "sha256": "edeb26248831791b90c7aede801afd5a258ecf4f61710eb3146852b94b4f34c7"
+    },
+    {
+      "bytes": 943,
+      "path": "COMPLETION.md",
+      "sha256": "b4290a61896758db4cdd57b89d8e395d43a71a24aada2a0f37d406a7daa810ce"
+    },
+    {
+      "bytes": 2092,
+      "path": "CONTEXT_AND_ABLATION_REGISTRY.json",
+      "sha256": "1c031307e045ac159133cfef556d4a5bd633bd99de0369ef37ab3a058048b780"
+    },
+    {
+      "bytes": 11130,
+      "path": "CONTROL_AND_FORENSIC_CONTRACT.json",
+      "sha256": "f5ae0edc76959f07a9906ba3f883b80cf745b6fd664e8fcdb504d46695ec8d57"
+    },
+    {
+      "bytes": 9236,
+      "path": "CORE_CAMPAIGN_MECHANISM_CARDS.json",
+      "sha256": "6675c9dc5092f3b3f7ccb3b175325584b5392d3add07abadddf864c00114d3cb"
+    },
+    {
+      "bytes": 344840,
+      "path": "FULL_CONTROL_TEMPLATE_REGISTRY.jsonl",
+      "sha256": "f407c05288b05dc8f27d4978faed00f4cb35eeda245481beb5e4dab47a948ab2"
+    },
+    {
+      "bytes": 2009405,
+      "path": "FULL_REGISTERED_CONFIGURATION_REGISTRY.jsonl",
+      "sha256": "d582d8e2e5390f7f833849494cd7b4751eff667db99221ce7a8a8c27bf42f8b3"
+    },
+    {
+      "bytes": 4620,
+      "path": "HUMAN_APPROVAL_REQUEST.json",
+      "sha256": "a21f01f18525134db4c2c2b017e6a155ebe99d76ab886cb031fda797f011b977"
+    },
+    {
+      "bytes": 59529,
+      "path": "INNER_OUTER_FOLD_MAP.json",
+      "sha256": "dcb8ce67acdbf987945dd6b000bb3a13954a0a3eabaf019aa7ecba6c0d48f6e2"
+    },
+    {
+      "bytes": 722,
+      "path": "NEXT_ACTION.md",
+      "sha256": "148eb16273869932e4bf4232dec9b012b12736a75d2510183028ee2981f484fc"
+    },
+    {
+      "bytes": 631,
+      "path": "NO_OUTCOME_BOUND_STOP_CANARY.json",
+      "sha256": "e6cef2c29567a777465406c13335953ab31c46905d4f30069c8a2493a24a17cf"
+    },
+    {
+      "bytes": 646,
+      "path": "NO_OUTCOME_BOUND_STOP_RECOVERY.json",
+      "sha256": "c751af0ff39cbf847f7645570ee5d4f872d198691c7e36fa37b56fb0e48c3f03"
+    },
+    {
+      "bytes": 644,
+      "path": "NO_OUTCOME_RUNTIME_BENCHMARK.json",
+      "sha256": "8412b88cbba1ae509d44159ba0a72fb5e6b06b10afc09dd5b66846d751b0f90d"
+    },
+    {
+      "bytes": 644,
+      "path": "NO_OUTCOME_RUNTIME_RESUME_BENCHMARK.json",
+      "sha256": "72eaf4004f69908e0034e32428d3f3c32531bd1ad68a3f3a49397342196906f7"
+    },
+    {
+      "bytes": 2636,
+      "path": "OUTCOME_FREE_MEASUREMENT_PLAN.json",
+      "sha256": "23d3c971cb3ca5ef1e53905b98e1cbdef3b380bfe8838e86e72be9f9ab9a9bb6"
+    },
+    {
+      "bytes": 2819,
+      "path": "OUTCOME_SCOPE_INCIDENT.json",
+      "sha256": "85736a84545b55516cbedb98ae800accc9606e8b5c4c4ec2ac2c2567c38414a2"
+    },
+    {
+      "bytes": 1873,
+      "path": "OUTCOME_SCOPE_INCIDENT.md",
+      "sha256": "bf5d99a3a350de016680641717e860e59daa942776d927fc0870efd12e30306b"
+    },
+    {
+      "bytes": 4182,
+      "path": "PLAN.md",
+      "sha256": "258455b49a25647902be148ad2a2dc622c3cde3b48d08e063fdb3bca82b49cce"
+    },
+    {
+      "bytes": 21402,
+      "path": "REGISTERED_DISCOVERY_SPACE.json",
+      "sha256": "e64a22ae26ec64693daea476b9df692e785ba5e82d2e1fd6aa0c632607899ab9"
+    },
+    {
+      "bytes": 5395,
+      "path": "RESOURCE_PROJECTION.json",
+      "sha256": "889afbd8fc965df3eb6516c41261bac9f72dbd8b3a311dff4926d909fa4a955a"
+    },
+    {
+      "bytes": 1902,
+      "path": "REVIEW.md",
+      "sha256": "ec1b52740a900526d53c148d88d447ccaa0ef03a43500811e8de3d4ec88bfe4c"
+    },
+    {
+      "bytes": 4507,
+      "path": "SELECTION_AND_PLATEAU_CONTRACT.json",
+      "sha256": "ead09df4f3f08d5c5afcaf97eda91dfa485ce6d183c767a625807ce3c2bef7a8"
+    },
+    {
+      "bytes": 35814,
+      "path": "STAGE20_FOLD_AND_CANDIDATE_SUMMARY.csv",
+      "sha256": "2c41d4eef4857f36b2b88c3b856d4df941427f05d87b959dd2f6768517e4167d"
+    },
+    {
+      "bytes": 31232,
+      "path": "STAGE20_RESEARCH_ADEQUACY_AUDIT.json",
+      "sha256": "07ae678d616edf2274d79dfdd28cc2b4d188129e4bbdbf9ed4196cd0cee0b6ca"
+    },
+    {
+      "bytes": 3650,
+      "path": "STAGE20_RESEARCH_ADEQUACY_AUDIT.md",
+      "sha256": "3afce39b53813e5a2cea63701c1ab3b8f1d597979f4a8bfc5d1ff3863922b67b"
+    },
+    {
+      "bytes": 3222,
+      "path": "STAGE20_SEARCH_COVERAGE_MATRIX.csv",
+      "sha256": "ea00ce24b978715be987de33af556e4201bfde2e2a8da2d9116e69120f362542"
+    },
+    {
+      "bytes": 703084,
+      "path": "STAGE20_TRANSLATION_PROVENANCE.jsonl",
+      "sha256": "7c80cd1353c84cbc27787e40cbfe42faebaa91181e33d378ccb4d8ab1baa7969"
+    },
+    {
+      "bytes": 2673,
+      "path": "UNATTENDED_RUNTIME_AND_RECOVERY_CONTRACT.json",
+      "sha256": "29827cf544fb927f0651c652466fbe889d4277eaed262bc85a5207d40126b34a"
+    },
+    {
+      "bytes": 3476,
+      "path": "VALIDATION.md",
+      "sha256": "1e1d21e6a0bc55165c48bd0d54ea7c07e669d5dcadfbb64b2132df12870fad66"
+    },
+    {
+      "bytes": 95557,
+      "path": "build_packet.py",
+      "sha256": "ebe00136b44e7fdf20058943a4af83aff47c9ce703b46abfec512802bd684885"
+    },
+    {
+      "bytes": 12708,
+      "path": "received/STAGE21_INSTRUCTIONS.txt",
+      "sha256": "7fdf7cf3c4ecf24bcaaeef9218551c309cbbeaea88ec22cd53786f8b20a6cae5"
+    },
+    {
+      "bytes": 6330,
+      "path": "recompute_stage20_candidate_summary.py",
+      "sha256": "a93ec3626f0bc1449161545becaa1abc1cb97dd1e45bce71cb8a1351b7388d55"
+    },
+    {
+      "bytes": 8564,
+      "path": "synthetic_campaign_supervisor.py",
+      "sha256": "e036decd288620b05796ba8179f5a0cd200edd5196c0337365682ed52282daa5"
+    },
+    {
+      "bytes": 14803,
+      "path": "validate_packet.py",
+      "sha256": "def1d3945dff8c377cd1aa6268be6223c58678a9f659bece3b58905061f40923"
+    }
+  ],
+  "campaign_id": "kraken_core_liquid_discovery_campaign_002",
+  "schema": "task_artifact_manifest_v1",
+  "task_id": "donch_bt_stage21_research_adequacy_and_core_discovery_packet_20260720_v1"
+}

@@ -1,0 +1,1026 @@
+{
+  "authority_status": "verified",
+  "empty_inner_fold_observations": {
+    "KDA02C_empty": 186,
+    "KDX01_empty": 72,
+    "available": 5094,
+    "empty_unavailable": 258,
+    "silent_omission": false
+  },
+  "family_quarter_counts": [
+    {
+      "development_rows": 96,
+      "family": "KDA02B",
+      "outer_rows": 5,
+      "quarter": "2023Q4",
+      "status": "outer_evaluated"
+    },
+    {
+      "development_rows": 48,
+      "family": "KDA02C",
+      "outer_rows": 0,
+      "quarter": "2023Q4",
+      "status": "family_stop_no_positive_development_candidate"
+    },
+    {
+      "development_rows": 42,
+      "family": "KDX01",
+      "outer_rows": 0,
+      "quarter": "2023Q4",
+      "status": "family_stop_no_positive_development_candidate"
+    },
+    {
+      "development_rows": 96,
+      "family": "KDA02B",
+      "outer_rows": 5,
+      "quarter": "2024Q1",
+      "status": "outer_evaluated"
+    },
+    {
+      "development_rows": 0,
+      "family": "KDA02C",
+      "outer_rows": 0,
+      "quarter": "2024Q1",
+      "status": "family_stopped_earlier"
+    },
+    {
+      "development_rows": 0,
+      "family": "KDX01",
+      "outer_rows": 0,
+      "quarter": "2024Q1",
+      "status": "family_stopped_earlier"
+    },
+    {
+      "development_rows": 96,
+      "family": "KDA02B",
+      "outer_rows": 5,
+      "quarter": "2024Q2",
+      "status": "outer_evaluated"
+    },
+    {
+      "development_rows": 0,
+      "family": "KDA02C",
+      "outer_rows": 0,
+      "quarter": "2024Q2",
+      "status": "family_stopped_earlier"
+    },
+    {
+      "development_rows": 0,
+      "family": "KDX01",
+      "outer_rows": 0,
+      "quarter": "2024Q2",
+      "status": "family_stopped_earlier"
+    },
+    {
+      "development_rows": 96,
+      "family": "KDA02B",
+      "outer_rows": 5,
+      "quarter": "2024Q3",
+      "status": "outer_evaluated"
+    },
+    {
+      "development_rows": 0,
+      "family": "KDA02C",
+      "outer_rows": 0,
+      "quarter": "2024Q3",
+      "status": "family_stopped_earlier"
+    },
+    {
+      "development_rows": 0,
+      "family": "KDX01",
+      "outer_rows": 0,
+      "quarter": "2024Q3",
+      "status": "family_stopped_earlier"
+    },
+    {
+      "development_rows": 96,
+      "family": "KDA02B",
+      "outer_rows": 5,
+      "quarter": "2024Q4",
+      "status": "outer_evaluated"
+    },
+    {
+      "development_rows": 0,
+      "family": "KDA02C",
+      "outer_rows": 0,
+      "quarter": "2024Q4",
+      "status": "family_stopped_earlier"
+    },
+    {
+      "development_rows": 0,
+      "family": "KDX01",
+      "outer_rows": 0,
+      "quarter": "2024Q4",
+      "status": "family_stopped_earlier"
+    },
+    {
+      "development_rows": 96,
+      "family": "KDA02B",
+      "outer_rows": 5,
+      "quarter": "2025Q1",
+      "status": "outer_evaluated"
+    },
+    {
+      "development_rows": 0,
+      "family": "KDA02C",
+      "outer_rows": 0,
+      "quarter": "2025Q1",
+      "status": "family_stopped_earlier"
+    },
+    {
+      "development_rows": 0,
+      "family": "KDX01",
+      "outer_rows": 0,
+      "quarter": "2025Q1",
+      "status": "family_stopped_earlier"
+    },
+    {
+      "development_rows": 96,
+      "family": "KDA02B",
+      "outer_rows": 5,
+      "quarter": "2025Q2",
+      "status": "outer_evaluated"
+    },
+    {
+      "development_rows": 0,
+      "family": "KDA02C",
+      "outer_rows": 0,
+      "quarter": "2025Q2",
+      "status": "family_stopped_earlier"
+    },
+    {
+      "development_rows": 0,
+      "family": "KDX01",
+      "outer_rows": 0,
+      "quarter": "2025Q2",
+      "status": "family_stopped_earlier"
+    },
+    {
+      "development_rows": 96,
+      "family": "KDA02B",
+      "outer_rows": 5,
+      "quarter": "2025Q3",
+      "status": "outer_evaluated"
+    },
+    {
+      "development_rows": 0,
+      "family": "KDA02C",
+      "outer_rows": 0,
+      "quarter": "2025Q3",
+      "status": "family_stopped_earlier"
+    },
+    {
+      "development_rows": 0,
+      "family": "KDX01",
+      "outer_rows": 0,
+      "quarter": "2025Q3",
+      "status": "family_stopped_earlier"
+    },
+    {
+      "development_rows": 96,
+      "family": "KDA02B",
+      "outer_rows": 5,
+      "quarter": "2025Q4",
+      "status": "outer_evaluated"
+    },
+    {
+      "development_rows": 0,
+      "family": "KDA02C",
+      "outer_rows": 0,
+      "quarter": "2025Q4",
+      "status": "family_stopped_earlier"
+    },
+    {
+      "development_rows": 0,
+      "family": "KDX01",
+      "outer_rows": 0,
+      "quarter": "2025Q4",
+      "status": "family_stopped_earlier"
+    }
+  ],
+  "family_stops": {
+    "KDA02B": {
+      "continued_through": "2025Q4",
+      "reason": "five deterministic development candidates existed in every fold"
+    },
+    "KDA02C": {
+      "reason": "no beam-eligible positive development candidate; later eight folds recorded family_stopped_earlier",
+      "stopped_at": "2023Q4"
+    },
+    "KDX01": {
+      "reason": "no positive development candidate; later eight folds recorded family_stopped_earlier",
+      "stopped_at": "2023Q4"
+    }
+  },
+  "provenance_classes_used": [
+    "source_prior",
+    "mechanism_derived",
+    "outcome_free_measurement_derived",
+    "registered_design_choice"
+  ],
+  "repository_commit": "405878887780f7e85fe90a601a643bee502d7d5c",
+  "routes_supported": {
+    "KDA02B": "execution_sensitive_candidate",
+    "KDA02C": "sample_limited_prospective_candidate",
+    "KDX01": "translation_rejected",
+    "defect_proven": false
+  },
+  "row_decomposition": {
+    "development": {
+      "KDA02B": {
+        "cells": 96,
+        "folds": 9,
+        "rows": 864
+      },
+      "KDA02C": {
+        "cells": 48,
+        "folds_reached": 1,
+        "rows": 48
+      },
+      "KDX01": {
+        "cells": 42,
+        "folds_reached": 1,
+        "rows": 42
+      },
+      "total": 954
+    },
+    "outer": {
+      "KDA02B": {
+        "beam_per_fold": 5,
+        "folds": 9,
+        "rows": 45
+      },
+      "KDA02C": 0,
+      "KDX01": 0,
+      "total": 45
+    }
+  },
+  "schema": "stage20_research_adequacy_audit_v1",
+  "scope_conclusions": {
+    "execution_correctness": "pass for the frozen Stage20 packet: hash authority, deterministic replay, 954/45 exact metric recomputation, 8415 job markers, 4556 artifact claims, temporal boundaries, costs and funding reconciled",
+    "family_exhaustion": "not established; only the exact KDX01 translation is rejected, KDA02C is frozen prospective, and KDA02B requires controls/forensics rather than retuning",
+    "independent_review_interpretation": "zero metric mismatch verifies arithmetic and replay, not search completeness",
+    "search_completeness": "not established; each family used a deliberately bounded and often narrow grammar",
+    "validation_or_live_readiness": "none; all evidence is program_exposed_historical, controls were not run, and no independent validation or deployment evidence exists"
+  },
+  "terminal_artifact_hashes": {
+    "CAMPAIGN_STATE.json": "03fe54d3c8dd30a838b7ff2d688cb2adc2c058cf7bea1ff1be55ff8d54a810f8",
+    "FAMILY_ROUTES.json": "b3a8fb3caba4320f21059bf3bcf5265a138eda9a0ee8970a528a056eaa102670",
+    "FOLD_AND_FAMILY_DECISIONS.json": "6d82f6cafde6b65a36070369d7f552ca2a21632eaa9e1c3333f5d7bbdcc973a1",
+    "FULL_ATTEMPT_REGISTRY.json": "1bba412d30dd64f556868d2cdeb526a06206e43c45f2de44db7fbe720e0478bf",
+    "MULTIPLICITY_RECONCILIATION.json": "72bc0d6c7fa48f264fb7e5472c25e75ed816fb03f27d53b1ae12cde38639bdfe",
+    "PHASE2_DEVELOPMENT_RESPONSE_SURFACE.csv": "e31ba061afba2346c6a1ec3574d793b5d5c2dcf0afa273fbfa31676602774fba",
+    "PHASE3_FROZEN_BEAM_REGISTRY.json": "1c84fffea8daabdcd5aca8e8170ef42bfdefcb42ad6945874b1e8255e0de0943",
+    "PHASE4_5_OUTER_ROLLING_RESULTS.csv": "a4af28424acacb18559fe9928fd77d3afd3b8ae1a2358c6ba588b111c556f7b3",
+    "SYMBOL_SCORING_MANIFEST.json": "b52886b0cd7429dc7f00880d6b717d725d43904ffea99b4ffa301db4ebb68885",
+    "terminal_handoff_zip": "3a3fd639f9e9bb0cb2b7d87828310aa27a82aef689ae085f1e6624e8d020526c"
+  },
+  "translation_cell_provenance_ledger": {
+    "path": "STAGE20_TRANSLATION_PROVENANCE.jsonl",
+    "rows": 186,
+    "sha256": "7c80cd1353c84cbc27787e40cbfe42faebaa91181e33d378ccb4d8ab1baa7969"
+  },
+  "translation_choice_provenance": [
+    {
+      "choice_path": "cost_funding.base_pre_funding_round_trip_bps",
+      "exact_value": 14,
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "cost_funding.favourable_funding_can_rescue",
+      "exact_value": false,
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "cost_funding.funding_contract_sha256",
+      "exact_value": "c0d5bf091080a681055a792a8a7cf4a1084dcd60deb17c60381339df7297c3e7",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "cost_funding.missing_hour",
+      "exact_value": "rankable-only symbol q95/q99; equal-symbol pooled fallback; always nonpositive",
+      "family": "KDA02B",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "cost_funding.rankable_package_sha256",
+      "exact_value": "6c0969727c882ca6439c57c3b7d03367e1b2d26ee46823e56b983756d026ef64",
+      "family": "KDA02B",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "cost_funding.selection_funding",
+      "exact_value": "min(0,signed_start_alignment_bps,signed_end_alignment_bps)",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "cost_funding.stress_pre_funding_round_trip_bps",
+      "exact_value": 32,
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "entry.maximum_delay_minutes",
+      "exact_value": 10,
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "entry.price_field",
+      "exact_value": "trade_open",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "entry.timestamp_rule",
+      "exact_value": "first authorized native PF 5m trade-bar open >= decision_ts",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.horizon",
+      "exact_value": "1h",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.horizon",
+      "exact_value": "3h",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.horizon",
+      "exact_value": "6h",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.maximum_delay_minutes",
+      "exact_value": 10,
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.price_field",
+      "exact_value": "trade_open",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.target_rule",
+      "exact_value": "decision_ts + registered horizon",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.timestamp_rule",
+      "exact_value": "first authorized native PF 5m trade-bar open >= target",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.type",
+      "exact_value": "fixed_horizon",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.liquidation",
+      "exact_value": "causal_liquidation_volume>0",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.liquidation",
+      "exact_value": "causal_liquidation_volume_intensity inner-training type7 rank>=0.80",
+      "family": "KDA02B",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.oi",
+      "exact_value": "inner-training type7 rank<=0.20",
+      "family": "KDA02B",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.oi",
+      "exact_value": "oi_log_change_1h<=-0.01",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.price",
+      "exact_value": "abs(trade_displacement_bps_1h)>=14 and abs(mark_displacement_bps_1h)>=14",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.price",
+      "exact_value": "both inner-training type7 absolute-displacement ranks>=0.80",
+      "family": "KDA02B",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "payoff_archetype",
+      "exact_value": "mean_reversion",
+      "family": "KDA02B",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "payoff_archetype",
+      "exact_value": "symmetric_directional",
+      "family": "KDA02B",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "search_axes.branch",
+      "exact_value": "continuation",
+      "family": "KDA02B",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "search_axes.branch",
+      "exact_value": "reversal",
+      "family": "KDA02B",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "search_axes.horizon",
+      "exact_value": "1h",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "search_axes.horizon",
+      "exact_value": "3h",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "search_axes.horizon",
+      "exact_value": "6h",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "search_axes.liquidation_context",
+      "exact_value": "continuous_intensity",
+      "family": "KDA02B",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "search_axes.liquidation_context",
+      "exact_value": "present_absent",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "search_axes.oi_axis",
+      "exact_value": "fold_local_percentile",
+      "family": "KDA02B",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "search_axes.oi_axis",
+      "exact_value": "raw_oi_log_change",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "search_axes.price_axis",
+      "exact_value": "fold_local_rank",
+      "family": "KDA02B",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "search_axes.price_axis",
+      "exact_value": "raw_bps",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "search_axes.price_state",
+      "exact_value": "negative",
+      "family": "KDA02B",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "search_axes.price_state",
+      "exact_value": "positive",
+      "family": "KDA02B",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "side_mapping.rule",
+      "exact_value": "agreed contemporaneous trade/mark impulse sign; continuation follows, reversal opposes",
+      "family": "KDA02B",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "side_mapping.zero_or_conflicting_sign",
+      "exact_value": "no candidate",
+      "family": "KDA02B",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "stop_target.stop",
+      "exact_value": "none",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "stop_target.target",
+      "exact_value": "none",
+      "family": "KDA02B",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "cost_funding.base_pre_funding_round_trip_bps",
+      "exact_value": 14,
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "cost_funding.favourable_funding_can_rescue",
+      "exact_value": false,
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "cost_funding.funding_contract_sha256",
+      "exact_value": "c0d5bf091080a681055a792a8a7cf4a1084dcd60deb17c60381339df7297c3e7",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "cost_funding.missing_hour",
+      "exact_value": "rankable-only symbol q95/q99; equal-symbol pooled fallback; always nonpositive",
+      "family": "KDA02C",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "cost_funding.rankable_package_sha256",
+      "exact_value": "6c0969727c882ca6439c57c3b7d03367e1b2d26ee46823e56b983756d026ef64",
+      "family": "KDA02C",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "cost_funding.selection_funding",
+      "exact_value": "min(0,signed_start_alignment_bps,signed_end_alignment_bps)",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "cost_funding.stress_pre_funding_round_trip_bps",
+      "exact_value": 32,
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "entry.maximum_delay_minutes",
+      "exact_value": 10,
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "entry.price_field",
+      "exact_value": "trade_open",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "entry.timestamp_rule",
+      "exact_value": "first authorized native PF 5m trade-bar open >= decision_ts",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.horizon",
+      "exact_value": "1h",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.maximum_delay_minutes",
+      "exact_value": 10,
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.price_field",
+      "exact_value": "trade_open",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.target_rule",
+      "exact_value": "decision_ts + registered horizon",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.timestamp_rule",
+      "exact_value": "first authorized native PF 5m trade-bar open >= target",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.type",
+      "exact_value": "fixed_horizon",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "payoff_archetype",
+      "exact_value": "mean_reversion",
+      "family": "KDA02C",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "search_axes.breadth_form",
+      "exact_value": "fold_local_rank",
+      "family": "KDA02C",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "search_axes.breadth_form",
+      "exact_value": "isolated_vs_nonisolated",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "search_axes.breadth_form",
+      "exact_value": "raw_share",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "search_axes.diagnostic_window",
+      "exact_value": "15m",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "search_axes.diagnostic_window",
+      "exact_value": "30m",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "search_axes.diagnostic_window",
+      "exact_value": "5m",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "search_axes.diagnostic_window",
+      "exact_value": "60m",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "search_axes.direction",
+      "exact_value": "negative",
+      "family": "KDA02C",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "search_axes.direction",
+      "exact_value": "positive",
+      "family": "KDA02C",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "search_axes.purge_identity",
+      "exact_value": "primary_z2",
+      "family": "KDA02C",
+      "provenance": "source_prior"
+    },
+    {
+      "choice_path": "search_axes.purge_identity",
+      "exact_value": "robust_pct95",
+      "family": "KDA02C",
+      "provenance": "source_prior"
+    },
+    {
+      "choice_path": "side_mapping.negative",
+      "exact_value": "completed downside purge/reclaim -> long",
+      "family": "KDA02C",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "side_mapping.positive",
+      "exact_value": "completed upside purge/failure -> short",
+      "family": "KDA02C",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "side_mapping.selected",
+      "exact_value": "long",
+      "family": "KDA02C",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "side_mapping.selected",
+      "exact_value": "short",
+      "family": "KDA02C",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "stop_target.stop",
+      "exact_value": "none",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "stop_target.target",
+      "exact_value": "none",
+      "family": "KDA02C",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "cost_funding.base_pre_funding_round_trip_bps",
+      "exact_value": 14,
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "cost_funding.favourable_funding_can_rescue",
+      "exact_value": false,
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "cost_funding.funding_contract_sha256",
+      "exact_value": "c0d5bf091080a681055a792a8a7cf4a1084dcd60deb17c60381339df7297c3e7",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "cost_funding.missing_hour",
+      "exact_value": "rankable-only symbol q95/q99; equal-symbol pooled fallback; always nonpositive",
+      "family": "KDX01",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "cost_funding.rankable_package_sha256",
+      "exact_value": "6c0969727c882ca6439c57c3b7d03367e1b2d26ee46823e56b983756d026ef64",
+      "family": "KDX01",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "cost_funding.selection_funding",
+      "exact_value": "min(0,signed_start_alignment_bps,signed_end_alignment_bps)",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "cost_funding.stress_pre_funding_round_trip_bps",
+      "exact_value": 32,
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "entry.maximum_delay_minutes",
+      "exact_value": 10,
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "entry.price_field",
+      "exact_value": "trade_open",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "entry.timestamp_rule",
+      "exact_value": "first authorized native PF 5m trade-bar open >= decision_ts",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.horizon",
+      "exact_value": "1h",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.horizon",
+      "exact_value": "3h",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.horizon",
+      "exact_value": "6h",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.maximum_delay_minutes",
+      "exact_value": 10,
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.price_field",
+      "exact_value": "trade_open",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.target_rule",
+      "exact_value": "decision_ts + registered horizon",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.timestamp_rule",
+      "exact_value": "first authorized native PF 5m trade-bar open >= target",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "exit.type",
+      "exact_value": "fixed_horizon",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.basis_change",
+      "exact_value": "basis_change_bps_1h<=-14",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.basis_change",
+      "exact_value": "inner-training type7 downside-change rank<=0.20",
+      "family": "KDX01",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.basis_level",
+      "exact_value": "basis_bps<=-14",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.basis_level",
+      "exact_value": "inner-training type7 downside basis rank<=0.20",
+      "family": "KDX01",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.breadth",
+      "exact_value": "directional breadth share>=0.02",
+      "family": "KDX01",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.breadth",
+      "exact_value": "inner-training type7 directional breadth rank>=0.80",
+      "family": "KDX01",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.liquidation",
+      "exact_value": "causal_liquidation_volume>0",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.liquidation",
+      "exact_value": "inner-training type7 intensity rank>=0.80",
+      "family": "KDX01",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.oi",
+      "exact_value": "inner-training type7 OI rank<=0.20",
+      "family": "KDX01",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.oi",
+      "exact_value": "oi_log_change_1h<=-0.01",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.trade_and_mark",
+      "exact_value": "both completed 1h displacements<=-14bps",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "feature_contract.exact_thresholds.trade_and_mark",
+      "exact_value": "both inner-training type7 downside-magnitude ranks>=0.80",
+      "family": "KDX01",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "payoff_archetype",
+      "exact_value": "mean_reversion",
+      "family": "KDX01",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "search_axes.component_ladder",
+      "exact_value": "trade_mark_structural",
+      "family": "KDX01",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "search_axes.component_ladder",
+      "exact_value": "trade_mark_structural_oi",
+      "family": "KDX01",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "search_axes.component_ladder",
+      "exact_value": "trade_mark_structural_oi_basis_change",
+      "family": "KDX01",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "search_axes.component_ladder",
+      "exact_value": "trade_mark_structural_oi_basis_level",
+      "family": "KDX01",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "search_axes.component_ladder",
+      "exact_value": "trade_mark_structural_oi_breadth",
+      "family": "KDX01",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "search_axes.component_ladder",
+      "exact_value": "trade_mark_structural_oi_liquidation",
+      "family": "KDX01",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "search_axes.component_ladder",
+      "exact_value": "trade_mark_structural_oi_liquidation_basis_change",
+      "family": "KDX01",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "search_axes.component_scaling",
+      "exact_value": "fold_local_rank",
+      "family": "KDX01",
+      "provenance": "outcome_free_measurement_derived"
+    },
+    {
+      "choice_path": "search_axes.component_scaling",
+      "exact_value": "raw_unit",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "search_axes.horizon",
+      "exact_value": "1h",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "search_axes.horizon",
+      "exact_value": "3h",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "search_axes.horizon",
+      "exact_value": "6h",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "side_mapping.rule",
+      "exact_value": "long after completed downside trade-and-mark structural rejection/reclaim",
+      "family": "KDX01",
+      "provenance": "mechanism_derived"
+    },
+    {
+      "choice_path": "stop_target.stop",
+      "exact_value": "none",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    },
+    {
+      "choice_path": "stop_target.target",
+      "exact_value": "none",
+      "family": "KDX01",
+      "provenance": "registered_design_choice"
+    }
+  ],
+  "translation_choice_provenance_count": 123,
+  "unsupported_guess_count": 0,
+  "unsupported_guess_note": "Registration alone is not empirical support. Exact choices lacking a source or measurement are classified registered_design_choice, not silently promoted to a prior."
+}

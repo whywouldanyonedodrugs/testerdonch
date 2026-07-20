@@ -1,0 +1,468 @@
+{
+  "KDA02B_exact_adjudication_variants": [
+    "identity_replay",
+    "price_only",
+    "OI_removed",
+    "liquidation_removed",
+    "generic_structure_control",
+    "stress_cost_32bps",
+    "funding_start_alignment",
+    "funding_end_alignment",
+    "funding_zero",
+    "entry_delay_15m",
+    "entry_delay_60m"
+  ],
+  "campaign_id": "kraken_core_liquid_discovery_campaign_002",
+  "conditional_survivor_control_address_budget": 800,
+  "design": {
+    "categorical_mapping": "floor(u*k), values in listed order",
+    "deduplication": "canonical JSON economic address SHA-256; duplicates retained in attempt ledger as unavailable_duplicate and not rerun",
+    "interactions": "main effects and mechanism-listed pairwise interactions only; no three-way interaction",
+    "method": "deterministic scrambled Sobol for mixed domains",
+    "numeric_mapping": "nearest listed value, ties to lower list index",
+    "refinement": "reserve IDs are assigned now; after a stable region is identified, generate +/- one adjacent registered axis level around its deterministic medoid, lexically truncate to reserve, atomically hash-register before refinement outcomes; unused reserve IDs are recorded unavailable_no_plateau",
+    "registration_boundary": "every cell address and seed must be persisted before its own outcome reader is opened",
+    "seed": 20260721
+  },
+  "families": [
+    {
+      "anchors_ablations": 64,
+      "axes": {
+        "PIT_liquidity_top_n": [
+          10,
+          20,
+          40
+        ],
+        "annualized_vol_target": [
+          "none",
+          0.1,
+          0.2,
+          0.3
+        ],
+        "context_overlay": [
+          "none",
+          "BTC_ETH",
+          "breadth_dispersion",
+          "funding_veto"
+        ],
+        "direction": [
+          "long_short",
+          "long_flat",
+          "short_flat"
+        ],
+        "exit": [
+          "time_1d",
+          "time_3d",
+          "time_5d",
+          "time_10d",
+          "signal_reversal",
+          "ATR_trail_2",
+          "ATR_trail_3",
+          "ATR_trail_4"
+        ],
+        "lookback_days": [
+          5,
+          10,
+          20,
+          40,
+          60,
+          90,
+          120,
+          180
+        ],
+        "path_smoothness_quantile_min": [
+          "none",
+          "q20",
+          "q40",
+          "q60"
+        ],
+        "rebalance": [
+          "8h",
+          "1d"
+        ],
+        "signal_estimator": [
+          "signed_return",
+          "ema_slope",
+          "breakout_distance_rank",
+          "equal_weight_ensemble"
+        ],
+        "vol_window_days": [
+          10,
+          20,
+          40,
+          60
+        ]
+      },
+      "family_id": "A4_TSMOM_V7",
+      "refinement_reserve": 160,
+      "screening": 640
+    },
+    {
+      "anchors_ablations": 80,
+      "axes": {
+        "PIT_liquidity_top_n": [
+          10,
+          20,
+          40
+        ],
+        "base_duration": [
+          "2h",
+          "6h",
+          "12h",
+          "1d",
+          "3d"
+        ],
+        "confirmation": [
+          "one_close",
+          "two_closes",
+          "close_plus_bounded_15m_delay"
+        ],
+        "context_overlay": [
+          "none",
+          "prior_high_RS",
+          "BTC_ETH",
+          "breadth_dispersion",
+          "funding_veto"
+        ],
+        "contraction_rank_max": [
+          "none",
+          "q20",
+          "q30",
+          "q40",
+          "q50"
+        ],
+        "direction": [
+          "long",
+          "short",
+          "symmetric"
+        ],
+        "exit": [
+          "time_1d",
+          "time_3d",
+          "time_5d",
+          "time_10d",
+          "base_failure",
+          "ATR_stop_1.5",
+          "ATR_stop_2.5",
+          "ATR_trail_2",
+          "ATR_trail_3"
+        ],
+        "fixed_target_R": [
+          "none",
+          1.5,
+          3.0
+        ],
+        "impulse_rank_min": [
+          "q60",
+          "q70",
+          "q80",
+          "q90"
+        ],
+        "impulse_window": [
+          "6h",
+          "12h",
+          "1d",
+          "3d",
+          "7d"
+        ],
+        "smoothness_rank_min": [
+          "none",
+          "q40",
+          "q60",
+          "q80"
+        ]
+      },
+      "family_id": "A1_COMPRESSION_V2",
+      "refinement_reserve": 192,
+      "screening": 768
+    },
+    {
+      "anchors_ablations": 64,
+      "axes": {
+        "BTC_ETH_context": [
+          "none",
+          "trend",
+          "volatility",
+          "drawdown"
+        ],
+        "RS_lookback_days": [
+          5,
+          10,
+          20,
+          60
+        ],
+        "RS_rank": [
+          "none",
+          "continuous",
+          "q40",
+          "q60",
+          "q80"
+        ],
+        "breadth_dispersion": [
+          "none",
+          "breadth",
+          "dispersion",
+          "both"
+        ],
+        "overlay_action": [
+          "permission",
+          "linear_size_0_to_1",
+          "tercile_size"
+        ],
+        "parent_family": [
+          "A1_COMPRESSION_V2",
+          "A3_STARTER_RETEST_V3"
+        ],
+        "prior_high_lookback_days": [
+          20,
+          60,
+          120,
+          250
+        ],
+        "proximity_rank": [
+          "none",
+          "continuous",
+          "q40",
+          "q60",
+          "q80"
+        ],
+        "reclaim_state": [
+          "continuous_distance",
+          "first_close_above",
+          "none"
+        ]
+      },
+      "family_id": "A2_PRIOR_HIGH_RS_CONTEXT_V1",
+      "refinement_reserve": 128,
+      "screening": 512
+    },
+    {
+      "anchors_ablations": 64,
+      "axes": {
+        "PIT_liquidity_top_n": [
+          10,
+          20,
+          40
+        ],
+        "add_fraction": [
+          0.0,
+          0.25,
+          0.5,
+          0.75
+        ],
+        "add_requires_reclaim": [
+          true
+        ],
+        "breakout_lookback_days": [
+          5,
+          10,
+          20,
+          60
+        ],
+        "breakout_rank_min": [
+          "q60",
+          "q70",
+          "q80",
+          "q90"
+        ],
+        "confirmation": [
+          "one_close",
+          "two_closes",
+          "close_plus_15m_delay"
+        ],
+        "context_overlay": [
+          "none",
+          "prior_high_RS",
+          "BTC_ETH",
+          "breadth_dispersion",
+          "funding_veto"
+        ],
+        "exit": [
+          "time_1d",
+          "time_3d",
+          "time_5d",
+          "time_10d",
+          "breakout_failure",
+          "ATR_stop_1.5",
+          "ATR_stop_2.5",
+          "ATR_trail_2",
+          "ATR_trail_3"
+        ],
+        "fixed_target_R": [
+          "none",
+          1.5,
+          3.0
+        ],
+        "retest_depth_ATR": [
+          0.25,
+          0.5,
+          1.0,
+          1.5
+        ],
+        "retest_window": [
+          "6h",
+          "1d",
+          "3d"
+        ],
+        "starter_fraction": [
+          0.25,
+          0.5,
+          0.75,
+          1.0
+        ]
+      },
+      "family_id": "A3_STARTER_RETEST_V3",
+      "refinement_reserve": 128,
+      "screening": 512
+    },
+    {
+      "anchors_ablations": 209,
+      "exact_addresses": {
+        "Stage20_unique_cells": [
+          "KDA02B_009",
+          "KDA02B_011",
+          "KDA02B_031",
+          "KDA02B_032",
+          "KDA02B_033",
+          "KDA02B_034",
+          "KDA02B_035",
+          "KDA02B_036",
+          "KDA02B_045",
+          "KDA02B_047",
+          "KDA02B_048",
+          "KDA02B_058",
+          "KDA02B_060",
+          "KDA02B_079",
+          "KDA02B_081",
+          "KDA02B_082",
+          "KDA02B_083",
+          "KDA02B_084",
+          "KDA02B_093"
+        ],
+        "allowed": [
+          "identity_replay",
+          "price_only",
+          "OI_removed",
+          "liquidation_removed",
+          "generic_structure_control",
+          "stress_cost_32bps",
+          "funding_start_alignment",
+          "funding_end_alignment",
+          "funding_zero",
+          "entry_delay_15m",
+          "entry_delay_60m"
+        ],
+        "evaluations_per_cell": 11
+      },
+      "family_id": "KDA02B_SURVIVOR_ADJUDICATION_V1",
+      "refinement_reserve": 0,
+      "screening": 0
+    }
+  ],
+  "feature_and_execution_semantics": {
+    "A1_episode": "first side-signed impulse-return symbol-local percentile crossing after rearm, followed immediately by a contiguous base of the registered duration; base contraction is base 5m realized-vol/prior immediately preceding equal-duration realized-vol and smoothness uses the base; confirmation is close beyond the frozen impulse extreme after the base; rearm requires impulse percentile below q50",
+    "A1_identity": "SHA-256(family,symbol,side,impulse_start,impulse_end,base_start,base_end,confirmation_ts); one event per definition/episode; equal-event then equal-market-day aggregation",
+    "A2_component_aggregation": "build an ordered component list: proximity and RS use their percentile when value=continuous, binary 1/0 for p>=the listed qXX, and are omitted for none; reclaim is binary 1/0 first-close or its side-aligned continuous-distance percentile and is omitted for none; BTC/ETH contributes the selected side-aligned trend, inverse-volatility or inverse-drawdown percentile; breadth contributes side-aligned breadth percentile and dispersion contributes inverse dispersion percentile. permission requires every enabled component>=0.50; linear_size_0_to_1 is the product of clip(2*p-1,0,1); tercile_size applies 0/0.5/1 to the minimum enabled component at <1/3, [1/3,2/3), >=2/3. No enabled component makes the overlay an explicit parent-only component-null.",
+    "A3_breakout": "first completed 5m close beyond the prior registered-lookback high (long) or low (short), excluding the decision bar, after a completed bar back inside the level; breakout magnitude is abs(close-level)/ATR20 and breakout_rank_min is its symbol-local training percentile",
+    "A3_leg_accounting": "one accepted breakout episode is one parent event and one metric observation. The starter is always present and its entry, actual exit, gross, 14/32bps cost, exact funding and allowances are computed independently. An add may exist only while the starter remains open; a retest/reclaim after starter_exit_ts is unavailable_add_after_parent_exit. A present add has its own entry, actual exit, cost and funding under the same exit type and frozen structural levels, with any time horizon starting at add_entry_ts. base_parent=starter_fraction*base_starter+add_fraction*base_add and stress_parent analogously; unavailable add is zero exposure/PnL. parent_exit_ts=max leg exits when add exists, else starter_exit_ts. Definition-symbol non-overlap accepts the next parent only when next_parent_entry_ts>=prior_parent_exit_ts and never runs independently by leg. Trade count counts parents. Median, concentration, bootstrap and fold metrics assign the one weighted parent net to parent symbol, starter-entry UTC day/year and parent ID. Occupancy is sum(starter_fraction*starter holding seconds+add_fraction*add holding seconds)/(eligible symbols*interval seconds). Opportunity frequency is 30*accepted parents/eligible days. Separate leg ledgers are reconciliation and incremental-add evidence only, never extra trades.",
+    "A3_retest_add": "within the registered retest window, price close may approach/cross the frozen breakout level by no more than retest_depth_ATR, then must complete a close back beyond it; add enters next authorized 5m open and is a separate leg; add_fraction<=1-starter_fraction",
+    "A3_starter": "registered starter fraction enters at the first authorized 5m open after confirmation; starter exists for every A3 address",
+    "A4_weighted_aggregation": "at each registered rebalance t, form accepted set I_t only after PIT universe, signal, context, lifecycle and actual-exit non-overlap gates. For i in I_t: u_i=side_i*(exit_open_i/entry_open_i-1)*10000; e_i=1 when target is none else clip(target_vol/realized_vol_i,0.25,2); c_i is frozen context multiplier in [0,1]; w_i=e_i*c_i/|I_t| with no post-scaling renormalization; n_i=u_i-14+adverse_exact_funding_i+base_gap_allowance_i; s_i=u_i-32+adverse_exact_funding_i+stress_gap_allowance_i. Base/stress contributions are w_i*n_i and w_i*s_i, so gross, cost, funding and allowance share the same notional weight. Cohort return is the sum of contributions. A UTC entry day's return is the arithmetic mean of its nonempty cohort returns, and primary/stress are arithmetic means of day returns. Empty cohorts are no-opportunities, not zeros. Event count is accepted symbol episodes; market-day/bootstrap metrics use cohort-derived day returns.",
+    "ATR20": "Wilder 20-day ATR on completed UTC daily trade OHLC, available only after the day closes; missing day makes ATR-dependent cell unavailable",
+    "ATR_stop_and_trail": "initial stop is registered ATR20 multiple from fill; trailing stop updates only at completed 5m closes from best completed close; close-triggered exit occurs at next authorized open",
+    "BTC_ETH_context": "separate continuous BTC and ETH 20d/60d trend ranks, 20d realized-vol ranks, and 60d close-to-rolling-maximum drawdowns; no composite opaque label",
+    "TSMOM_direction": "long_short enters long for estimator>0 and short for estimator<0; long_flat enters only estimator>0; short_flat enters only estimator<0; exact zero is flat; side is derived only after the scalar estimator is complete",
+    "TSMOM_rebalance_and_turnover": "8h boundaries are 00:00/08:00/16:00 UTC and 1d is 00:00 UTC; generate a new entry opportunity only when the definition-symbol is flat; definition-local actual-exit non-overlap rejects intervening opportunities; each completed episode incurs the registered round-trip cost",
+    "base_clock": "native PF 5m trade candles in UTC, explicitly sorted; every W-window is (decision_ts-W,decision_ts] over fully completed contiguous bars",
+    "breadth_dispersion": "share of PIT-eligible members with positive 20d return and cross-sectional MAD of 20d returns, respectively; both use the same decision snapshot",
+    "breakout_distance_rank": "a single signed scalar: max((close-prior_high)/ATR20,0)+min((close-prior_low)/ATR20,0), where the prior W high/low excludes the decision bar; values inside the prior range equal zero",
+    "confirmation": "one_close is first qualifying completed close; two_closes requires two consecutive qualifying closes; bounded delay waits exactly 15m after first qualifying close and requires the condition still true",
+    "costs_and_funding": "apply 14bps base or 32bps stress once per completed round trip per leg, plus exact funding accrued over each leg's actual holding interval under both boundary alignments and nonpositive registered gap allowance",
+    "ema_slope": "log(EMA_span_W_t/EMA_span_W_at_or_before_t_minus_1d), a single signed scalar with span=W*288 completed 5m bars, min_periods=span, exponentially weighted adjust=false",
+    "entry_exit_missingness": "missing executable open, lookup delay >10m, lifecycle invalidity or fold crossing rejects the event before outcome; no forward fill or artificial close",
+    "equal_weight_ensemble": "compute signed_return/realized_vol_W, ema_slope/realized_vol_W and breakout_distance_rank, winsorize each at its symbol-local training q05/q95, scale each by its symbol-local training MAD (zero MAD unavailable), and take their arithmetic mean; strict sign is the direction",
+    "fixed_target": "target is registered R multiple of the initial ATR stop distance; target is invalid when no ATR stop exists; trigger requires a completed 5m close beyond target and exits at next authorized open",
+    "funding_context": "use only signed funding observations whose publication/payment timestamp is <=decision_ts; state is side-signed cumulative payer burden over trailing 24h, transformed to symbol-local training percentile; veto/cap never uses the next unpublished funding value",
+    "gap_and_fill": "all triggers use completed 5m trade closes, never intrabar high/low; execution is the next authorized trade open, so any gap is represented by that open and no stop/target level-price fill is fabricated",
+    "invalid_cell_rules": [
+      "add_fraction>1-starter_fraction",
+      "fixed_target_R!=none without ATR_stop",
+      "lookback or ATR coverage gate fails",
+      "three-way interaction",
+      "duplicate canonical address"
+    ],
+    "named_parent_contexts": {
+      "BTC_ETH": "permission requiring arithmetic mean of side-aligned BTC and ETH 20d trend percentiles >=0.50",
+      "breadth_dispersion": "linear multiplier=clip(2*(0.5*side-aligned 20d breadth percentile+0.5*(1-20d dispersion percentile))-1,0,1)",
+      "funding_veto": "multiplier 0 when side-signed trailing-24h payer-burden percentile>=0.90, otherwise 1",
+      "none": "multiplier 1",
+      "prior_high_RS": "permission requiring both side-aligned prior-high proximity percentile and side-aligned BTC-relative-strength percentile >=0.50, using the parent's registered lookbacks"
+    },
+    "non_overlap": "definition-local and symbol-local chronological acceptance by actual executable exit_ts; separate definitions remain separate attempts and no combined portfolio claim is made",
+    "path_smoothness": "abs(log(close_t/close_t_minus_W))/sum(abs(5m log returns)) over the same complete window, in [0,1]",
+    "price_fields": "trade close for features, trade open for execution; mark remains separate and is never substituted for trade execution",
+    "prior_high": "previous maximum completed daily high over the registered lookback excluding the decision day; proximity=(close-prior_high)/ATR20; reclaim is first completed 5m close back beyond the frozen prior-high level",
+    "rank_population": "unless explicitly cross-sectional, qXX is a symbol-local empirical percentile fit only on the registered training interval; RS, PIT liquidity, breadth and dispersion ranks are cross-sectional among same-timestamp PIT-eligible members with average ranks for ties divided by member count",
+    "rank_ties_and_missingness": "Type-7 numeric thresholds; weak percentile (# observations strictly below + # equal)/N; exact threshold equality passes >= or <= as stated; missing, infinite, collapsed (<20 unique), noncontiguous or unavailable feature observations fail closed for that cell/event",
+    "realized_volatility": "sample standard deviation of 5m log returns over W, annualized by sqrt(365*288), requiring >=95% expected contiguous observations",
+    "relative_strength": "symbol signed return minus BTC signed return over the same registered lookback, ranked cross-sectionally among PIT-eligible members at decision",
+    "signal_reversal": "at a registered rebalance, the complete side-aware estimator or equal-weight ensemble changes strict sign; exact zero means flat; exit/reversal occurs at the next authorized 5m open",
+    "signed_return": "log(trade_close_t/trade_close_at_or_before_t_minus_W), a single signed scalar independent of any future trade side; missing or noncontiguous endpoints reject",
+    "simultaneous_exit_priority": [
+      "structural_or_ATR_stop",
+      "trail",
+      "fixed_target",
+      "signal_reversal",
+      "time"
+    ],
+    "structural_exit": "A1 base_failure or A3 breakout_failure triggers on first completed 5m close through the frozen structure against the position; exit at next authorized open",
+    "time_exit": "first authorized 5m open at or after entry_ts plus registered duration, maximum lookup delay 10m; every structural/stop/target/trail address also has a hard 10d time cap",
+    "volatility_scaling": "if annualized_vol_target=none, absolute exposure=1.0; otherwise at entry exposure=min(2.0,max(0.25,target_vol/realized_vol_window)); equal weight across simultaneous eligible symbols; exposure stays frozen for the episode; no leverage or portfolio-capacity claim"
+  },
+  "forbidden": [
+    "event sampling",
+    "event caps",
+    "alphabetical/static symbol selection",
+    "manual winner selection",
+    "hidden variants",
+    "outcome-derived thresholds",
+    "same-sample rescue",
+    "KDA02C retuning",
+    "KDX01 exact-translation reopen",
+    "C17",
+    "Capitalcom",
+    "protected outcomes"
+  ],
+  "full_configuration_registry": {
+    "generator": {
+      "batch_size": 256,
+      "canonical_serialization": "UTF-8 JSON sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False",
+      "engine": "scipy.stats.qmc.Sobol",
+      "family_seed_offsets": {
+        "A1_COMPRESSION_V2": 10000,
+        "A2_PRIOR_HIGH_RS_CONTEXT_V1": 20000,
+        "A3_STARTER_RETEST_V3": 30000,
+        "A4_TSMOM_V7": 0
+      },
+      "registration_time": "before any campaign outcome access",
+      "scipy_version": "1.16.1",
+      "scramble": true,
+      "seed": 20260721
+    },
+    "path": "FULL_REGISTERED_CONFIGURATION_REGISTRY.jsonl",
+    "rows": 3521,
+    "sha256": "d582d8e2e5390f7f833849494cd7b4751eff667db99221ce7a8a8c27bf42f8b3",
+    "unique_economic_addresses": 3521
+  },
+  "historical_multiplicity": "all prior family attempts inherited; incomplete legacy counts remain explicitly unknown and are not reset",
+  "maximum_programme_economic_or_control_addresses": 4321,
+  "new_attempt_budget": {
+    "A1_COMPRESSION_V2": 1040,
+    "A2_PRIOR_HIGH_RS_CONTEXT_V1": 704,
+    "A3_STARTER_RETEST_V3": 704,
+    "A4_TSMOM_V7": 864,
+    "KDA02B_SURVIVOR_ADJUDICATION_V1": 209,
+    "total": 3521
+  },
+  "schema": "registered_discovery_space_v1"
+}

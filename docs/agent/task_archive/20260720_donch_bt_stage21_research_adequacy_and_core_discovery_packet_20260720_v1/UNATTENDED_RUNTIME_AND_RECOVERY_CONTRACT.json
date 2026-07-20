@@ -1,0 +1,86 @@
+{
+  "campaign_id": "kraken_core_liquid_discovery_campaign_002",
+  "family_isolation": "a registered family stop prevents new submissions for that family; common authority/economic/runtime failures stop globally",
+  "health_release": [
+    "persistent process verified",
+    "one completed and reconciled real registered partition/cell",
+    "campaign state round-trip verified",
+    "Telegram delivery verified",
+    "first scheduled 30-minute heartbeat delivered"
+  ],
+  "launch": {
+    "atomic_final_authority_hash_audit": true,
+    "independent_preoutcome_review": true,
+    "one_exact_external_human_approval_required": true,
+    "persistent_detached_supervisor": true,
+    "secure_Telegram_preflight": true,
+    "synthetic_end_to_end_canary": true
+  },
+  "limits": {
+    "aggregate_process_tree_RSS_bytes": 10737418240,
+    "campaign_output_bytes": 25769803776,
+    "graceful_stop_seconds": 300,
+    "minimum_free_disk_bytes": 8589934592,
+    "wall_seconds": 604800
+  },
+  "mechanical_repair_authority_after_final_approval": {
+    "allowed": "narrow runtime-only patch, tests, independent review, hash refresh and automatic idempotent resume",
+    "conditions": [
+      "no economic/selection/data/funding/execution/protected semantic change",
+      "no partial outcome-guided repair",
+      "packet authority still matches"
+    ],
+    "hard_stop": [
+      "semantic change",
+      "protected access",
+      "new acquisition",
+      "unsafe Git",
+      "unresolved common economic defect"
+    ]
+  },
+  "notifications": {
+    "exclude": [
+      "partial rankings",
+      "partial candidate outcomes"
+    ],
+    "heartbeat_seconds": 1800,
+    "include": [
+      "phase",
+      "fold",
+      "family",
+      "attempt counts",
+      "resource envelope",
+      "stop/completion"
+    ]
+  },
+  "scheduler": {
+    "bounded_lazy": true,
+    "checks_before_each_submission": [
+      "authority hashes",
+      "elapsed wall",
+      "process-tree RSS including root",
+      "output bytes",
+      "free disk",
+      "global/family stop",
+      "Telegram health"
+    ],
+    "max_in_flight": 4,
+    "workers": 4
+  },
+  "schema": "unattended_runtime_and_recovery_contract_v1",
+  "state": {
+    "atomic_sharded_artifacts": true,
+    "complete_attempt_reconciliation": true,
+    "idempotent_resume": true,
+    "job_markers_hash_bind_inputs_and_outputs": true,
+    "transactional_generation_counter": true,
+    "valid_artifacts_never_deleted_or_recomputed": true
+  },
+  "terminal_administration": [
+    "full attempts/cells/folds reconciliation",
+    "independent postrun review",
+    "non-force Git publication",
+    "approved Drive handoff",
+    "dynamic continuity publication"
+  ]
+}

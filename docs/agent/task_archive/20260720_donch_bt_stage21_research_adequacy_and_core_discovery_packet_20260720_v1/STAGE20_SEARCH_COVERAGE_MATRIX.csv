@@ -1,0 +1,23 @@
+family,axis,tested_values,untested_values_or_scope,provenance,adequacy_conclusion
+KDA02B,feature_window,completed 1h trade/mark/OI displacement,other causal windows,registered_design_choice,narrow
+KDA02B,price_threshold,raw abs 14..500 bps; inner-train Type-7 q80..q100,continuous magnitude and other bounded tails,registered_design_choice,partial
+KDA02B,OI_threshold,raw -0.12..-0.01 log change; inner-train Type-7 q0..q20,continuous OI response and other tails,registered_design_choice,partial
+KDA02B,liquidation,present/absent; causal intensity q80..q100,continuous interactions outside two forms,outcome_free_measurement_derived,partial
+KDA02B,directions,positive/negative impulse x continuation/reversal,none within symmetric mapping,mechanism_derived,covered
+KDA02B,contexts,liquidation only,"BTC/ETH trend/vol/drawdown, breadth, liquidity, listing age, funding veto",registered_design_choice,incomplete
+KDA02B,entry,"next native PF 5m trade open, <=10m delay",confirmation and bounded delay variants,registered_design_choice,narrow
+KDA02B,exit,fixed 1h/3h/6h,"structural, ATR, trail, stop/target",registered_design_choice,incomplete
+KDA02B,overlap,definition- and symbol-local chronological actual-exit non-overlap,portfolio collision/capacity,registered_design_choice,mechanically covered
+KDA02B,costs,14 bps base; 32 bps stress; exact adverse funding plus gap allowance,impact/capacity curve,registered_design_choice,execution-sensitive
+KDA02C,base_identity,"completed-purge reversal, primary_z2 and robust_pct95",other event identities,source_prior,frozen narrow translation
+KDA02C,breadth,"raw share, fold-local rank, isolated/nonisolated; 5/15/30/60m",continuous sizing/permission overlays outside these forms,registered_design_choice,sparse/sample-limited
+KDA02C,directions,negative reclaim long; positive failure short,none within frozen payoff map,mechanism_derived,covered but sparse
+KDA02C,entry_exit,next 5m open; fixed 1h,other entries/exits/stops/targets/trails,registered_design_choice,incomplete
+KDA02C,contexts,PIT directional breadth only,"BTC/ETH, dispersion, liquidity, listing age, funding state",registered_design_choice,incomplete; no more 2023-2025 tuning
+KDA02C,costs,14/32 bps and exact adverse funding/gap allowance,impact/capacity curve,registered_design_choice,not reached outer evaluation
+KDX01,component_ladder,7 nested trade/mark/OI/liquidation/basis/breadth ladders,non-nested sparse combinations and materially different mechanisms,mechanism_derived,"current translation tested, family not exhausted"
+KDX01,transform,raw units; fold-local ranks,continuous smooth scores,outcome_free_measurement_derived,partial
+KDX01,direction,completed downside rejection/reclaim long,continuation excluded as inherited contradictory attempts,mechanism_derived,exact translation covered
+KDX01,entry_exit,next 5m open; fixed 1h/3h/6h,structural/ATR/trail/stop/target,registered_design_choice,incomplete
+KDX01,contexts,optional breadth in one ladder,"BTC/ETH, liquidity, listing age, funding veto",registered_design_choice,incomplete
+KDX01,costs,14/32 bps and exact adverse funding/gap allowance,impact/capacity curve,registered_design_choice,translation rejected before outer

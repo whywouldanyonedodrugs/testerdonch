@@ -1,0 +1,182 @@
+{
+  "KDA02B": {
+    "allowed": "component controls, execution forensics, cost/funding sensitivity",
+    "entry_delay_semantics": "exit horizon runs from stressed fill; missing open, >10m lookup delay, lifecycle invalidity or fold crossing rejects; costs/funding recompute over the stressed actual interval",
+    "prohibited": "threshold rescue, new cell, new direction, new horizon, new context, candidate reselection",
+    "scope": "19 exact Stage20 selected cell IDs x exactly 11 economically distinct registered variants",
+    "variant_semantics": {
+      "OI_removed": "remove only the OI predicate from the exact cell; preserve price and liquidation predicates",
+      "entry_delay_15m": "entry at first authorized open >=original decision+15m",
+      "entry_delay_60m": "entry at first authorized open >=original decision+60m",
+      "funding_end_alignment": "identity ledger with funding=min(0,signed_end_alignment)+the same registered base gap allowance; start alignment excluded",
+      "funding_start_alignment": "identity ledger with funding=min(0,signed_start_alignment)+the same registered base gap allowance; end alignment excluded",
+      "funding_zero": "unchanged identity event ledger with exact funding cashflow=0, gap allowance=0, and 14bps pre-funding round-trip cost",
+      "generic_structure_control": "use matched_pseudo_event_allocator with exact cell side, horizon, entry, exit and cost address",
+      "identity_replay": "exact Stage20 economic address, 14bps cost and adverse min(0,start,end) funding",
+      "liquidation_removed": "remove only the liquidation predicate; preserve exact price and OI predicates",
+      "price_only": "generate onsets from the cell's exact price sign/magnitude/axis predicate only; preserve branch, horizon, entry, exit, non-overlap and costs",
+      "stress_cost_32bps": "identity event ledger with exactly 32bps pre-funding round-trip"
+    },
+    "variants": [
+      "identity_replay",
+      "price_only",
+      "OI_removed",
+      "liquidation_removed",
+      "generic_structure_control",
+      "stress_cost_32bps",
+      "funding_start_alignment",
+      "funding_end_alignment",
+      "funding_zero",
+      "entry_delay_15m",
+      "entry_delay_60m"
+    ]
+  },
+  "campaign_id": "kraken_core_liquid_discovery_campaign_002",
+  "canonical_serialization": "UTF-8 JSON sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False",
+  "conditional_control_address_count": 800,
+  "control_address_template": "SHA256(canonical JSON {campaign_id,parent_economic_address,outer_fold_id,control_id,seed}); generate for all 4 families x 8 folds x 5 possible beam slots x 5 family-specific controls before any development outcome, mark unselected parents unavailable_parent_not_selected",
+  "control_seed": 20260721,
+  "control_template_registry": {
+    "path": "FULL_CONTROL_TEMPLATE_REGISTRY.jsonl",
+    "rows": 800,
+    "sha256": "f407c05288b05dc8f27d4978faed00f4cb35eeda245481beb5e4dab47a948ab2"
+  },
+  "duplicate_control_rule": "if a transformed control is economically identical to its parent or another control, persist unavailable_duplicate_address and do not count it as independent control evidence",
+  "family_control_slots": {
+    "A1_COMPRESSION_V2": [
+      {
+        "control_id": "A1_MATCHED_PSEUDO_EVENT_MAIN_NULL",
+        "definition": "use matched_pseudo_event_allocator",
+        "slot": 1
+      },
+      {
+        "control_id": "A1_PRICE_ONLY_IMPULSE",
+        "definition": "set contraction_rank_max=none, smoothness_rank_min=none and context_overlay=none; preserve impulse, base clock, direction, confirmation and execution",
+        "slot": 2
+      },
+      {
+        "control_id": "A1_CONTRACTION_REMOVED",
+        "definition": "set contraction_rank_max=none only",
+        "slot": 3
+      },
+      {
+        "control_id": "A1_SMOOTHNESS_REMOVED",
+        "definition": "set smoothness_rank_min=none only",
+        "slot": 4
+      },
+      {
+        "control_id": "A1_CONTEXT_REMOVED",
+        "definition": "set context_overlay=none only",
+        "slot": 5
+      }
+    ],
+    "A2_PRIOR_HIGH_RS_CONTEXT_V1": [
+      {
+        "control_id": "A2_CONTEXT_PERMUTED_MAIN_NULL",
+        "definition": "permute the complete ordered context-component vector within symbol x UTC-month x lagged-liquidity-decile using registered PCG64 hash seed; preserve parent events",
+        "slot": 1
+      },
+      {
+        "control_id": "A2_PARENT_ONLY",
+        "definition": "set proximity_rank=none, reclaim_state=none, RS_rank=none, BTC_ETH_context=none and breadth_dispersion=none",
+        "slot": 2
+      },
+      {
+        "control_id": "A2_PRIOR_HIGH_REMOVED",
+        "definition": "set proximity_rank=none and reclaim_state=none only",
+        "slot": 3
+      },
+      {
+        "control_id": "A2_RS_REMOVED",
+        "definition": "set RS_rank=none only",
+        "slot": 4
+      },
+      {
+        "control_id": "A2_EXTERNAL_CONTEXT_REMOVED",
+        "definition": "set BTC_ETH_context=none and breadth_dispersion=none only",
+        "slot": 5
+      }
+    ],
+    "A3_STARTER_RETEST_V3": [
+      {
+        "control_id": "A3_RETEST_TIME_PERMUTED_MAIN_NULL",
+        "definition": "within symbol x UTC-quarter x side, encode each parent as add_lag_5m_bars or NO_ADD; sort parent IDs lexically and permute without replacement with PCG64 seeded by first unsigned big-endian 64 bits SHA256(20260721,control_id,symbol,quarter,side); a numeric lag is usable only when the original frozen retest/reclaim predicate holds at that lag, otherwise persist unavailable_control",
+        "slot": 1
+      },
+      {
+        "control_id": "A3_STARTER_ONLY",
+        "definition": "set starter_fraction=1.0 and add_fraction=0.0; preserve breakout and exit",
+        "slot": 2
+      },
+      {
+        "control_id": "A3_MATCHED_PSEUDO_EVENT",
+        "definition": "use matched_pseudo_event_allocator with exact starter/add execution grammar",
+        "slot": 3
+      },
+      {
+        "control_id": "A3_CONFIRMATION_REMOVED",
+        "definition": "set confirmation=one_close only; duplicate addresses are unavailable_duplicate_address",
+        "slot": 4
+      },
+      {
+        "control_id": "A3_CONTEXT_REMOVED",
+        "definition": "set context_overlay=none only",
+        "slot": 5
+      }
+    ],
+    "A4_TSMOM_V7": [
+      {
+        "control_id": "A4_SIGN_PERMUTED_MAIN_NULL",
+        "definition": "compute the complete scalar-estimator sign vector before return access; within symbol x UTC-year, sort decisions ascending and permute signs including zeros without replacement with numpy PCG64 seeded by first unsigned big-endian 64 bits SHA256(20260721,control_id,symbol,year); preserve timestamp magnitude, volatility, universe, context, entry and exit",
+        "slot": 1
+      },
+      {
+        "control_id": "A4_GENERIC_SIGNED_RETURN",
+        "definition": "set signal_estimator=signed_return, annualized_vol_target=none, path_smoothness_quantile_min=none and context_overlay=none; preserve lookback, direction, rebalance, universe and exit",
+        "slot": 2
+      },
+      {
+        "control_id": "A4_VOL_SCALING_REMOVED",
+        "definition": "set annualized_vol_target=none only",
+        "slot": 3
+      },
+      {
+        "control_id": "A4_PATH_COMPONENT_REMOVED",
+        "definition": "set path_smoothness_quantile_min=none; if estimator is equal_weight_ensemble, remove breakout_distance_rank and average the remaining signed_return/vol and ema_slope/vol under unchanged winsorization and MAD rules",
+        "slot": 4
+      },
+      {
+        "control_id": "A4_CONTEXT_REMOVED",
+        "definition": "set context_overlay=none only",
+        "slot": 5
+      }
+    ]
+  },
+  "forensic_address_rule": "forensics are deterministic recomputations of a frozen survivor ledger, not new candidate definitions: SHA256(parent_address,forensic_id,excluded_key_or_scenario). All symbols/months/symbol-months present in the ledger are enumerated lexically; none is sampled or omitted.",
+  "forensic_recomputation_semantics": {
+    "cost_scenarios": "recompute gross, exactly 14bps or 32bps pre-funding round-trip cost, registered gap allowance, funding and resulting net over the unchanged event ledger",
+    "entry_delays": "for each of 5m, 15m and 60m, entry is the first authorized open at or after original decision_ts plus the delay; reject if no open, lookup exceeds 10m, lifecycle is invalid, or actual exit would cross the fold. The full registered horizon begins at the delayed fill, and costs plus exact funding are recomputed over that stressed actual interval",
+    "funding_scenarios": "start_alignment means min(0,signed_start_alignment)+registered base gap allowance; end_alignment means min(0,signed_end_alignment)+registered base gap allowance; zero means exactly zero funding and zero gap allowance; gap_stress means adverse min(0,start,end)+the registered stress gap allowance. Recompute net and every registered metric for each scenario",
+    "leave_one_group_out": "for each symbol, UTC month, and symbol-month key present in the frozen ledger, sort keys lexically, remove exactly that key, and recompute every development metric named in SELECTION_AND_PLATEAU_CONTRACT.json over the remaining complete ledger; persist empty/unavailable rather than dropping a result",
+    "parameter_neighborhood": "use only the pre-registered refinement rows whose execute_only_if_center_plateau_passes resolves to the survivor's exact attempt_id; do not synthesize or inspect any unregistered neighbor",
+    "top_absolute_contributor": "group frozen event base_net_bps by symbol, UTC month, and symbol-month separately; within each grouping choose max absolute grouped sum with lexical key as tie-break, remove it, and recompute every registered development metric; report all three removals"
+  },
+  "forensics": [
+    "leave-one-symbol-out",
+    "leave-one-month-out",
+    "leave-one-symbol-month-out",
+    "remove top absolute contributor",
+    "base 14bps and stress 32bps",
+    "funding start/end/zero/gap partitions",
+    "entry delays 5m/15m/60m",
+    "parameter-neighborhood stability"
+  ],
+  "matched_pseudo_event_allocator": "sort parent events by canonical parent event ID ascending; maintain a used-decision_ts set per control address; for each parent in that order, enumerate eligible completed 5m decisions matched on symbol, UTC month, side, hour-of-week and one-day-lagged 30d median quote-notional decile, exclude decisions within plus or minus the parent's maximum registered holding interval and every decision already used, then choose the minimum tuple (SHA256(seed,symbol,month,side,hour_of_week,liquidity_decile,decision_ts),decision_ts). Selection is without replacement. No eligible decision is persisted as explicit unavailable; no parent is silently omitted.",
+  "route_rules": {
+    "concentration_failure": "cap as concentrated historical observation; no subset rescue",
+    "control_failure": "reject claimed component or cap route; do not retune",
+    "execution_failure": "execution_sensitive or reject",
+    "no_survivor": "record negative family decision"
+  },
+  "schema": "control_and_forensic_contract_v1"
+}
