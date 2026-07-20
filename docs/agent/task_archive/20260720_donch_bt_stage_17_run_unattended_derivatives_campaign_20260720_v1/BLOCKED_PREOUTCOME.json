@@ -1,0 +1,17 @@
+{
+  "Capitalcom_payload_opened": false,
+  "campaign_id": "kraken_derivatives_campaign_001_stage16_semantics_complete",
+  "economic_outcome_reader_opened": false,
+  "economic_results_computed": false,
+  "global_stop": true,
+  "protected_funding_payload_opened": true,
+  "protected_funding_rows_used_for_fit_or_economics": false,
+  "protected_strategy_outcome_rows_opened": false,
+  "reason_codes": [
+    "funding_boundary_notional_semantics_not_frozen",
+    "inherited_funding_loader_filters_protected_rows_after_payload_deserialization",
+    "generated_preflight_protected_rows_opened_zero_claim_invalid"
+  ],
+  "status": "blocked_preoutcome_common_funding_and_protected_read_defect",
+  "stopped_at_utc": "2026-07-20T08:15:04Z"
+}

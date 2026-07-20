@@ -1,0 +1,26 @@
+{
+  "economic_outputs_computed": false,
+  "files": [
+    {"bytes": 730, "path": "BLOCKED_PREOUTCOME.json", "sha256": "27097f9f479e9c4e56cafe56dee2b8228c51238fedf04bc8df3869badf10d650"},
+    {"bytes": 971, "path": "CAMPAIGN_LAUNCH_MANIFEST.json", "sha256": "40c1169e07c797847aaef7ff50cb836b1c88c17a54d98e5e36c9a2f05506b96f"},
+    {"bytes": 1126, "path": "CAMPAIGN_STATE.json", "sha256": "ecd2f2e0e8eae0a173a99d73d94f2bc467b8eabd302eeec2322627f5c57382c7"},
+    {"bytes": 471, "path": "CHANGED_FILES.md", "sha256": "9b0e217564fd0250703430e68763ada138e9f6e4837176034c1b08075bf92d0f"},
+    {"bytes": 872, "path": "COMMANDS_AND_RESULTS.md", "sha256": "27d4f2bc8929dc5c674adab82638f8568f036278ece793175fd9bf12f7ee995b"},
+    {"bytes": 675, "path": "COMPLETION.md", "sha256": "a9be25734478f2463bc6ce1f20bbff40d763b1e86ab47cd0d645e5b030ee899b"},
+    {"bytes": 1977, "path": "FUNDING_BOUNDARY_EXTENSION_MANIFEST.json", "sha256": "72b1f7430c48b91d066b928a4e3ec6c6ce330991ec1c3d614b6faa2d173b4c3e"},
+    {"bytes": 6858, "path": "HUMAN_APPROVAL.json", "sha256": "fe57d5c1efca3af3cb83c3e07b399e03c51f5dbe635b03bd48201944506c6853"},
+    {"bytes": 800, "path": "NEXT_ACTION.md", "sha256": "48429506c86312675324dd8a95becb779f8b15a13158b7113ecfea3e3c793122"},
+    {"bytes": 7378, "path": "PLAN.md", "sha256": "6904cd2ec7e1f4165760bc1f181f4c5df25f49ff14a0965f321d6787d2a34b9c"},
+    {"bytes": 3454, "path": "PREOUTCOME_AUTHORITY_AND_HASH_AUDIT.json", "sha256": "75f5d5d73cba39ac77c5d84896db6d261b5820bb8c3c9cf6f3268637c5a22cb9"},
+    {"bytes": 3383, "path": "PREOUTCOME_REVIEW.md", "sha256": "4716772a0ffcf2af200849ea6546204d4b3c5e1eea8c61c2f964be3edee8c21e"},
+    {"bytes": 638, "path": "REVIEW.md", "sha256": "6884ed0a21bc0b26abf90ad43fd5be13fab8bb6c574c1e6f60c022347f4ccadf"},
+    {"bytes": 12943, "path": "TASK_SPEC.md", "sha256": "ff0858322cd95d1d44cac8a150b1349977170792bff2f698db63ac2b5a9fd859"},
+    {"bytes": 481, "path": "TELEGRAM_NOTIFICATION_VALIDATION.md", "sha256": "26f40b0bb06384922618c0f52f30b427b583f51c9a7c7b996d2c6def8612cd3c"},
+    {"bytes": 973, "path": "VALIDATION.md", "sha256": "8dab5d7732f0a16c7a082a4edf9a13ee04dede7b18ac2cd7f6c176f32b6cc16c"}
+  ],
+  "protected_funding_payload_opened": true,
+  "protected_funding_rows_used_for_fit_or_economics": false,
+  "protected_strategy_outcome_rows_opened": false,
+  "status": "blocked_preoutcome_common_funding_and_protected_read_defect",
+  "task_id": "donch_bt_stage_17_run_unattended_derivatives_campaign_20260720_v1"
+}

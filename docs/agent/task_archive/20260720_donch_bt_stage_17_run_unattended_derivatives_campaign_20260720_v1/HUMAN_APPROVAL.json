@@ -1,0 +1,140 @@
+{
+  "approval_id": "human_approval_kraken_derivatives_campaign_001_stage16_phases_2_5_20260720_v1",
+  "approval_packet_file_sha256": "c01281e50f40f95b922a04ed01c5b3d28ed325577891eed8e2ca5d32286965ca",
+  "approval_packet_payload_canonical_sha256": "bbd39a54c54ce4a5119ac03d2de2a63323ad5517d5d7f835939601cc16384998",
+  "approved_executable_cells": {
+    "KDA02B": 96,
+    "KDA02C": 48,
+    "KDX01": 42,
+    "total": 186
+  },
+  "approved_lanes": [
+    "KDA02B_v2_oi_vacuum_redevelopment",
+    "KDA02C_v1_purge_breadth_context",
+    "KDX01_v1_downside_completed_derivatives_state_rejection"
+  ],
+  "approved_phases": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "approved_repository_start": "a3981b505e908b5fb617a0921f45869535e2b542",
+  "authorized_at_utc": "2026-07-20T06:42:06Z",
+  "authorized_by": "human_operator_via_donch",
+  "bound_complete_semantics": {
+    "beam": "5ed0be72cea8a555790e7aa0aec9e8bfbd8de4d5de9f358ba831d1d43e11dfe3",
+    "bins": "1cc994543371a8db86f428957a27d3a62d93f390e30f99460aa3e1d973b8c67b",
+    "boundary": "460eb30f45c232c79729765b8724ddd206ed09671bb98f485b2175bf83cc5e75",
+    "estimator_rules": "b30b7c115d6d6e1ed765542c44d791c44117a0387f71ae4b33ec1219d4243a3b",
+    "funding": "d95c3b21c495a712efb6f9834200c6d3aa95f4bc7a9fda5492e2230a739fa04a",
+    "inner_folds": "6ee8cbc53eac9326f904eec760ae82861a533b8165be6e1ccfc440dd0fa32ba0",
+    "metrics": "9c0c526abc04cc91b6214cdfe7b146fe3036d96c6543969c3a6f6d7acaacfddf",
+    "telegram_supervision": "f23736649f4523add8618720744673a5554d51246b9bcb01bcccf0a64591e70e",
+    "translations": "9c07f8695b117afe61f03354e0b6ab39a4c11bd4f0335f9f066cca33560ff1f8",
+    "utility_pareto": "8b9d6afa6c1ea6676cdac9b1703223ef1d47d929988c8e419fc1c112e4a3f093"
+  },
+  "bound_dependency_file_sha256": {
+    "BOUNDARY_AND_MISSINGNESS_CONTRACT.json": "460eb30f45c232c79729765b8724ddd206ed09671bb98f485b2175bf83cc5e75",
+    "CANDIDATE_BEAM_CONTRACT.json": "5ed0be72cea8a555790e7aa0aec9e8bfbd8de4d5de9f358ba831d1d43e11dfe3",
+    "DEVELOPMENT_METRIC_CONTRACT.json": "9c0c526abc04cc91b6214cdfe7b146fe3036d96c6543969c3a6f6d7acaacfddf",
+    "ECONOMIC_TRANSLATION_REGISTRY.json": "9c07f8695b117afe61f03354e0b6ab39a4c11bd4f0335f9f066cca33560ff1f8",
+    "ESTIMATOR_AND_RULE_INVENTORY.json": "b30b7c115d6d6e1ed765542c44d791c44117a0387f71ae4b33ec1219d4243a3b",
+    "FUNDING_COST_AND_COVERAGE_CONTRACT.json": "d95c3b21c495a712efb6f9834200c6d3aa95f4bc7a9fda5492e2230a739fa04a",
+    "INNER_FOLD_MAP.json": "6ee8cbc53eac9326f904eec760ae82861a533b8165be6e1ccfc440dd0fa32ba0",
+    "RESOURCE_PROJECTION.json": "343735cba47cb39d15d56ded7649338a95980b09c7b236894439026ea7a2664c",
+    "RESPONSE_SURFACE_AND_BIN_SPEC.json": "1cc994543371a8db86f428957a27d3a62d93f390e30f99460aa3e1d973b8c67b",
+    "SEARCH_SPACE_REGISTRY.json": "5d78232ae5363fa58219c4fe12a8004db576351a4ab97ddbf2d168344d5d045f",
+    "TELEGRAM_AND_SUPERVISION_CONTRACT.json": "f23736649f4523add8618720744673a5554d51246b9bcb01bcccf0a64591e70e",
+    "UTILITY_AND_PARETO_CONTRACT.json": "8b9d6afa6c1ea6676cdac9b1703223ef1d47d929988c8e419fc1c112e4a3f093"
+  },
+  "campaign_id": "kraken_derivatives_campaign_001_stage16_semantics_complete",
+  "campaign_manifest_canonical_sha256": "cc07499c671cf39b8ceaee91156f141dcc2c5532142af29a38a4f6830b73f23d",
+  "campaign_manifest_file_sha256": "cc07499c671cf39b8ceaee91156f141dcc2c5532142af29a38a4f6830b73f23d",
+  "claim_limit": "development_and_forward_rolling_evidence_only_not_independent_validation_or_live_readiness",
+  "execution_authorization": {
+    "allow_drive_handoff": true,
+    "allow_exact_packet_runtime_implementation": true,
+    "allow_existing_secure_telegram_notifier_dry_run_and_campaign_notifications": true,
+    "allow_funding_extension_with_frozen_contract": true,
+    "allow_persistent_supervised_unattended_execution": true,
+    "allow_task_scoped_commits_and_non_force_push": true,
+    "economic_or_selection_semantics_may_change": false,
+    "manual_outcome_conditioned_intervention": false,
+    "search_space_folds_cells_costs_or_translations_may_change": false
+  },
+  "funding_contract_sha256": "d95c3b21c495a712efb6f9834200c6d3aa95f4bc7a9fda5492e2230a739fa04a",
+  "human_authorized": true,
+  "inherited_non_executable_multiplicity_attempts": {
+    "KDX01_continuation_null": 42,
+    "campaign_total_attempts_reconciled": 228
+  },
+  "not_authorized": [
+    "phase_6_controls",
+    "phase_7_validation_or_deployment",
+    "C17",
+    "protected_outcomes",
+    "Capitalcom_payloads",
+    "new_data_acquisition",
+    "cohort_rebuild_or_symbol_expansion",
+    "capture_restart",
+    "private_account_actions",
+    "orders_or_live_trading",
+    "packet_or_manifest_semantic_changes",
+    "search_space_or_fold_changes",
+    "manual_tuning_after_outcomes",
+    "destructive_git_actions"
+  ],
+  "packet_id": "kraken_derivatives_campaign_001_stage16_phase2_5_approval_request",
+  "packet_version": "3.0",
+  "programme_exposure_class": "program_exposed_historical",
+  "resource_limits": {
+    "benchmark_authority": {
+      "semantic_registry_count_unchanged": true,
+      "stage14_resource_projection_sha256": "6eb572e8c09be94d462702db54d98d3fa88b4aa0ee402b2873c8a7fe66235d97"
+    },
+    "candidate_beam_per_family_fold": 5,
+    "cells_by_family": {
+      "KDA02B": 96,
+      "KDA02C": 48,
+      "KDX01": 42
+    },
+    "max_disk_bytes": 5368709120,
+    "max_memory_bytes": 5368709120,
+    "maximum_model_count": 0,
+    "maximum_rule_complexity": 8,
+    "memory_enforcement": "persistent supervisor sums RSS of supervisor and all worker descendants every heartbeat and globally stops before starting another cell when >= cap",
+    "persistent_supervisor_required": true,
+    "projection": "186 executable deterministic rule cells are below the reviewed Stage-14 228-cell no-outcome benchmark envelope; 42 KDX continuation-null attempts remain inherited multiplicity only; stop at four hours or 5 GiB",
+    "total_cells": 186,
+    "wall_seconds": 14400,
+    "worker_count": 4
+  },
+  "status": "approved",
+  "stop_conditions": {
+    "before_outcomes": [
+      "any_packet_manifest_dependency_hash_mismatch",
+      "approval_artifact_mismatch",
+      "funding_coverage_gate_failure",
+      "Telegram_notifier_unavailable_or_dry_run_failure",
+      "synthetic_canary_or_preoutcome_review_failure",
+      "runtime_requires_new_economic_or_selection_semantics"
+    ],
+    "during_campaign": {
+      "family": [
+        "mechanically_invalid",
+        "insufficient_integrity_or_cluster_count",
+        "no_positive_development_candidate",
+        "family_specific_defect"
+      ],
+      "global": [
+        "authority_hash_drift",
+        "outcome_firewall_access",
+        "protected_or_Capitalcom_access",
+        "shared_temporal_or_execution_defect",
+        "deterministic_replay_failure"
+      ]
+    }
+  },
+  "telegram_supervision_contract_sha256": "f23736649f4523add8618720744673a5554d51246b9bcb01bcccf0a64591e70e"
+}
