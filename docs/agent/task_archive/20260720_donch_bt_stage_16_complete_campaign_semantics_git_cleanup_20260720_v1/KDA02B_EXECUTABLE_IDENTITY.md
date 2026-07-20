@@ -1,0 +1,3 @@
+# KDA02B Executable Identity
+
+The traded instrument is the causal event symbol's native Kraken linear PF contract. Decision is the completed one-hour OI-vacuum/event bar close. Trade and mark displacement signs must be nonzero and agree. Continuation follows that sign; reversal opposes it. Conflicting or zero signs produce no candidate. Unsigned OI is state, never actor-direction evidence. Each cell freezes its raw/rank OI and displacement thresholds, liquidation form, branch, 1h/3h/6h fixed exit, actual-exit symbol/definition non-overlap, 14/32 bps costs, and funding partition before outcomes.

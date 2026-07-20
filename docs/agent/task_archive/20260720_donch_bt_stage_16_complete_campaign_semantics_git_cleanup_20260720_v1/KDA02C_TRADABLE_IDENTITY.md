@@ -1,0 +1,3 @@
+# KDA02C Tradable Identity
+
+KDA02C trades the native Kraken linear PF symbol of the underlying frozen completed-purge reversal event. It never creates a market-wide, BTC/ETH proxy, or equal-weight portfolio trade. A completed downside purge and reclaim is long; a completed upside purge and failure is short. Decision is that same symbol's causal reclaim/failure availability. Directional breadth uses the point-in-time eligible denominator at that timestamp. The fixed exit is 1h. Primary `z2` and robustness `pct95` purge identities are separate registered attempts and inherit KDA02/programme multiplicity.
