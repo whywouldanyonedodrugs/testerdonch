@@ -163,12 +163,17 @@ class Stage16SemanticsTests(unittest.TestCase):
         self.assertEqual(result["p20_inner_fold_base_net_mean_bps"], 19.5)
 
     def test_packet_replay_and_launch_validator(self):
-        with tempfile.TemporaryDirectory() as one, tempfile.TemporaryDirectory() as two:
-            snapshots = []
-            for target in (one, two):
-                subprocess.run(["python3", "tools/build_stage16_campaign_packet.py", "--implementation-commit", "TEST"], cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
-                snapshots.append({name: (ARCHIVE / name).read_bytes() for name in ["CAMPAIGN_MANIFEST.json", "FUTURE_DERIVATIVES_CAMPAIGN_APPROVAL_PACKET.json", "ECONOMIC_TRANSLATION_REGISTRY.json"]})
-            self.assertEqual(snapshots[0], snapshots[1])
+        authority_snapshot = {path: path.read_bytes() for path in ARCHIVE.iterdir() if path.is_file()}
+        try:
+            with tempfile.TemporaryDirectory() as one, tempfile.TemporaryDirectory() as two:
+                snapshots = []
+                for target in (one, two):
+                    subprocess.run(["python3", "tools/build_stage16_campaign_packet.py", "--implementation-commit", "TEST"], cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
+                    snapshots.append({name: (ARCHIVE / name).read_bytes() for name in ["CAMPAIGN_MANIFEST.json", "FUTURE_DERIVATIVES_CAMPAIGN_APPROVAL_PACKET.json", "ECONOMIC_TRANSLATION_REGISTRY.json"]})
+                self.assertEqual(snapshots[0], snapshots[1])
+        finally:
+            for path, payload in authority_snapshot.items():
+                path.write_bytes(payload)
         result = validate(ARCHIVE)
         self.assertTrue(result["packet_semantics_complete"])
         self.assertTrue(result["campaign_engine_can_execute_without_discretion"])
