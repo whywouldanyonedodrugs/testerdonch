@@ -21,6 +21,7 @@ from tools.kraken_protected_safe_funding import (
     build_rankable_package,
     calibrate_allowances,
     exact_funding_cashflow_bps,
+    funding_event_partitions,
     inspect_source_file,
     overlap_fraction,
     selection_funding_metrics,
@@ -137,6 +138,36 @@ class ProtectedSafeFundingTests(unittest.TestCase):
         second = selection_funding_metrics(40.0, [0.5, 1.0], 2.0, 4.0)
         self.assertEqual(first, second)
         self.assertNotIn("exact", " ".join(first))
+
+    def test_multi_period_exact_to_allowance_transition_is_diagnostic_only(self):
+        common = {
+            "gross_return_bps": 40.0,
+            "entry_ts": "2025-01-01T00:30:00Z",
+            "exit_ts": "2025-01-01T02:00:00Z",
+            "position_sign": 1,
+            "entry_trade_open": 20000.0,
+            "base_allowance": 2.0,
+            "stress_allowance": 4.0,
+        }
+        exact = funding_event_partitions(periods=[
+            {"period_start": "2025-01-01T00:00:00Z", "absolute_funding_rate": 10.0},
+            {"period_start": "2025-01-01T01:00:00Z", "absolute_funding_rate": -10.0},
+        ], **common)
+        mixed = funding_event_partitions(periods=[
+            {"period_start": "2025-01-01T00:00:00Z", "absolute_funding_rate": 10.0},
+            {"period_start": "2025-01-01T01:00:00Z", "absolute_funding_rate": None},
+        ], **common)
+        self.assertEqual(exact["overlapped_periods"], 2)
+        self.assertEqual(mixed["missing_periods"], 1)
+        self.assertIsNone(mixed["fully_exact_diagnostic_bps"])
+        self.assertEqual(
+            exact["uniform_adverse_allowance_primary_bps"],
+            mixed["uniform_adverse_allowance_primary_bps"],
+        )
+        self.assertNotEqual(
+            exact["mixed_exact_and_allowance_diagnostic_bps"],
+            mixed["mixed_exact_and_allowance_diagnostic_bps"],
+        )
 
     def test_builder_records_zero_payload_when_all_groups_mixed(self):
         with tempfile.TemporaryDirectory() as tmp:

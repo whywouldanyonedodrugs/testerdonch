@@ -253,6 +253,45 @@ def selection_funding_metrics(gross_return_bps: float, held_fractions: Iterable[
     }
 
 
+def funding_event_partitions(
+    *,
+    gross_return_bps: float,
+    entry_ts: Any,
+    exit_ts: Any,
+    position_sign: int,
+    entry_trade_open: float,
+    periods: Iterable[dict[str, Any]],
+    base_allowance: float,
+    stress_allowance: float,
+) -> dict[str, Any]:
+    """Compute frozen selection costs and separate exact/mixed diagnostics."""
+    fractions: list[float] = []
+    diagnostic = 0.0
+    exact_periods = 0
+    missing_periods = 0
+    for period in periods:
+        fraction = overlap_fraction(entry_ts, exit_ts, period["period_start"])
+        if fraction == 0:
+            continue
+        fractions.append(fraction)
+        rate = period.get("absolute_funding_rate")
+        if rate is None or not math.isfinite(float(rate)):
+            missing_periods += 1
+            diagnostic += adverse_allowance_cost_bps(base_allowance, fraction)
+        else:
+            exact_periods += 1
+            diagnostic += exact_funding_cashflow_bps(position_sign, float(rate), fraction, entry_trade_open)
+    selection = selection_funding_metrics(gross_return_bps, fractions, base_allowance, stress_allowance)
+    return {
+        **selection,
+        "fully_exact_diagnostic_bps": gross_return_bps - 14.0 + diagnostic if missing_periods == 0 else None,
+        "mixed_exact_and_allowance_diagnostic_bps": gross_return_bps - 14.0 + diagnostic,
+        "overlapped_periods": len(fractions),
+        "exact_periods": exact_periods,
+        "missing_periods": missing_periods,
+    }
+
+
 def validate_campaign_funding_source(package_root: Path) -> dict[str, Any]:
     manifest_path = package_root / "RANKABLE_EXACT_FUNDING_SOURCE_MANIFEST.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
