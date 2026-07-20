@@ -10,4 +10,4 @@ Kraken Futures open interest analytics,verified_inferred_authoritative_v1,2023-2
 Kraken Futures future-basis analytics,verified_inferred_authoritative_v1,2023-2025,Signed closing state treated as decimal ratio; basis is not funding
 Kraken Futures liquidation-volume analytics,verified_inferred_authoritative_v1,2023-2025,Nonnegative interval flow without native side; price-inferred side remains proxy
 Kraken Futures one-minute analytics,verified_for_PF_XBTUSD_and_PF_ETHUSD,2023-2025,Use for bounded resolution checks; no automatic all-symbol one-minute expansion
-Kraken absolute funding protected-safe source,unavailable_physical_source_layout,2023-2025 desired,305 authoritative row groups classified 288 mixed and 17 protected; zero payload rows opened in Stage18 and no allowance calibrated
+Kraken absolute funding protected-safe source,verified_official_export_rankable_partition,2023-2025,"5,658,890 rankable hourly rows across 476 symbols; all 187 campaign symbols mapped and unit-verified; protected quarantine physically separate"

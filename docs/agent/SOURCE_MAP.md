@@ -1,7 +1,7 @@
 ---
-status: active canonical repository source map after Stage 13 protocol-v2 application
-date: 2026-07-19
-revision: 5.0
+status: active canonical repository source map after Stage 19 official funding authority
+date: 2026-07-20
+revision: 6.0
 scope: Donch source navigation, current Kraken decisions, conditional-alpha policy, and multi-platform boundaries
 authority: approved operating policy; linked sources retain stated authority
 supersedes: received `00_READ_FIRST_Project_Source_Map_2026-07-19_rev4.md`; older source maps remain provenance
@@ -22,6 +22,10 @@ orders_private_account_actions: not_authorized
 ```
 
 No strategy is validation-grade or live-ready.
+
+## Stage 19 campaign funding authority
+
+The local official Kraken export authority, immutable rankable/protected packages, dual-alignment funding contract, 187-symbol unit audit, replacement non-authorizing packet, and official historical-data surface audit are in `docs/agent/task_archive/20260720_donch_bt_stage_19_local_official_funding_export_packet_20260720_v2/`. The large packages remain local under `/opt/testerdonch/results/rebaseline/phase_kraken_local_official_funding_export_20260720_v2/` and are accessed by hash. This does not authorize Phase 2+ economics.
 
 ## Current Kraken machine state
 

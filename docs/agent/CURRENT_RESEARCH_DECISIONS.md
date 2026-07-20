@@ -11,9 +11,13 @@ known limitations: routing status is not validation or deployment approval
 
 # Current Research Decisions
 
-## Stage 18 funding packet status — 2026-07-20
+## Stage 19 replacement packet status — 2026-07-20
 
-No strategy or family decision changed. Replacement campaign economics and packet regeneration are blocked because the current absolute-funding Parquet sources expose zero row groups that are physically rankable before payload access. The former relative-rate imputation is not permitted as future selection funding, but it remains historical provenance until a complete reviewed replacement packet exists.
+No strategy or family decision changed. Exact funding mechanics are now frozen from a physically rankable official Kraken export under both timestamp alignments with adverse-only selection treatment and rankable-only missing-hour allowances. The Stage 19 packet is a new non-authorizing approval request; prior approvals are not reused and Phase 2+ outcomes remain closed pending independent review and new exact human approval.
+
+## Preserved Stage 18 funding packet status — 2026-07-20
+
+No strategy or family decision changed. The Stage 18 result remains correct for its mixed absolute-funding Parquet source: it exposes zero row groups that are physically rankable before payload access. Stage 19 supersedes the campaign funding dependency through a different physically partitioned official-export source; it does not alter the Stage 18 finding.
 
 ## Stage 13 prospective registrations
 

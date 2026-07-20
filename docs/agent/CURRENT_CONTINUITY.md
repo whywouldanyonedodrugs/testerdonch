@@ -1,7 +1,7 @@
 ---
-status: active continuity after verified Stage 12 KDA03 closure and method reset
-date: 2026-07-19
-revision: rev12
+status: active continuity after Stage 19 official funding export partition and replacement packet
+date: 2026-07-20
+revision: rev13
 scope: multi-platform programme state, Kraken analytics, KDA01/KDA02/KDA03 decisions, and staged hypothesis development
 authority: machine contracts and finalized manifests first; explicit 2026-07-19 Stage 10 and Stage 12 human decisions
 supersedes: rev11; prior continuity remains provenance
@@ -11,11 +11,17 @@ known limitations: Capital.com intake remains separate; no strategy is validatio
 
 # Master Continuity Brief, rev12
 
-## Stage 17/18 funding incident and source boundary — 2026-07-20
+## Stage 19 official funding authority — 2026-07-20
+
+The human-transferred official Kraken export was security-audited and physically partitioned. The campaign-accessible package contains 5,658,890 rows across 476 symbols strictly inside `[2023-01-01, 2026-01-01)`; its SHA-256 is `c38acacbc401dfa656068f14f0a59a5a4b0da0de4a5522b605a26712aadd628c`. A separate quarantine contains 236,786 protected funding rows. Protected funding values supplied zero statistics, and no protected strategy price/return row was opened.
+
+All 187 campaign symbols map exactly and have official `flexible_futures`, `contractSize=1`, base-unit/USD-quote verification plus contemporaneous rankable trade/mark sanity anchors. Funding selection freezes both timestamp alignments and uses only `min(0,start,end)` plus nonpositive rankable-only missing-hour allowances. The replacement packet remains non-authorizing and requires independent review plus a new exact human approval before Phase 2+ economics.
+
+## Preserved Stage 17/18 funding incident and source boundary — 2026-07-20
 
 Stage 17 stopped before economics after a mixed-period funding Parquet reader deserialized protected non-outcome funding rows before filtering. No protected strategy outcome was opened and no protected funding row entered fitting or economics. The exact protected-row count remains deliberately unavailable.
 
-Stage 18 installed a hash-bound, metadata-first row-group reader. The canonical 305-file K0 funding manifest contains 288 mixed and 17 protected row groups, with zero safely rankable row groups. No Stage 18 funding payload was opened. Exact absolute-funding materialization, adverse-allowance calibration, timestamp adjudication, and packet regeneration remain blocked; the Stage 16 packet remains the current immutable non-authorizing provenance packet.
+Stage 18 installed a hash-bound, metadata-first row-group reader. The canonical 305-file K0 funding manifest contains 288 mixed and 17 protected row groups, with zero safely rankable row groups. No Stage 18 funding payload was opened. That exact source-layout finding remains immutable; Stage 19 did not reuse the mixed Parquet source and instead established a new separately partitioned official-export authority.
 
 ## Stage 13 prospective method and campaign readiness
 

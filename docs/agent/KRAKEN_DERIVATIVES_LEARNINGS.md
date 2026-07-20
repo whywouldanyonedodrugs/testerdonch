@@ -1,7 +1,7 @@
 ---
-status: active consolidated Kraken learning state after verified Stage 10 application
-date: 2026-07-19
-revision: 1.1
+status: active consolidated Kraken learning state after Stage 19 official funding authority
+date: 2026-07-20
+revision: 1.2
 scope: Stage 7C analytics, Stage 8A foundation, KDA01-KDA03, reusable components, defects, and future routes
 authority: finalized manifests, reviewed task archives, published commits, and terminal run decisions
 supersedes: prior narrative statements that 2023-2025 OI, basis, and liquidation analytics were unavailable; does not supersede finalized manifests or roots
@@ -68,7 +68,9 @@ The acquired universe remains current-roster/bar-existence based. It is not surv
 
 ### Absolute funding source layout
 
-Kraken linear perpetual funding is a continuous USD cashflow: the absolute rate is USD per base-unit contract per hour, and an open position accrues it in proportion to time held. The current locally acquired funding Parquet layout is not physically separable at the protected cutoff: all 305 authoritative row groups are mixed or protected. Future acquisition or preprocessing must create immutable pre-2026 row groups before those mixed payloads can be used. Relative funding, mark price, trade price, or future basis must not be substituted for the exact absolute cashflow.
+Kraken linear perpetual funding is a continuous USD cashflow: the absolute rate is USD per base-unit contract per hour, and an open position accrues it in proportion to time held. The Stage 18 Parquet authority remains unusable because all 305 row groups are mixed or protected. Stage 19 established a separate human-transferred official-export authority with immutable rankable, protected, pre-rankable, and invalid packages. Campaign access is limited to the `[2023,2026)` package; protected rate tails were routed without numeric conversion.
+
+Export row timestamps remain ambiguous between `[t,t+1h)` and `[t-1h,t)`. Do not choose by inference. Compute both and use `min(0,signed_start,signed_end)` for selection. Missing export hours receive nonpositive Decimal type-7 q95/q99 allowances calibrated on rankable rows only. Relative funding, mark price, trade price, or future basis must not replace the exact absolute cashflow; `absolute_rate/relative_rate` is used only as a unit sanity anchor.
 
 ### Timestamp semantics
 
