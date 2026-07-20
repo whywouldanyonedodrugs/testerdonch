@@ -174,10 +174,10 @@ KDX01 trades the event symbol's native Kraken linear PF contract, long only afte
     (ARCHIVE / "FUTURE_DERIVATIVES_CAMPAIGN_APPROVAL_PACKET.md").write_text(
         "# Future Derivatives Campaign Approval Packet\n\n"
         "Status: `human_approval_required_not_authorized`. No economics are authorized.\n\n"
-        f"Campaign manifest file SHA-256: `{manifest_raw_hash}`  \n"
-        f"Campaign manifest canonical SHA-256: `{manifest_canonical_hash}`  \n"
-        f"Approval packet file SHA-256: `{packet_raw_hash}`  \n"
-        f"Approval packet canonical SHA-256: `{packet_canonical_hash}`  \n"
+        f"Campaign manifest file SHA-256: `{manifest_raw_hash}`<br>\n"
+        f"Campaign manifest canonical SHA-256: `{manifest_canonical_hash}`<br>\n"
+        f"Approval packet file SHA-256: `{packet_raw_hash}`<br>\n"
+        f"Approval packet canonical SHA-256: `{packet_canonical_hash}`<br>\n"
         f"Approval packet payload canonical SHA-256: `{packet['packet_payload_canonical_sha256']}`\n\n"
         "The packet binds 186 executable translations, exact folds, metrics, Pareto/beam arithmetic, economic identity, boundaries, funding, and supervision. The 42 Stage-14 KDX continuation-null attempts remain inherited multiplicity but cannot become executable long mean-reversion translations. A new external human approval must name the final file hashes.\n",
         encoding="utf-8")
