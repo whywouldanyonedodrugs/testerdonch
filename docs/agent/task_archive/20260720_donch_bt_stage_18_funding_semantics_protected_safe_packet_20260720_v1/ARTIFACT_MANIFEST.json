@@ -1,0 +1,135 @@
+{
+  "economic_outputs_computed": false,
+  "files": [
+    {
+      "bytes": 1741,
+      "path": "AUTHORITY_AUDIT.json",
+      "sha256": "150a370fd270e698b2c7bac72869adff2a348eff4e1eff4e6cf72e7ef69d8285"
+    },
+    {
+      "bytes": 640,
+      "path": "BLOCKED_REQUIRED_OUTPUTS.json",
+      "sha256": "2f7429a91e6b6953ef251f52abe9f92fcf988702690123996620f9efa4ad381c"
+    },
+    {
+      "bytes": 565,
+      "path": "CAMPAIGN_PACKET_LAUNCH_READINESS.md",
+      "sha256": "ff62b977bedfc1512f902b7ce4262f4e1f0a9b0811e5d25ddfa228112f45f35d"
+    },
+    {
+      "bytes": 955,
+      "path": "CHANGED_FILES.md",
+      "sha256": "0c25fb288b28c24bdd11006784b3ce95ba5a11ae4ce1c24e4d5026255352375f"
+    },
+    {
+      "bytes": 682,
+      "path": "COMMANDS_AND_RESULTS.md",
+      "sha256": "b0952c09738a957a6c6356952c9ee60e08fca61bf6b6f77984c13fc6da068463"
+    },
+    {
+      "bytes": 669,
+      "path": "COMPLETION.md",
+      "sha256": "3d5e9c2999c25df456d924e841c328d74f920fc7a0dc80c1d9a60aa3b6ffb5cf"
+    },
+    {
+      "bytes": 158,
+      "path": "COVERAGE.csv",
+      "sha256": "f3beb7d43c1885c1d9a96968ef31911206bf04bf366e241122744659a2852b8e"
+    },
+    {
+      "bytes": 570,
+      "path": "FUNDING_ADVERSE_ALLOWANCE_CONTRACT.json",
+      "sha256": "e53eccd3d9011af2c1304cf758e734296d6b90dd82d4e726adc99b015168cd5a"
+    },
+    {
+      "bytes": 182,
+      "path": "FUNDING_ADVERSE_ALLOWANCE_TABLE.csv",
+      "sha256": "272d06c8e4afb7509a0d079e62b738a2ed8b03d0eeb2ad02483dadff017c189b"
+    },
+    {
+      "bytes": 568,
+      "path": "FUNDING_CALIBRATION_SUMMARY.md",
+      "sha256": "628f09c3c52508c8b521db969c8540351a00d19a7d6e82551c1ea6c7cbccc1c7"
+    },
+    {
+      "bytes": 708,
+      "path": "FUNDING_COST_AND_COVERAGE_CONTRACT.json",
+      "sha256": "2a0227082d8fdc9194f082bfc0410bc6bb143a8340441d3dabe4f2c0d41e35a6"
+    },
+    {
+      "bytes": 1257,
+      "path": "FUNDING_PERIOD_SEMANTICS.json",
+      "sha256": "51dc7832c30b372e21fd240976036a927f6873cd2909f35663ff03fe262d9f37"
+    },
+    {
+      "bytes": 929,
+      "path": "NEXT_ACTION.md",
+      "sha256": "b928459b7be248719e6c27a59b8d2281399752a4d45abbdae80f428ee99d73d9"
+    },
+    {
+      "bytes": 8760,
+      "path": "PLAN.md",
+      "sha256": "fce224ac403d836d2024587b432302555b4d9357c3e9078482a5879e449a5a61"
+    },
+    {
+      "bytes": 678,
+      "path": "PROTECTED_AUDIT.json",
+      "sha256": "8ca1a8beccdd5893e80423721dd10a9d283e05cd03c5c12e8ec3392697e4e860"
+    },
+    {
+      "bytes": 513,
+      "path": "PROTECTED_SAFE_FUNDING_READER_CONTRACT.json",
+      "sha256": "74dfa0c597eb4da8ccfbd1dcf50afe04129c43a8f45f15c3ec23e71a44f6ae6b"
+    },
+    {
+      "bytes": 925,
+      "path": "RANKABLE_EXACT_FUNDING_SOURCE_MANIFEST.json",
+      "sha256": "1776312bc8dc39f9b747c42726c991d2ba23a91fe7bd678f240db4c6be45abc0"
+    },
+    {
+      "bytes": 2259,
+      "path": "REVIEW.md",
+      "sha256": "9f8638b920b8bbfd6d8f13139c99f73944f5a063710466eea84e781565c643f5"
+    },
+    {
+      "bytes": 332,
+      "path": "SCHEMA.json",
+      "sha256": "7bbd33702bc5409eb3c56dd4dae17a0296d56dcb984f0cbb6c0a0b185579b738"
+    },
+    {
+      "bytes": 101354,
+      "path": "SKIPPED_ROW_GROUP_LEDGER.csv",
+      "sha256": "a8eb3506cdd560a1853d4237a957a2af6ddb35887ef9b4e6841d51309ce97a72"
+    },
+    {
+      "bytes": 101354,
+      "path": "SOURCE_FILE_AND_ROW_GROUP_LEDGER.csv",
+      "sha256": "a8eb3506cdd560a1853d4237a957a2af6ddb35887ef9b4e6841d51309ce97a72"
+    },
+    {
+      "bytes": 384,
+      "path": "SUPERSESSION.json",
+      "sha256": "b073828a957d87a768fba7a06080da4a349e85d4c729e448d694d14bd75df421"
+    },
+    {
+      "bytes": 400,
+      "path": "SYNTHETIC_CANARY.json",
+      "sha256": "f6dd982ed214a1db526956e4e5d18cb2ee9c44d77f8336febd8b2733fc77edf1"
+    },
+    {
+      "bytes": 20829,
+      "path": "TASK_SPEC.md",
+      "sha256": "6874d84fd9239c548101a597dc6cefe1d7ddcfeffb3f9c419deaf358ca73cbfb"
+    },
+    {
+      "bytes": 797,
+      "path": "VALIDATION.md",
+      "sha256": "028c721a5931b853db17f5431c67f6d69aa35ffc273fe7277797069db569f518"
+    }
+  ],
+  "packet_regenerated": false,
+  "protected_funding_payload_rows_opened_stage18": 0,
+  "protected_strategy_outcomes_opened": false,
+  "status": "blocked_no_safe_rankable_absolute_funding_row_groups",
+  "task_id": "donch_bt_stage_18_funding_semantics_protected_safe_packet_20260720_v1"
+}

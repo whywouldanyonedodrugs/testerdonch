@@ -1,0 +1,2 @@
+symbol,exact_observations,base_adverse_allowance_bps_per_hour,stress_adverse_allowance_bps_per_hour,allowance_source,status
+ALL,0,,,,blocked_no_safely_readable_absolute_funding_rows

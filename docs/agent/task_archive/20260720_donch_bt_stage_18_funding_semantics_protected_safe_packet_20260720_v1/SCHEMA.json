@@ -1,0 +1,18 @@
+{
+  "output_columns": [
+    "symbol",
+    "timestamp",
+    "fundingRate",
+    "source_file_sha256",
+    "source_row_group_index"
+  ],
+  "rankable_interval": [
+    "2023-01-01T00:00:00+00:00",
+    "2026-01-01T00:00:00+00:00"
+  ],
+  "required_source_columns": [
+    "timestamp",
+    "fundingRate"
+  ],
+  "timestamp_timezone": "UTC"
+}

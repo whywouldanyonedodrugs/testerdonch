@@ -1,0 +1,15 @@
+{
+  "not_generated": [
+    "BOUNDARY_AND_MISSINGNESS_CONTRACT.json",
+    "DEVELOPMENT_METRIC_CONTRACT.json",
+    "UTILITY_AND_PARETO_CONTRACT.json",
+    "ECONOMIC_TRANSLATION_REGISTRY.json",
+    "CAMPAIGN_MANIFEST.json",
+    "FUTURE_DERIVATIVES_CAMPAIGN_APPROVAL_PACKET.json",
+    "FUTURE_DERIVATIVES_CAMPAIGN_APPROVAL_PACKET.md",
+    "RESOURCE_PROJECTION.json"
+  ],
+  "reason": "no safely readable exact absolute funding rows; allowance values cannot be empirically calibrated; historical API timestamp meaning remains unresolved",
+  "stage16_files_mutated": false,
+  "status": "blocked_before_economic_identity_and_packet_regeneration"
+}

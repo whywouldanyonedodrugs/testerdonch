@@ -1,0 +1,12 @@
+{
+  "authoritative_for_campaign": false,
+  "base_quantile": 0.95,
+  "calibration_field": "abs(fundingRate)/mark_open_at_funding_period_start*10000",
+  "fallback": "equal_symbol_weighted_mean_of_eligible_symbol_type7_quantiles",
+  "minimum_exact_rows_per_symbol": 720,
+  "quantile_method": "Hyndman-Fan_type_7_linear_interpolation",
+  "selection_policy_if_calibrated": "uniform_adverse_allowance_for_every_held_period_exact_or_missing",
+  "status": "blocked_no_safely_readable_absolute_funding_rows_for_calibration",
+  "stress_quantile": 0.99,
+  "values_frozen": false
+}

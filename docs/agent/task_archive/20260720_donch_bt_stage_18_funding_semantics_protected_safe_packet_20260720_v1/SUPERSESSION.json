@@ -1,0 +1,6 @@
+{
+  "current_diagnostic_root": "/opt/testerdonch/results/rebaseline/phase_kraken_rankable_exact_funding_safe_20260720_v2",
+  "reason": "v1 was generated before the all-row-group source ledger correction and remains preserved",
+  "superseded_root": "/opt/testerdonch/results/rebaseline/phase_kraken_rankable_exact_funding_safe_20260720_v1",
+  "supersession_changes_economics": false
+}

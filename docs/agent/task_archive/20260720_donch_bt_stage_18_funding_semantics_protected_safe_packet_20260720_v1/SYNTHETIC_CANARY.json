@@ -1,0 +1,9 @@
+{
+  "campaign_phase_2_5_canary_executed": false,
+  "economic_output_reader_opened": false,
+  "funding_arithmetic_and_guard_tests": 9,
+  "funding_arithmetic_and_guard_tests_failed": 0,
+  "packet_regenerated": false,
+  "reason_campaign_canary_not_executed": "replacement funding contract and economic addresses could not be frozen",
+  "status": "funding_mechanical_canary_pass_packet_canary_blocked"
+}

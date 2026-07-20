@@ -1,0 +1,21 @@
+{
+  "broad_table_read_used": false,
+  "file_authorities_sha256": "391bc134d372415b40dde6d4609a00d332eb16f446a3d50cf217bb7e77b64318",
+  "mixed_payload_rows_opened": 0,
+  "payload_row_groups_read": 0,
+  "physical_rankable_parquet": null,
+  "platform": "kraken_derivatives",
+  "protected_payload_rows_opened": 0,
+  "protected_start": "2026-01-01T00:00:00+00:00",
+  "purpose": "rankable_exact_funding",
+  "row_group_classification_counts": {
+    "mixed_row_group": 288,
+    "protected_row_group": 17
+  },
+  "safe_payload_materialized": false,
+  "source_files_verified": 305,
+  "source_manifest_path": "/opt/parquet/kraken_derivatives/manifests/phase_kraken_k0_data_foundation_20260630_v1_20260630_163815_download_manifest.csv",
+  "source_manifest_sha256": "f598cc1fb5714386923272399b98fa560c119c96fd5af33f5b30735f40cea420",
+  "status": "blocked_no_safe_rankable_absolute_funding_row_groups",
+  "unknown_payload_rows_opened": 0
+}

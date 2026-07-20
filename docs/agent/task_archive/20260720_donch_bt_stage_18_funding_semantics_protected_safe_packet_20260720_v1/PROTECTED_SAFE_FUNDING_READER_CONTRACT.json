@@ -1,0 +1,11 @@
+{
+  "admission": {
+    "mixed": "min_timestamp < protected_start <= max_timestamp",
+    "protected": "min_timestamp >= protected_start",
+    "safe": "max_timestamp < protected_start",
+    "unknown": "missing_invalid_or_untrusted_statistics"
+  },
+  "campaign_source_rule": "only a completed physical rankable package with a passing manifest may be consumed",
+  "payload_rule": "only safe row groups may be requested; post-read timestamps must remain within footer and rankable bounds",
+  "version": "stage18_v1"
+}

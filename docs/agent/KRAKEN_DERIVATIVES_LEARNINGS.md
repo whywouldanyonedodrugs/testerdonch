@@ -66,6 +66,10 @@ The acquired universe remains current-roster/bar-existence based. It is not surv
 
 ## Engineering lessons
 
+### Absolute funding source layout
+
+Kraken linear perpetual funding is a continuous USD cashflow: the absolute rate is USD per base-unit contract per hour, and an open position accrues it in proportion to time held. The current locally acquired funding Parquet layout is not physically separable at the protected cutoff: all 305 authoritative row groups are mixed or protected. Future acquisition or preprocessing must create immutable pre-2026 row groups before those mixed payloads can be used. Relative funding, mark price, trade price, or future basis must not be substituted for the exact absolute cashflow.
+
 ### Timestamp semantics
 
 A confirmed defect showed that completed five-minute bars were initially entered one bar too late.

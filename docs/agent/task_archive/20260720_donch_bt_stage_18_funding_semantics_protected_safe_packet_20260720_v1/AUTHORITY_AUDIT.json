@@ -1,0 +1,22 @@
+{
+  "actual_starting_commit": "91b9d8829a21e3c4eb429186c1075bddeb52523a",
+  "all_expected_hashes_verified": true,
+  "analytics_manifest_sha256": "f1520fd3875578a9a2101b10d5e15b7b88c58a6ffcf6067dd91f582352d92a6d",
+  "authorized_cohort_sha256": "5df5b304d8e735d3579e220d25a000e81013435320c6e8fb2480c1ed565a3636",
+  "source_acquisition_manifest_sha256": "f598cc1fb5714386923272399b98fa560c119c96fd5af33f5b30735f40cea420",
+  "stage16": {
+    "boundary_contract_sha256": "460eb30f45c232c79729765b8724ddd206ed09671bb98f485b2175bf83cc5e75",
+    "campaign_manifest_sha256": "cc07499c671cf39b8ceaee91156f141dcc2c5532142af29a38a4f6830b73f23d",
+    "economic_translation_registry_sha256": "9c07f8695b117afe61f03354e0b6ab39a4c11bd4f0335f9f066cca33560ff1f8",
+    "estimator_rule_inventory_sha256": "b30b7c115d6d1ed765542c44d791c44117a0387f71ae4b33ec1219d4243a3b",
+    "funding_contract_sha256": "d95c3b21c495a712efb6f9834200c6d3aa95f4bc7a9fda5492e2230a739fa04a",
+    "inner_fold_map_sha256": "6ee8cbc53eac9326f904eec760ae82861a533b8165be6e1ccfc440dd0fa32ba0",
+    "packet_sha256": "c01281e50f40f95b922a04ed01c5b3d28ed325577891eed8e2ca5d32286965ca",
+    "search_bin_spec_sha256": "1cc994543371a8db86f428957a27d3a62d93f390e30f99460aa3e1d973b8c67b",
+    "telegram_supervision_sha256": "f23736649f4523add8618720744673a5554d51246b9bcb01bcccf0a64591e70e",
+    "utility_pareto_sha256": "8b9d6afa6c1ea6676cdac9b1703223ef1d47d929988c8e419fc1c112e4a3f093"
+  },
+  "stage17_artifact_manifest_sha256": "c4b40b626c32d1721501afaab0a895e0bd8833d8a85be2aed0b08d4eb9c5f9eb",
+  "stage17_external_approval_sha256": "fe57d5c1efca3af3cb83c3e07b399e03c51f5dbe635b03bd48201944506c6853",
+  "task_spec_sha256": "6874d84fd9239c548101a597dc6cefe1d7ddcfeffb3f9c419deaf358ca73cbfb"
+}

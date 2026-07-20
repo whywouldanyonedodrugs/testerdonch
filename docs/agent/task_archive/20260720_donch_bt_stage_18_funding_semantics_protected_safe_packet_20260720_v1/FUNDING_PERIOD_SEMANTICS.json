@@ -1,0 +1,19 @@
+{
+  "absolute_funding_rate_units": "signed_USD_per_one_base_unit_contract_per_hour",
+  "confirmed_official_mechanics": {
+    "accrual": "continuous while position is open",
+    "absolute_payout": "base_unit_quantity_times_absolute_rate_times_fraction_of_hour_held",
+    "rate_setting": "next_period_rate_is_set_at_hour_boundary_from_prior_hour_premium_window",
+    "realization": "end_of_hour_or_when_net_position_changes",
+    "timezone": "UTC"
+  },
+  "duplicate_timestamp_handling": "blocked_until_row_timestamp_identity_is_authoritatively_resolved",
+  "entry_exit_interval": "[entry_ts,exit_ts)",
+  "historical_api_row_timestamp_meaning": "unresolved",
+  "missing_hour_handling": "route_to_frozen_adverse_allowance_never_zero",
+  "official_source": "https://support.kraken.com/articles/4844359082772-linear-multi-collateral-derivatives-contract-specifications",
+  "partial_period_accrual": "overlap_seconds_divided_by_3600",
+  "payload_rows_examined_stage18": 0,
+  "status": "blocked_unresolved_exact_funding_row_timestamp_semantics",
+  "stop_reason": "the official cashflow specification distinguishes rate-setting and payout periods, but current authority does not bind the historical API row timestamp to the applicable accrual-period start or end"
+}

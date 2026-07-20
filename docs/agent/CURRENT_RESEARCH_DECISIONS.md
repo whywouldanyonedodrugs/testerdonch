@@ -11,6 +11,10 @@ known limitations: routing status is not validation or deployment approval
 
 # Current Research Decisions
 
+## Stage 18 funding packet status — 2026-07-20
+
+No strategy or family decision changed. Replacement campaign economics and packet regeneration are blocked because the current absolute-funding Parquet sources expose zero row groups that are physically rankable before payload access. The former relative-rate imputation is not permitted as future selection funding, but it remains historical provenance until a complete reviewed replacement packet exists.
+
 ## Stage 13 prospective registrations
 
 No historical decision changed. Four new translations are registered without economic evidence: `KDA02B_v2_oi_vacuum_redevelopment`, `KDA02C_v1_purge_breadth_context`, `KDX01_v1_downside_completed_derivatives_state_rejection`, and `C17_v1_executed_catalyst_state`. Their exact Phase 0/1 admission state is in the campaign readiness root. Registration is not a pass, validation, or authorization to open returns.

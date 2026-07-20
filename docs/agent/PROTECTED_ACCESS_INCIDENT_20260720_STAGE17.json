@@ -1,0 +1,17 @@
+{
+  "campaign_economics_executed": false,
+  "detected_utc": "2026-07-20",
+  "exact_protected_row_count": "unavailable_must_not_be_recomputed_by_reopening_payload",
+  "incident_id": "protected_access_incident_20260720_stage17",
+  "incident_scope": "protected_non_outcome_funding_payload",
+  "owning_defect": "tools/run_kraken_shared_funding_imputation_model.py::load_exact_rates_deserializes_before_cutoff_filter",
+  "protected_funding_payload_opened": true,
+  "protected_funding_rows_used_for_economics": false,
+  "protected_funding_rows_used_for_fit": false,
+  "protected_strategy_price_outcomes_opened": false,
+  "remediation": "metadata_first_hash_bound_row_group_guard_and_physical_rankable_only_source",
+  "stage17_status": "blocked_preoutcome_common_funding_and_protected_read_defect",
+  "stage18_payload_rows_opened": 0,
+  "status": "bounded_incident_registered_remediation_source_blocked_no_safe_row_groups",
+  "telegram_messages_sent": false
+}

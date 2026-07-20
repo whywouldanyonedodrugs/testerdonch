@@ -1,0 +1,10 @@
+{
+  "authoritative_for_campaign": false,
+  "exact_diagnostic_formula": "-position_sign*absolute_funding_rate_usd_per_base_unit_per_hour*held_fraction/entry_trade_open_usd_per_base_unit*10000",
+  "exact_funding_role": "diagnostic_only_for_events_whose_every_period_is_safely_exact",
+  "old_relative_imputation_selection": "retired_prospectively_but_historical_provenance_unchanged",
+  "primary_selection_formula": "gross_return_bps-14-sum(base_adverse_allowance_bps_per_hour*held_fraction)",
+  "safe_exact_coverage": "zero_admitted_row_groups",
+  "status": "blocked_not_frozen_allowance_values_unavailable",
+  "stress_formula": "gross_return_bps-32-sum(stress_adverse_allowance_bps_per_hour*held_fraction)"
+}

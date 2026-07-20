@@ -11,6 +11,12 @@ known limitations: Capital.com intake remains separate; no strategy is validatio
 
 # Master Continuity Brief, rev12
 
+## Stage 17/18 funding incident and source boundary — 2026-07-20
+
+Stage 17 stopped before economics after a mixed-period funding Parquet reader deserialized protected non-outcome funding rows before filtering. No protected strategy outcome was opened and no protected funding row entered fitting or economics. The exact protected-row count remains deliberately unavailable.
+
+Stage 18 installed a hash-bound, metadata-first row-group reader. The canonical 305-file K0 funding manifest contains 288 mixed and 17 protected row groups, with zero safely rankable row groups. No Stage 18 funding payload was opened. Exact absolute-funding materialization, adverse-allowance calibration, timestamp adjudication, and packet regeneration remain blocked; the Stage 16 packet remains the current immutable non-authorizing provenance packet.
+
 ## Stage 13 prospective method and campaign readiness
 
 Protocol v2 is active prospectively. Historical terminal translation decisions remain unchanged. Family redevelopment requires a new translation ID, inherited programme exposure and multiplicity, material difference, and an independent-evidence plan. The first readiness root is `docs/agent/research_campaigns/kraken_research_campaign_001_readiness`; it authorizes only outcome-free Phases 0 and 1. KDA02C and KDX01 retain post-hoc/contamination labels; C17 remains outside the derivatives batch.

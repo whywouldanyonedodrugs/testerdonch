@@ -11,6 +11,10 @@ known limitations: no strategy is validation-grade or live-ready
 
 # Test and Evidence Standards
 
+## Protected-safe Parquet funding reads
+
+Before deserializing a funding row group, verify the platform, rankable purpose, source-manifest and file hashes, required schema, timestamp column, footer identity, and trusted timestamp statistics. Only a row group with `max_timestamp < 2026-01-01T00:00:00Z` may be requested. Protected, mixed, missing-statistics, corrupt, hash-drifted, and contradictory groups fail closed. A post-read timestamp assertion is mandatory and a final package with zero protected rows does not repair an upstream broad-read violation.
+
 ## Campaign contract tests
 
 Campaigns must test manifest completeness, unique identities, complete explored-cell registration, phase permissions, backward-information-flow rejection, beam limits, stop isolation, transactional generations, idempotent resume, resource limits, and hash reconciliation. Readiness builders must be deterministic and must not import or invoke a market-outcome reader. Protected-period and Capital.com boundaries fail closed.
