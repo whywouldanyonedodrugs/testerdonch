@@ -16,6 +16,7 @@ This repository is governed as a historical multi-platform backtesting and resea
 - Use [docs/agent/FAMILY_REDEFINITION_POLICY.md](docs/agent/FAMILY_REDEFINITION_POLICY.md) for redevelopment and inherit parent exposure and multiplicity.
 - Use [docs/agent/UNATTENDED_RESEARCH_CAMPAIGNS.md](docs/agent/UNATTENDED_RESEARCH_CAMPAIGNS.md) and its machine contract for campaign work. A manifest never self-authorizes economics.
 - Use [docs/agent/SOURCE_MAP.md](docs/agent/SOURCE_MAP.md) for current continuity, decisions, registries, and manual order.
+- Use [docs/agent/DYNAMIC_CONTINUITY.md](docs/agent/DYNAMIC_CONTINUITY.md) for the required post-handoff continuity event, complete snapshot, pointer transaction, and daily digest protocol.
 - Use [docs/agent/RESEARCH_GATE_ROUTING_POLICY.md](docs/agent/RESEARCH_GATE_ROUTING_POLICY.md) and its machine-readable JSON for future economic-contract gate classification.
 
 ## Simplicity and surgical scope
@@ -70,3 +71,9 @@ Before completion, ask: “Would a senior engineer consider this solution unnece
 The backtesting agent owns routine technical administration for approved work: repository discovery, dirty-state preservation, plans, logs, registries, manifests, validation, review records, task archives, and approved Drive handoffs. The human supplies trading sanity checks, broad direction, authority-conflict decisions, and consequential approvals.
 
 Never ask the human to interpret routine diffs, maintain logs, reconcile manifests, or choose safe Git mechanics. Escalate only when evidence is unavailable and the next step would materially change, destroy, publish, trade, or inspect protected outcomes.
+
+## Dynamic continuity publication
+
+After the immutable task handoff for every material task has been verified, the backtesting agent must publish exactly one immutable continuity event and one complete immutable snapshot with `tools/donch_continuity.py`, round-trip verify both, and only then advance `CURRENT_STATE_POINTER.json` transactionally. A material task is one that changes repository code or instructions, data or evidence authority, a terminal decision or blocker, a campaign packet, protected-purpose/incident state, or a durable remote handoff. Non-material chat and read-only discussion do not publish events.
+
+Continuity publication never authorizes economics or payload access. Exclude credentials, private/account data, protected strategy outcomes, partial candidate rankings, and raw market payload values. Events and snapshots are immutable; only the pointer is replaceable. If pointer replacement fails after immutable publication, preserve the immutable objects, report `continuity_pointer_stale`, and do not claim full completion.

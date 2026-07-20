@@ -1,0 +1,8 @@
+{
+  "as_of_utc": "2026-07-20T00:00:00Z",
+  "last_task_id": "donch_bt_stage_19_local_official_funding_export_packet_20260720_v2",
+  "schema_version": "1.0",
+  "sequence": 0,
+  "snapshot_path": "snapshots/state_000000_20260720T000000Z.json",
+  "snapshot_sha256": "7a7bec1583f39480a290761f23ba3fcc3ee43fbaf201fd7a48afc343e8bedcd9"
+}

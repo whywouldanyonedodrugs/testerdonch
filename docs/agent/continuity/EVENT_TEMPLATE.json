@@ -1,0 +1,31 @@
+{
+  "blockers_added": [],
+  "blockers_closed": [],
+  "campaign_packet_changes": [],
+  "data_authority_changes": [],
+  "drive_handoff": "",
+  "event_id": "",
+  "event_sha256": null,
+  "event_time_utc": "",
+  "event_type": "task_complete",
+  "incidents_or_authorized_protected_actions": [],
+  "material_changes": [],
+  "next_authorized_action": "",
+  "prohibited_content_confirmed_absent": [
+    "credentials",
+    "private_account_data",
+    "protected_strategy_outcomes",
+    "partial_candidate_rankings",
+    "raw_market_payload_values"
+  ],
+  "project_source_refresh_reason": "",
+  "project_source_refresh_required": false,
+  "repository_main_after": "",
+  "repository_main_before": "",
+  "schema_version": "1.0",
+  "sequence": null,
+  "task_archive": "",
+  "task_id": "",
+  "task_status": "",
+  "terminal_decisions_added": []
+}

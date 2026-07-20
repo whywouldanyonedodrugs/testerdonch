@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "properties": {
+    "active_campaign": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "approval_packet_hash": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "as_of_utc": {
+      "type": "string"
+    },
+    "campaign_manifest_hash": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "current_blockers": {
+      "type": "array"
+    },
+    "data_authority_changes": {
+      "type": "array"
+    },
+    "human_approval_status": {
+      "type": "string"
+    },
+    "incidents_and_authorized_protected_actions": {
+      "type": "array"
+    },
+    "last_drive_handoff": {
+      "type": "string"
+    },
+    "last_task_archive": {
+      "type": "string"
+    },
+    "last_task_id": {
+      "type": "string"
+    },
+    "last_task_status": {
+      "type": "string"
+    },
+    "next_authorized_action": {
+      "type": "string"
+    },
+    "origin_main": {
+      "type": "string"
+    },
+    "pending_source_refresh_items": {
+      "type": "array"
+    },
+    "project_source_refresh_watermark": {
+      "type": "object"
+    },
+    "repository_main": {
+      "type": "string"
+    },
+    "repository_root": {
+      "type": "string"
+    },
+    "schema_version": {
+      "type": "string"
+    },
+    "sequence": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "snapshot_sha256": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "terminal_decisions": {
+      "type": "array"
+    },
+    "working_tree_status": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "schema_version",
+    "sequence",
+    "as_of_utc",
+    "repository_main",
+    "last_task_id",
+    "last_task_status",
+    "terminal_decisions",
+    "current_blockers",
+    "next_authorized_action",
+    "project_source_refresh_watermark"
+  ],
+  "title": "Donch Dynamic Continuity Snapshot",
+  "type": "object"
+}

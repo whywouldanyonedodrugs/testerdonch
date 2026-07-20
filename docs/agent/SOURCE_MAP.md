@@ -27,6 +27,10 @@ No strategy is validation-grade or live-ready.
 
 The local official Kraken export authority, immutable rankable/protected packages, dual-alignment funding contract, 187-symbol unit audit, replacement non-authorizing packet, and official historical-data surface audit are in `docs/agent/task_archive/20260720_donch_bt_stage_19_local_official_funding_export_packet_20260720_v2/`. The final streaming packages remain local under `/opt/testerdonch/results/rebaseline/phase_kraken_local_official_funding_export_20260720_v4/` and are accessed by hash. This does not authorize Phase 2+ economics.
 
+## Dynamic continuity
+
+The stable Drive ledger is `qlmg_sweep_drive:_DONCH_CONTINUITY/` (folder ID `1TEmlPRFbks5yWsrXkfkmh7a2apn-M232`) under the approved Drive root. Read and hash-verify `CURRENT_STATE_POINTER.json` and its referenced snapshot after repository authority and before relying on dynamic state. The transaction and prohibited-content contract is `docs/agent/DYNAMIC_CONTINUITY.md`; the dependency-free implementation is `tools/donch_continuity.py`. Daily digests are not authority.
+
 ## Current Kraken machine state
 
 ```text
@@ -50,23 +54,24 @@ Reverify at task start.
 
 1. `AGENTS.md` and `docs/agent/REPOSITORY_MAP.md`
 2. `docs/CROSS_PLATFORM_RESEARCH_CONTRACT.md` and platform-specific data contracts
-3. `docs/agent/CURRENT_CONTINUITY.md`
-4. `docs/agent/CURRENT_RESEARCH_DECISIONS.md`
-5. `docs/agent/RESEARCH_GATE_ROUTING_POLICY.md` and `.json`
-6. `docs/agent/KRAKEN_DERIVATIVES_LEARNINGS.md`
-7. `docs/agent/HYPOTHESIS_DEVELOPMENT_PROTOCOL.md`, `FAMILY_REDEFINITION_POLICY.md`, `NESTED_HYPOTHESIS_SEARCH.md`, and `UNATTENDED_RESEARCH_CAMPAIGNS.md`
-8. `docs/agent/KDA_LEARNING_CONTEXT_REGISTER.csv`
-9. `docs/agent/GATE_ROUTING_MATRIX.csv`
-10. `docs/agent/CURRENT_FAMILY_HYPOTHESIS_REGISTRY.csv`
-11. `docs/agent/CURRENT_ATTEMPT_MULTIPLICITY_REGISTRY.csv`
-12. `docs/agent/CURRENT_RUN_EVIDENCE_REGISTRY.csv`
-13. `docs/agent/CURRENT_DATA_CAPABILITY_REGISTRY.csv`
-14. `docs/agent/CURRENT_DEFECT_REPAIR_REGISTRY.csv`
-15. `docs/agent/TEST_AND_EVIDENCE_STANDARDS.md`
-16. `docs/agent/BACKTEST_CLAIMS_AND_REVIEW.md`
-17. `docs/agent/RESEARCH_EFFICIENCY_AND_SEARCH_DISCIPLINE.md`
-18. `docs/agent/BACKTESTING_AGENT_OPERATING_AND_ARCHIVE_INSTRUCTIONS.md`
-19. remaining active PIT, venue, capture, multi-platform, intake and provenance sources.
+3. `docs/agent/DYNAMIC_CONTINUITY.md` and the verified Drive pointer/snapshot
+4. `docs/agent/CURRENT_CONTINUITY.md`
+5. `docs/agent/CURRENT_RESEARCH_DECISIONS.md`
+6. `docs/agent/RESEARCH_GATE_ROUTING_POLICY.md` and `.json`
+7. `docs/agent/KRAKEN_DERIVATIVES_LEARNINGS.md`
+8. `docs/agent/HYPOTHESIS_DEVELOPMENT_PROTOCOL.md`, `FAMILY_REDEFINITION_POLICY.md`, `NESTED_HYPOTHESIS_SEARCH.md`, and `UNATTENDED_RESEARCH_CAMPAIGNS.md`
+9. `docs/agent/KDA_LEARNING_CONTEXT_REGISTER.csv`
+10. `docs/agent/GATE_ROUTING_MATRIX.csv`
+11. `docs/agent/CURRENT_FAMILY_HYPOTHESIS_REGISTRY.csv`
+12. `docs/agent/CURRENT_ATTEMPT_MULTIPLICITY_REGISTRY.csv`
+13. `docs/agent/CURRENT_RUN_EVIDENCE_REGISTRY.csv`
+14. `docs/agent/CURRENT_DATA_CAPABILITY_REGISTRY.csv`
+15. `docs/agent/CURRENT_DEFECT_REPAIR_REGISTRY.csv`
+16. `docs/agent/TEST_AND_EVIDENCE_STANDARDS.md`
+17. `docs/agent/BACKTEST_CLAIMS_AND_REVIEW.md`
+18. `docs/agent/RESEARCH_EFFICIENCY_AND_SEARCH_DISCIPLINE.md`
+19. `docs/agent/BACKTESTING_AGENT_OPERATING_AND_ARCHIVE_INSTRUCTIONS.md`
+20. remaining active PIT, venue, capture, multi-platform, intake and provenance sources.
 
 ## Authority order
 

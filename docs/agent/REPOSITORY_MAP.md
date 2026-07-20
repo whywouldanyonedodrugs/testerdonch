@@ -53,6 +53,7 @@ Current active docs:
 - `docs/agent/CODE_REVIEW.md`
 - `docs/agent/KNOWN_FAILURE_PATTERNS.md`
 - `docs/agent/SOURCE_MAP.md`
+- `docs/agent/DYNAMIC_CONTINUITY.md`
 - `docs/agent/CURRENT_CONTINUITY.md`
 - `docs/agent/CURRENT_RESEARCH_DECISIONS.md`
 - `docs/agent/RESEARCH_GATE_ROUTING_POLICY.md`
@@ -115,6 +116,15 @@ python3 -m pytest unit_tests/test_project_deep_cleanup_20260624.py unit_tests/te
 ```
 
 Additional documentation and governance checks may be run with repository-local Python one-liners or scripts when they are read-only, non-economic, and recorded in the task archive.
+
+Dynamic continuity checks:
+
+```bash
+python3 -m unittest unit_tests.test_donch_continuity -v
+python3 tools/donch_continuity.py validate-files --snapshot <snapshot> --pointer <pointer> [--event <event>]
+```
+
+The publisher uses the standard library plus the approved environment's `rclone`; it reads no market payload.
 
 Platform-boundary implementation:
 

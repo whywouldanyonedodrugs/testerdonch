@@ -1,0 +1,50 @@
+{
+  "active_campaign": {
+    "authorized_phases": [],
+    "executable_cells": 186,
+    "lanes": [
+      "KDA02B",
+      "KDA02C",
+      "KDX01"
+    ],
+    "status": "launch_complete_non_authorizing"
+  },
+  "approval_packet_hash": "3fde09f16efff2479ee847fe26c859a67ef1d516b0f0acbcbaec141154a87bd6",
+  "as_of_utc": "2026-07-20T00:00:00Z",
+  "campaign_manifest_hash": "e7d618a2a24c574c9ba83d323df605a6434c2e816fe24c465d183ba5d6256990",
+  "current_blockers": [
+    "new exact human approval required before Phase 2-5 economics"
+  ],
+  "data_authority_changes": [
+    "Stage19 official Kraken funding export accepted and physically partitioned",
+    "187/187 campaign symbols mapped and unit-verified"
+  ],
+  "human_approval_status": "required_before_phases_2_5",
+  "incidents_and_authorized_protected_actions": [
+    "Stage17 protected funding payload incident preserved; no protected strategy outcome used",
+    "Stage19 opened 236786 protected funding rows for authorized raw-line partition; zero protected values used for statistics"
+  ],
+  "last_drive_handoff": "https://drive.google.com/drive/folders/1Iqhr3hXx4zZYvQqr1IqA5yqXuopSFavB",
+  "last_task_archive": "docs/agent/task_archive/20260720_donch_bt_stage_19_local_official_funding_export_packet_20260720_v2",
+  "last_task_id": "donch_bt_stage_19_local_official_funding_export_packet_20260720_v2",
+  "last_task_status": "complete_non_authorizing_packet_human_approval_required",
+  "next_authorized_action": "Create exact approval artifact naming Stage19 manifest and packet, then issue supervised unattended launch task.",
+  "origin_main": "03092c5e20a3738ddc7994b9382df01366937776",
+  "pending_source_refresh_items": [],
+  "project_source_refresh_watermark": {
+    "date": "2026-07-20",
+    "sequence": 0,
+    "source_bundle": "DONCH_Compact_Project_Sources_2026-07-20_v1"
+  },
+  "repository_main": "03092c5e20a3738ddc7994b9382df01366937776",
+  "repository_root": "/opt/testerdonch",
+  "schema_version": "1.0",
+  "sequence": 0,
+  "snapshot_sha256": "0011b911842961b54cf8d168d9cea05c54b90fb619bc973bfc49b55692d6df1f",
+  "terminal_decisions": [
+    "KDA01_level3_repaired_no_primary_pass_stop",
+    "KDA02_level3_no_primary_pass_stop",
+    "KDA03 exact routes preserved; negative rejection 6h prospective_unvalidated"
+  ],
+  "working_tree_status": "reported_clean"
+}

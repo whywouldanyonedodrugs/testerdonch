@@ -1,0 +1,21 @@
+{
+  "bootstrap_sequence": 0,
+  "files": [
+    {"bytes": 330, "path": "CURRENT_STATE_POINTER.json", "sha256": "c1ccd47c396d47900973ad5856a7a30e12b36317929d9ab13325da6639948687"},
+    {"bytes": 944, "path": "README.md", "sha256": "f19e4a50e07d7d01bdc57948f8481097ea9e4434a0636688fcd4852f763b6653"},
+    {"bytes": 1915, "path": "SCHEMA.json", "sha256": "c169706478305a885d4a47eb576823f22c1ffa3fc3b776a9e1201f98d7ba2e7a"},
+    {"bytes": 2320, "path": "snapshots/state_000000_20260720T000000Z.json", "sha256": "7a7bec1583f39480a290761f23ba3fcc3ee43fbaf201fd7a48afc343e8bedcd9"}
+  ],
+  "initial_snapshot_embedded_sha256": "0011b911842961b54cf8d168d9cea05c54b90fb619bc973bfc49b55692d6df1f",
+  "ledger_validation": "pass",
+  "prohibited_payloads_opened": false,
+  "remote_directories": ["events/", "snapshots/", "daily/"],
+  "remote_identity_label": "qlmg_sweep_drive:",
+  "remote_path": "qlmg_sweep_drive:_DONCH_CONTINUITY/",
+  "round_trip_method": "separate rclone download, byte comparison, SHA-256 verification, and dependency-free ledger validation",
+  "round_trip_verified": true,
+  "stable_folder_id": "1TEmlPRFbks5yWsrXkfkmh7a2apn-M232",
+  "stable_folder_url": "https://drive.google.com/drive/folders/1TEmlPRFbks5yWsrXkfkmh7a2apn-M232",
+  "tool_version": "rclone v1.60.1-DEV",
+  "verified_utc": "2026-07-20T12:03:53Z"
+}
