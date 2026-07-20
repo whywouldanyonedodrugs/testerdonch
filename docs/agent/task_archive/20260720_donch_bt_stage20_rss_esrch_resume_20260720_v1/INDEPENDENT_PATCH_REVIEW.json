@@ -1,0 +1,42 @@
+{
+  "status": "pass",
+  "review_scope": "Stage 20 process_tree_rss ESRCH patch and immediate idempotent resume boundary",
+  "reviewed_repository_commit": "7e7c7b47a7693b7923097f01c22b4b7287b6d971",
+  "original_approved_repository_authority": "245b375b00167f1b4a81f6a4449e7de1d1db83a2",
+  "reviewed_source_manifest_sha256": "a8834d76eaa17561cd581a1df1bb0e3573bc587506b51237b484dd82cca3c798",
+  "reviewed_source_manifest_physical_sha256": "1460ba2396fc3e076de64ed6fc3a41af22f254f71fddf37b0639b6c639fe77e7",
+  "reviewed_file_sha256": {
+    "RESUME_ORCHESTRATION.py": "1fc79de4fbfce045fe214705ea800026b1ff48237075692343f1f65aef29c9a6",
+    "tools/run_stage20_economic_campaign.py": "fea91035d519a7476a7896a45dd12e5288f78be74c6b393d278ec14b744eb93d",
+    "unit_tests/test_stage20_campaign.py": "8086e7d582c96b99d49db30a06d52839014b706ffba094e6d9329cc42d004d21"
+  },
+  "reviewed_gate_bindings": {
+    "deterministic_event_replay": "82fcbe735f719f4173bc37b29ba8e8a48ca48290d9894ffb89ad9188e78b076b",
+    "synthetic_resume_patch_canary": "aa41739075f52ea544d6f985fe8cd71a19b0fa6e31409f55dcfd1803c637e168"
+  },
+  "acceptance_criteria": {
+    "esrch_only_transient_disappearance": "pass",
+    "normal_rss_aggregation_after_disappearance": "pass",
+    "supervisor_root_sample_fail_closed": "pass",
+    "unrelated_failures_propagate": "pass",
+    "stop_and_idempotent_recovery_preserved": "pass",
+    "missing_only_resume_and_heartbeat_order": "pass",
+    "original_wall_time_preserved": "pass"
+  },
+  "reconciliation": {
+    "marker_count": 6459,
+    "marker_inventory_sha256": "5a94431f604471597b8b6a74e9f980b20183d6d94e3660a68e14fb88787e8f79",
+    "artifact_claim_count": 3193,
+    "artifact_claims_sha256": "06346a213ff8d2bf364696d08a0254a9003f6ee753612956505a8b7d6ed80407",
+    "protected_rows_opened": 0,
+    "Capitalcom_payload_opened": false
+  },
+  "verification": {
+    "relevant_tests_passed": 27,
+    "live_proc_probe": "pass",
+    "diff_check": "pass",
+    "economic_payloads_opened": false
+  },
+  "blocking_findings": [],
+  "reviewer_independent": true
+}

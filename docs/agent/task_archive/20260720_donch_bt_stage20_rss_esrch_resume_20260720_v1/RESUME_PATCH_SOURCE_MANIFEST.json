@@ -1,0 +1,44 @@
+{
+  "binding_context": {
+    "approval_packet_sha256": "3fde09f16efff2479ee847fe26c859a67ef1d516b0f0acbcbaec141154a87bd6",
+    "approval_sha256": "57d521488e88373afd557eb457ffd119089aac0d863a0c319e73d70cf9f7690c",
+    "approved_lanes": [
+      "KDA02B",
+      "KDA02C",
+      "KDX01"
+    ],
+    "approved_phases": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "campaign_id": "kraken_derivatives_campaign_001_stage19_exact_funding",
+    "campaign_manifest_sha256": "e7d618a2a24c574c9ba83d323df605a6434c2e816fe24c465d183ba5d6256990",
+    "executable_cells": 186,
+    "inherited_non_executable_attempts": 42,
+    "programme_attempts": 228,
+    "repository_commit": "7e7c7b47a7693b7923097f01c22b4b7287b6d971"
+  },
+  "created_at_utc": "2026-07-20T15:45:16.353432Z",
+  "files": [
+    {
+      "bytes": 8052,
+      "path": "/opt/testerdonch-stage20-20260720/docs/agent/task_archive/20260720_donch_bt_stage20_rss_esrch_resume_20260720_v1/RESUME_ORCHESTRATION.py",
+      "sha256": "1fc79de4fbfce045fe214705ea800026b1ff48237075692343f1f65aef29c9a6"
+    },
+    {
+      "bytes": 36729,
+      "path": "/opt/testerdonch-stage20-20260720/tools/run_stage20_economic_campaign.py",
+      "sha256": "fea91035d519a7476a7896a45dd12e5288f78be74c6b393d278ec14b744eb93d"
+    },
+    {
+      "bytes": 15356,
+      "path": "/opt/testerdonch-stage20-20260720/unit_tests/test_stage20_campaign.py",
+      "sha256": "8086e7d582c96b99d49db30a06d52839014b706ffba094e6d9329cc42d004d21"
+    }
+  ],
+  "manifest_sha256": "a8834d76eaa17561cd581a1df1bb0e3573bc587506b51237b484dd82cca3c798",
+  "schema": "stage20_reviewed_source_manifest_v1",
+  "status": "frozen"
+}

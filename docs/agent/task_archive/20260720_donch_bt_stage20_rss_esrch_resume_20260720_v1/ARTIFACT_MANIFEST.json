@@ -1,0 +1,237 @@
+{
+  "Capitalcom_payload_opened": false,
+  "approval_packet_sha256": "3fde09f16efff2479ee847fe26c859a67ef1d516b0f0acbcbaec141154a87bd6",
+  "archive_files": [
+    {
+      "bytes": 1613,
+      "path": "docs/agent/task_archive/20260720_donch_bt_stage20_rss_esrch_resume_20260720_v1/COMMANDS_AND_RESULTS.md",
+      "sha256": "dc6ca4b2dec58586c5f26f5266b96bfe5afe4f7931351b8d28589d7b47f741de"
+    },
+    {
+      "bytes": 803,
+      "path": "docs/agent/task_archive/20260720_donch_bt_stage20_rss_esrch_resume_20260720_v1/COMPLETION.md",
+      "sha256": "a907001ffcd371426dd1079e6d0216ff401e61b18e5098731befc8d3d3196f8e"
+    },
+    {
+      "bytes": 959,
+      "path": "docs/agent/task_archive/20260720_donch_bt_stage20_rss_esrch_resume_20260720_v1/DECISIONS.md",
+      "sha256": "75c8584c57c0a430e91a41eb73b9cdeea7a463512e27319c0a6529f631f58e0e"
+    },
+    {
+      "bytes": 2056,
+      "path": "docs/agent/task_archive/20260720_donch_bt_stage20_rss_esrch_resume_20260720_v1/INDEPENDENT_PATCH_REVIEW.json",
+      "sha256": "adefa03b084ba2fb20ad9f375e6d9f1c6f0dd7baf5b07ded705300a5e4dc932a"
+    },
+    {
+      "bytes": 3538,
+      "path": "docs/agent/task_archive/20260720_donch_bt_stage20_rss_esrch_resume_20260720_v1/INDEPENDENT_POSTRUN_REVIEW.json",
+      "sha256": "29d27be00ecbf7e5c32bda74b5f06331179a365b2401864891d7716b4e4df3a1"
+    },
+    {
+      "bytes": 361,
+      "path": "docs/agent/task_archive/20260720_donch_bt_stage20_rss_esrch_resume_20260720_v1/NEXT_ACTION.md",
+      "sha256": "283d57b8bc086824128228baf64e53eaf5aa623c8f58e45784c2417d148ae2ca"
+    },
+    {
+      "bytes": 2683,
+      "path": "docs/agent/task_archive/20260720_donch_bt_stage20_rss_esrch_resume_20260720_v1/PLAN.md",
+      "sha256": "2717d278996a6cf7ec62410fa5d03f97979074ba7c1a8f6a55a4f212d2e8f2be"
+    },
+    {
+      "bytes": 1124,
+      "path": "docs/agent/task_archive/20260720_donch_bt_stage20_rss_esrch_resume_20260720_v1/RESUME_BOUNDARY.json",
+      "sha256": "1c09bd163d3a48886f7af90a5016c04a0c2fc409033f10e9b665bb4582f53c4a"
+    },
+    {
+      "bytes": 8052,
+      "path": "docs/agent/task_archive/20260720_donch_bt_stage20_rss_esrch_resume_20260720_v1/RESUME_ORCHESTRATION.py",
+      "sha256": "1fc79de4fbfce045fe214705ea800026b1ff48237075692343f1f65aef29c9a6"
+    },
+    {
+      "bytes": 1627,
+      "path": "docs/agent/task_archive/20260720_donch_bt_stage20_rss_esrch_resume_20260720_v1/RESUME_PATCH_SOURCE_MANIFEST.json",
+      "sha256": "1460ba2396fc3e076de64ed6fc3a41af22f254f71fddf37b0639b6c639fe77e7"
+    }
+  ],
+  "campaign_manifest_sha256": "e7d618a2a24c574c9ba83d323df605a6434c2e816fe24c465d183ba5d6256990",
+  "compact_run_evidence": [
+    {
+      "bytes": 1158,
+      "path": "BOUND_STOP_RECONCILIATION.json",
+      "sha256": "d18a108578b6e3044a9c3f76d0c67d98b809e2dffca9f7beba267497d5c892bd"
+    },
+    {
+      "bytes": 790,
+      "path": "CAMPAIGN_LAUNCH_MANIFEST.json",
+      "sha256": "4dc8e1fa4152d48c5f8c31f4d911616848b30b014566beab7a66e828c917ef51"
+    },
+    {
+      "bytes": 3222,
+      "path": "CAMPAIGN_STATE.json",
+      "sha256": "03fe54d3c8dd30a838b7ff2d688cb2adc2c058cf7bea1ff1be55ff8d54a810f8"
+    },
+    {
+      "bytes": 254,
+      "path": "EXECUTION_RECONCILIATION.json",
+      "sha256": "1a1d2cc089262847f9df9747ed0bc4d980f5836dd9bbd0eda3db8ae1ff314bd0"
+    },
+    {
+      "bytes": 1306,
+      "path": "FAMILY_ROUTES.json",
+      "sha256": "b3a8fb3caba4320f21059bf3bcf5265a138eda9a0ee8970a528a056eaa102670"
+    },
+    {
+      "bytes": 4435,
+      "path": "FOLD_AND_FAMILY_DECISIONS.json",
+      "sha256": "6d82f6cafde6b65a36070369d7f552ca2a21632eaa9e1c3333f5d7bbdcc973a1"
+    },
+    {
+      "bytes": 53914,
+      "path": "FULL_ATTEMPT_REGISTRY.json",
+      "sha256": "1bba412d30dd64f556868d2cdeb526a06206e43c45f2de44db7fbe720e0478bf"
+    },
+    {
+      "bytes": 704,
+      "path": "HEALTH_RELEASE.json",
+      "sha256": "37636b28fab306ed9acf99f051f9a6e162972f7337b45a1afc65cf9c6cfc3733"
+    },
+    {
+      "bytes": 239,
+      "path": "HEARTBEAT.json",
+      "sha256": "a40e52bfa2caa5df71bf9dc650e1584e7ee29be19efc6283ff6bc369433c45a2"
+    },
+    {
+      "bytes": 9177,
+      "path": "HUMAN_APPROVAL.json",
+      "sha256": "57d521488e88373afd557eb457ffd119089aac0d863a0c319e73d70cf9f7690c"
+    },
+    {
+      "bytes": 4824,
+      "path": "LAUNCH_BOUNDARY_VERIFICATION.json",
+      "sha256": "5f26fd4706c5b71f057c6538bf871ab2730a0af915339d5a34f36e4744804b04"
+    },
+    {
+      "bytes": 275,
+      "path": "MULTIPLICITY_RECONCILIATION.json",
+      "sha256": "72bc0d6c7fa48f264fb7e5472c25e75ed816fb03f27d53b1ae12cde38639bdfe"
+    },
+    {
+      "bytes": 6033287,
+      "path": "PHASE2_DEVELOPMENT_RESPONSE_SURFACE.csv",
+      "sha256": "e31ba061afba2346c6a1ec3574d793b5d5c2dcf0afa273fbfa31676602774fba"
+    },
+    {
+      "bytes": 5834,
+      "path": "PHASE3_FROZEN_BEAM_REGISTRY.json",
+      "sha256": "1c84fffea8daabdcd5aca8e8170ef42bfdefcb42ad6945874b1e8255e0de0943"
+    },
+    {
+      "bytes": 156014,
+      "path": "PHASE4_5_OUTER_ROLLING_RESULTS.csv",
+      "sha256": "a4af28424acacb18559fe9928fd77d3afd3b8ae1a2358c6ba588b111c556f7b3"
+    },
+    {
+      "bytes": 2929,
+      "path": "PREOUTCOME_AUTHORITY_AND_HASH_AUDIT.json",
+      "sha256": "f61fdd404eee178348b493a1928393d24541a6e0c1139e0c7aa84f12e4303321"
+    },
+    {
+      "bytes": 736,
+      "path": "RESUME_RUNTIME_BOUNDARY.json",
+      "sha256": "b43f114bec246b987a353a862b1c9c8e42f1a7bcebf586f32ac5a72be2eeef13"
+    },
+    {
+      "bytes": 10255184,
+      "path": "SYMBOL_SCORING_MANIFEST.json",
+      "sha256": "b52886b0cd7429dc7f00880d6b717d725d43904ffea99b4ffa301db4ebb68885"
+    },
+    {
+      "bytes": 3450,
+      "path": "TERMINAL_MECHANICAL_RECONCILIATION.json",
+      "sha256": "11a28127d043f575603589d2f47d8d0cc2ade7ce24fa37b53ed87a965f5a380b"
+    },
+    {
+      "bytes": 3659,
+      "path": "preflight/DETERMINISTIC_EVENT_REPLAY_RESUME.json",
+      "sha256": "c2e7a443df43559afe503d4b02ef7c7cafc6389b6a3d2b57e2f85e64aac2634d"
+    },
+    {
+      "bytes": 3674,
+      "path": "preflight/DETERMINISTIC_EVENT_REPLAY_VALIDATION.json",
+      "sha256": "259cc8958e3e70281d445fad5625d77426c00d28fdd71146b8c8020707aea84e"
+    },
+    {
+      "bytes": 3338,
+      "path": "preflight/FINAL_LAUNCH_AUTHORITY_GATE.json",
+      "sha256": "ad9b9c4577f891abd2249aee7718cf0a1c3d5396b946efb6041eedbeb0415ff2"
+    },
+    {
+      "bytes": 3332,
+      "path": "preflight/FINAL_RESUME_LAUNCH_AUTHORITY_GATE.json",
+      "sha256": "57fee8f45e632bae55a92c654f73f31a36b9a5f1db086d2632b2bf2ffd5f3d06"
+    },
+    {
+      "bytes": 3190,
+      "path": "preflight/INDEPENDENT_PREOUTCOME_REVIEW_GATE.json",
+      "sha256": "0350e3aa9fba5fcc518e1aff641ec31f13f8135bf14b2b9d3e6b9f89652bdf4b"
+    },
+    {
+      "bytes": 4240,
+      "path": "preflight/INDEPENDENT_RESUME_PATCH_REVIEW_GATE.json",
+      "sha256": "3523fc30646e948d8666d59e2ac418798e06fc840634ab05fb3428c8814d8470"
+    },
+    {
+      "bytes": 456,
+      "path": "preflight/STAGE19_LAUNCH_READINESS.json",
+      "sha256": "2c1affdf09593008431b5e22f2679a521f0c578249b0c7c4a977a859e3c2b66c"
+    },
+    {
+      "bytes": 3681,
+      "path": "preflight/SYNTHETIC_PHASE2_5_CANARY.json",
+      "sha256": "065b1fbcea3031f8735b9275c97d750a8f2849d05bd59003d2f7d2a5c085359f"
+    },
+    {
+      "bytes": 3634,
+      "path": "preflight/SYNTHETIC_RESUME_PATCH_CANARY.json",
+      "sha256": "9e3d410673c369d16930fd0b3694a0ce2e53d4e5695ee6a70eb8502cc6eed300"
+    },
+    {
+      "bytes": 267,
+      "path": "preflight/TELEGRAM_RESUME_VALIDATION_EVIDENCE.json",
+      "sha256": "789a68972540c8d15afdefb5ce231b15c8253d4bcb321ea2c4d71c10965d61e7"
+    },
+    {
+      "bytes": 3289,
+      "path": "preflight/TELEGRAM_RESUME_VALIDATION_GATE.json",
+      "sha256": "04c704d0c40f451208f4ac2218b9db326c31bcacaf9c8f887801ca3cd513c03a"
+    },
+    {
+      "bytes": 267,
+      "path": "preflight/TELEGRAM_VALIDATION_EVIDENCE.json",
+      "sha256": "87335d2f32044f9f9ea755784b4b556b834f94a7aba2179aa0f77fb38e3cd159"
+    },
+    {
+      "bytes": 3295,
+      "path": "preflight/TELEGRAM_VALIDATION_GATE.json",
+      "sha256": "93e9888d69a5547daca5ff28ba0fce93e047a91351b02697228d476e28363764"
+    },
+    {
+      "bytes": 61412,
+      "path": "preoutcome/event_tapes/PREOUTCOME_EVENT_TAPE_MANIFEST.json",
+      "sha256": "84bc4291790838cf690850876bb3dc8b2774e1c4daf5f937dc3bb43918420a81"
+    }
+  ],
+  "controls_executed": false,
+  "created_at_utc": "2026-07-20T16:19:54.623338Z",
+  "external_approval_sha256": "57d521488e88373afd557eb457ffd119089aac0d863a0c319e73d70cf9f7690c",
+  "large_staging_included": false,
+  "large_staging_root": "/opt/testerdonch/results/rebaseline/phase_kraken_derivatives_campaign_stage20_20260720_v01/staging",
+  "manifest_sha256": "18f01e28e194ef1a861b48bafa7191c8aada86e4909730736eec78bb51f250f6",
+  "protected_rows_opened": 0,
+  "reviewed_source_manifest_sha256": "a8834d76eaa17561cd581a1df1bb0e3573bc587506b51237b484dd82cca3c798",
+  "schema": "stage20_terminal_task_artifact_manifest_v1",
+  "starting_repository_authority": "7e7c7b47a7693b7923097f01c22b4b7287b6d971",
+  "status": "terminal_complete_review_passed",
+  "task_id": "donch_bt_stage20_rss_esrch_resume_20260720_v1",
+  "terminal_reconciliation_sha256": "cc93d7b87109e2cd49c9e99f71ae534e5cf477dc335c190ff0beb63da99b2621"
+}

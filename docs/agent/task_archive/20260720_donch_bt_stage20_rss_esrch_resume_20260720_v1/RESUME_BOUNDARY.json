@@ -1,0 +1,22 @@
+{
+  "Capitalcom_payload_opened": false,
+  "artifact_claim_count": 3193,
+  "artifact_claims_sha256": "06346a213ff8d2bf364696d08a0254a9003f6ee753612956505a8b7d6ed80407",
+  "campaign_manifest_sha256": "e7d618a2a24c574c9ba83d323df605a6434c2e816fe24c465d183ba5d6256990",
+  "failed_reconciliations": 0,
+  "marker_count": 6459,
+  "marker_inventory_sha256": "5a94431f604471597b8b6a74e9f980b20183d6d94e3660a68e14fb88787e8f79",
+  "original_campaign_deadline_utc": "2026-07-20T18:49:50.022014Z",
+  "original_campaign_started_at_utc": "2026-07-20T14:49:50.022014Z",
+  "partial_economic_results_inspected": false,
+  "protected_rows_opened": 0,
+  "registered_cell_identities_with_completed_markers": 126,
+  "repository_resume_authority": "7e7c7b47a7693b7923097f01c22b4b7287b6d971",
+  "resume_behavior": {
+    "first_overdue_30_minute_heartbeat": "deliver_immediately_before_new_submission",
+    "maximum_resume_runtime_seconds": "computed_at_launch_as_original_deadline_minus_current_utc",
+    "recompute_valid_completed_artifacts": false,
+    "submit_missing_work_only": true
+  },
+  "status": "reconciled_ready_for_independent_review"
+}

@@ -1,11 +1,13 @@
 import tempfile
 import unittest
+import errno
 import json
 import os
 import subprocess
 import sys
 from argparse import Namespace
 from pathlib import Path
+from unittest.mock import patch
 
 import pandas as pd
 
@@ -17,7 +19,7 @@ from tools.qlmg_stage20_campaign import (
 from tools.stage20_phase2_5_canary import run as run_phase2_5_canary
 from tools.qlmg_stage20_launch_gates import validate_gate, write_gate
 from tools.run_stage20_economic_campaign import (
-    _cell_metrics, _score_job, maybe_release_health,
+    _cell_metrics, _score_job, maybe_release_health, process_tree_rss,
     write_attempt_and_multiplicity_registries,
 )
 
@@ -50,6 +52,82 @@ class Stage20CampaignTests(unittest.TestCase):
         self.assertTrue(result["real_funding_integration"])
         self.assertTrue(result["idempotent_recovery"])
         self.assertTrue(result["graceful_pre_submission_bound_stop"])
+        self.assertTrue(result["persisted_stop_state"])
+        self.assertTrue(result["synthetic_health_release_refused"])
+
+    @staticmethod
+    def _proc_status_reader(rows, failures=None):
+        failures = failures or {}
+        def read(path, *args, **kwargs):
+            pid = int(path.parent.name)
+            if pid in failures:
+                raise failures[pid]
+            parent, rss_kib = rows[pid]
+            return f"Name:\ttest\nPPid:\t{parent}\nVmRSS:\t{rss_kib} kB\n"
+        return read
+
+    def test_process_tree_rss_skips_child_disappearing_after_enumeration(self):
+        entries = [Path("/proc/100"), Path("/proc/101")]
+        reader = self._proc_status_reader(
+            {100: (1, 10), 101: (100, 5)},
+            {101: ProcessLookupError(errno.ESRCH, "vanished")},
+        )
+        with patch.object(Path, "iterdir", return_value=entries), patch.object(
+            Path, "read_text", autospec=True, side_effect=reader
+        ):
+            self.assertEqual(process_tree_rss(100), 10 * 1024)
+
+    def test_process_tree_rss_aggregates_remaining_tree_after_esrch(self):
+        entries = [Path("/proc/100"), Path("/proc/101"), Path("/proc/102")]
+        reader = self._proc_status_reader(
+            {100: (1, 10), 101: (100, 7), 102: (100, 5)},
+            {101: OSError(errno.ESRCH, "vanished")},
+        )
+        with patch.object(Path, "iterdir", return_value=entries), patch.object(
+            Path, "read_text", autospec=True, side_effect=reader
+        ):
+            self.assertEqual(process_tree_rss(100), 15 * 1024)
+
+    def test_process_tree_rss_fails_closed_without_supervisor_sample(self):
+        entries = [Path("/proc/101")]
+        reader = self._proc_status_reader({101: (100, 5)})
+        with patch.object(Path, "iterdir", return_value=entries), patch.object(
+            Path, "read_text", autospec=True, side_effect=reader
+        ):
+            with self.assertRaisesRegex(Stage20Error, "supervisor/root RSS"):
+                process_tree_rss(100)
+
+    def test_process_tree_rss_propagates_unrelated_oserror(self):
+        entries = [Path("/proc/100"), Path("/proc/101")]
+        reader = self._proc_status_reader(
+            {100: (1, 10), 101: (100, 5)}, {101: OSError(errno.EIO, "I/O failure")}
+        )
+        with patch.object(Path, "iterdir", return_value=entries), patch.object(
+            Path, "read_text", autospec=True, side_effect=reader
+        ):
+            with self.assertRaises(OSError) as caught:
+                process_tree_rss(100)
+            self.assertEqual(caught.exception.errno, errno.EIO)
+
+    def test_process_tree_rss_propagates_permission_error(self):
+        entries = [Path("/proc/100"), Path("/proc/101")]
+        reader = self._proc_status_reader(
+            {100: (1, 10), 101: (100, 5)},
+            {101: PermissionError(errno.EACCES, "permission denied")},
+        )
+        with patch.object(Path, "iterdir", return_value=entries), patch.object(
+            Path, "read_text", autospec=True, side_effect=reader
+        ):
+            with self.assertRaises(PermissionError):
+                process_tree_rss(100)
+
+    def test_process_tree_rss_propagates_parsing_failure(self):
+        entries = [Path("/proc/100")]
+        with patch.object(Path, "iterdir", return_value=entries), patch.object(
+            Path, "read_text", return_value="PPid:\tinvalid\nVmRSS:\t10 kB\n"
+        ):
+            with self.assertRaises(ValueError):
+                process_tree_rss(100)
 
     def test_attempt_multiplicity_reconciles_exact_approved_scope(self):
         with tempfile.TemporaryDirectory() as directory:

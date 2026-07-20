@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import errno
 import json
 import os
 import shutil
@@ -58,23 +59,34 @@ def directory_bytes(path: Path) -> int:
 
 
 def process_tree_rss(root_pid: int) -> int:
-    table: dict[int, tuple[int, int]] = {}
+    table: dict[int, tuple[int, list[str]]] = {}
     for entry in Path("/proc").iterdir():
         if not entry.name.isdigit():
             continue
         try:
             status = (entry / "status").read_text().splitlines()
             parent = int(next(line.split()[1] for line in status if line.startswith("PPid:")))
-            rss_kib = int(next(line.split()[1] for line in status if line.startswith("VmRSS:")))
-            table[int(entry.name)] = (parent, rss_kib * 1024)
-        except (FileNotFoundError, PermissionError, StopIteration, ValueError):
+            table[int(entry.name)] = (parent, status)
+        except (FileNotFoundError, ProcessLookupError):
             continue
+        except OSError as exc:
+            if exc.errno == errno.ESRCH:
+                continue
+            raise
+    if root_pid not in table:
+        raise Stage20Error("supervisor/root RSS sample unavailable")
     selected, frontier = {root_pid}, {root_pid}
     while frontier:
         children = {pid for pid, (parent, _) in table.items() if parent in frontier and pid not in selected}
         selected.update(children)
         frontier = children
-    return sum(table.get(pid, (0, 0))[1] for pid in selected)
+    rss_bytes = sum(
+        int(next(line.split()[1] for line in table[pid][1] if line.startswith("VmRSS:"))) * 1024
+        for pid in selected
+    )
+    if rss_bytes <= 0:
+        raise Stage20Error("supervisor/root RSS sample unavailable")
+    return rss_bytes
 
 
 def _worker_init(event_root: str, output_root: str) -> None:
