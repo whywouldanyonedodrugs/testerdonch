@@ -1,0 +1,690 @@
+# DONCH → Backtesting Agent
+# Stage 23 — Remediate Stage-22 V04 Production Gaps and Publish the Final Executable Approval Packet
+# Date: 2026-07-21
+# Version: 1
+
+```text
+task_id:
+    donch_bt_stage23_remediate_stage22_v04_and_publish_final_packet_20260721_v1
+
+repository:
+    /opt/testerdonch
+
+preferred_existing_worktree:
+    /opt/testerdonch-stage22-20260720
+
+preferred_candidate_commit:
+    84fda51be77431de7151209d28c810fe027b0133
+
+mode:
+    continue_in_verified_isolated_worktree_or_reconstruct_safely
+
+drive_handoff:
+    approved_default
+
+economic_outcomes_authorized:
+    no
+
+protected_outcomes_authorized:
+    no
+
+Capitalcom_payload_access:
+    no
+
+new_acquisition:
+    no
+
+capture_restart:
+    no
+
+commit_authorized:
+    yes — task-scoped commits
+
+push_authorized:
+    yes — non-force, only after final independent review passes
+
+objective:
+    close all seven Stage-22 V04 production and unattended-safety findings
+    in code, preserve the frozen search space, obtain independent acceptance,
+    and publish one final executable manifest/approval request for the sole
+    remaining human launch approval
+```
+
+## 1. Current authority to verify
+
+Reported current state:
+
+```text
+main and origin/main:
+    56059c1a2e86c91c32087bd4e4da9257b632fbd9
+
+dynamic continuity sequence:
+    6
+
+pointer SHA-256:
+    35f5f755822e347a1549e928dcb422f048d7a35de63111af7caefc1e64b2fc3f
+
+sequence-6 snapshot physical SHA-256:
+    e60aa93d5b79d2d82b47782a096f83c4e6f80abb329da84041c029f70fe81bd1
+
+Stage-22 handoff ZIP SHA-256:
+    bdcdec481d5c0705981a8140a2000340c1dc33c98ee69f087c5da077b8e29124
+
+Stage-22 independent-review SHA-256:
+    7e97143f89c07fed180aa9e3e5d492ab779ccfc58187d3a71b0a27c4ec45b958
+```
+
+Verify the stable continuity pointer and snapshot before relying on them. Verify the
+Stage-22 handoff and complete task archive. Read the full review, not only the
+seven-line summary.
+
+Stage-22 task archive:
+
+```text
+/opt/testerdonch-stage22-20260720/docs/agent/task_archive/
+  20260720_donch_bt_stage22_code_first_core_liquid_compiler_20260720_v1
+```
+
+Expected candidate state:
+
+```text
+typed semantic/engine fixtures:
+    271 / 271 pass
+
+candidate registered rows:
+    11,968
+
+candidate unique economic executions:
+    11,963
+
+candidate controls:
+    800
+
+legacy source rows:
+    3,521
+
+legacy typed projections:
+    3,776
+
+legacy unique economic addresses:
+    3,771
+
+families:
+    A4_TSMOM_V7
+    A1_COMPRESSION_V2
+    A2_PRIOR_HIGH_RS_CONTEXT_V1
+    A3_STARTER_RETEST_V3
+    KDA02B_SURVIVOR_ADJUDICATION_V1
+```
+
+Do not silently change economic axes, address meanings, folds, costs, funding,
+controls, or selection policy during remediation. Any unavoidable economic
+semantic change is a stop condition and must be reported with the complete
+remaining list. Production engineering and deterministic implementation choices
+that preserve the typed schema are owned by the agent and do not require human
+approval.
+
+## 2. Human determination for `/opt/testerdonch/code`
+
+The owner and intended working-tree contents of the unexplained tracked binary
+modification at:
+
+```text
+/opt/testerdonch/code
+```
+
+are `unavailable`.
+
+Binding handling:
+
+1. preserve it byte-for-byte;
+2. do not reset, checkout, delete, replace, stash, stage, commit, copy, chmod, or
+   otherwise mutate it;
+3. record its path, file type, size, mode, mtime, working-tree SHA-256, expected
+   Git blob SHA-256, and a binary-safe status/diff summary;
+4. do not open it as executable code or inspect embedded payload beyond what is
+   needed for binary-safe identity unless repository instructions establish that
+   it is safe and relevant;
+5. treat it as unrelated dirty state and not as authority;
+6. use only a clean isolated worktree and reviewed commit for implementation,
+   tests, packet construction, and any future service;
+7. search configuration and runtime references without executing the binary. If
+   the Stage-22 compiler/runtime does not depend on it, record
+   `preserved_unrelated_dirty_original_checkout` and continue;
+8. if the production runtime would depend on that path, redirect it to the
+   reviewed clean worktree implementation where mechanically possible. If that
+   would change semantics or cannot be done safely, stop with one complete
+   dependency report.
+
+The dirty original checkout does not block work performed and launched from a
+separate clean reviewed worktree.
+
+## 3. Preserve and continue the Stage-22 implementation
+
+Prefer continuing from the exact clean candidate commit
+`84fda51be77431de7151209d28c810fe027b0133` in the existing isolated worktree.
+
+If the worktree or commit is unavailable:
+
+1. verify the Stage-22 artifact manifest and local commit chain;
+2. reconstruct a new isolated worktree from verified `main`;
+3. cherry-pick or apply only the independently inventoried Stage-22 commits;
+4. compare resulting files and hashes against the Stage-22 archive;
+5. do not reimplement from memory and do not copy unrelated dirty files.
+
+The Stage-22 V04 typed schema and candidate registry are the working semantic
+baseline. This task remediates production sufficiency; it is not a new search-
+space design task.
+
+## 4. Seven required remediation lanes
+
+Read every subfinding in the full independent review and maintain a
+`FINDING_RECONCILIATION_MATRIX.json` mapping each review finding and subfinding
+to:
+
+```text
+finding ID
+affected code/files
+root cause
+fix
+tests
+production evidence
+independent-review result
+status
+```
+
+Do not close only the summary headings.
+
+### S22-V04-001 — authority-derived cache construction
+
+Implement the complete production cache path from machine-authorized rankable
+sources.
+
+Requirements:
+
+- bind exact source manifests, source hashes, schemas, units, time bounds and
+  protected partition;
+- physically exclude `2026-01-01` onward from every decision-bearing cache;
+- use point-in-time eligibility and lagged liquidity as already typed;
+- define canonical sort, duplicate, gap, missingness and row-identity rules;
+- use semantic cache keys based on source authority and feature meaning rather
+  than wrapper/report hashes;
+- invalidate a cache when source bytes, schema, formula, lookback, membership,
+  funding semantics, or protected boundary changes;
+- build atomically with resumable state;
+- build the full production decision-time cache twice and require byte-identical
+  manifests and equivalent columnar contents;
+- independently recompute sampled rows and boundary cases;
+- prohibit post-entry payoff, future-return and candidate-ranking columns in the
+  cache-construction task;
+- record cache lineage, row counts, time ranges, exclusions, memory, disk and
+  elapsed time.
+
+Produce at minimum:
+
+```text
+PRODUCTION_CACHE_CONTRACT.json
+PRODUCTION_CACHE_MANIFEST.json
+PRODUCTION_CACHE_REPLAY_AUDIT.json
+PROTECTED_PARTITION_AUDIT.json
+```
+
+### S22-V04-002 — selection, A2 binding and materialization
+
+Implement the actual production path, not only synthetic fixtures:
+
+```text
+compiled registry
+→ development aggregate
+→ frozen selection
+→ exact A2 parent/counterpart resolution
+→ conditional materialization
+→ outer/control-ready identities
+```
+
+Requirements:
+
+- selection uses only the already typed deterministic policy;
+- all empty folds remain explicit;
+- A2 template resolution binds an exact family/fold/beam slot, exact parent,
+  exact parent-only counterpart, side, component set and exposure action;
+- a missing parent slot is `unavailable_no_parent` and is never reassigned;
+- parent and counterpart share exact underlying event identities except for the
+  registered context action;
+- resolution is atomic and hash-bound before A2 outcome access;
+- no context-bearing legacy row enters the main beam except under its typed
+  corroboration rule;
+- aggregate summaries contain every quantity needed for selection and later
+  independent reconstruction.
+
+Freeze a non-selection-changing materialization policy:
+
+```text
+materialize:
+    all beam survivors
+    all mechanism anchors
+    all main component nulls
+    every object required by a selected control or forensic test
+    up to two near-misses per family/fold that fail exactly one eligibility gate,
+        chosen by the frozen beam ordering
+    a deterministic hash-stratified failed audit sample:
+        one percent of remaining integrity-valid failures,
+        minimum 10 and maximum 100 per family,
+        stratified by fold and primary failure reason
+```
+
+Materialization never changes selection, route or multiplicity. Prove
+aggregate/materialized equality for all materialized objects.
+
+Produce:
+
+```text
+A2_PARENT_COUNTERPART_RESOLUTION_FIXTURES.json
+PRODUCTION_SELECTION_REPLAY.json
+MATERIALIZATION_POLICY.json
+AGGREGATE_MATERIALIZED_PRODUCTION_AUDIT.json
+```
+
+### S22-V04-003 — control seeds, identities and duplicates
+
+Finalize control execution semantics for all 20 control classes and the exact
+800-row candidate control registry.
+
+Requirements:
+
+- canonical control identity binds campaign, control ID, family, fold, exact
+  parent/slot, replicate index, transformation version and effective seed;
+- derive the effective seed as the first unsigned big-endian 64 bits of
+  SHA-256 over canonical UTF-8 JSON of those bound fields;
+- use `numpy.random.Generator(PCG64(seed))` where randomization is required;
+- missing parent is unavailable and not reassigned;
+- duplicate economic control addresses execute once, while every registered
+  attempt remains in multiplicity with `unavailable_duplicate_address`;
+- preserve original V2 control lineage separately from executable identity;
+- deterministic replay must be invariant to worker count, chunk order and
+  restart;
+- selected-survivor controls only: do not spend compute on control templates
+  whose frozen parent is absent unless the typed contract explicitly requires a
+  family-level null.
+
+Produce:
+
+```text
+FINAL_CONTROL_REGISTRY.jsonl
+CONTROL_SEED_AND_IDENTITY_AUDIT.json
+CONTROL_DUPLICATE_RECONCILIATION.json
+CONTROL_REPLAY_FIXTURES.json
+```
+
+### S22-V04-004 — temporal gaps and A1 rearm
+
+Implement production-safe temporal state behavior.
+
+Unless the existing typed schema is stricter, use the following conservative
+rules without changing valid contiguous-path semantics:
+
+- never bridge a missing expected 5-minute interval in returns, impulse, base,
+  confirmation, retest, ATR or exit state;
+- any temporal gap during an active A1 episode invalidates that episode locally
+  as `temporal_gap`;
+- after a gap, enter `history_rebuild`;
+- return to `armed` only on the first later eligible bar where every required
+  lookback is complete and contiguous and the owning side's impulse percentile
+  is strictly below q50;
+- when no side owns the state, require both side percentiles below q50;
+- do not rearm or trigger on the same timestamp that restores history;
+- all duration clocks use exchange timestamps, not row counts;
+- DST has no role because the contract is UTC;
+- gaps stop only affected symbol/address episodes unless a common authority or
+  timestamp defect exists.
+
+Add property and mutation tests covering gaps at every A1 state transition,
+restart during cooldown, both sides, equality at q50, and chunk-boundary replay.
+
+Produce:
+
+```text
+TEMPORAL_GAP_CONTRACT.json
+A1_REARM_STATE_TRANSITION_TABLE.csv
+TEMPORAL_GAP_REPLAY_AUDIT.json
+```
+
+### S22-V04-005 — IPC, health release and detached supervision
+
+Implement and test the production unattended path.
+
+Use a repository-supported `systemd --user` service when available; otherwise use
+a reviewed `tmux` supervisor. Do not depend on the browser, SSH shell, local
+computer, or an AI-agent process after launch.
+
+Persist atomically:
+
+```text
+service/session identity
+launcher and supervisor PIDs
+worker PID tree
+run root
+starting commit
+manifest/registry/control hashes
+state generation
+queue/in-flight/completed counts
+last committed marker
+resource snapshot
+heartbeat
+retry counts
+exact stop reason
+```
+
+Requirements:
+
+- bounded lazy scheduling;
+- launcher/supervisor IPC has explicit schemas and acknowledgements;
+- graceful SIGTERM/SIGINT and orphan prevention;
+- worker death requeues only uncommitted work;
+- idempotent restart validates commit, packet, cache and last generation;
+- health release requires:
+  - service remains active;
+  - bounded work is accepting;
+  - one real registered unit is completed and reconciled after economic launch;
+  - first scheduled 30-minute Telegram heartbeat is delivered;
+  - persisted state and artifacts round-trip verify;
+- watchdog treats heartbeat age over 65 minutes as unhealthy;
+- no-progress detection uses state generation and committed markers, not stdout;
+- test detachment by ending the launching shell/session and proving the canary
+  continues;
+- Telegram messages contain health and stage state, never partial rankings.
+
+Produce:
+
+```text
+SUPERVISOR_AND_IPC_CONTRACT.json
+DETACHMENT_CANARY_AUDIT.json
+HEALTH_RELEASE_CANARY_AUDIT.json
+RESTART_AND_ORPHAN_AUDIT.json
+```
+
+### S22-V04-006 — representative capacity benchmark
+
+Replace the rejected synthetic-only projection with a production-representative,
+outcome-firewalled benchmark.
+
+Allowed in this task:
+
+- read authorized 2023–2025 rankable market/funding inputs;
+- build decision-time feature caches;
+- compile the full candidate registry;
+- enumerate event opportunities and execution schedules without reading or
+  reporting post-entry payoff values;
+- use production-shaped synthetic payoff payloads for the remaining arithmetic;
+- use finalized prior-run throughput only as a documented secondary bound.
+
+Benchmark strata must cover:
+
+```text
+all five families
+all eight fold positions
+small/median/large symbols by row count
+all distinct feature signatures
+all exit/accounting classes
+all control classes
+aggregate and materialized paths
+cold cache and warm cache
+restart/reuse
+```
+
+Measure:
+
+```text
+CPU seconds
+wall seconds
+peak process-tree RSS
+read/write bytes
+cache bytes
+aggregate-output bytes
+materialized-output bytes
+markers per second
+events per second
+worker scaling 1..logical CPU count
+storage amplification
+```
+
+Build a conservative runtime interval from measured components, with explicit
+assumptions and at least a 2x operational safety factor. ETA uncertainty is not
+an economic blocker; inadequate RAM, disk reserve, non-idempotence, or an
+unbounded queue is.
+
+Benchmark the maximum safe worker count not exceeding logical CPUs. Four workers
+remain the expected choice on the reported four-logical-CPU host unless evidence
+supports fewer.
+
+Produce:
+
+```text
+REPRESENTATIVE_CAPACITY_BENCHMARK.json
+RESOURCE_AND_STORAGE_PROJECTION.json
+WORKER_SCALING_AUDIT.csv
+CAPACITY_ASSUMPTION_LIMITS.md
+```
+
+### S22-V04-007 — terminal adjudication, forensics and reconciliation
+
+Implement the complete terminal state machine before final packet publication.
+
+Every registered attempt/control must end as exactly one of:
+
+```text
+completed
+unavailable_data
+unavailable_no_parent
+unavailable_duplicate_address
+invalid_combination
+family_stopped
+global_bound_stop_incomplete
+mechanical_failure
+```
+
+No silent omission.
+
+Implement:
+
+- full attempt and control reconciliation;
+- family/fold/phase completion accounting;
+- frozen route and limitation rules;
+- concentration, leave-one-symbol/month, execution, funding, parameter
+  neighborhood and control forensics;
+- independent candidate, outer-fold, control, route and multiplicity
+  recomputation;
+- resumable incomplete terminal package;
+- completed terminal package;
+- worker/process shutdown verification;
+- artifact hash manifest and source continuity;
+- no completion claim unless all required terminal predicates pass.
+
+Produce:
+
+```text
+TERMINAL_STATE_MACHINE.json
+FORENSIC_AND_ROUTE_COVERAGE_MATRIX.csv
+ATTEMPT_CONTROL_RECONCILIATION_CANARY.json
+TERMINAL_COMPLETION_CANARY.json
+TERMINAL_BOUND_STOP_CANARY.json
+POSTRUN_RECOMPUTATION_CANARY.json
+```
+
+## 5. Efficiency and safe pruning
+
+The campaign must be substantial but should not waste computation or storage.
+
+Implement these optimizations before publication:
+
+### Shared semantic caches
+
+Group and reuse computations by exact feature-signature hash. Build common
+arrays once for:
+
+```text
+PIT membership and liquidity
+returns and decision calendars
+daily OHLC/ATR/volatility
+prior levels
+compression/path features
+BTC/ETH context
+breadth/dispersion
+funding
+entry/exit lookup
+event keys
+```
+
+### Vectorized aggregate-first execution
+
+- batch addresses sharing family/fold/feature signatures;
+- vectorize across configurations where semantics permit;
+- use columnar/memory-mapped data;
+- avoid repeated parsing and full-frame copies;
+- use one bounded artifact writer or atomic per-worker partitions to prevent I/O
+  contention;
+- compute exact aggregate summaries for every executable address;
+- do not write a full event ledger for every failed address.
+
+### Conditional expensive work
+
+Perform full materialization, controls, bootstraps and forensics only for the
+frozen materialization set and survivors defined above.
+
+### Safe pruning
+
+Pre-outcome/compile-time pruning is permitted for:
+
+```text
+invalid combinations
+duplicate economic addresses
+inactive-axis duplicates
+unavailable required data
+failed authority/integrity gates
+mathematically impossible minimum observation/coverage requirements after the
+    complete eligible population is enumerated
+```
+
+Stage-boundary pruning is permitted only after the complete registered
+development surface relevant to that gate exists:
+
+```text
+no eligible plateau/candidate under the frozen rule
+exact component-null economic duplication
+family-specific integrity failure
+no frozen parent for conditional controls
+```
+
+Do not cancel an address because early folds, symbols, months, or partial PnL are
+poor. Do not implement return-based successive halving or a bandit scheduler.
+That would remove regime and convexity information and introduce a new searched
+stopping rule.
+
+Order work to maximize cache reuse, not to inspect likely winners first.
+
+Record every pruned attempt with an exact deterministic reason. Pruning reduces
+compute; it does not reduce multiplicity or erase negative information.
+
+## 6. Outcome firewall
+
+This remediation task does not authorize economic outcomes.
+
+Allowed:
+
+- production cache construction from rankable data;
+- decision-time feature and event identity validation;
+- timestamp/execution-schedule enumeration without payoff values;
+- production-shaped synthetic payoff arithmetic;
+- finalized prior-result metadata used only for throughput comparison.
+
+Prohibited:
+
+- new post-entry returns or PnL;
+- candidate ranking on new outcomes;
+- outer-fold values;
+- control outcomes;
+- protected data;
+- Capital.com payloads;
+- selection changes based on any partial result.
+
+Prove the payoff reader remains closed through process/file-access instrumentation
+and explicit tests.
+
+## 7. Review and final publication
+
+Run focused reviews as engineering work progresses, but return to the human only
+after all seven lanes have been addressed and one complete independent review
+has run.
+
+Independent review must inspect:
+
+```text
+full Stage-22 review reconciliation
+production source/cache authority
+production path, not only fixtures
+all seven canaries
+dirty-original-checkout isolation
+outcome firewall
+tests and representative benchmark
+final registries and counts
+runtime detachment and recovery
+terminal reconciliation
+```
+
+If review passes:
+
+1. create task-scoped reviewed commits;
+2. non-force update `main` and `origin/main`;
+3. ensure the reviewed launch commit is clean;
+4. generate the final immutable:
+   - `FINAL_CAMPAIGN_MANIFEST.json`;
+   - `FINAL_HUMAN_APPROVAL_REQUEST.json`;
+   - `FINAL_LAUNCH_TASK.md`;
+   - `FINAL_PACKET_HASH_INVENTORY.json`;
+5. complete round-trip verified Drive handoff;
+6. publish dynamic continuity;
+7. return one paste-ready approval block naming exact manifest and
+   approval-request hashes.
+
+If review still blocks, return one complete report containing every remaining
+finding and subfinding. Do not reveal them sequentially.
+
+## 8. Final response format
+
+```text
+status:
+actual_starting_commit:
+candidate_commit_reused:
+dirty_original_checkout_handling:
+current_continuity_sequence:
+all_stage22_findings_reconciled:
+production_cache:
+selection_A2_materialization:
+controls:
+temporal_gaps_A1_rearm:
+IPC_health_detach:
+representative_capacity:
+terminal_reconciliation:
+typed_fixture_tests:
+production_path_tests:
+outcome_firewall:
+candidate_registered_rows:
+unique_economic_executions:
+control_rows:
+safe_pruning_and_efficiency:
+independent_review:
+final_launch_commit:
+final_manifest_sha256:
+final_approval_request_sha256:
+final_launch_task:
+files_and_commits:
+origin_main_updated:
+task_archive:
+Drive_handoff:
+continuity_publication:
+economic_outcomes_opened: no
+protected_rows_opened: no
+Capitalcom_payload_opened: no
+remaining_limits:
+exact_next_human_action:
+```

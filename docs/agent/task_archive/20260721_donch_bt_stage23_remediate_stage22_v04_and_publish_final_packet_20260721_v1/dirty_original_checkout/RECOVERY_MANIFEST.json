@@ -1,0 +1,16 @@
+{
+  "content_capture": "prohibited_by_stage23_binding_rule",
+  "entries": [
+    {
+      "classification": "unknown_binary_preserved_in_place",
+      "expected_git_content_sha256": "3e6dc67b93eacbd316e9d91b0f2e23195d6a78cf75b5deb27970b260e4ffe297",
+      "mode": "0755",
+      "path": "/opt/testerdonch/code",
+      "recovery_location": "original_checkout_in_place",
+      "size": 32732320,
+      "working_tree_sha256": "d24aad2612fb79bb0893e13b9cac2592539ac9c783ad95c3b00fafc64bb37b1b"
+    }
+  ],
+  "schema": "stage23_dirty_original_checkout_manifest_v1",
+  "status": "preserved_unrelated_dirty_original_checkout"
+}

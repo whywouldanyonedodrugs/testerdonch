@@ -1,0 +1,178 @@
+{
+  "candidate_commit": "84fda51be77431de7151209d28c810fe027b0133",
+  "findings": [
+    {
+      "affected_code": [
+        "tools/core_liquid_campaign/cache.py",
+        "tools/core_liquid_campaign/executor.py",
+        "tools/run_stage22_core_liquid_campaign.py"
+      ],
+      "finding_id": "S22-V04-001",
+      "independent_review_result": "pending",
+      "production_evidence": [],
+      "root_cause": "The cache builder trusts caller-constructed FamilyInput values and copied authority metadata instead of deriving and reconciling frames from physically verified production sources.",
+      "status": "open",
+      "subfindings": [
+        "physically verify exact source manifests, bytes, schemas, units, interval and protected partition",
+        "derive and reconcile all 187 symbols, lifecycle/PIT eligibility and lagged liquidity",
+        "derive every required decision/fold and fold-local threshold population",
+        "derive exact Stage19 funding rows and Stage20 KDA02B inputs",
+        "define canonical sort, duplicate, gap, missingness and row identity",
+        "use semantic cache keys and complete invalidation inputs",
+        "build atomically/resumably twice with byte-identical manifests and equivalent contents",
+        "independently recompute sampled and boundary rows",
+        "reject payoff/future-return/ranking columns before construction"
+      ],
+      "tests": [],
+      "title": "authority-derived cache construction"
+    },
+    {
+      "affected_code": [
+        "tools/core_liquid_campaign/compiler.py",
+        "tools/core_liquid_campaign/campaign.py",
+        "tools/core_liquid_campaign/selection.py"
+      ],
+      "finding_id": "S22-V04-002",
+      "independent_review_result": "pending",
+      "production_evidence": [],
+      "root_cause": "The orchestrator ignores selection_role, overlap deduplication and paired A2 eligibility, and infers materialization classes from lane names instead of frozen roles.",
+      "status": "open",
+      "subfindings": [
+        "enforce selection_role before plateau/beam selection",
+        "apply frozen development-event Jaccard deduplication",
+        "resolve A2 exact family/fold/beam slot, parent, counterpart, side, component set and exposure action atomically",
+        "persist unavailable_no_parent without reassignment",
+        "require paired A2 uplift and main-null contract",
+        "exclude context-bearing legacy anchors from main beams except typed corroboration",
+        "materialize survivors, anchors, main component nulls, control/forensic objects, frozen near-misses and deterministic failed strata exactly once",
+        "prove aggregate/materialized equality for the complete materialization set"
+      ],
+      "tests": [],
+      "title": "selection, A2 binding and materialization"
+    },
+    {
+      "affected_code": [
+        "tools/core_liquid_campaign/controls.py",
+        "tools/core_liquid_campaign/compiler.py",
+        "tools/core_liquid_campaign/campaign.py"
+      ],
+      "finding_id": "S22-V04-003",
+      "independent_review_result": "pending",
+      "production_evidence": [],
+      "root_cause": "Random controls use implementation-specific payload hashes rather than the registered canonical seed, and duplicate/parent-identical controls are dispatched as evidence.",
+      "status": "open",
+      "subfindings": [
+        "bind canonical control identity to campaign/control/family/fold/parent-slot/replicate/version/seed fields",
+        "derive first unsigned big-endian 64 bits of SHA256 over canonical UTF-8 JSON",
+        "use numpy Generator PCG64 with the declared effective seed",
+        "use control address in matched allocation",
+        "persist missing parent as unavailable without reassignment",
+        "execute duplicate economic addresses once and retain multiplicity as unavailable_duplicate_address",
+        "separate V2 lineage from executable identity",
+        "prove worker/chunk/restart invariant replay",
+        "skip absent-parent conditional controls unless the typed family-level null requires execution"
+      ],
+      "tests": [],
+      "title": "control seeds, identities and duplicates"
+    },
+    {
+      "affected_code": [
+        "tools/core_liquid_campaign/engine_types.py",
+        "tools/core_liquid_campaign/family_engines/a1_compression.py",
+        "tools/core_liquid_campaign/family_engines/a4_tsmom.py"
+      ],
+      "finding_id": "S22-V04-004",
+      "independent_review_result": "pending",
+      "production_evidence": [],
+      "root_cause": "Temporal inputs are only monotonic, rolling formulas can bridge missing intervals, nonfinite thresholds pass, and A1 symmetric rearm releases both sides from either-side q50 recovery.",
+      "status": "open",
+      "subfindings": [
+        "enforce chronological daily and five-minute inputs and exact contiguous coverage",
+        "never bridge gaps in returns, impulse, base, confirmation, retest, ATR or exits",
+        "invalidate active A1 episodes locally as temporal_gap and enter history_rebuild",
+        "rearm only after complete contiguous history and owning-side strict-below-q50 recovery",
+        "require both sides strict-below-q50 when no owner exists",
+        "do not rearm/trigger at the history-restoration timestamp",
+        "use exchange timestamps for durations and keep gaps symbol/address local",
+        "reject every nonfinite threshold population",
+        "cover all state transitions, sides, q50 equality, cooldown restart and chunk replay"
+      ],
+      "tests": [],
+      "title": "temporal gaps and A1 rearm"
+    },
+    {
+      "affected_code": [
+        "tools/core_liquid_campaign/runtime.py",
+        "tools/core_liquid_campaign/campaign.py",
+        "tools/run_stage22_core_liquid_campaign.py"
+      ],
+      "finding_id": "S22-V04-005",
+      "independent_review_result": "pending",
+      "production_evidence": [],
+      "root_cause": "Large results can deadlock a Pipe, health can complete before required release gates, detach is metadata-only, and local input unavailability is retried as a worker failure.",
+      "status": "open",
+      "subfindings": [
+        "persist production-sized worker results atomically or drain bounded IPC concurrently with explicit schema/acknowledgement",
+        "bounded lazy scheduling, graceful signals, orphan prevention and uncommitted-only requeue",
+        "idempotent restart validates commit, packet, cache and generation",
+        "persist service/session/PIDs/root/hashes/generation/counts/marker/resources/heartbeat/retries/stop reason",
+        "health release requires active service, accepting work, one reconciled real unit, first scheduled heartbeat and round-trip state",
+        "watchdog fails heartbeat age over 65 minutes and no-progress uses committed generations/markers",
+        "test actual systemd-user or reviewed tmux detachment after launcher shell exits",
+        "route observation-local EngineInputError to explicit unavailable artifacts without stopping other families"
+      ],
+      "tests": [],
+      "title": "IPC, health release and detached supervision"
+    },
+    {
+      "affected_code": [
+        "tools/core_liquid_campaign/packet.py",
+        "tools/core_liquid_campaign/executor.py",
+        "tools/core_liquid_campaign/budget.py"
+      ],
+      "finding_id": "S22-V04-006",
+      "independent_review_result": "pending",
+      "production_evidence": [],
+      "root_cause": "The V04 benchmark uses twenty one-frame synthetic jobs and a scalar multiplier rather than the full authorized source/cache/187-symbol/fold/conditional/terminal workload.",
+      "status": "open",
+      "subfindings": [
+        "benchmark all five families and eight fold positions",
+        "cover small/median/large symbols, every feature signature, exit/accounting class and all controls",
+        "cover aggregate/materialized, cold/warm cache and restart/reuse",
+        "enforce complete ExecutionAuthorization and outcome firewall",
+        "measure CPU/wall/RSS/read-write/cache/output/marker/event/scaling/storage metrics",
+        "model exact attempts, refinements, beams, outer folds, controls, forensics, materialization and persistence",
+        "construct conservative interval with explicit assumptions and at least 2x safety factor",
+        "feed measured safe capacity into optimizer without changing frozen counts unless infeasible"
+      ],
+      "tests": [],
+      "title": "representative capacity benchmark"
+    },
+    {
+      "affected_code": [
+        "tools/core_liquid_campaign/campaign.py",
+        "tools/core_liquid_campaign/selection.py"
+      ],
+      "finding_id": "S22-V04-007",
+      "independent_review_result": "pending",
+      "production_evidence": [],
+      "root_cause": "Campaign completion is count-only; it does not execute registered route gates, forensics, terminal status enumeration or complete marker/artifact reconciliation.",
+      "status": "open",
+      "subfindings": [
+        "terminate every attempt/control in exactly one registered terminal status",
+        "reconcile attempt/control/family/fold/phase identities and multiplicity",
+        "execute frozen common, main-null, component, stress, delay, sample and paired-A2 route gates",
+        "produce concentration, leave-one-symbol/month, execution, funding, neighborhood and control forensics",
+        "independently recompute candidate, outer, control, route and multiplicity artifacts",
+        "support resumable incomplete and completed terminal packages",
+        "verify worker/process shutdown and terminal artifact/source hashes",
+        "prohibit completion until all terminal predicates and full expected-job/marker/artifact inventories pass"
+      ],
+      "tests": [],
+      "title": "terminal adjudication, forensics and reconciliation"
+    }
+  ],
+  "review_authority_sha256": "7e97143f89c07fed180aa9e3e5d492ab779ccfc58187d3a71b0a27c4ec45b958",
+  "schema": "stage23_finding_reconciliation_matrix_v1",
+  "status": "in_progress"
+}
