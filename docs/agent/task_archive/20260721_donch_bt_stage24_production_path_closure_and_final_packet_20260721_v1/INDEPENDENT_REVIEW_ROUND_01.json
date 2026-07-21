@@ -1,0 +1,56 @@
+{
+  "schema": "stage24_independent_review_round_v1",
+  "round": 1,
+  "reviewed_commit": "b25e71b4e0e2a73b0391ed12442626287e6c88c5",
+  "reviewer": "/root/stage21_independent_review",
+  "task_sha256": "9e546e9376408f97bc3bc2ef2862c06e746864eacbd9a5a70f0e71680eeeccdf",
+  "verdict": "BLOCK",
+  "classification": "blocking_material",
+  "findings": [
+    {
+      "id": "S24-R1-001",
+      "lane": "CacheAuthority_to_production_FamilyInput",
+      "required_closure": "Current-code complete inner/outer/family/feature-signature cache with full PIT population semantics, typed KDA routing, boundary mutation and cold/warm replay evidence."
+    },
+    {
+      "id": "S24-R1-002",
+      "lane": "selection_A2_materialization",
+      "required_closure": "Run the physical 11963-row execution registry through the actual orchestrator stages, A2 resolution, frozen materialization and aggregate/full-ledger equality."
+    },
+    {
+      "id": "S24-R1-003",
+      "lane": "production_controls",
+      "required_closure": "Use physical 800-row controls and CacheAuthority frames for all 20 transformations, canonical seeds, chunk/worker/order/restart invariance and duplicate reconciliation."
+    },
+    {
+      "id": "S24-R1-004",
+      "lane": "A1_persistent_temporal_state",
+      "required_closure": "Consume and update actual persistent state across ordered chunks/restarts; remove fabricated q49 state and complete transition/mutation coverage."
+    },
+    {
+      "id": "S24-R1-005",
+      "lane": "real_shadow_campaign_service",
+      "required_closure": "Run the exact CLI and full shadow campaign stages under the detached service, including real funding accounting, while retaining the passing Telegram/recovery evidence."
+    },
+    {
+      "id": "S24-R1-006",
+      "lane": "representative_benchmark",
+      "required_closure": "Measure the required production-shaped stratified workload, 1-to-logical-CPU scaling, RSS/I-O/output/reuse and conservative resource projection."
+    },
+    {
+      "id": "S24-R1-007",
+      "lane": "terminal_reconciliation",
+      "required_closure": "Exercise complete and genuine bound-stop terminal packages with all identities, forensics, independent recomputation and independently rehashed immutable inventory."
+    }
+  ],
+  "tests": {
+    "stage24": "11/11 pass",
+    "stage22_and_stage23": "45/45 pass"
+  },
+  "outcome_firewall": {
+    "economic_outcomes_opened": false,
+    "protected_rows_opened": 0,
+    "capitalcom_payload_opened": false
+  },
+  "disposition": "repair_and_repeat_internally"
+}

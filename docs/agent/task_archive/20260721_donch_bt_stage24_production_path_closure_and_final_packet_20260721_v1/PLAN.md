@@ -63,3 +63,10 @@ publish the final launch-approval packet without launching economics.
 
 - 2026-07-21: Stage-24 authority, original dirty-state isolation, continuity
   sequence 6, prior handoff/review hashes and clean starting branch verified.
+- 2026-07-21: Review round 1 at `b25e71b` returned seven material engineering
+  findings. The round is archived in `INDEPENDENT_REVIEW_ROUND_01.json`; task
+  disposition is repair and repeat internally.
+- 2026-07-21: The first complete gate invocation at `a9ac528` wrote a canonical
+  fail report. Cache completeness failed (eight XBT-only outer artifacts, no
+  inner partitions); every other implemented check passed. The review also
+  established that the gate must be expanded before any PASS can be accepted.
