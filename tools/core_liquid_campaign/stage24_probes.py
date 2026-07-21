@@ -453,7 +453,13 @@ def representative_production_benchmark(
             for family, fold, row, frame in scaling_specs
         ))
         elapsed = time.monotonic() - start
-        records = _read_supervisor_results(root)
+        records = {}
+        for marker_path in sorted((root / "markers").glob("*.json")):
+            marker = json.loads(marker_path.read_text(encoding="utf-8"))
+            artifact = root / marker["artifact"]
+            if sha256_file(artifact) != marker["artifact_sha256"]:
+                raise RuntimeError("benchmark supervisor artifact hash mismatch")
+            records[str(marker["job_id"])] = json.loads(artifact.read_text(encoding="utf-8"))["result"]
         inventories[str(workers)] = canonical_hash(records)
         scaling[str(workers)] = {
             "seconds": elapsed, "completed": state["completed_count"],
@@ -462,7 +468,7 @@ def representative_production_benchmark(
         }
     if len(set(inventories.values())) != 1:
         raise RuntimeError("production benchmark result hashes differ by worker count")
-    projected = full_seconds / max(1, len(job_specs)) * len(execution) * 44
+    projected = full_seconds / max(1, len(job_specs)) * len(execution) * 132
     return {
         "schema": "stage24_representative_production_benchmark_v1",
         "status": "pass",

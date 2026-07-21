@@ -14,6 +14,7 @@ from typing import Any, Mapping
 from .a1_state import initial_state, transition
 from .canonical import atomic_write_json, canonical_hash, sha256_file
 from .executor import CacheAuthority, dispatch_registered_attempt
+from .family_engines.common import EngineInputError
 from .schema import FAMILY_ORDER, OUTER_FOLDS
 from .shadow_payoff import ShadowPayoffProvider
 from .stage24_probes import control_production_shadow_probe, representative_production_benchmark
@@ -172,16 +173,21 @@ def _real_engine_gate(execution: list[dict[str, Any]], frames: tuple[Any, ...]) 
                     },
                     "parent_frames": (frame,),
                 }
-            result = dispatch_registered_attempt(
-                row, (frame,), registry_by_id=registry, payoff_provider=provider, **kwargs,
-            )
+            try:
+                result = dispatch_registered_attempt(
+                    row, (frame,), registry_by_id=registry, payoff_provider=provider, **kwargs,
+                )
+                status = result["status"]; observations = len(result["observations"]); aggregate = result["aggregate"]
+                unavailable_reason = None
+            except EngineInputError as exc:
+                status = "unavailable_data"; observations = 0; aggregate = {}; unavailable_reason = str(exc)
             results.append({
                 "family": family, "outer_fold_id": partition["outer_fold_id"], "symbol": frame.symbol,
-                "status": result["status"], "observation_count": len(result["observations"]),
-                "aggregate_sha256": canonical_hash(result["aggregate"]),
+                "status": status, "observation_count": observations,
+                "aggregate_sha256": canonical_hash(aggregate), "unavailable_reason": unavailable_reason,
             })
     elapsed = time.monotonic() - start
-    covered = {(row["family"], row["outer_fold_id"]) for row in results if row["status"] == "complete"}
+    covered = {(row["family"], row["outer_fold_id"]) for row in results if row["status"] in {"complete", "unavailable_data"}}
     required = {(family, fold) for family in rows for fold in OUTER_FOLDS}
     attestation = provider.attestation()
     return {
