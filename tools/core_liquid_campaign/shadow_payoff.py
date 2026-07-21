@@ -6,7 +6,7 @@ from datetime import timedelta
 from typing import Any, Mapping
 
 from .canonical import canonical_hash
-from .engine_types import FamilyInput, PROTECTED_START, SignalBar
+from .engine_types import FamilyInput, FundingInput, PROTECTED_START, SignalBar
 from .executor import AuthorizationError
 from .family_engines.common import require_utc
 from .selection import EventObservation
@@ -81,10 +81,21 @@ class ShadowPayoffProvider:
             )
             for index in range(len(prices) - 1)
         )
+        funding_start = entry.replace(minute=0, second=0, microsecond=0)
+        rate = (int(digest[18:26], 16) / float(0xFFFFFFFF) - 0.5) * 0.02
+        synthetic_funding = tuple(
+            FundingInput(
+                funding_start + timedelta(hours=index),
+                funding_start + timedelta(hours=index),
+                format(rate, ".12f"),
+                "exact",
+            )
+            for index in range(242)
+        )
         synthetic_frame = replace(
             frame,
             five_minute_bars=bars,
-            funding=(),
+            funding=synthetic_funding,
             metadata={
                 **frame.metadata,
                 "evaluation_start": entry,
@@ -106,6 +117,16 @@ class ShadowPayoffProvider:
             "provider_identity_sha256": canonical_hash(identity),
             "synthetic_path_sha256": canonical_hash(prices),
             "synthetic_path_rows": len(bars),
+            "synthetic_funding_rows": len(synthetic_funding),
+            "synthetic_funding_schedule_sha256": canonical_hash([
+                {
+                    "row_timestamp": row.row_timestamp.isoformat(),
+                    "publication_ts": row.publication_ts.isoformat(),
+                    "absolute_rate_usd_per_contract_unit": row.absolute_rate_usd_per_contract_unit,
+                    "source_partition": row.source_partition,
+                }
+                for row in synthetic_funding
+            ]),
             "actual_accounting_path_executed": True,
         }
 

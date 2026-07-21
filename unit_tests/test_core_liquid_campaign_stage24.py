@@ -220,6 +220,7 @@ class Stage24KnownDefectTests(unittest.TestCase):
         self.assertFalse(provider.attestation()["economic_outcomes_opened"])
         self.assertTrue(all(item["shadow_only"] for item in result["ledger"]))
         self.assertTrue(all(item["actual_accounting_path_executed"] for item in result["ledger"]))
+        self.assertTrue(all(item["synthetic_funding_rows"] == 242 for item in result["ledger"]))
         self.assertTrue(all(item["real_post_entry_rows_opened"] == 0 for item in result["ledger"]))
 
     def test_every_deterministic_control_receives_parent_frames(self) -> None:
