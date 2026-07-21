@@ -288,7 +288,7 @@ def _capacity_evidence(output: Path, execution: Sequence[Mapping[str, Any]], str
         "campaign_attempts": total_attempts, "controls": controls, "families": dict(sorted(family_counts.items())), "outer_fold_positions": list(OUTER_FOLDS),
         "distinct_feature_signatures": len(feature_signatures), "exit_accounting_classes": dict(sorted(exit_classes.items())), "control_classes": 20,
         "symbol_row_strata": symbol_strata,
-        "cold_cache": {"wall_seconds": physical["wall_seconds"], "cpu_seconds": physical["cpu_seconds"], "physical_read_bytes": physical["source_bytes_verified"], "physical_rows": physical["source_rows_indexed"]},
+        "cold_cache": {"wall_seconds": physical["wall_seconds"], "cpu_seconds": physical["cpu_seconds"], "physical_read_bytes": physical["physical_read_bytes"], "physical_rows": physical["source_rows"]},
         "warm_replay": {"manifest_and_columnar_contents_rebuilt": True, "physical_hashes_repeated": True},
         "decision_schedule_events_per_second": schedule_rate,
         "exact_job_and_artifact_projection": projection,
