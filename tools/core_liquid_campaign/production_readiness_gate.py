@@ -98,6 +98,10 @@ def _cache_gate(cache_path: Path, authority_path: Path) -> tuple[dict[str, Any],
     partitions = [row["campaign_partition"] for row in manifest["artifacts"]]
     outer = {str(row["outer_fold_id"]) for row in partitions if row["phase"] == "outer_evaluation"}
     inner = {str(row["inner_fold_id"]) for row in partitions if row["phase"] == "inner_validation"}
+    partition_positions = {
+        (str(row["phase"]), str(row["outer_fold_id"]), str(row.get("inner_fold_id")))
+        for row in partitions
+    }
     symbols = {str(row["symbol"]) for row in manifest["artifacts"]}
     protected = sum(int(frame.metadata.get("protected_rows", 0)) for frame in frames)
     value_equal = all(left.content_sha256() == right.content_sha256() for left, right in zip(frames, warm_frames))
@@ -112,15 +116,16 @@ def _cache_gate(cache_path: Path, authority_path: Path) -> tuple[dict[str, Any],
     typed_kda = [row for row in manifest.get("typed_unavailable", ()) if row.get("family_id") == "KDA02B_SURVIVOR_ADJUDICATION_V1"]
     # A production campaign requires both development and outer partitions.
     complete_campaign_cache = (
-        outer == set(OUTER_FOLDS) and len(inner) == 36 and len(symbols) >= 3
-        and len(paths) == 132 and len(matrix) == 220 and len(matrix_positions) == 220
-        and len(typed_kda) == 44 and len(feature_signatures) >= 100
+        outer == set(OUTER_FOLDS) and len(partition_positions) == 132 and len(symbols) >= 3
+        and len(paths) == 396 and len(matrix) == 660 and len(matrix_positions) == 660
+        and len(typed_kda) == 132 and len(feature_signatures) >= 100
         and build.get("protected_rows") == 0 and build.get("economic_outcomes_opened") is False
     )
     return ({
         "status": "pass" if complete_campaign_cache and protected == 0 and value_equal else "fail",
         "cache_manifest_sha256": sha256_file(cache_path),
-        "artifacts": len(paths), "outer_folds": sorted(outer), "inner_fold_ids": len(inner), "symbols": sorted(symbols),
+        "artifacts": len(paths), "outer_folds": sorted(outer), "inner_fold_ids": len(inner),
+        "inner_partition_positions": len(partition_positions) - len(outer), "symbols": sorted(symbols),
         "family_fold_matrix_rows": len(matrix),
         "all_five_family_outer_positions": sum(row.get("phase") == "outer_evaluation" for row in matrix),
         "typed_kda_unavailable_positions": len(typed_kda),
