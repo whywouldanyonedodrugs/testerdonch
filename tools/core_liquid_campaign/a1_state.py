@@ -151,6 +151,8 @@ def transition(
             cooldown_until=cooldown_until,
             rearm_eligible_after_ts=timestamp,
         )
+    if action == "observe":
+        return _next(state, timestamp)
     raise EngineInputError(f"unknown A1 transition action: {action}")
 
 

@@ -306,9 +306,100 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
             "features": computed,
             "context_multiplier": context_multiplier,
             "a1_state_generation": getattr(persisted_state, "state_generation", None),
+            "a1_impulse_end_ts": require_utc(impulse_bars[-1].close_ts),
+            "a1_base_end_ts": require_utc(base_bars[-1].close_ts),
+            "a1_confirmation_ts": require_utc(final_confirmation.close_ts),
         })
         index = entry_index
     return episodes
+
+
+def advance_persistent_state(
+    frame: FamilyInput,
+    config: Mapping[str, Any],
+    events: Sequence[Mapping[str, Any]],
+):
+    """Advance the persisted checkpoint and filter episodes not armed by that checkpoint."""
+    from ..a1_state import A1PersistentState, transition
+
+    raw = frame.metadata.get("a1_persistent_state")
+    if not isinstance(raw, Mapping):
+        raise EngineInputError("production A1 state advancement lacks a persisted checkpoint")
+    state = A1PersistentState(**raw); state.validate()
+    bars, rebuilt_after_gap = _decision_contiguous_segment(frame)
+    require_contiguous_5m(bars)
+    decision = require_utc(frame.decision_ts)
+    sides = (1, -1) if config["direction"] == "symmetric" else (1 if config["direction"] == "long" else -1,)
+    impulse_n = _bar_count(str(config["impulse_window"])); base_n = _bar_count(str(config["base_duration"]))
+    baseline_n = base_n if config["contraction_baseline"] == "adjacent_equal_duration" else 5 * base_n
+    minimum = max(impulse_n, baseline_n)
+    if rebuilt_after_gap and state.state != "history_rebuild":
+        gap_ts = require_utc(bars[0].open_ts)
+        if state.last_valid_ts is not None and gap_ts <= require_utc(state.last_valid_ts):
+            gap_ts = require_utc(state.last_valid_ts) + timedelta(minutes=5)
+        if gap_ts < decision:
+            state = transition(state, timestamp=gap_ts, action="gap")
+    if state.state in {"episode_owned_long", "episode_owned_short", "base", "confirmation"}:
+        if state.cooldown_until is None or decision < require_utc(state.cooldown_until):
+            if state.last_valid_ts is None or decision > require_utc(state.last_valid_ts):
+                return transition(state, timestamp=decision, action="observe"), ()
+            return state, ()
+        terminal_ts = require_utc(state.cooldown_until)
+        if state.last_valid_ts is not None and terminal_ts <= require_utc(state.last_valid_ts):
+            raise EngineInputError("A1 persisted exit is not after its active checkpoint")
+        state = transition(state, timestamp=terminal_ts, action="episode_terminal", terminal_reason="actual_exit")
+
+    event = next((item for item in events if require_utc(item["decision_ts"]) == decision), None)
+    event_start = require_utc(event["a1_impulse_end_ts"]) if event is not None else None
+    prepared: dict[str, Sequence[float]] = {}
+    def percentile(side: int, index: int) -> float:
+        name = impulse_population_key(str(config["impulse_window"]), str(config["impulse_rank_scope"]), side)
+        if name not in prepared:
+            raw_values = _population(frame, name)
+            prepared[name] = raw_values if callable(getattr(raw_values, "weak_percentile", None)) else tuple(sorted(float(value) for value in raw_values))
+        closes = [bar.close for bar in bars[index - impulse_n:index + 1]]
+        score = side * log_return(closes[0], closes[-1])
+        return percentile_from_prevalidated_sorted(score, prepared[name])[0]
+
+    start_index = minimum
+    if state.state == "history_rebuild":
+        eligible = next((
+            index for index in range(minimum, len(bars))
+            if require_utc(bars[index].close_ts) < decision
+            and (state.last_valid_ts is None or require_utc(bars[index].close_ts) > require_utc(state.last_valid_ts))
+        ), None)
+        if eligible is None:
+            return state, ()
+        state = transition(state, timestamp=require_utc(bars[eligible].close_ts), action="history_complete")
+        start_index = eligible + 1
+    elif state.last_valid_ts is not None:
+        start_index = max(start_index, next((index for index, bar in enumerate(bars) if require_utc(bar.close_ts) > require_utc(state.last_valid_ts)), len(bars)))
+
+    for index in range(start_index, len(bars)):
+        timestamp = require_utc(bars[index].close_ts)
+        if timestamp > decision or (event_start is not None and timestamp >= event_start):
+            break
+        if state.state == "cooldown":
+            if state.cooldown_until is None or timestamp < require_utc(state.cooldown_until):
+                continue
+            state = transition(state, timestamp=timestamp, action="cooldown_expired")
+            continue
+        if state.state in {"disarmed", "terminal_episode_reason"}:
+            values = {side: percentile(side, index) for side in sides}
+            ready = rearm_ready(sides, state.owner, values)
+            if ready:
+                state = transition(state, timestamp=timestamp, action="rearm", percentiles=values, required_sides=sides)
+    if event is not None:
+        if state.state != "armed":
+            if state.last_valid_ts is None or decision > require_utc(state.last_valid_ts):
+                state = transition(state, timestamp=decision, action="observe")
+            return state, ()
+        state = transition(state, timestamp=require_utc(event["a1_impulse_end_ts"]), action="trigger", side=int(event["side"]))
+        state = transition(state, timestamp=require_utc(event["a1_base_end_ts"]), action="base")
+        state = transition(state, timestamp=require_utc(event["a1_confirmation_ts"]), action="confirmation")
+    elif state.last_valid_ts is None or decision > require_utc(state.last_valid_ts):
+        state = transition(state, timestamp=decision, action="observe")
+    return state, tuple(events)
 
 
 def event_id(symbol: str, side: int, impulse_start: str, impulse_end: str, base_start: str, base_end: str, confirmation_ts: str) -> str:
@@ -341,4 +432,4 @@ def contract() -> dict[str, Any]:
     }
 
 
-__all__ = ["confirmation_pass", "contract", "contraction_population_key", "evaluate", "event_id", "features", "impulse_population_key", "rearm_ready", "smoothness_population_key"]
+__all__ = ["advance_persistent_state", "confirmation_pass", "contract", "contraction_population_key", "evaluate", "event_id", "features", "impulse_population_key", "rearm_ready", "smoothness_population_key"]

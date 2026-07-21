@@ -232,6 +232,41 @@ class Stage24KnownDefectTests(unittest.TestCase):
                 payoff_provider=ShadowPayoffProvider("stage24-a1-persisted-state"),
             )
 
+    def test_production_a1_checkpoint_is_order_and_restart_invariant(self) -> None:
+        row = self._attempt("A1_COMPRESSION_V2", "persisted-a1-replay")
+        start = datetime(2025, 5, 1, tzinfo=timezone.utc)
+        frames = []
+        for anchor in (start, start + timedelta(days=14)):
+            frame = a1_frame(row["config"], anchor=anchor)
+            frames.append(replace(frame, metadata={
+                **frame.metadata,
+                "production_input": True,
+                "a1_persistent_state": initial_state().payload(),
+            }))
+        forward = dispatch_registered_attempt(
+            row, frames, registry_by_id={row["executable_attempt_id"]: row},
+            payoff_provider=ShadowPayoffProvider("stage24-a1-checkpoint"),
+        )
+        reverse = dispatch_registered_attempt(
+            row, list(reversed(frames)), registry_by_id={row["executable_attempt_id"]: row},
+            payoff_provider=ShadowPayoffProvider("stage24-a1-checkpoint"),
+        )
+        self.assertEqual(forward["a1_persistent_state_checkpoints"], reverse["a1_persistent_state_checkpoints"])
+        first = dispatch_registered_attempt(
+            row, frames[:1], registry_by_id={row["executable_attempt_id"]: row},
+            payoff_provider=ShadowPayoffProvider("stage24-a1-checkpoint"),
+        )
+        first_checkpoint = first["a1_persistent_state_checkpoints"][frames[0].content_sha256()]
+        resumed_frame = replace(frames[1], metadata={**frames[1].metadata, "a1_persistent_state": first_checkpoint})
+        resumed = dispatch_registered_attempt(
+            row, [resumed_frame], registry_by_id={row["executable_attempt_id"]: row},
+            payoff_provider=ShadowPayoffProvider("stage24-a1-checkpoint"),
+        )
+        combined_final = forward["a1_persistent_state_checkpoints"][frames[1].content_sha256()]
+        resumed_final = next(iter(resumed["a1_persistent_state_checkpoints"].values()))
+        self.assertEqual(combined_final, resumed_final)
+        self.assertEqual(frames[1].decision_ts, combined_final["last_valid_ts"])
+
     def test_production_gate_a1_evidence_is_canonical_json_serializable(self) -> None:
         evidence = _a1_state_gate()
         self.assertEqual("pass", evidence["status"])

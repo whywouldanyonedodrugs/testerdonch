@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import math
 import subprocess
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Mapping, Sequence
@@ -634,10 +634,28 @@ def dispatch_registered_attempt(
             ledger.append({"event_id": event_id, "status": "complete", "parent_executable_attempt_id": parent_id, "parent_only_counterpart_id": row["parent_only_counterpart_id"], "overlay_counterpart_id": row["overlay_counterpart_id"], "context_multiplier": multiplier, "context_components": overlay["context_components"], "parent_ledger_sha256": canonical_hash(source_ledger)})
     else:
         generated_work: list[tuple[FamilyInput, dict[str, Any]]] = []
-        for frame in frames:
+        a1_state_checkpoints: dict[str, Mapping[str, Any]] = {}
+        carried_a1_state: dict[str, Mapping[str, Any]] = {}
+        ordered_frames = (
+            sorted(frames, key=lambda item: (item.symbol, require_utc(item.decision_ts), item.content_sha256()))
+            if family == "A1_COMPRESSION_V2" else frames
+        )
+        for frame in ordered_frames:
             frame.validate()
-            directive = None if control_directives is None else control_directives.get(frame.content_sha256())
-            generated_work.extend((frame, event) for event in _generate_events(family, frame, config, control_id, directive))
+            source_frame_hash = frame.content_sha256()
+            directive = None if control_directives is None else control_directives.get(source_frame_hash)
+            effective_frame = frame
+            if family == "A1_COMPRESSION_V2" and frame.metadata.get("production_input") is True and frame.symbol in carried_a1_state:
+                effective_frame = replace(
+                    frame,
+                    metadata={**frame.metadata, "a1_persistent_state": carried_a1_state[frame.symbol], "a1_state_origin": "prior_ordered_frame_checkpoint"},
+                )
+            generated = _generate_events(family, effective_frame, config, control_id, directive)
+            if family == "A1_COMPRESSION_V2" and frame.metadata.get("production_input") is True:
+                checkpoint, generated = a1_compression.advance_persistent_state(effective_frame, config, generated)
+                carried_a1_state[frame.symbol] = checkpoint.payload()
+                a1_state_checkpoints[source_frame_hash] = checkpoint.payload()
+            generated_work.extend((effective_frame, event) for event in generated)
         generated_work = sorted(
             generated_work,
             key=lambda item: (
@@ -700,6 +718,8 @@ def dispatch_registered_attempt(
         "ledger": ledger,
         "aggregate": aggregate_streaming(iter(accepted)),
     }
+    if family == "A1_COMPRESSION_V2":
+        result["a1_persistent_state_checkpoints"] = a1_state_checkpoints
     if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
         accepted_by_id = {item.event_id: item for item in accepted}
         parent_ids = set(a2_parent_observations)
