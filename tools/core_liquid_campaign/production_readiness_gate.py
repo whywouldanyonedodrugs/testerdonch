@@ -298,8 +298,9 @@ def _terminal_gate(
     }
 
 
-def _service_evidence_gate(repository_root: Path) -> dict[str, Any]:
+def _service_evidence_gate(repository_root: Path, *, cache_manifest_sha256: str, implementation_commit: str) -> dict[str, Any]:
     roots = {
+        "current_production": repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v09/run",
         "restart": repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v02/run",
         "worker_kill": repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v06/run",
         "graceful_resume": repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v07/run",
@@ -314,13 +315,23 @@ def _service_evidence_gate(repository_root: Path) -> dict[str, Any]:
             "all_workers_stopped": supervisor.get("all_workers_stopped"), "service_identity": supervisor.get("service_identity"),
         }
     attempt_values = list(rows["worker_kill"]["attempts"].values())
+    current_spec_path = repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v09/SHADOW_SERVICE_SPEC.json"
+    current_spec = json.loads(current_spec_path.read_text(encoding="utf-8"))
     passed = (
         all(row["campaign_status"] == "complete" and row["health_release"] is True and row["all_workers_stopped"] is True for row in rows.values())
         and attempt_values == [2]
         and list(rows["graceful_resume"]["attempts"].values()) == [2]
         and all(str(row["service_identity"]).startswith("qlmg-stage24-shadow-") for row in rows.values())
+        and current_spec.get("reviewed_commit") == implementation_commit
+        and current_spec.get("identity_bindings", {}).get("cache_manifest_sha256") == cache_manifest_sha256
     )
-    return {"status": "pass" if passed else "fail", "installed_service_runs": rows, "telegram_preflight": "pass", "independent_of_chat": True}
+    return {
+        "status": "pass" if passed else "fail", "installed_service_runs": rows,
+        "current_spec_sha256": sha256_file(current_spec_path),
+        "current_commit_bound": current_spec.get("reviewed_commit"),
+        "current_cache_manifest_bound": current_spec.get("identity_bindings", {}).get("cache_manifest_sha256"),
+        "telegram_preflight": "pass", "independent_of_chat": True,
+    }
 
 
 def run_gate(args: argparse.Namespace) -> dict[str, Any]:
@@ -334,7 +345,11 @@ def run_gate(args: argparse.Namespace) -> dict[str, Any]:
     checks["representative_benchmark"] = representative_production_benchmark(args.output / "representative_benchmark", execution, frames)
     checks["selection_A2_materialization"] = _selection_gate(execution, checks["representative_benchmark"])
     checks["a1_state"] = _a1_state_gate()
-    checks["shadow_service"] = _service_evidence_gate(args.repository_root)
+    checks["shadow_service"] = _service_evidence_gate(
+        args.repository_root,
+        cache_manifest_sha256=sha256_file(args.cache_manifest),
+        implementation_commit=_git(args.repository_root, "rev-parse", "HEAD"),
+    )
     checks["terminal"] = _terminal_gate(args.output, strategy, controls)
     statuses = {name: value.get("status") for name, value in checks.items()}
     passed = all(value == "pass" for value in statuses.values())
