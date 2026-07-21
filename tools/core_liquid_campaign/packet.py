@@ -98,6 +98,7 @@ def _code_inventory(repository_root: Path) -> dict[str, Any]:
     discovered.extend((
         "tools/build_stage22_core_liquid_campaign.py",
         "tools/build_stage23_final_packet.py",
+        "tools/build_stage24_final_packet.py",
         "tools/run_stage22_core_liquid_campaign.py",
         "unit_tests/test_core_liquid_campaign.py",
         "unit_tests/test_core_liquid_campaign_stage23.py",

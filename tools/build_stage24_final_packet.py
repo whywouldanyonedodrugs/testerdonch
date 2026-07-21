@@ -1,0 +1,182 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import json
+import shutil
+import subprocess
+from pathlib import Path
+from typing import Any
+
+from tools.core_liquid_campaign.canonical import atomic_write_bytes, atomic_write_json, canonical_hash, sha256_file
+from tools.core_liquid_campaign.packet import _code_inventory
+from tools.core_liquid_campaign.schema import CAMPAIGN_ID
+
+
+def _git(root: Path, *args: str) -> str:
+    return subprocess.run(["git", "-C", str(root), *args], check=True, capture_output=True, text=True).stdout.strip()
+
+
+def _inventory(root: Path, *, excluded: set[str] | None = None) -> list[dict[str, Any]]:
+    excluded = excluded or set()
+    return [
+        {"path": path.relative_to(root).as_posix(), "bytes": path.stat().st_size, "sha256": sha256_file(path)}
+        for path in sorted(root.rglob("*"))
+        if path.is_file() and path.relative_to(root).as_posix() not in excluded
+    ]
+
+
+def build(args: argparse.Namespace) -> dict[str, Any]:
+    if _git(args.repository_root, "status", "--porcelain=v1"):
+        raise RuntimeError("Stage 24 final packet requires a clean reviewed worktree")
+    head = _git(args.repository_root, "rev-parse", "HEAD")
+    if head != args.implementation_commit:
+        raise RuntimeError("Stage 24 final packet commit differs from the reviewed implementation")
+    review = json.loads(args.review.read_text(encoding="utf-8"))
+    if review.get("verdict") != "PASS" or int(review.get("blocking_findings", -1)) != 0:
+        raise RuntimeError("Stage 24 final packet requires an independent PASS with zero blocking findings")
+    if review.get("implementation_commit") != head:
+        raise RuntimeError("independent review does not bind the final implementation commit")
+    for key, expected in (("economic_outcomes_opened", False), ("capitalcom_payload_opened", False)):
+        if review.get(key) is not expected:
+            raise RuntimeError(f"independent review firewall field differs: {key}")
+    if int(review.get("protected_rows_opened", -1)) != 0:
+        raise RuntimeError("independent review opened protected rows")
+    gate = json.loads(args.gate.read_text(encoding="utf-8"))
+    if gate.get("status") != "pass" or gate.get("implementation_commit") != head:
+        raise RuntimeError("production-readiness gate is not a PASS at the reviewed commit")
+    cache = json.loads(args.cache_manifest.read_text(encoding="utf-8"))
+    if cache.get("artifact_inventory_sha256") != canonical_hash(cache.get("artifacts", [])) or len(cache.get("artifacts", [])) != 396:
+        raise RuntimeError("final cache authority does not contain the exact complete frame inventory")
+
+    args.output_root.mkdir(parents=True, exist_ok=True)
+    for name in (
+        "FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl", "FINAL_EXECUTION_REGISTRY.jsonl",
+        "FINAL_CONTROL_REGISTRY.jsonl", "A2_PARENT_COUNTERPART_REGISTRY.jsonl",
+        "EXECUTION_INPUT_AUTHORITY.json", "FOLD_GRAPH.json", "FAMILY_AXIS_SCHEMA.json",
+    ):
+        shutil.copy2(args.packet_root / name, args.output_root / name)
+    shutil.copy2(args.gate, args.output_root / "PRODUCTION_READINESS_GATE.json")
+    shutil.copy2(args.review, args.output_root / "FINAL_INDEPENDENT_REVIEW.json")
+    code_inventory = _code_inventory(args.repository_root)
+    atomic_write_json(args.output_root / "CODE_HASH_INVENTORY.json", code_inventory)
+
+    build_report_path = args.cache_manifest.parent.parent / "PRODUCTION_FAMILY_INPUT_BUILD.json"
+    build_report = json.loads(build_report_path.read_text(encoding="utf-8"))
+    cache_authority = {
+        "path": str(args.cache_manifest.resolve()),
+        "bytes": args.cache_manifest.stat().st_size,
+        "sha256": sha256_file(args.cache_manifest),
+        "artifacts": len(cache["artifacts"]),
+        "components": len(cache.get("components", [])),
+        "artifact_inventory_sha256": cache["artifact_inventory_sha256"],
+        "component_inventory_sha256": cache.get("component_inventory_sha256"),
+        "a1_population_table_manifest_sha256": build_report["a1_population_table_manifest_sha256"],
+        "a3_population_table_manifest_sha256": build_report["a3_population_table_manifest_sha256"],
+        "protected_rows": build_report["protected_rows"],
+        "economic_outcomes_opened": build_report["economic_outcomes_opened"],
+    }
+    atomic_write_json(args.output_root / "CACHE_AUTHORITY_BINDING.json", cache_authority)
+    local_dependencies = _inventory(args.output_root, excluded={
+        "FINAL_CAMPAIGN_MANIFEST.json", "FINAL_HUMAN_APPROVAL_REQUEST.json",
+        "FINAL_LAUNCH_TASK.md", "FINAL_PACKET_HASH_INVENTORY.json",
+    })
+    primary = {
+        "strategy_registry": sha256_file(args.output_root / "FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl"),
+        "execution_registry": sha256_file(args.output_root / "FINAL_EXECUTION_REGISTRY.jsonl"),
+        "control_registry": sha256_file(args.output_root / "FINAL_CONTROL_REGISTRY.jsonl"),
+        "a2_counterpart_registry": sha256_file(args.output_root / "A2_PARENT_COUNTERPART_REGISTRY.jsonl"),
+        "execution_input_authority": sha256_file(args.output_root / "EXECUTION_INPUT_AUTHORITY.json"),
+        "cache_authority_manifest": sha256_file(args.cache_manifest),
+        "code_inventory": sha256_file(args.output_root / "CODE_HASH_INVENTORY.json"),
+        "production_readiness_gate": sha256_file(args.output_root / "PRODUCTION_READINESS_GATE.json"),
+        "independent_review": sha256_file(args.output_root / "FINAL_INDEPENDENT_REVIEW.json"),
+    }
+    authority = json.loads((args.output_root / "EXECUTION_INPUT_AUTHORITY.json").read_text(encoding="utf-8"))
+    manifest = {
+        "schema": "stage24_final_executable_campaign_manifest_v1",
+        "campaign_id": CAMPAIGN_ID,
+        "repository": {"implementation_commit": head, "launch_from_clean_reviewed_descendant": True},
+        "counts": {"registered_attempts": 11968, "unique_economic_executions": 11963, "controls": 800, "families": 5, "outer_folds": 8},
+        "primary_hashes": primary,
+        "execution_input_authority": authority,
+        "cache_authority": cache_authority,
+        "resource_limits": {
+            "workers": 4, "jobs_in_flight": 4, "aggregate_process_tree_rss_bytes": 10 * 1024**3,
+            "campaign_output_bytes": 24 * 1024**3, "minimum_free_disk_bytes": 8 * 1024**3,
+            "heartbeat_seconds": 1800, "graceful_stop_seconds": 300,
+            "wall_time": "renewable_checkpoint_no_hard_stop",
+        },
+        "artifact_dependencies": local_dependencies,
+        "independent_review": {"path": "FINAL_INDEPENDENT_REVIEW.json", "sha256": primary["independent_review"], "verdict": "PASS"},
+        "authorization_state": "awaiting_one_exact_external_human_launch_approval",
+        "economic_outcomes_opened": False,
+        "protected_rows_opened": 0,
+        "capitalcom_payload_opened": False,
+    }
+    atomic_write_json(args.output_root / "FINAL_CAMPAIGN_MANIFEST.json", manifest)
+    request = {
+        "schema": "stage24_final_human_approval_request_v1",
+        "campaign_id": CAMPAIGN_ID,
+        "final_campaign_manifest_sha256": sha256_file(args.output_root / "FINAL_CAMPAIGN_MANIFEST.json"),
+        "repository_implementation_commit": head,
+        "request": "Authorize one launch of the exact Stage-24-reviewed, hash-bound 11,968-row campaign and 800 controls under the attached manifest.",
+        "authorized_if_approved": [
+            "rankable 2023-2025 outcomes for the exact frozen campaign",
+            "four-worker detached supervisor and exact conditional controls",
+            "terminal reconciliation, independent post-run review, handoff and continuity",
+        ],
+        "still_prohibited": [
+            "protected outcomes", "Capital.com payload", "new acquisition", "capture restart", "C17",
+            "separate Phase 6", "account actions", "orders", "deployment", "live trading", "force push",
+        ],
+    }
+    atomic_write_json(args.output_root / "FINAL_HUMAN_APPROVAL_REQUEST.json", request)
+    launch = f"""# Exact Stage 24 launch task
+
+Launch only after an external approval JSON binds all of:
+
+- campaign `{CAMPAIGN_ID}`
+- implementation commit `{head}`
+- manifest `{sha256_file(args.output_root / 'FINAL_CAMPAIGN_MANIFEST.json')}`
+- approval request `{sha256_file(args.output_root / 'FINAL_HUMAN_APPROVAL_REQUEST.json')}`
+- execution registry `{primary['execution_registry']}`
+- control registry `{primary['control_registry']}`
+- cache authority `{primary['cache_authority_manifest']}`
+
+Repeat authority, source, cache, resource, synthetic-canary and secure Telegram gates atomically. Launch through the reviewed detached service, require one reconciled real unit and the first scheduled heartbeat before health release, and preserve renewable checkpoint accounting without a hard wall stop. Do not access protected or Capital.com data.
+"""
+    atomic_write_bytes(args.output_root / "FINAL_LAUNCH_TASK.md", launch.encode("utf-8"))
+    final_inventory = _inventory(args.output_root, excluded={"FINAL_PACKET_HASH_INVENTORY.json"})
+    atomic_write_json(args.output_root / "FINAL_PACKET_HASH_INVENTORY.json", {
+        "schema": "stage24_final_packet_hash_inventory_v1",
+        "files": final_inventory,
+        "inventory_sha256": canonical_hash(final_inventory),
+    })
+    return {
+        "status": "final_packet_ready_for_exact_human_launch_approval",
+        "implementation_commit": head,
+        "manifest_sha256": sha256_file(args.output_root / "FINAL_CAMPAIGN_MANIFEST.json"),
+        "approval_request_sha256": sha256_file(args.output_root / "FINAL_HUMAN_APPROVAL_REQUEST.json"),
+        "registry_sha256": primary["strategy_registry"],
+        "control_registry_sha256": primary["control_registry"],
+        "cache_authority_manifest_sha256": primary["cache_authority_manifest"],
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Build the final Stage 24 hash-bound launch-approval packet")
+    parser.add_argument("--repository-root", type=Path, required=True)
+    parser.add_argument("--packet-root", type=Path, required=True)
+    parser.add_argument("--cache-manifest", type=Path, required=True)
+    parser.add_argument("--gate", type=Path, required=True)
+    parser.add_argument("--review", type=Path, required=True)
+    parser.add_argument("--output-root", type=Path, required=True)
+    parser.add_argument("--implementation-commit", required=True)
+    args = parser.parse_args()
+    print(json.dumps(build(args), sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

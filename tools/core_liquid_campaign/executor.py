@@ -42,6 +42,7 @@ def _launch_tree_paths(repository_root: Path) -> list[str]:
     paths.extend((
         "tools/build_stage22_core_liquid_campaign.py",
         "tools/build_stage23_final_packet.py",
+        "tools/build_stage24_final_packet.py",
         "tools/run_stage22_core_liquid_campaign.py",
         "tools/run_stage22_core_liquid_campaign.py",
         "unit_tests/test_core_liquid_campaign.py",
