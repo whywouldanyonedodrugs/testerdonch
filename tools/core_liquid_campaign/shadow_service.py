@@ -164,7 +164,14 @@ def run_shadow_service(spec_path: Path) -> dict[str, Any]:
     )
     supervisor_state = supervisor.run(iter([(job_id, job)]), require_health_release=True)
     if supervisor_state.get("status") != "complete" or supervisor_state.get("health_release") is not True:
-        raise ShadowAuthorizationError("shadow supervisor did not reach health release")
+        state.update({
+            "status": str(supervisor_state.get("status", "global_resumable_bound_stop")),
+            "health_release": False,
+            "all_workers_stopped": supervisor_state.get("all_workers_stopped") is True,
+            "resumable": True,
+        })
+        atomic_write_json(state_path, state)
+        return state
     marker = next((supervisor_root / "markers").glob("*.json"))
     marker_record = json.loads(marker.read_text(encoding="utf-8"))
     artifact = supervisor_root / marker_record["artifact"]
