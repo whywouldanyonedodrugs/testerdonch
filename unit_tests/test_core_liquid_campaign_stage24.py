@@ -14,7 +14,7 @@ from tools.core_liquid_campaign.family_engines.common import EngineInputError, w
 from tools.core_liquid_campaign.campaign import CampaignOrchestrator
 from tools.core_liquid_campaign.controls import CONTROL_IDS, derive_control_inputs, execute_control
 from tools.core_liquid_campaign.executor import CacheAuthority, dispatch_registered_attempt
-from tools.core_liquid_campaign.engine_types import ExactPopulationTableView, ExactPopulationView
+from tools.core_liquid_campaign.engine_types import DailyBar, ExactPopulationTableView, ExactPopulationView
 from tools.core_liquid_campaign.schema import CAMPAIGN_ID, baseline_config, economic_address, normalize_config
 from tools.core_liquid_campaign.shadow_payoff import ShadowPayoffProvider
 from tools.core_liquid_campaign.shadow_service import _write_shadow_bound_stop
@@ -24,7 +24,7 @@ from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceLimits
 from tools.core_liquid_campaign.production_readiness_gate import _a1_state_gate
 from tools.core_liquid_campaign.production_inputs import _thresholds
 from tools.core_liquid_campaign.family_engines import a1_compression
-from tools.core_liquid_campaign.production_population_tables import A1PopulationTableAuthority, _feature_arrays
+from tools.core_liquid_campaign.production_population_tables import A1PopulationTableAuthority, _a3_symbol_events, _feature_arrays
 
 
 class Stage24KnownDefectTests(unittest.TestCase):
@@ -332,6 +332,38 @@ class Stage24KnownDefectTests(unittest.TestCase):
         gapped = _feature_arrays(gapped_times, closes)
         self.assertTrue(np.isnan(gapped["A1_impulse:window=6h"][300]))
         self.assertTrue(np.isnan(gapped["A1_contraction:base=2h:baseline=adjacent_equal_duration"][270]))
+
+    def test_sparse_a3_population_records_exact_first_pit_crossing_and_rejects_gap(self) -> None:
+        import numpy as np
+
+        day = datetime(2025, 1, 1, tzinfo=timezone.utc)
+        daily = tuple(
+            DailyBar(
+                day - timedelta(days=299 - index),
+                100.0, 110.0, 90.0, 100.0,
+                day - timedelta(days=299 - index),
+                day - timedelta(days=299 - index),
+                True,
+            )
+            for index in range(300)
+        )
+        day_ms = int(day.timestamp() * 1000)
+        times = np.asarray([day_ms, day_ms + 300_000, day_ms + 600_000], dtype="<i8")
+        closes = np.asarray([109.0, 111.0, 112.0], dtype="<f8")
+        pit = {day_ms: {"average_liquidity_rank": 3.0, "eligible_population": 20}}
+        events = _a3_symbol_events(times, closes, daily, pit)
+        for lookback in (20, 60, 120, 250):
+            for atr in (10, 20, 40, 60):
+                self.assertEqual(
+                    [(day_ms + 600_000, 2, 0.05)],
+                    events[f"A3_breakout:lookback={lookback}:atr={atr}:side=1"],
+                )
+                self.assertEqual([], events[f"A3_breakout:lookback={lookback}:atr={atr}:side=-1"])
+
+        gapped_times = times.copy()
+        gapped_times[1:] += 300_000
+        gapped = _a3_symbol_events(gapped_times, closes, daily, pit)
+        self.assertTrue(all(not rows for rows in gapped.values()))
 
     def test_a1_population_authority_resolves_global_and_signed_views(self) -> None:
         import numpy as np

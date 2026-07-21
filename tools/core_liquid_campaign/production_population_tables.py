@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import gzip
 import json
 import math
 from dataclasses import dataclass
@@ -8,9 +9,9 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
-from .canonical import atomic_write_json, canonical_hash, sha256_file
-from .engine_types import ExactPopulationTableView, ThresholdPopulation
-from .family_engines import a1_compression
+from .canonical import atomic_write_bytes, atomic_write_json, canonical_hash, canonical_json_bytes, sha256_file
+from .engine_types import DailyBar, ExactPopulationTableView, ThresholdPopulation
+from .family_engines.common import EngineInputError, wilder_atr
 from .production_cache import ALLOWED_CANDLE_COLUMNS, EMPTY_CANDLE_COLUMNS, SourcePart
 
 
@@ -442,4 +443,214 @@ class A1PopulationTableAuthority:
         )
 
 
-__all__ = ["A1PopulationTableAuthority", "A1PopulationTableCompiler", "PopulationTableError", "_feature_arrays"]
+def _a3_symbol_events(
+    times,
+    closes,
+    daily: Sequence[DailyBar],
+    pit_by_day: Mapping[int, Mapping[str, Any]],
+) -> dict[str, list[tuple[int, int, float]]]:
+    """Return first PIT-eligible prior-level crossings as (close_ms, decile, magnitude)."""
+    import numpy as np
+
+    times = np.asarray(times, dtype="<i8"); closes = np.asarray(closes, dtype="<f8")
+    daily = tuple(sorted(daily, key=lambda row: row.close_ts))
+    daily_index = {int(row.close_ts.timestamp() * 1000): index for index, row in enumerate(daily)}
+    by_day: dict[int, tuple[int, int]] = {}
+    days, starts, counts = np.unique(times // DAY_MS * DAY_MS, return_index=True, return_counts=True)
+    for day, start, count in zip(days, starts, counts):
+        by_day[int(day)] = (int(start), int(start + count))
+    result: dict[str, list[tuple[int, int, float]]] = {
+        f"A3_breakout:lookback={lookback}:atr={atr}:side={side}": []
+        for lookback in (20, 60, 120, 250) for atr in (10, 20, 40, 60) for side in (-1, 1)
+    }
+    for day_ms, membership in sorted(pit_by_day.items()):
+        bounds = by_day.get(day_ms); history_index = daily_index.get(day_ms)
+        if bounds is None or history_index is None:
+            continue
+        begin, end = bounds
+        rank = float(membership["average_liquidity_rank"]); population = int(membership["eligible_population"])
+        decile = 1 + min(9, int((rank - 1) * 10 / population))
+        indices = np.arange(begin, end, dtype=np.int64)
+        eligible = indices > 0
+        eligible &= times[indices] - times[np.maximum(indices - 1, 0)] == FIVE_MINUTES_MS
+        for lookback in (20, 60, 120, 250):
+            if history_index + 1 < lookback:
+                continue
+            prior = daily[history_index - lookback + 1:history_index + 1]
+            if prior[-1].close_ts - prior[0].close_ts != timedelta(days=lookback - 1):
+                continue
+            levels = {1: max(row.high for row in prior), -1: min(row.low for row in prior)}
+            crossings: dict[int, tuple[int, float]] = {}
+            for side in (-1, 1):
+                level = levels[side]
+                crossed = eligible & (
+                    ((closes[np.maximum(indices - 1, 0)] <= level) & (closes[indices] > level))
+                    if side == 1 else
+                    ((closes[np.maximum(indices - 1, 0)] >= level) & (closes[indices] < level))
+                )
+                locations = np.flatnonzero(crossed)
+                if len(locations):
+                    index = int(indices[int(locations[0])])
+                    crossings[side] = (index, level)
+            if not crossings:
+                continue
+            for atr_window in (10, 20, 40, 60):
+                if history_index + 1 < atr_window + 1:
+                    continue
+                atr_rows = daily[history_index - atr_window:history_index + 1]
+                if atr_rows[-1].close_ts - atr_rows[0].close_ts != timedelta(days=atr_window):
+                    continue
+                try:
+                    atr = wilder_atr([row.high for row in atr_rows], [row.low for row in atr_rows], [row.close for row in atr_rows], atr_window)
+                except EngineInputError:
+                    continue
+                for side, (index, level) in crossings.items():
+                    magnitude = (float(closes[index]) - level) / atr if side == 1 else (level - float(closes[index])) / atr
+                    result[f"A3_breakout:lookback={lookback}:atr={atr_window}:side={side}"].append(
+                        (int(times[index]) + FIVE_MINUTES_MS, decile, magnitude)
+                    )
+    return result
+
+
+@dataclass
+class A3PopulationTableCompiler:
+    cache_root: Path
+    parts_by_symbol: Mapping[str, Sequence[SourcePart]]
+    pit_rows: Sequence[Mapping[str, Any]]
+    daily_by_symbol: Mapping[str, Sequence[DailyBar]]
+
+    def build(self) -> dict[str, Any]:
+        import numpy as np
+
+        symbols = tuple(sorted(self.parts_by_symbol)); codes = {symbol: index + 1 for index, symbol in enumerate(symbols)}
+        pit_by_symbol: dict[str, dict[int, Mapping[str, Any]]] = {symbol: {} for symbol in symbols}
+        for row in self.pit_rows:
+            symbol = str(row["symbol"]); day = int(row["day_open_ms"])
+            if symbol not in pit_by_symbol:
+                raise PopulationTableError("A3 PIT table contains an unregistered symbol")
+            if day in pit_by_symbol[symbol]:
+                raise PopulationTableError("A3 PIT table contains a duplicate symbol-day")
+            pit_by_symbol[symbol][day] = row
+        root = self.cache_root / "population_tables/a3"; shard_root = root / "shards"; shard_root.mkdir(parents=True, exist_ok=True)
+        progress_path = root / "BUILD_PROGRESS.json"
+        progress = json.loads(progress_path.read_text(encoding="utf-8")) if progress_path.exists() else {
+            "schema": "stage24_a3_population_table_progress_v1", "symbol_order_sha256": canonical_hash(symbols), "completed": {},
+        }
+        if progress.get("schema") != "stage24_a3_population_table_progress_v1" or progress.get("symbol_order_sha256") != canonical_hash(symbols):
+            raise PopulationTableError("resumable A3 population-table identity differs")
+        for symbol in symbols:
+            source_identity = canonical_hash([part.payload() for part in self.parts_by_symbol[symbol] if part.dataset == "historical_trade_candles_5m"])
+            shard = shard_root / f"{codes[symbol]:03d}-{symbol}.json.gz"
+            completed = progress["completed"].get(symbol)
+            if isinstance(completed, Mapping) and completed.get("source_identity_sha256") == source_identity and shard.is_file() and shard.stat().st_size == completed.get("bytes") and sha256_file(shard) == completed.get("sha256"):
+                continue
+            times, closes = _load_trade_arrays(self.parts_by_symbol[symbol])
+            events = _a3_symbol_events(times, closes, self.daily_by_symbol[symbol], pit_by_symbol[symbol])
+            payload = {"schema": "stage24_a3_symbol_crossings_v1", "symbol": symbol, "symbol_code": codes[symbol], "events": events}
+            atomic_write_bytes(shard, gzip.compress(canonical_json_bytes(payload), compresslevel=6, mtime=0))
+            progress["completed"][symbol] = {"source_identity_sha256": source_identity, "bytes": shard.stat().st_size, "sha256": sha256_file(shard)}
+            atomic_write_json(progress_path, progress)
+        if set(progress["completed"]) != set(symbols):
+            raise PopulationTableError("A3 sparse population table did not complete every symbol")
+        feature_names = tuple(f"A3_breakout:lookback={lookback}:atr={atr}:side={side}" for lookback in (20, 60, 120, 250) for atr in (10, 20, 40, 60) for side in (-1, 1))
+        merged = {name: {"timestamps": [], "symbols": [], "deciles": [], "values": []} for name in feature_names}
+        shard_inventory = []
+        for symbol in symbols:
+            shard = shard_root / f"{codes[symbol]:03d}-{symbol}.json.gz"
+            payload = json.loads(gzip.decompress(shard.read_bytes()))
+            for name, events in payload["events"].items():
+                for timestamp, decile, value in events:
+                    merged[name]["timestamps"].append(timestamp); merged[name]["symbols"].append(codes[symbol]); merged[name]["deciles"].append(decile); merged[name]["values"].append(value)
+            shard_inventory.append({"symbol": symbol, "path": shard.relative_to(self.cache_root).as_posix(), "bytes": shard.stat().st_size, "sha256": sha256_file(shard)})
+        feature_records = {}; protected_rows = 0
+        for name in feature_names:
+            order = np.argsort(np.asarray(merged[name]["timestamps"], dtype="<i8"), kind="stable")
+            records = {}; count = len(order)
+            for field, dtype in (("values", "<f8"), ("timestamps", "<i8"), ("symbols", "<u2"), ("deciles", "u1")):
+                array = np.asarray(merged[name][field], dtype=dtype)[order]
+                if field == "timestamps":
+                    protected_rows += int(np.count_nonzero(array >= 1_767_225_600_000))
+                path = root / f"{field}-{canonical_hash(name)}.npy"
+                with path.open("wb") as handle:
+                    np.save(handle, array, allow_pickle=False)
+                records[f"{field}_path"] = path.relative_to(self.cache_root).as_posix(); records[f"{field}_bytes"] = path.stat().st_size; records[f"{field}_sha256"] = sha256_file(path)
+            records["rows"] = count; feature_records[name] = records
+        manifest = {
+            "schema": "stage24_a3_exact_pit_first_crossing_table_v1", "symbols": len(symbols), "symbol_codes": codes,
+            "features": feature_records, "feature_inventory_sha256": canonical_hash(feature_records),
+            "shards": shard_inventory, "shard_inventory_sha256": canonical_hash(shard_inventory),
+            "protected_rows": protected_rows,
+            "formula": "first PIT-eligible completed-close crossing per symbol-side/day of the frozen prior valid-daily level; exact Wilder ATR; gaps never bridge",
+        }
+        if protected_rows:
+            raise PopulationTableError("A3 sparse population table contains protected rows")
+        manifest_path = root / "A3_POPULATION_TABLE_MANIFEST.json"; atomic_write_json(manifest_path, manifest)
+        return {**manifest, "manifest_path": str(manifest_path), "manifest_sha256": sha256_file(manifest_path)}
+
+
+class A3PopulationTableAuthority:
+    def __init__(self, cache_root: Path, manifest_path: Path) -> None:
+        import numpy as np
+
+        self.cache_root = cache_root; self.manifest_path = manifest_path
+        self.manifest = json.loads(manifest_path.read_text(encoding="utf-8")); self.manifest_sha256 = sha256_file(manifest_path)
+        if self.manifest.get("schema") != "stage24_a3_exact_pit_first_crossing_table_v1" or self.manifest.get("protected_rows") != 0:
+            raise PopulationTableError("A3 population table manifest is invalid")
+        self.codes = {str(key): int(value) for key, value in self.manifest["symbol_codes"].items()}; self.by_code = {value: key for key, value in self.codes.items()}
+        self._cache: dict[tuple[Any, ...], tuple[int, int, tuple[str, ...]]] = {}
+        for record in self.manifest["features"].values():
+            for field in ("values", "timestamps", "symbols", "deciles"):
+                path = cache_root / record[f"{field}_path"]
+                if not path.is_file() or path.stat().st_size != int(record[f"{field}_bytes"]) or sha256_file(path) != record[f"{field}_sha256"]:
+                    raise PopulationTableError("A3 population table component differs")
+
+    @staticmethod
+    def _base(name: str) -> tuple[str, str]:
+        fields = dict(item.split("=", 1) for item in name.split(":")[1:])
+        base = f"A3_breakout:lookback={fields['lookback']}:atr={fields['atr']}:side={fields['side']}"
+        return base, str(fields["scope"])
+
+    def population(self, name: str, *, target_symbol: str, target_decile: int, training_start: datetime, training_end: datetime) -> ThresholdPopulation:
+        import numpy as np
+
+        base, scope = self._base(name); record = self.manifest["features"].get(base)
+        if record is None:
+            raise PopulationTableError("A3 population feature is absent")
+        symbol_code = self.codes[target_symbol] if scope == "symbol_side" else None
+        decile = target_decile if scope == "liquidity_decile_side" else None
+        start_ms = int(training_start.timestamp() * 1000); end_ms = int(training_end.timestamp() * 1000)
+        key = (base, start_ms, end_ms, symbol_code, decile)
+        summary = self._cache.get(key)
+        if summary is None:
+            values = np.load(self.cache_root / record["values_path"], mmap_mode="r", allow_pickle=False)
+            timestamps = np.load(self.cache_root / record["timestamps_path"], mmap_mode="r", allow_pickle=False)
+            symbols = np.load(self.cache_root / record["symbols_path"], mmap_mode="r", allow_pickle=False)
+            deciles = np.load(self.cache_root / record["deciles_path"], mmap_mode="r", allow_pickle=False)
+            mask = (timestamps >= start_ms) & (timestamps < end_ms) & np.isfinite(values)
+            if symbol_code is not None: mask &= symbols == symbol_code
+            if decile is not None: mask &= deciles == decile
+            selected = np.asarray(values[mask], dtype="<f8"); contributing = tuple(self.by_code[int(code)] for code in np.unique(symbols[mask]))
+            summary = (len(selected), int(np.unique(selected).size), contributing); self._cache[key] = summary
+        count, unique, contributing = summary
+        if count < 30 or unique < 20 or (scope != "symbol_side" and len(contributing) < 5):
+            raise PopulationTableError("A3 population selector fails frozen minimums")
+        view = ExactPopulationTableView(
+            values_path=record["values_path"], values_sha256=record["values_sha256"],
+            timestamps_path=record["timestamps_path"], timestamps_sha256=record["timestamps_sha256"],
+            symbols_path=record["symbols_path"], symbols_sha256=record["symbols_sha256"],
+            deciles_path=record["deciles_path"], deciles_sha256=record["deciles_sha256"],
+            physical_count=int(record["rows"]), training_start_ms=start_ms, training_end_ms=end_ms,
+            selected_count=count, unique_count=unique, minimum_unique_count_verified=20,
+            value_multiplier=1, symbol_code=symbol_code, liquidity_decile=decile,
+            root=str(self.cache_root), physical_verified=True,
+        )
+        return ThresholdPopulation(
+            view, contributing, scope, training_start, training_end, training_end - timedelta(minutes=5), training_end,
+            canonical_hash({"table_manifest_sha256": self.manifest_sha256, "population": view.identity_payload()}),
+        )
+
+
+__all__ = [
+    "A1PopulationTableAuthority", "A1PopulationTableCompiler", "A3PopulationTableAuthority",
+    "A3PopulationTableCompiler", "PopulationTableError", "_a3_symbol_events", "_feature_arrays",
+]

@@ -20,7 +20,13 @@ from .engine_types import ExactPopulationView
 from .family_engines import a1_compression, a2_context, a3_starter_retest, a4_tsmom
 from .family_engines.common import EngineInputError, ema, log_return, path_smoothness, sample_standard_deviation, wilder_atr
 from .production_cache import ALLOWED_CANDLE_COLUMNS, ProductionCacheCompiler, ProductionCacheError, SourcePart
-from .production_population_tables import A1PopulationTableAuthority, A1PopulationTableCompiler
+from .production_population_tables import (
+    A1PopulationTableAuthority,
+    A1PopulationTableCompiler,
+    A3PopulationTableAuthority,
+    A3PopulationTableCompiler,
+    PopulationTableError,
+)
 from .synthetic import with_source_authority
 
 
@@ -266,6 +272,7 @@ def _thresholds(
     training_end: datetime,
     store: ExactPopulationStore | None = None,
     skip_a1: bool = False,
+    skip_a3: bool = False,
 ) -> tuple[dict[str, ThresholdPopulation], list[dict[str, Any]]]:
     symbols = tuple(sorted(bars_by_symbol))
     if target not in bars_by_symbol or target not in daily_by_symbol:
@@ -385,19 +392,21 @@ def _thresholds(
                         level = max(row.high for row in prior) if side == 1 else min(row.low for row in prior)
                         if symbol == target:
                             values.extend((bar.close - level) / atr if side == 1 else (level - bar.close) / atr for bar in day_bars)
-                        first_index = indexed_day_bars[0][0]
-                        previous = symbol_bars[first_index - 1] if first_index > 0 else None
-                        for bar in day_bars:
-                            crossed = previous is not None and (previous.close <= level < bar.close if side == 1 else previous.close >= level > bar.close)
-                            if crossed:
-                                crossings.append((bar.close - level) / atr if side == 1 else (level - bar.close) / atr)
-                                break
-                            previous = bar
+                        if not skip_a3:
+                            first_index = indexed_day_bars[0][0]
+                            previous = symbol_bars[first_index - 1] if first_index > 0 else None
+                            for bar in day_bars:
+                                crossed = previous is not None and (previous.close <= level < bar.close if side == 1 else previous.close >= level > bar.close)
+                                if crossed:
+                                    crossings.append((bar.close - level) / atr if side == 1 else (level - bar.close) / atr)
+                                    break
+                                previous = bar
                     breakout_by_symbol[symbol] = crossings
                 add(a2_context.proximity_population_key(lookback, atr_window, side), values)
-                for scope in ("symbol_side", "liquidity_decile_side", "global_side"):
-                    scoped = breakout_by_symbol[target] if scope == "symbol_side" else [value for symbol in symbols for value in breakout_by_symbol[symbol]]
-                    add(a3_starter_retest.breakout_population_key(lookback, atr_window, scope, side), scoped, scope, symbols if scope != "symbol_side" else (target,))
+                if not skip_a3:
+                    for scope in ("symbol_side", "liquidity_decile_side", "global_side"):
+                        scoped = breakout_by_symbol[target] if scope == "symbol_side" else [value for symbol in symbols for value in breakout_by_symbol[symbol]]
+                        add(a3_starter_retest.breakout_population_key(lookback, atr_window, scope, side), scoped, scope, symbols if scope != "symbol_side" else (target,))
 
     for asset, symbol in (("BTC", "PF_XBTUSD"), ("ETH", "PF_ETHUSD")):
         rows = tuple(bar for bar in daily_by_symbol[symbol] if training_start < bar.close_ts < training_end)
@@ -601,6 +610,8 @@ class ProductionFamilyInputBuilder:
         population_store = ExactPopulationStore(cache_root)
         a1_table_build = A1PopulationTableCompiler(cache_root, parts, pit_rows).build()
         a1_population_authority = A1PopulationTableAuthority(cache_root, Path(a1_table_build["manifest_path"]))
+        a3_table_build = A3PopulationTableCompiler(cache_root, parts, pit_rows, daily).build()
+        a3_population_authority = A3PopulationTableAuthority(cache_root, Path(a3_table_build["manifest_path"]))
         writer = SemanticCacheWriter(cache_root, authority, authority_root=self.repository_root, synthetic_only=False)
         matrix: list[dict[str, Any]] = []
         feature_audit: list[dict[str, Any]] = []
@@ -656,6 +667,7 @@ class ProductionFamilyInputBuilder:
                         training_end=training_end,
                         store=population_store,
                         skip_a1=True,
+                        skip_a3=True,
                     )
                     a1_populations: dict[str, ThresholdPopulation] = {}
                     for window in ("6h", "12h", "1d", "3d", "7d"):
@@ -679,7 +691,28 @@ class ProductionFamilyInputBuilder:
                                 name, target_symbol=symbol, target_decile=target_decile,
                                 training_start=training_start, training_end=training_end,
                             )
-                    threshold_cache[threshold_key] = ({**non_a1_populations, **a1_populations}, threshold_unavailable)
+                    a3_populations: dict[str, ThresholdPopulation] = {}
+                    for lookback in (20, 60, 120, 250):
+                        for atr_window in (10, 20, 40, 60):
+                            for side in (-1, 1):
+                                for scope in ("symbol_side", "liquidity_decile_side", "global_side"):
+                                    name = a3_starter_retest.breakout_population_key(lookback, atr_window, scope, side)
+                                    try:
+                                        a3_populations[name] = a3_population_authority.population(
+                                            name, target_symbol=symbol, target_decile=target_decile,
+                                            training_start=training_start, training_end=training_end,
+                                        )
+                                    except PopulationTableError as exc:
+                                        threshold_unavailable.append({
+                                            "feature_signature": name,
+                                            "status": "unavailable_data",
+                                            "reason": str(exc),
+                                            "rows": 0,
+                                        })
+                    threshold_cache[threshold_key] = (
+                        {**non_a1_populations, **a1_populations, **a3_populations},
+                        threshold_unavailable,
+                    )
                 populations, unavailable = threshold_cache[threshold_key]
                 available_feature_signatures.update(populations)
                 feature_audit.extend({
@@ -721,12 +754,12 @@ class ProductionFamilyInputBuilder:
                     "execution_schedule_identity": canonical_hash({"symbol": symbol, "entry_open_ts": decision.isoformat(), "source": "verified_trade_schedule"}),
                     "protected_rows": 0,
                     "economic_outcomes_opened": False,
-                    "cache_authority_components": ({
-                        "path": Path(a1_table_build["manifest_path"]).relative_to(cache_root).as_posix(),
-                        "bytes": Path(a1_table_build["manifest_path"]).stat().st_size,
-                        "sha256": a1_table_build["manifest_sha256"],
+                    "cache_authority_components": tuple({
+                        "path": Path(build["manifest_path"]).relative_to(cache_root).as_posix(),
+                        "bytes": Path(build["manifest_path"]).stat().st_size,
+                        "sha256": build["manifest_sha256"],
                         "encoding": "canonical_json",
-                    },),
+                    } for build in (a1_table_build, a3_table_build)),
                 }
                 frame = FamilyInput(
                     KRAKEN_PLATFORM,
@@ -782,6 +815,8 @@ class ProductionFamilyInputBuilder:
             "cache_authority_schema": manifest["schema"],
             "a1_population_table_manifest_sha256": a1_table_build["manifest_sha256"],
             "a1_population_table_rows": a1_table_build["rows"],
+            "a3_population_table_manifest_sha256": a3_table_build["manifest_sha256"],
+            "a3_population_table_rows": sum(int(record["rows"]) for record in a3_table_build["features"].values()),
         }
         atomic_write_json(self.output_root / "PRODUCTION_FAMILY_INPUT_BUILD.json", report)
         return report
