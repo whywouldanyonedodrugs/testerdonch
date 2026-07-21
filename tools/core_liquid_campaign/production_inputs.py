@@ -12,7 +12,7 @@ from pathlib import Path
 from statistics import median
 from typing import Any, Mapping, Sequence
 
-from .a1_state import initial_state, transition
+from .a1_state import initial_state
 from .cache import SemanticCacheWriter
 from .canonical import atomic_write_json, canonical_hash, sha256_file
 from .engine_types import ContextInputs, DailyBar, FamilyInput, FundingInput, KRAKEN_PLATFORM, SignalBar, ThresholdPopulation
@@ -513,8 +513,6 @@ class ProductionFamilyInputBuilder:
                     training_end,
                     tuple((timestamp, relative * 10000.0) for timestamp, _, relative in exact_funding),
                 )
-                state = transition(initial_state(), timestamp=decision - timedelta(minutes=5), action="history_complete")
-                state = transition(state, timestamp=decision, action="rearm", percentiles={1: 0.49, -1: 0.49})
                 metadata = {
                     "production_input": True,
                     "evaluation_start": partition["evaluation_start"],
@@ -525,7 +523,8 @@ class ProductionFamilyInputBuilder:
                     "stress_gap_allowance_bps_per_hour": 0.50,
                     "pit_universe_snapshot": snapshot,
                     "campaign_partition": partition,
-                    "a1_persistent_state": state.payload(),
+                    "a1_persistent_state": initial_state().payload(),
+                    "a1_state_origin": "history_rebuild_at_complete_frame_start",
                     "execution_schedule_identity": canonical_hash({"symbol": symbol, "entry_open_ts": decision.isoformat(), "source": "verified_trade_schedule"}),
                     "protected_rows": 0,
                     "economic_outcomes_opened": False,

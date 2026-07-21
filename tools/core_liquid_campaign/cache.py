@@ -75,7 +75,7 @@ def _restore_metadata(value: Any, key: str | None = None) -> Any:
         return {str(item_key): _restore_metadata(item, str(item_key)) for item_key, item in value.items()}
     if isinstance(value, list):
         return tuple(_restore_metadata(item) for item in value)
-    if isinstance(value, str) and (key or "").endswith(("_ts", "_start", "_end", "_exclusive")):
+    if isinstance(value, str) and (key or "").endswith(("_ts", "_start", "_end", "_exclusive", "_until")):
         try:
             return _datetime(value)
         except CacheBuildError:

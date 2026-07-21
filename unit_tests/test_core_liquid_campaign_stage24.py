@@ -7,7 +7,7 @@ from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from tools.core_liquid_campaign.cache import SemanticCacheWriter
+from tools.core_liquid_campaign.cache import SemanticCacheWriter, _restore_metadata
 from tools.core_liquid_campaign.canonical import atomic_write_json, canonical_hash, pretty_json_bytes, sha256_file
 from tools.core_liquid_campaign.a1_state import initial_state, transition
 from tools.core_liquid_campaign.family_engines.common import EngineInputError, weak_percentile, weak_percentile_prevalidated_sorted
@@ -100,11 +100,50 @@ class Stage24KnownDefectTests(unittest.TestCase):
         self.assertEqual("disarmed", state.state)
         self.assertEqual(6, state.state_generation)
 
+    def test_a1_gap_at_each_active_state_preserves_owner_and_reason(self) -> None:
+        start = datetime(2025, 1, 1, tzinfo=timezone.utc)
+        for side in (-1, 1):
+            state = transition(initial_state(), timestamp=start, action="history_complete")
+            state = transition(state, timestamp=start + timedelta(minutes=5), action="rearm", percentiles={1: 0.1, -1: 0.1})
+            state = transition(state, timestamp=start + timedelta(minutes=10), action="trigger", side=side)
+            active = [state]
+            active.append(transition(active[-1], timestamp=start + timedelta(minutes=15), action="base"))
+            active.append(transition(active[-1], timestamp=start + timedelta(minutes=20), action="confirmation"))
+            for offset, candidate in enumerate(active, start=3):
+                gapped = transition(candidate, timestamp=start + timedelta(hours=1, minutes=offset * 5), action="gap")
+                self.assertEqual(("history_rebuild", side, "temporal_gap"), (gapped.state, gapped.owner, gapped.terminal_episode_reason))
+
+    def test_production_a1_engine_consumes_persisted_start_state_and_fails_closed_mid_episode(self) -> None:
+        frame = a1_frame()
+        metadata = {**frame.metadata, "production_input": True, "a1_persistent_state": initial_state().payload()}
+        a1_frame_from_rebuild = replace(frame, metadata=metadata)
+        dispatch_registered_attempt(
+            self._attempt("A1_COMPRESSION_V2", "persisted-a1"),
+            (a1_frame_from_rebuild,),
+            registry_by_id={"persisted-a1": self._attempt("A1_COMPRESSION_V2", "persisted-a1")},
+            payoff_provider=ShadowPayoffProvider("stage24-a1-persisted-state"),
+        )
+        start = frame.five_minute_bars[0].open_ts - timedelta(minutes=15)
+        state = transition(initial_state(), timestamp=start, action="history_complete")
+        state = transition(state, timestamp=start + timedelta(minutes=5), action="rearm", percentiles={1: 0.1, -1: 0.1})
+        state = transition(state, timestamp=start + timedelta(minutes=10), action="trigger", side=1)
+        broken = replace(frame, metadata={**metadata, "a1_persistent_state": state.payload()})
+        with self.assertRaises(EngineInputError):
+            dispatch_registered_attempt(
+                self._attempt("A1_COMPRESSION_V2", "persisted-a1"),
+                (broken,), registry_by_id={"persisted-a1": self._attempt("A1_COMPRESSION_V2", "persisted-a1")},
+                payoff_provider=ShadowPayoffProvider("stage24-a1-persisted-state"),
+            )
+
     def test_production_gate_a1_evidence_is_canonical_json_serializable(self) -> None:
         evidence = _a1_state_gate()
         self.assertEqual("pass", evidence["status"])
         payload = pretty_json_bytes(evidence)
         self.assertIn(b'"last_valid_ts": "2025-01-01T00:25:00+00:00"', payload)
+
+    def test_cache_restores_a1_cooldown_deadline_as_utc_datetime(self) -> None:
+        value = _restore_metadata({"cooldown_until": "2025-01-01T01:00:00+00:00"})
+        self.assertEqual(datetime(2025, 1, 1, 1, tzinfo=timezone.utc), value["cooldown_until"])
 
     def test_typed_kda_cache_unavailability_becomes_terminal_jobs(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

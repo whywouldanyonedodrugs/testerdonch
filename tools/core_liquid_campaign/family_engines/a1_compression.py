@@ -110,6 +110,8 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
             raise EngineInputError("production A1 frame lacks its persisted state")
         persisted_state = A1PersistentState(**persisted_state)
         persisted_state.validate()
+        if persisted_state.state in {"episode_owned_long", "episode_owned_short", "base", "confirmation"}:
+            raise EngineInputError("production A1 frame begins inside an active episode without a complete episode checkpoint")
     bars, rebuilt_after_gap = _decision_contiguous_segment(frame)
     require_contiguous_5m(bars)
     impulse_n = _bar_count(str(config["impulse_window"]))
@@ -149,8 +151,12 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
             prepared_populations[name] = tuple(sorted(float(value) for value in _population(frame, name)))
         return prepared_populations[name]
 
-    armed = {side: not rebuilt_after_gap for side in sides}
-    owning_side: int | None = None
+    if persisted_state is None:
+        armed = {side: not rebuilt_after_gap for side in sides}
+        owning_side: int | None = None
+    else:
+        armed = {side: persisted_state.state == "armed" and not rebuilt_after_gap for side in sides}
+        owning_side = persisted_state.owner
     if rebuilt_after_gap:
         recorded_owner = (
             persisted_state.owner
@@ -192,6 +198,9 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
             if crossed:
                 side_candidates.append((percentile - threshold, side, score))
         if not any(armed.values()):
+            if persisted_state is not None and persisted_state.state == "cooldown" and persisted_state.cooldown_until is not None and require_utc(bars[index].close_ts) < require_utc(persisted_state.cooldown_until):
+                index += 1
+                continue
             if rearm_ready(sides, owning_side, percentiles):
                 history_restore_index = index
             index += 1
