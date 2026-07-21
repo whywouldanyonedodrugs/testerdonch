@@ -17,7 +17,7 @@ from tools.core_liquid_campaign.executor import dispatch_registered_attempt
 from tools.core_liquid_campaign.schema import CAMPAIGN_ID, baseline_config, economic_address, normalize_config
 from tools.core_liquid_campaign.shadow_payoff import ShadowPayoffProvider
 from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame, a4_frame, frame_for_family
-from tools.core_liquid_campaign.terminal import TerminalContractError, terminal_package, verify_terminal_inventory
+from tools.core_liquid_campaign.terminal import TerminalContractError, independent_terminal_recomputation, terminal_package, verify_terminal_inventory
 from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceLimits
 from tools.core_liquid_campaign.production_readiness_gate import _a1_state_gate
 from tools.core_liquid_campaign.production_inputs import _thresholds
@@ -372,13 +372,30 @@ class Stage24KnownDefectTests(unittest.TestCase):
                 control_rows=[{"control_attempt_id": "c", "terminal_status": "completed"}],
                 routes=[{"family": "A4_TSMOM_V7", "route": "translation_rejected"}],
                 forensics=[{"family": "A4_TSMOM_V7", "event_count": 0}],
-                all_workers_stopped=True,
-                job_reconciliation={"pass": True},
-            )
+                    all_workers_stopped=True,
+                    job_reconciliation={"pass": True},
+                )
             self.assertEqual("pass", verify_terminal_inventory(root)["status"])
             (root / "FORENSIC_RECORDS.json").write_bytes(b"tampered")
             with self.assertRaises(TerminalContractError):
                 verify_terminal_inventory(root)
+
+    def test_terminal_independent_recomputation_round_trips_frozen_sources(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            payload = terminal_package(
+                root, attempt_ids=["a"], control_ids=["c"],
+                attempt_rows=[{"attempt_id": "a", "terminal_status": "completed"}],
+                control_rows=[{"control_attempt_id": "c", "terminal_status": "unavailable_no_parent"}],
+                routes=[{"family": "fixture", "route": "shadow_verified"}],
+                forensics=[{"family": "fixture", "status": "shadow_verified"}],
+                all_workers_stopped=True, job_reconciliation={"pass": True},
+            )
+            stored = json.loads((root / "INDEPENDENT_RECOMPUTATION.json").read_text())
+            replay = independent_terminal_recomputation(root, attempt_ids=["a"], control_ids=["c"], require_complete=True)
+            self.assertEqual(stored, replay)
+            self.assertEqual(sha256_file(root / "INDEPENDENT_RECOMPUTATION.json"), payload["independent_recomputation_sha256"])
+            self.assertEqual("pass", verify_terminal_inventory(root)["status"])
 
     def test_stale_scheduled_heartbeat_stops_workers_without_late_commit(self) -> None:
         import time

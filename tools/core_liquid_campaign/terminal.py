@@ -103,6 +103,42 @@ def route_record(
     return {"family": family, "outer_vector": vector, "common_gate": common, "common_stress_ok": common_stress_ok, "main_null": main, "component_controls": components, "route": route}
 
 
+def independent_terminal_recomputation(
+    output_root: Path,
+    *,
+    attempt_ids: Sequence[str],
+    control_ids: Sequence[str],
+    require_complete: bool,
+) -> dict[str, Any]:
+    """Freshly decode and reconcile terminal identities, routes and forensics."""
+    names = (
+        "ATTEMPT_TERMINAL_ROWS.json", "CONTROL_TERMINAL_ROWS.json",
+        "ROUTE_RECORDS.json", "FORENSIC_RECORDS.json",
+    )
+    decoded = [json.loads((output_root / name).read_text(encoding="utf-8")) for name in names]
+    attempts, controls, routes, forensics = (item.get("rows") for item in decoded)
+    if not all(isinstance(value, list) for value in (attempts, controls, routes, forensics)):
+        raise TerminalContractError("terminal recomputation source schema differs")
+    attempt_reconciliation = reconcile_identities(attempt_ids, attempts, "attempt_id")
+    control_reconciliation = reconcile_identities(control_ids, controls, "control_attempt_id")
+    no_extra = not attempt_reconciliation["extra"] and not control_reconciliation["extra"]
+    identities_ok = attempt_reconciliation["pass"] and control_reconciliation["pass"] if require_complete else no_extra
+    route_ok = bool(routes) and all(isinstance(row, Mapping) and bool(row.get("route")) for row in routes) if require_complete else True
+    forensic_ok = bool(forensics) if require_complete else True
+    return {
+        "schema": "stage24_independent_terminal_recomputation_v1",
+        "status": "pass" if identities_ok and route_ok and forensic_ok else "fail",
+        "require_complete": require_complete,
+        "attempt_reconciliation": attempt_reconciliation,
+        "control_reconciliation": control_reconciliation,
+        "route_count": len(routes),
+        "forensic_count": len(forensics),
+        "route_inventory_sha256": canonical_hash(routes),
+        "forensic_inventory_sha256": canonical_hash(forensics),
+        "source_file_sha256": {name: sha256_file(output_root / name) for name in names},
+    }
+
+
 def terminal_package(
     output_root: Path,
     *,
@@ -138,8 +174,17 @@ def terminal_package(
     atomic_write_json(output_root / "CONTROL_TERMINAL_ROWS.json", {"rows": list(control_rows)})
     atomic_write_json(output_root / "ROUTE_RECORDS.json", {"rows": list(routes)})
     atomic_write_json(output_root / "FORENSIC_RECORDS.json", {"rows": list(forensics)})
+    independent = independent_terminal_recomputation(
+        output_root,
+        attempt_ids=attempt_ids,
+        control_ids=control_ids,
+        require_complete=not bound_stop,
+    )
+    if independent["status"] != "pass":
+        raise TerminalContractError("independent terminal recomputation failed")
+    atomic_write_json(output_root / "INDEPENDENT_RECOMPUTATION.json", independent)
     supporting = []
-    for name in ("ATTEMPT_TERMINAL_ROWS.json", "CONTROL_TERMINAL_ROWS.json", "ROUTE_RECORDS.json", "FORENSIC_RECORDS.json"):
+    for name in ("ATTEMPT_TERMINAL_ROWS.json", "CONTROL_TERMINAL_ROWS.json", "ROUTE_RECORDS.json", "FORENSIC_RECORDS.json", "INDEPENDENT_RECOMPUTATION.json"):
         path = output_root / name
         supporting.append({"path": name, "bytes": path.stat().st_size, "sha256": sha256_file(path)})
     supporting_inventory = {"schema": "stage23_terminal_supporting_artifact_inventory_v1", "files": supporting, "inventory_sha256": canonical_hash(supporting)}
@@ -149,6 +194,7 @@ def terminal_package(
         "attempt_reconciliation": attempt_reconciliation, "control_reconciliation": control_reconciliation,
         "routes": list(routes), "forensics": list(forensics), "all_workers_stopped": all_workers_stopped,
         "resumable": bool(bound_stop), "job_reconciliation": dict(job_reconciliation or {}), "artifact_inventory_sha256": sha256_file(output_root / "TERMINAL_SUPPORTING_ARTIFACT_INVENTORY.json"),
+        "independent_recomputation_sha256": sha256_file(output_root / "INDEPENDENT_RECOMPUTATION.json"),
     }
     atomic_write_json(output_root / "TERMINAL_PACKAGE.json", payload)
     files = []
@@ -433,4 +479,4 @@ def campaign_terminal_records(
     }
 
 
-__all__ = ["TERMINAL_STATUSES", "TerminalContractError", "campaign_terminal_records", "forensic_summary", "reconcile_identities", "route_record", "terminal_package", "verify_terminal_inventory"]
+__all__ = ["TERMINAL_STATUSES", "TerminalContractError", "campaign_terminal_records", "forensic_summary", "independent_terminal_recomputation", "reconcile_identities", "route_record", "terminal_package", "verify_terminal_inventory"]
