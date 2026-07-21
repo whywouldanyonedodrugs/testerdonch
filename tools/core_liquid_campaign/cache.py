@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from .canonical import atomic_write_bytes, atomic_write_json, canonical_hash, canonical_json_bytes, sha256_file
-from .engine_types import ContextInputs, DailyBar, ExactPopulationView, FamilyInput, FundingInput, SignalBar, ThresholdPopulation, _mark_validated_frame
+from .engine_types import ContextInputs, DailyBar, ExactPopulationTableView, ExactPopulationView, FamilyInput, FundingInput, SignalBar, ThresholdPopulation, _mark_validated_frame
 from .family_engines.common import EngineInputError, require_utc
 
 
@@ -86,6 +86,27 @@ def _restore_metadata(value: Any, key: str | None = None) -> Any:
 def _decode_population_values(value: object, cache_root: Path | None, *, external_verified: bool) -> Sequence[float]:
     if isinstance(value, list):
         return tuple(float(item) for item in value)
+    if isinstance(value, Mapping) and value.get("schema") == "exact_float64_population_table_view_v1":
+        expected = {
+            "schema", "values_path", "values_sha256", "timestamps_path", "timestamps_sha256",
+            "symbols_path", "symbols_sha256", "deciles_path", "deciles_sha256", "dtypes",
+            "physical_count", "training_start_ms", "training_end_ms", "selected_count", "unique_count",
+            "symbol_code", "liquidity_decile",
+        }
+        if set(value) != expected or value.get("dtypes") != {"values": "float64_le", "timestamps": "int64_le", "symbols": "uint16_le", "deciles": "uint8"} or cache_root is None:
+            raise CacheBuildError("external threshold table identity is invalid")
+        return ExactPopulationTableView(
+            values_path=str(value["values_path"]), values_sha256=str(value["values_sha256"]),
+            timestamps_path=str(value["timestamps_path"]), timestamps_sha256=str(value["timestamps_sha256"]),
+            symbols_path=str(value["symbols_path"]), symbols_sha256=str(value["symbols_sha256"]),
+            deciles_path=str(value["deciles_path"]), deciles_sha256=str(value["deciles_sha256"]),
+            physical_count=int(value["physical_count"]), training_start_ms=int(value["training_start_ms"]),
+            training_end_ms=int(value["training_end_ms"]), selected_count=int(value["selected_count"]),
+            unique_count=int(value["unique_count"]),
+            symbol_code=None if value["symbol_code"] is None else int(value["symbol_code"]),
+            liquidity_decile=None if value["liquidity_decile"] is None else int(value["liquidity_decile"]),
+            root=str(cache_root), physical_verified=external_verified,
+        )
     if not isinstance(value, Mapping) or value.get("schema") != "exact_sorted_float64_population_view_v1":
         raise CacheBuildError("threshold population values have an unsupported schema")
     expected = {
@@ -284,25 +305,27 @@ class SemanticCacheWriter:
             raise CacheBuildError("frame was not derived under the exact execution-input authority")
         for population in frame.threshold_populations.values():
             values = population.values
-            if not isinstance(values, ExactPopulationView):
+            if not isinstance(values, (ExactPopulationView, ExactPopulationTableView)):
                 continue
             if values.root is None or Path(values.root).resolve() != self.cache_root.resolve():
                 raise CacheBuildError("external threshold component is outside this cache root")
-            relative_path = Path(values.relative_path)
-            if relative_path.is_absolute() or ".." in relative_path.parts:
-                raise CacheBuildError("external threshold component path is unsafe")
-            physical = self.cache_root / relative_path
-            if not physical.is_file() or sha256_file(physical) != values.sha256:
-                raise CacheBuildError("external threshold component bytes differ")
-            component = {
-                "path": relative_path.as_posix(), "bytes": physical.stat().st_size,
-                "sha256": values.sha256, "encoding": "npy_float64_le_sorted_v1",
-                "shared_content_sha256": canonical_hash(values.identity_payload()),
-            }
-            previous = self.components.get(relative_path.as_posix())
-            if previous is not None and previous != component:
-                raise CacheBuildError("external threshold component identity conflicts")
-            self.components[relative_path.as_posix()] = component
+            records = values.component_records() if isinstance(values, ExactPopulationTableView) else ((values.relative_path, values.sha256, "npy_float64_le_sorted_v1"),)
+            for raw_relative, expected_hash, encoding in records:
+                relative_path = Path(raw_relative)
+                if relative_path.is_absolute() or ".." in relative_path.parts:
+                    raise CacheBuildError("external threshold component path is unsafe")
+                physical = self.cache_root / relative_path
+                if not physical.is_file() or sha256_file(physical) != expected_hash:
+                    raise CacheBuildError("external threshold component bytes differ")
+                component = {
+                    "path": relative_path.as_posix(), "bytes": physical.stat().st_size,
+                    "sha256": expected_hash, "encoding": encoding,
+                    "shared_content_sha256": canonical_hash({"path": relative_path.as_posix(), "sha256": expected_hash, "encoding": encoding}),
+                }
+                previous = self.components.get(relative_path.as_posix())
+                if previous is not None and previous != component:
+                    raise CacheBuildError("external threshold component identity conflicts")
+                self.components[relative_path.as_posix()] = component
         payload = frame.content_payload()
         content_hash = canonical_hash(payload)
         relative = Path("frames") / f"{content_hash}.ref.json"

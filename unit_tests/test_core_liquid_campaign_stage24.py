@@ -14,7 +14,7 @@ from tools.core_liquid_campaign.family_engines.common import EngineInputError, w
 from tools.core_liquid_campaign.campaign import CampaignOrchestrator
 from tools.core_liquid_campaign.controls import CONTROL_IDS, derive_control_inputs, execute_control
 from tools.core_liquid_campaign.executor import CacheAuthority, dispatch_registered_attempt
-from tools.core_liquid_campaign.engine_types import ExactPopulationView
+from tools.core_liquid_campaign.engine_types import ExactPopulationTableView, ExactPopulationView
 from tools.core_liquid_campaign.schema import CAMPAIGN_ID, baseline_config, economic_address, normalize_config
 from tools.core_liquid_campaign.shadow_payoff import ShadowPayoffProvider
 from tools.core_liquid_campaign.shadow_service import _write_shadow_bound_stop
@@ -23,6 +23,7 @@ from tools.core_liquid_campaign.terminal import TerminalContractError, independe
 from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceLimits
 from tools.core_liquid_campaign.production_readiness_gate import _a1_state_gate
 from tools.core_liquid_campaign.production_inputs import _thresholds
+from tools.core_liquid_campaign.family_engines import a1_compression
 
 
 class Stage24KnownDefectTests(unittest.TestCase):
@@ -127,6 +128,34 @@ class Stage24KnownDefectTests(unittest.TestCase):
             restored = decoded[0].threshold_populations[name].values
             self.assertIsInstance(restored, ExactPopulationView)
             self.assertEqual(weak_percentile(19.0, external), weak_percentile(19.0, restored))
+
+    def test_shared_population_table_applies_exact_fold_symbol_and_decile_selectors(self) -> None:
+        import numpy as np
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw); component_root = root / "populations"; component_root.mkdir()
+            arrays = {
+                "values.npy": np.asarray([float(index) for index in range(120)], dtype="<f8"),
+                "timestamps.npy": np.asarray([100] * 40 + [200] * 40 + [300] * 40, dtype="<i8"),
+                "symbols.npy": np.asarray([1 + index % 2 for index in range(120)], dtype="<u2"),
+                "deciles.npy": np.asarray([4 if index % 5 == 0 else 3 for index in range(120)], dtype="u1"),
+            }
+            for name, array in arrays.items():
+                np.save(component_root / name, array, allow_pickle=False)
+            selected = [
+                float(value) for value, timestamp, symbol, decile in zip(*arrays.values())
+                if 100 <= timestamp < 300 and symbol == 2 and decile == 3
+            ]
+            view = ExactPopulationTableView(
+                "populations/values.npy", sha256_file(component_root / "values.npy"),
+                "populations/timestamps.npy", sha256_file(component_root / "timestamps.npy"),
+                "populations/symbols.npy", sha256_file(component_root / "symbols.npy"),
+                "populations/deciles.npy", sha256_file(component_root / "deciles.npy"),
+                120, 100, 300, len(selected), len(set(selected)), 2, 3, str(root),
+            )
+            view.validate_physical()
+            self.assertEqual(sorted(selected), list(view))
+            self.assertEqual(weak_percentile(2.5, selected), weak_percentile(2.5, view))
 
     def test_a1_persistent_state_covers_owner_gap_cooldown_and_strict_rearm(self) -> None:
         start = datetime(2025, 1, 1, tzinfo=timezone.utc)
@@ -259,6 +288,28 @@ class Stage24KnownDefectTests(unittest.TestCase):
         name = "A4_ensemble:ema_slope:lookback=180:volatility=close_to_close"
         self.assertNotIn(name, populations)
         self.assertIn(name, {row["feature_signature"] for row in unavailable})
+
+    def test_production_thresholds_enumerate_every_boundary_and_match_a1_feature_formula(self) -> None:
+        frame = a1_frame()
+        bars = tuple(bar for bar in frame.five_minute_bars if bar.close_ts < frame.decision_ts)
+        populations, _ = _thresholds(
+            {"PF_XBTUSD": bars, "PF_ETHUSD": bars}, {"PF_XBTUSD": frame.daily_bars, "PF_ETHUSD": frame.daily_bars}, target="PF_XBTUSD",
+            training_start=bars[0].open_ts, training_end=frame.decision_ts,
+        )
+        impulse = populations[a1_compression.impulse_population_key("6h", "symbol_side", 1)]
+        self.assertEqual(len(bars) - 72, len(impulse.values))
+        expected = []
+        for index in range(47, len(bars)):
+            baseline = [bar.close for bar in bars[index - 47:index - 23]]
+            base = [bar.close for bar in bars[index - 23:index + 1]]
+            try:
+                expected.append(a1_compression.features(base, base, baseline, 1)["contraction_ratio"])
+            except EngineInputError:
+                pass
+        actual = populations[a1_compression.contraction_population_key("2h", "adjacent_equal_duration", "symbol")].values
+        self.assertEqual(len(expected), len(actual))
+        for left, right in zip(expected, actual):
+            self.assertAlmostEqual(left, right, places=12)
 
     def test_shadow_provider_uses_actual_accounting_without_real_post_entry_data(self) -> None:
         config = baseline_config("A4_TSMOM_V7")

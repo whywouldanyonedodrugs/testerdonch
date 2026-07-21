@@ -117,6 +117,131 @@ class ExactPopulationView(Sequence[float]):
         return float(selected[lower] + (h - lower) * (selected[upper] - selected[lower]))
 
 
+@dataclass(frozen=True)
+class ExactPopulationTableView(Sequence[float]):
+    """Exact filtered view over a shared point-in-time feature table."""
+
+    values_path: str
+    values_sha256: str
+    timestamps_path: str
+    timestamps_sha256: str
+    symbols_path: str
+    symbols_sha256: str
+    deciles_path: str
+    deciles_sha256: str
+    physical_count: int
+    training_start_ms: int
+    training_end_ms: int
+    selected_count: int
+    unique_count: int
+    symbol_code: int | None = None
+    liquidity_decile: int | None = None
+    root: str | None = field(default=None, compare=False, repr=False)
+    physical_verified: bool = field(default=False, compare=False, repr=False)
+    _selected_cache: Any = field(default=None, compare=False, repr=False)
+
+    def identity_payload(self) -> dict[str, Any]:
+        return {
+            "schema": "exact_float64_population_table_view_v1",
+            "values_path": self.values_path, "values_sha256": self.values_sha256,
+            "timestamps_path": self.timestamps_path, "timestamps_sha256": self.timestamps_sha256,
+            "symbols_path": self.symbols_path, "symbols_sha256": self.symbols_sha256,
+            "deciles_path": self.deciles_path, "deciles_sha256": self.deciles_sha256,
+            "dtypes": {"values": "float64_le", "timestamps": "int64_le", "symbols": "uint16_le", "deciles": "uint8"},
+            "physical_count": self.physical_count,
+            "training_start_ms": self.training_start_ms, "training_end_ms": self.training_end_ms,
+            "selected_count": self.selected_count, "unique_count": self.unique_count,
+            "symbol_code": self.symbol_code, "liquidity_decile": self.liquidity_decile,
+        }
+
+    def component_records(self) -> tuple[tuple[str, str, str], ...]:
+        return (
+            (self.values_path, self.values_sha256, "npy_float64_le_v1"),
+            (self.timestamps_path, self.timestamps_sha256, "npy_int64_le_v1"),
+            (self.symbols_path, self.symbols_sha256, "npy_uint16_le_v1"),
+            (self.deciles_path, self.deciles_sha256, "npy_uint8_v1"),
+        )
+
+    def _path(self, relative: str) -> Path:
+        if self.root is None:
+            raise EngineInputError("external threshold table has no cache root")
+        root = Path(self.root).resolve(); path = (root / relative).resolve()
+        if not path.is_relative_to(root):
+            raise EngineInputError("external threshold table path escapes cache root")
+        return path
+
+    def _arrays(self):
+        import numpy as np
+
+        arrays = []
+        expected_dtypes = (np.dtype("<f8"), np.dtype("<i8"), np.dtype("<u2"), np.dtype("u1"))
+        for (relative, _, _), dtype in zip(self.component_records(), expected_dtypes):
+            try:
+                array = np.load(self._path(relative), mmap_mode="r", allow_pickle=False)
+            except (OSError, ValueError) as exc:
+                raise EngineInputError("external threshold table cannot be loaded") from exc
+            if array.ndim != 1 or len(array) != self.physical_count or array.dtype != dtype:
+                raise EngineInputError("external threshold table shape or dtype differs")
+            arrays.append(array)
+        return tuple(arrays)
+
+    def validate_physical(self) -> None:
+        from .canonical import sha256_file
+
+        if not (0 <= self.training_start_ms < self.training_end_ms) or self.selected_count < 0 or self.unique_count < 0:
+            raise EngineInputError("external threshold table selector metadata is invalid")
+        for relative, expected, _ in self.component_records():
+            if len(expected) != 64 or any(character not in "0123456789abcdef" for character in expected):
+                raise EngineInputError("external threshold table hash is invalid")
+            path = self._path(relative)
+            if not path.is_file() or (not self.physical_verified and sha256_file(path) != expected):
+                raise EngineInputError("external threshold table bytes differ")
+        self._arrays()
+
+    def _selected(self):
+        cached = self._selected_cache
+        if cached is not None:
+            return cached
+        import numpy as np
+
+        values, timestamps, symbols, deciles = self._arrays()
+        mask = (timestamps >= self.training_start_ms) & (timestamps < self.training_end_ms) & np.isfinite(values)
+        if self.symbol_code is not None:
+            mask &= symbols == self.symbol_code
+        if self.liquidity_decile is not None:
+            mask &= deciles == self.liquidity_decile
+        selected = np.sort(np.asarray(values[mask], dtype="<f8"), kind="mergesort")
+        if len(selected) != self.selected_count or int(np.unique(selected).size) != self.unique_count:
+            raise EngineInputError("external threshold table selector count differs")
+        object.__setattr__(self, "_selected_cache", selected)
+        return selected
+
+    def __len__(self) -> int:
+        return self.selected_count
+
+    def __getitem__(self, index):
+        selected = self._selected()
+        if isinstance(index, slice):
+            return tuple(float(value) for value in selected[index])
+        return float(selected[index])
+
+    def __iter__(self) -> Iterator[float]:
+        return (float(value) for value in self._selected())
+
+    def weak_percentile(self, value: float) -> float:
+        selected = self._selected()
+        return float(selected.searchsorted(float(value), side="right")) / len(selected)
+
+    def type7_quantile(self, probability: float) -> float:
+        if not 0 <= probability <= 1 or not len(self):
+            raise EngineInputError("invalid Type-7 quantile input")
+        selected = self._selected(); h = (len(selected) - 1) * probability
+        lower = int(math.floor(h)); upper = int(math.ceil(h))
+        if lower == upper:
+            return float(selected[lower])
+        return float(selected[lower] + (h - lower) * (selected[upper] - selected[lower]))
+
+
 def _mark_validated_frame(frame: "FamilyInput") -> None:
     """Mark only an already decoded-and-validated cache object in this process."""
     identity = id(frame)
@@ -130,7 +255,7 @@ def _mark_validated_frame(frame: "FamilyInput") -> None:
 def _content_value(value: Any) -> Any:
     if isinstance(value, datetime):
         return require_utc(value).isoformat().replace("+00:00", "Z")
-    if isinstance(value, ExactPopulationView):
+    if isinstance(value, (ExactPopulationView, ExactPopulationTableView)):
         return value.identity_payload()
     if is_dataclass(value):
         return {item.name: _content_value(getattr(value, item.name)) for item in fields(value)}
@@ -249,12 +374,12 @@ class ThresholdPopulation:
     source_sha256: str | None = None
 
     def validate(self, *, pooled: bool = False, decision_ts: datetime | None = None) -> None:
-        if isinstance(self.values, ExactPopulationView):
+        if isinstance(self.values, (ExactPopulationView, ExactPopulationTableView)):
             self.values.validate_physical()
             finite_count = len(self.values)
             unique_count = self.values.unique_count
             if unique_count is None:
-                selected = self.values._array()[self.values.start_index:self.values.stop]
+                selected = self.values._array()[self.values.start_index:self.values.stop]  # type: ignore[union-attr]
                 unique_count = int(__import__("numpy").unique(selected).size)
         else:
             if any(not isinstance(value, (int, float)) or not math.isfinite(float(value)) for value in self.values):
