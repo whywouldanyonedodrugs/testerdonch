@@ -404,11 +404,16 @@ class LazySupervisor:
                     seen.add(job_id)
                     if job_id not in completed:
                         pending.append((job_id, task))
+                started_worker = False
                 while pending and len(workers) < self.limits.max_workers:
                     resource_preflight(self.run_root, self.limits, rss_sampler=self.rss_sampler)
                     job_id, task = pending.popleft(); attempts[job_id] = attempts.get(job_id, 0) + 1
                     workers[job_id] = self._start(job_id, task)
+                    started_worker = True
                 state.update({"queue_count": len(pending) + len(retry_ready), "in_flight_count": len(workers), "completed_count": len(completed), "worker_pids": sorted(worker.process.pid for worker in workers.values()), "resource_snapshot": resource})
+                if started_worker:
+                    state.update({"attempts": attempts, "completed": completed, "failed": failed})
+                    self._save(state)
                 progressed = False
                 for job_id in sorted(list(workers)):
                     worker = workers[job_id]
