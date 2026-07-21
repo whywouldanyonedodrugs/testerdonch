@@ -205,7 +205,13 @@ class A1PopulationTableCompiler:
             source_identity = canonical_hash([part.payload() for part in self.parts_by_symbol[symbol] if part.dataset == "historical_trade_candles_5m"])
             completed = progress["completed"].get(symbol)
             if isinstance(completed, Mapping) and completed.get("source_identity_sha256") == source_identity and completed.get("row_count") == end - start:
-                continue
+                feature_slice_hashes = {name: _slice_sha256(features[name][start:end]) for name in feature_names}
+                common_slice_hashes = {name: _slice_sha256(common[name][start:end]) for name in common}
+                if (
+                    completed.get("feature_slice_inventory_sha256") == canonical_hash(feature_slice_hashes)
+                    and completed.get("common_slice_inventory_sha256") == canonical_hash(common_slice_hashes)
+                ):
+                    continue
             times, closes = _load_trade_arrays(self.parts_by_symbol[symbol])
             source_features = _feature_arrays(times, closes)
             selected_indices: list[int] = []; selected_deciles: list[int] = []
@@ -232,6 +238,7 @@ class A1PopulationTableCompiler:
             progress["completed"][symbol] = {
                 "source_identity_sha256": source_identity, "row_count": end - start,
                 "offset": [start, end], "feature_slice_inventory_sha256": canonical_hash(feature_slice_hashes),
+                "common_slice_inventory_sha256": canonical_hash({name: _slice_sha256(common[name][start:end]) for name in common}),
             }
             atomic_write_json(progress_path, progress)
 
