@@ -55,6 +55,9 @@ The exact evidence, locations, impacts and acceptance language are preserved in
 - Blocked Drive handoff: round-trip verified at
   `https://drive.google.com/drive/folders/1QY83U5brxxKxyrGPuIyMlPxtFK4WlSM8`.
 - Dynamic continuity: sequence 5 published and round-trip verified.
+- Original checkout: refs unchanged, but an unexplained external modification
+  of tracked binary `code` was discovered at final verification and preserved;
+  see `ORIGINAL_CHECKOUT_FINAL_STATE.md`.
 
 ## Intentionally absent
 
