@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import math
+import os
 import weakref
-from dataclasses import asdict, dataclass, field, is_dataclass
+from collections.abc import Iterator
+from dataclasses import dataclass, field, fields, is_dataclass
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
+from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from .canonical import canonical_hash
@@ -15,6 +18,103 @@ KRAKEN_PLATFORM = "kraken_native_linear_pf"
 RANKABLE_START = datetime(2023, 1, 1, tzinfo=timezone.utc)
 PROTECTED_START = datetime(2026, 1, 1, tzinfo=timezone.utc)
 _VALIDATED_FRAMES: dict[int, weakref.ReferenceType["FamilyInput"]] = {}
+
+
+@dataclass(frozen=True)
+class ExactPopulationView(Sequence[float]):
+    """Exact finite float64 population stored once and selected by row bounds.
+
+    The physical component is an immutable sorted ``.npy`` vector.  A view is
+    therefore cheap to repeat across fold/family frames while preserving exact
+    weak-percentile and Type-7 semantics.  ``root`` is a runtime locator only;
+    canonical identity is the relative path, physical hash, dtype, count and
+    selected half-open row interval.
+    """
+
+    relative_path: str
+    sha256: str
+    physical_count: int
+    start_index: int = 0
+    end_index: int | None = None
+    unique_count: int | None = None
+    root: str | None = field(default=None, compare=False, repr=False)
+    physical_verified: bool = field(default=False, compare=False, repr=False)
+
+    def identity_payload(self) -> dict[str, Any]:
+        return {
+            "schema": "exact_sorted_float64_population_view_v1",
+            "relative_path": self.relative_path,
+            "sha256": self.sha256,
+            "dtype": "float64_le",
+            "physical_count": self.physical_count,
+            "start_index": self.start_index,
+            "end_index": self.stop,
+            "unique_count": self.unique_count,
+        }
+
+    @property
+    def stop(self) -> int:
+        return self.physical_count if self.end_index is None else self.end_index
+
+    def _path(self) -> str:
+        if self.root is None:
+            raise EngineInputError("external threshold population has no cache root")
+        path = os.path.abspath(os.path.join(self.root, self.relative_path))
+        root = os.path.abspath(self.root)
+        if os.path.commonpath((root, path)) != root:
+            raise EngineInputError("external threshold population path escapes cache root")
+        return path
+
+    def _array(self):
+        try:
+            import numpy as np
+
+            array = np.load(self._path(), mmap_mode="r", allow_pickle=False)
+        except (OSError, ValueError) as exc:
+            raise EngineInputError("external threshold population cannot be loaded") from exc
+        if array.dtype != np.dtype("<f8") or array.ndim != 1 or len(array) != self.physical_count:
+            raise EngineInputError("external threshold population shape or dtype differs")
+        return array
+
+    def validate_physical(self) -> None:
+        from .canonical import sha256_file
+
+        if len(self.sha256) != 64 or any(character not in "0123456789abcdef" for character in self.sha256):
+            raise EngineInputError("external threshold population hash is invalid")
+        if self.start_index < 0 or self.stop < self.start_index or self.stop > self.physical_count:
+            raise EngineInputError("external threshold population bounds are invalid")
+        path = self._path()
+        if not os.path.isfile(path) or (not self.physical_verified and sha256_file(Path(path)) != self.sha256):
+            raise EngineInputError("external threshold population bytes differ")
+        selected = self._array()[self.start_index:self.stop]
+        if len(selected) and (not bool((selected[1:] >= selected[:-1]).all()) or not bool(__import__("numpy").isfinite(selected).all())):
+            raise EngineInputError("external threshold population is not finite and sorted")
+
+    def __len__(self) -> int:
+        return self.stop - self.start_index
+
+    def __getitem__(self, index):
+        selected = self._array()[self.start_index:self.stop]
+        if isinstance(index, slice):
+            return tuple(float(value) for value in selected[index])
+        return float(selected[index])
+
+    def __iter__(self) -> Iterator[float]:
+        return (float(value) for value in self._array()[self.start_index:self.stop])
+
+    def weak_percentile(self, value: float) -> float:
+        selected = self._array()[self.start_index:self.stop]
+        return float(selected.searchsorted(float(value), side="right")) / len(selected)
+
+    def type7_quantile(self, probability: float) -> float:
+        if not 0 <= probability <= 1 or not len(self):
+            raise EngineInputError("invalid Type-7 quantile input")
+        selected = self._array()[self.start_index:self.stop]
+        h = (len(selected) - 1) * probability
+        lower = int(math.floor(h)); upper = int(math.ceil(h))
+        if lower == upper:
+            return float(selected[lower])
+        return float(selected[lower] + (h - lower) * (selected[upper] - selected[lower]))
 
 
 def _mark_validated_frame(frame: "FamilyInput") -> None:
@@ -30,8 +130,10 @@ def _mark_validated_frame(frame: "FamilyInput") -> None:
 def _content_value(value: Any) -> Any:
     if isinstance(value, datetime):
         return require_utc(value).isoformat().replace("+00:00", "Z")
+    if isinstance(value, ExactPopulationView):
+        return value.identity_payload()
     if is_dataclass(value):
-        return _content_value(asdict(value))
+        return {item.name: _content_value(getattr(value, item.name)) for item in fields(value)}
     if isinstance(value, Mapping):
         return {str(key): _content_value(item) for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))}
     if isinstance(value, (tuple, list)):
@@ -137,7 +239,7 @@ class DailyBar:
 
 @dataclass(frozen=True)
 class ThresholdPopulation:
-    values: tuple[float, ...]
+    values: Sequence[float]
     unique_symbols: tuple[str, ...] = ()
     scope: str = "symbol"
     training_start: datetime | None = None
@@ -147,10 +249,20 @@ class ThresholdPopulation:
     source_sha256: str | None = None
 
     def validate(self, *, pooled: bool = False, decision_ts: datetime | None = None) -> None:
-        if any(not isinstance(value, (int, float)) or not math.isfinite(float(value)) for value in self.values):
-            raise EngineInputError("threshold population contains a nonfinite or nonnumeric value")
-        finite = tuple(float(value) for value in self.values)
-        if len(finite) < 30 or len(set(finite)) < 20:
+        if isinstance(self.values, ExactPopulationView):
+            self.values.validate_physical()
+            finite_count = len(self.values)
+            unique_count = self.values.unique_count
+            if unique_count is None:
+                selected = self.values._array()[self.values.start_index:self.values.stop]
+                unique_count = int(__import__("numpy").unique(selected).size)
+        else:
+            if any(not isinstance(value, (int, float)) or not math.isfinite(float(value)) for value in self.values):
+                raise EngineInputError("threshold population contains a nonfinite or nonnumeric value")
+            finite = tuple(float(value) for value in self.values)
+            finite_count = len(finite)
+            unique_count = len(set(finite))
+        if finite_count < 30 or unique_count < 20:
             raise EngineInputError("threshold population minimum is not met")
         if pooled and len(set(self.unique_symbols)) < 5:
             raise EngineInputError("pooled threshold population has fewer than five symbols")

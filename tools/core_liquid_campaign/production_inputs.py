@@ -16,6 +16,7 @@ from .a1_state import initial_state
 from .cache import SemanticCacheWriter
 from .canonical import atomic_write_json, canonical_hash, sha256_file
 from .engine_types import ContextInputs, DailyBar, FamilyInput, FundingInput, KRAKEN_PLATFORM, SignalBar, ThresholdPopulation
+from .engine_types import ExactPopulationView
 from .family_engines import a1_compression, a2_context, a3_starter_retest, a4_tsmom
 from .family_engines.common import EngineInputError, ema, log_return, path_smoothness, sample_standard_deviation, wilder_atr
 from .production_cache import ALLOWED_CANDLE_COLUMNS, ProductionCacheCompiler, ProductionCacheError, SourcePart
@@ -48,20 +49,54 @@ def _population(
     training_start: datetime,
     training_end: datetime,
     identity: Mapping[str, Any],
+    store: "ExactPopulationStore | None" = None,
 ) -> ThresholdPopulation | None:
     finite = tuple(float(value) for value in values if math.isfinite(float(value)))
     if len(finite) < 30 or len(set(finite)) < 20:
         return None
+    stored_values: Sequence[float] = finite if store is None else store.add(finite, identity=identity)
+    value_identity: Any = stored_values.identity_payload() if isinstance(stored_values, ExactPopulationView) else finite
     return ThresholdPopulation(
-        finite,
+        stored_values,
         tuple(sorted(set(symbols))),
         scope,
         training_start,
         training_end,
         training_end - timedelta(minutes=5),
         training_end,
-        canonical_hash({"identity": identity, "values": finite, "symbols": sorted(set(symbols))}),
+        canonical_hash({"identity": identity, "values": value_identity, "symbols": sorted(set(symbols))}),
     )
+
+
+class ExactPopulationStore:
+    """Content-address exact sorted populations outside repeated frame JSON."""
+
+    def __init__(self, cache_root: Path) -> None:
+        self.cache_root = cache_root
+        self.root = cache_root / "populations"
+
+    def add(self, values: Sequence[float], *, identity: Mapping[str, Any]) -> ExactPopulationView:
+        import numpy as np
+
+        array = np.asarray(values, dtype="<f8")
+        if array.ndim != 1 or not bool(np.isfinite(array).all()):
+            raise ProductionInputError("threshold population store received nonfinite values")
+        array.sort(kind="mergesort")
+        value_hash = canonical_hash({"values_sha256": __import__("hashlib").sha256(array.tobytes(order="C")).hexdigest(), "count": len(array), "dtype": "float64_le"})
+        relative = Path("populations") / f"{value_hash}.npy"
+        path = self.cache_root / relative
+        if not path.exists():
+            path.parent.mkdir(parents=True, exist_ok=True)
+            temporary = path.with_name(f".{path.name}.tmp")
+            with temporary.open("wb") as handle:
+                np.save(handle, array, allow_pickle=False)
+                handle.flush()
+                __import__("os").fsync(handle.fileno())
+            temporary.replace(path)
+        return ExactPopulationView(
+            relative.as_posix(), sha256_file(path), len(array), 0, len(array),
+            int(np.unique(array).size), str(self.cache_root),
+        )
 
 
 def _valid_daily(bars: Sequence[SignalBar]) -> tuple[DailyBar, ...]:
@@ -178,6 +213,7 @@ def _thresholds(
     target: str,
     training_start: datetime,
     training_end: datetime,
+    store: ExactPopulationStore | None = None,
 ) -> tuple[dict[str, ThresholdPopulation], list[dict[str, Any]]]:
     symbols = tuple(sorted(bars_by_symbol))
     if target not in bars_by_symbol or target not in daily_by_symbol:
@@ -188,7 +224,7 @@ def _thresholds(
     unavailable: list[dict[str, Any]] = []
 
     def add(name: str, values: Sequence[float], scope: str = "symbol", population_symbols: Sequence[str] = (target,)) -> None:
-        population = _population(values, symbols=population_symbols, scope=scope, training_start=training_start, training_end=training_end, identity={"feature_signature": name, "training_end": training_end.isoformat()})
+        population = _population(values, symbols=population_symbols, scope=scope, training_start=training_start, training_end=training_end, identity={"feature_signature": name, "training_start": training_start.isoformat(), "training_end": training_end.isoformat(), "scope": scope, "symbols": sorted(set(population_symbols))}, store=store)
         if population is None:
             unavailable.append({"feature_signature": name, "status": "unavailable_data", "reason": "minimum_30_rows_20_unique_not_met", "rows": len(values)})
         else:
@@ -197,7 +233,11 @@ def _thresholds(
     impulse_counts = {"6h": 72, "12h": 144, "1d": 288, "3d": 864, "7d": 2016}
     for window, count in impulse_counts.items():
         for side in (-1, 1):
-            symbol_values = [side * log_return(target_bars[index - count].close, target_bars[index].close) for index in range(count, len(target_bars), 12)]
+            symbol_values = [
+                side * log_return(target_bars[index - count].close, target_bars[index].close)
+                for index in range(count, len(target_bars))
+                if target_bars[index].open_ts - target_bars[index - count].open_ts == timedelta(minutes=5 * count)
+            ]
             for scope in ("symbol_side", "liquidity_decile_side", "global_side"):
                 values = list(symbol_values)
                 population_symbols: Sequence[str] = (target,)
@@ -205,85 +245,133 @@ def _thresholds(
                     values = []
                     for symbol in symbols:
                         rows = tuple(bar for bar in bars_by_symbol[symbol] if training_start <= bar.open_ts and bar.close_ts < training_end)
-                        values.extend(side * log_return(rows[index - count].close, rows[index].close) for index in range(count, len(rows), 72))
+                        values.extend(
+                            side * log_return(rows[index - count].close, rows[index].close)
+                            for index in range(count, len(rows))
+                            if rows[index].open_ts - rows[index - count].open_ts == timedelta(minutes=5 * count)
+                        )
                     population_symbols = symbols
                 add(a1_compression.impulse_population_key(window, scope, side), values, scope, population_symbols)
 
     base_counts = {"2h": 24, "6h": 72, "12h": 144, "1d": 288, "3d": 864}
     closes = [bar.close for bar in target_bars]
-    close_returns = [log_return(left, right) for left, right in zip(closes, closes[1:])]
-    return_prefix = [0.0]
-    square_prefix = [0.0]
-    absolute_move_prefix = [0.0]
-    for value, left, right in zip(close_returns, closes, closes[1:]):
-        return_prefix.append(return_prefix[-1] + value)
-        square_prefix.append(square_prefix[-1] + value * value)
-        absolute_move_prefix.append(absolute_move_prefix[-1] + abs(right - left))
-
-    def rolling_std(start: int, end: int) -> float:
-        count = end - start
-        total = return_prefix[end] - return_prefix[start]
-        square = square_prefix[end] - square_prefix[start]
-        variance = (square - total * total / count) / (count - 1)
-        return math.sqrt(max(0.0, variance))
-
-    for base_name, count in base_counts.items():
-        contraction_by_baseline: dict[str, list[float]] = {}
+    def shape_values(rows: Sequence[SignalBar], count: int) -> tuple[dict[str, list[float]], list[float]]:
+        local_closes = [bar.close for bar in rows]
+        local_returns = [log_return(left, right) for left, right in zip(local_closes, local_closes[1:])]
+        prefix = [0.0]; squares = [0.0]; moves = [0.0]
+        for value, left, right in zip(local_returns, local_closes, local_closes[1:]):
+            prefix.append(prefix[-1] + value); squares.append(squares[-1] + value * value); moves.append(moves[-1] + abs(right - left))
+        def std(start: int, end: int) -> float:
+            n = end - start; total = prefix[end] - prefix[start]; square = squares[end] - squares[start]
+            return math.sqrt(max(0.0, (square - total * total / n) / (n - 1)))
+        contractions: dict[str, list[float]] = {}
         for baseline_name, multiple in (("adjacent_equal_duration", 1), ("trailing_5x_base_duration", 5)):
             values = []
-            for index in range(count * (multiple + 1), len(closes), 24):
-                base_vol = rolling_std(index - count, index)
-                prior_vol = rolling_std(index - count * (multiple + 1), index - count)
+            for index in range(count * (multiple + 1), len(local_closes)):
+                if rows[index].open_ts - rows[index - count * (multiple + 1)].open_ts != timedelta(minutes=5 * count * (multiple + 1)):
+                    continue
+                base_vol = std(index - count, index); prior_vol = std(index - count * (multiple + 1), index - count)
                 if prior_vol > 0:
                     values.append(base_vol / prior_vol)
-            contraction_by_baseline[baseline_name] = values
-        smoothness = []
-        for index in range(count, len(closes), 24):
-            path = absolute_move_prefix[index] - absolute_move_prefix[index - count]
+            contractions[baseline_name] = values
+        smooth = []
+        for index in range(count, len(local_closes)):
+            if rows[index].open_ts - rows[index - count].open_ts != timedelta(minutes=5 * count):
+                continue
+            path = moves[index] - moves[index - count]
             if path > 0:
-                smoothness.append(abs(closes[index] - closes[index - count]) / path)
+                smooth.append(abs(local_closes[index] - local_closes[index - count]) / path)
+        return contractions, smooth
+
+    for base_name, count in base_counts.items():
+        contraction_by_baseline, smoothness = shape_values(target_bars, count)
         for scope in ("symbol", "liquidity_decile", "global_PIT"):
+            scoped_contractions = contraction_by_baseline
+            scoped_smoothness = smoothness
+            population_symbols: Sequence[str] = (target,)
+            if scope != "symbol":
+                scoped_contractions = {name: [] for name in contraction_by_baseline}
+                scoped_smoothness = []
+                for symbol in symbols:
+                    rows = tuple(bar for bar in bars_by_symbol[symbol] if training_start <= bar.open_ts and bar.close_ts < training_end)
+                    item_contractions, item_smoothness = shape_values(rows, count)
+                    for name, values in item_contractions.items():
+                        scoped_contractions[name].extend(values)
+                    scoped_smoothness.extend(item_smoothness)
+                population_symbols = symbols
             for baseline_name, values in contraction_by_baseline.items():
-                add(a1_compression.contraction_population_key(base_name, baseline_name, scope), values, scope, symbols if scope != "symbol" else (target,))
-            add(a1_compression.smoothness_population_key(base_name, scope), smoothness, scope, symbols if scope != "symbol" else (target,))
+                add(a1_compression.contraction_population_key(base_name, baseline_name, scope), scoped_contractions[baseline_name], scope, population_symbols)
+            add(a1_compression.smoothness_population_key(base_name, scope), scoped_smoothness, scope, population_symbols)
 
     for lookback in (20, 60, 120, 250):
         for atr_window in (10, 20, 40, 60):
             for side in (-1, 1):
                 values = []
-                for index in range(max(lookback, atr_window + 1), len(target_daily)):
-                    prior = target_daily[index - lookback:index]
-                    atr_rows = target_daily[index - atr_window - 1:index]
-                    try:
-                        atr = wilder_atr([row.high for row in atr_rows], [row.low for row in atr_rows], [row.close for row in atr_rows], atr_window)
-                    except EngineInputError:
-                        continue
-                    current = target_daily[index].close
-                    level = max(row.high for row in prior) if side == 1 else min(row.low for row in prior)
-                    values.append((current - level) / atr if side == 1 else (level - current) / atr)
+                breakout_by_symbol: dict[str, list[float]] = {}
+                for symbol in symbols:
+                    symbol_daily = tuple(bar for bar in daily_by_symbol[symbol] if training_start < bar.close_ts < training_end)
+                    symbol_bars = tuple(bar for bar in bars_by_symbol[symbol] if training_start <= bar.open_ts and bar.close_ts < training_end)
+                    bars_by_day: dict[datetime, list[tuple[int, SignalBar]]] = defaultdict(list)
+                    for bar_index, bar in enumerate(symbol_bars):
+                        bars_by_day[bar.open_ts.replace(hour=0, minute=0, second=0, microsecond=0)].append((bar_index, bar))
+                    crossings: list[float] = []
+                    for index in range(max(lookback, atr_window + 1), len(symbol_daily) + 1):
+                        required_days = max(lookback, atr_window + 1)
+                        if symbol_daily[index - 1].close_ts - symbol_daily[index - required_days].close_ts != timedelta(days=required_days - 1):
+                            continue
+                        history_end = symbol_daily[index - 1].close_ts
+                        day = history_end.replace(hour=0, minute=0, second=0, microsecond=0)
+                        indexed_day_bars = sorted(bars_by_day.get(day, ()), key=lambda row: row[1].open_ts)
+                        if not indexed_day_bars:
+                            continue
+                        day_bars = [row for _, row in indexed_day_bars]
+                        prior = symbol_daily[index - lookback:index]
+                        atr_rows = symbol_daily[index - atr_window - 1:index]
+                        try:
+                            atr = wilder_atr([row.high for row in atr_rows], [row.low for row in atr_rows], [row.close for row in atr_rows], atr_window)
+                        except EngineInputError:
+                            continue
+                        level = max(row.high for row in prior) if side == 1 else min(row.low for row in prior)
+                        if symbol == target:
+                            values.extend((bar.close - level) / atr if side == 1 else (level - bar.close) / atr for bar in day_bars)
+                        first_index = indexed_day_bars[0][0]
+                        previous = symbol_bars[first_index - 1] if first_index > 0 else None
+                        for bar in day_bars:
+                            crossed = previous is not None and (previous.close <= level < bar.close if side == 1 else previous.close >= level > bar.close)
+                            if crossed:
+                                crossings.append((bar.close - level) / atr if side == 1 else (level - bar.close) / atr)
+                                break
+                            previous = bar
+                    breakout_by_symbol[symbol] = crossings
                 add(a2_context.proximity_population_key(lookback, atr_window, side), values)
                 for scope in ("symbol_side", "liquidity_decile_side", "global_side"):
-                    add(a3_starter_retest.breakout_population_key(lookback, atr_window, scope, side), values, scope, symbols if scope != "symbol_side" else (target,))
+                    scoped = breakout_by_symbol[target] if scope == "symbol_side" else [value for symbol in symbols for value in breakout_by_symbol[symbol]]
+                    add(a3_starter_retest.breakout_population_key(lookback, atr_window, scope, side), scoped, scope, symbols if scope != "symbol_side" else (target,))
 
     for asset, symbol in (("BTC", "PF_XBTUSD"), ("ETH", "PF_ETHUSD")):
         rows = tuple(bar for bar in daily_by_symbol[symbol] if training_start < bar.close_ts < training_end)
         for days in (5, 20, 60, 120):
-            add(f"A2_{asset}_trend_{days}", _returns(rows, days))
+            add(f"A2_{asset}_trend_{days}", [value for value in _returns(rows, days) for _ in range(288)])
         for days in (10, 20, 40, 60):
             values = []
             for index in range(days, len(rows)):
                 returns = [log_return(left.close, right.close) for left, right in zip(rows[index - days:index], rows[index - days + 1:index + 1])]
                 if len(returns) >= 2:
                     values.append(sample_standard_deviation(returns) * math.sqrt(365.0))
-            add(f"A2_{asset}_volatility_{days}", values)
+            add(f"A2_{asset}_volatility_{days}", [value for value in values for _ in range(288)])
         for days in (20, 60, 120):
             values = [1.0 - rows[index].close / max(row.close for row in rows[index - days + 1:index + 1]) for index in range(days - 1, len(rows))]
-            add(f"A2_{asset}_drawdown_{days}", values)
+            add(f"A2_{asset}_drawdown_{days}", [value for value in values for _ in range(288)])
 
+    absolute_move_prefix = [0.0]
+    for left, right in zip(closes, closes[1:]):
+        absolute_move_prefix.append(absolute_move_prefix[-1] + abs(right - left))
     for lookback in (5, 10, 20, 40, 60, 90, 120, 180):
         count = lookback * 288
         smoothness = []
-        for index in range(count, len(closes), 288):
+        for index in range(count, len(closes), 96):
+            if target_bars[index].open_ts - target_bars[index - count].open_ts != timedelta(minutes=5 * count):
+                continue
             path = absolute_move_prefix[index] - absolute_move_prefix[index - count]
             if path > 0:
                 smoothness.append(abs(closes[index] - closes[index - count]) / path)
@@ -307,8 +395,11 @@ def _thresholds(
         for estimator in ("close_to_close", "Parkinson"):
             for component in ("signed_return", "ema_slope", "breakout_distance_rank"):
                 values = []
-                for index in range(max(count + 288, 21 * 288), len(target_bars), 288):
+                for index in range(max(count + 288, 21 * 288), len(target_bars), 96):
                     try:
+                        required = max(count + 288, 21 * 288)
+                        if target_bars[index].open_ts - target_bars[index - required].open_ts != timedelta(minutes=5 * required):
+                            continue
                         if estimator == "close_to_close":
                             sample_count = count
                             total = return_sum[index] - return_sum[index - count]
@@ -435,6 +526,7 @@ class ProductionFamilyInputBuilder:
             for symbol in selected_symbols
         }
         cache_root = self.output_root / "semantic_cache"
+        population_store = ExactPopulationStore(cache_root)
         writer = SemanticCacheWriter(cache_root, authority, authority_root=self.repository_root, synthetic_only=False)
         matrix: list[dict[str, Any]] = []
         feature_audit: list[dict[str, Any]] = []
@@ -487,6 +579,7 @@ class ProductionFamilyInputBuilder:
                         target=symbol,
                         training_start=training_start,
                         training_end=training_end,
+                        store=population_store,
                     )
                 populations, unavailable = threshold_cache[threshold_key]
                 available_feature_signatures.update(populations)

@@ -198,7 +198,7 @@ class CacheAuthority:
                 if relative.is_absolute() or ".." in relative.parts or relative.as_posix() in components_by_path:
                     raise AuthorizationError("unsafe or duplicate cache component path")
                 path = self.cache_root / relative
-                if component.get("encoding") != "canonical_json_gzip_mtime0" or not _is_sha256(component.get("sha256")) or not _is_sha256(component.get("shared_content_sha256")):
+                if component.get("encoding") not in {"canonical_json_gzip_mtime0", "npy_float64_le_sorted_v1"} or not _is_sha256(component.get("sha256")) or not _is_sha256(component.get("shared_content_sha256")):
                     raise AuthorizationError("cache component record is incomplete")
                 if not path.is_file() or path.stat().st_size != component.get("bytes") or sha256_file(path) != component.get("sha256"):
                     raise AuthorizationError(f"cache component mismatch: {relative}")

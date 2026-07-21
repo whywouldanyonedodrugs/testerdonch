@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from .canonical import atomic_write_bytes, atomic_write_json, canonical_hash, canonical_json_bytes, sha256_file
-from .engine_types import ContextInputs, DailyBar, FamilyInput, FundingInput, SignalBar, ThresholdPopulation, _mark_validated_frame
+from .engine_types import ContextInputs, DailyBar, ExactPopulationView, FamilyInput, FundingInput, SignalBar, ThresholdPopulation, _mark_validated_frame
 from .family_engines.common import EngineInputError, require_utc
 
 
@@ -83,7 +83,26 @@ def _restore_metadata(value: Any, key: str | None = None) -> Any:
     return value
 
 
-def decode_family_input(payload: Mapping[str, Any]) -> FamilyInput:
+def _decode_population_values(value: object, cache_root: Path | None, *, external_verified: bool) -> Sequence[float]:
+    if isinstance(value, list):
+        return tuple(float(item) for item in value)
+    if not isinstance(value, Mapping) or value.get("schema") != "exact_sorted_float64_population_view_v1":
+        raise CacheBuildError("threshold population values have an unsupported schema")
+    expected = {
+        "schema", "relative_path", "sha256", "dtype", "physical_count",
+        "start_index", "end_index", "unique_count",
+    }
+    if set(value) != expected or value.get("dtype") != "float64_le" or cache_root is None:
+        raise CacheBuildError("external threshold population identity is invalid")
+    return ExactPopulationView(
+        relative_path=str(value["relative_path"]), sha256=str(value["sha256"]),
+        physical_count=int(value["physical_count"]), start_index=int(value["start_index"]),
+        end_index=int(value["end_index"]), unique_count=int(value["unique_count"]),
+        root=str(cache_root), physical_verified=external_verified,
+    )
+
+
+def decode_family_input(payload: Mapping[str, Any], *, cache_root: Path | None = None, external_components_verified: bool = False) -> FamilyInput:
     expected = {"platform", "symbol", "fold_id", "decision_ts", "five_minute_bars", "daily_bars", "funding", "threshold_populations", "context", "metadata"}
     if set(payload) != expected:
         raise CacheBuildError("semantic-cache frame has unknown or missing top-level fields")
@@ -101,7 +120,7 @@ def decode_family_input(payload: Mapping[str, Any]) -> FamilyInput:
     funding = tuple(FundingInput(_datetime(row["row_timestamp"]), _datetime(row["publication_ts"]), str(row["absolute_rate_usd_per_contract_unit"]), str(row["source_partition"])) for row in payload["funding"])
     populations = {
         str(name): ThresholdPopulation(
-            tuple(float(value) for value in row["values"]), tuple(str(value) for value in row["unique_symbols"]), str(row["scope"]),
+            _decode_population_values(row["values"], cache_root, external_verified=external_components_verified), tuple(str(value) for value in row["unique_symbols"]), str(row["scope"]),
             _datetime(row["training_start"]), _datetime(row["training_end_exclusive"]), _datetime(row["source_close_ts"]),
             _datetime(row["feature_available_ts"]), str(row["source_sha256"]),
         )
@@ -263,6 +282,27 @@ class SemanticCacheWriter:
         }
         if provenance != expected_provenance:
             raise CacheBuildError("frame was not derived under the exact execution-input authority")
+        for population in frame.threshold_populations.values():
+            values = population.values
+            if not isinstance(values, ExactPopulationView):
+                continue
+            if values.root is None or Path(values.root).resolve() != self.cache_root.resolve():
+                raise CacheBuildError("external threshold component is outside this cache root")
+            relative_path = Path(values.relative_path)
+            if relative_path.is_absolute() or ".." in relative_path.parts:
+                raise CacheBuildError("external threshold component path is unsafe")
+            physical = self.cache_root / relative_path
+            if not physical.is_file() or sha256_file(physical) != values.sha256:
+                raise CacheBuildError("external threshold component bytes differ")
+            component = {
+                "path": relative_path.as_posix(), "bytes": physical.stat().st_size,
+                "sha256": values.sha256, "encoding": "npy_float64_le_sorted_v1",
+                "shared_content_sha256": canonical_hash(values.identity_payload()),
+            }
+            previous = self.components.get(relative_path.as_posix())
+            if previous is not None and previous != component:
+                raise CacheBuildError("external threshold component identity conflicts")
+            self.components[relative_path.as_posix()] = component
         payload = frame.content_payload()
         content_hash = canonical_hash(payload)
         relative = Path("frames") / f"{content_hash}.ref.json"
@@ -296,7 +336,7 @@ class SemanticCacheWriter:
             path,
             cache_root=self.cache_root,
             components_by_path=self.components,
-        ))
+        ), cache_root=self.cache_root, external_components_verified=True)
         if decoded.content_sha256() != content_hash:
             raise CacheBuildError("cache encode/decode replay mismatch")
         record = {
@@ -366,7 +406,7 @@ def decoded_frame_with_locator(
         payload = _read_reference_payload(path, cache_root=cache_root, components_by_path=components_by_path)
     else:
         payload = _read_payload(path, encoding)
-    frame = decode_family_input(payload)
+    frame = decode_family_input(payload, cache_root=cache_root, external_components_verified=True)
     located = replace(frame, metadata={**frame.metadata, "cache_artifact_path": relative, "cache_bindings": dict(bindings)})
     _mark_validated_frame(located)
     return located

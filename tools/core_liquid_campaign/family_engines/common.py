@@ -75,6 +75,9 @@ def path_smoothness(closes: Sequence[float]) -> float:
 
 
 def type7_quantile(values: Sequence[float], probability: float) -> float:
+    exact = getattr(values, "type7_quantile", None)
+    if callable(exact):
+        return float(exact(probability))
     finite = sorted(float(value) for value in values if math.isfinite(float(value)))
     if not finite or not 0 <= probability <= 1:
         raise EngineInputError("invalid Type-7 quantile input")
@@ -105,6 +108,9 @@ def type7_quantile_with_negative_infinity(values: Sequence[float], probability: 
 
 
 def weak_percentile(value: float, population: Sequence[float]) -> float:
+    exact = getattr(population, "weak_percentile", None)
+    if callable(exact):
+        return float(exact(value))
     finite = [float(item) for item in population if math.isfinite(float(item))]
     if len(finite) < 30 or len(set(finite)) < 20:
         raise EngineInputError("threshold population fails minimums")
@@ -115,6 +121,9 @@ def weak_percentile_prevalidated_sorted(value: float, population: Sequence[float
     """Exact weak percentile for a caller-validated finite sorted population."""
     if not population:
         raise EngineInputError("prevalidated threshold population is empty")
+    exact = getattr(population, "weak_percentile", None)
+    if callable(exact):
+        return float(exact(value))
     return bisect_right(population, float(value)) / len(population)
 
 

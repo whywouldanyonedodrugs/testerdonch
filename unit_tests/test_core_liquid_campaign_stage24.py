@@ -13,11 +13,12 @@ from tools.core_liquid_campaign.a1_state import initial_state, transition
 from tools.core_liquid_campaign.family_engines.common import EngineInputError, weak_percentile, weak_percentile_prevalidated_sorted
 from tools.core_liquid_campaign.campaign import CampaignOrchestrator
 from tools.core_liquid_campaign.controls import CONTROL_IDS, derive_control_inputs, execute_control
-from tools.core_liquid_campaign.executor import dispatch_registered_attempt
+from tools.core_liquid_campaign.executor import CacheAuthority, dispatch_registered_attempt
+from tools.core_liquid_campaign.engine_types import ExactPopulationView
 from tools.core_liquid_campaign.schema import CAMPAIGN_ID, baseline_config, economic_address, normalize_config
 from tools.core_liquid_campaign.shadow_payoff import ShadowPayoffProvider
 from tools.core_liquid_campaign.shadow_service import _write_shadow_bound_stop
-from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame, a4_frame, frame_for_family
+from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame, a4_frame, frame_for_family, with_source_authority
 from tools.core_liquid_campaign.terminal import TerminalContractError, independent_terminal_recomputation, terminal_package, verify_terminal_inventory
 from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceLimits
 from tools.core_liquid_campaign.production_readiness_gate import _a1_state_gate
@@ -63,6 +64,69 @@ class Stage24KnownDefectTests(unittest.TestCase):
         ordered = tuple(sorted(population))
         for value in (-1.0, 0.0, 12.5, 36.0, 99.0):
             self.assertEqual(weak_percentile(value, population), weak_percentile_prevalidated_sorted(value, ordered))
+
+    def test_hash_bound_external_population_preserves_exact_percentiles_and_type7(self) -> None:
+        import numpy as np
+        from tools.core_liquid_campaign.family_engines.common import type7_quantile
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            path = root / "populations/exact.npy"
+            path.parent.mkdir(parents=True)
+            values = np.asarray(sorted(float((index * 17) % 101) + index / 1000 for index in range(200)), dtype="<f8")
+            np.save(path, values, allow_pickle=False)
+            view = ExactPopulationView(
+                "populations/exact.npy", sha256_file(path), len(values), 11, 177,
+                len(set(float(value) for value in values[11:177])), str(root),
+            )
+            view.validate_physical()
+            selected = tuple(float(value) for value in values[11:177])
+            for value in (-1.0, 12.5, 1000.0):
+                self.assertEqual(weak_percentile(value, selected), weak_percentile(value, view))
+            for probability in (0.0, 0.2, 0.5, 0.95, 1.0):
+                self.assertEqual(type7_quantile(selected, probability), type7_quantile(view, probability))
+            path.write_bytes(path.read_bytes()[:-1] + b"x")
+            with self.assertRaises(EngineInputError):
+                view.validate_physical()
+
+    def test_external_population_round_trips_through_cache_authority(self) -> None:
+        import numpy as np
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw); cache_root = root / "cache"
+            source = root / "source.json"; atomic_write_json(source, {"fixture": True})
+            source_record = {"role": "fixture", "path": "source.json", "bytes": source.stat().st_size, "sha256": sha256_file(source)}
+            authority = {
+                "platform": "kraken_native_linear_pf", "rankable_interval": "[2023-01-01T00:00:00Z,2026-01-01T00:00:00Z)",
+                "source_manifest_sha256": source_record["sha256"], "pit_universe_sha256": "b" * 64,
+                "funding_manifest_sha256": "c" * 64, "cache_contract_sha256": "d" * 64,
+                "fold_graph_sha256": "e" * 64, "rankable_funding_package_sha256": "f" * 64,
+                "source_records": [source_record], "cache_manifest_contract": {"schema": "stage22_semantic_cache_manifest_v1"},
+            }
+            external_path = cache_root / "populations/exact.npy"; external_path.parent.mkdir(parents=True)
+            values = np.asarray([float(index) for index in range(40)], dtype="<f8")
+            np.save(external_path, values, allow_pickle=False)
+            frame = a4_frame()
+            name, population = next(iter(frame.threshold_populations.items()))
+            external = ExactPopulationView(
+                "populations/exact.npy", sha256_file(external_path), 40, 0, 40, 40, str(cache_root),
+            )
+            populations = {**frame.threshold_populations, name: replace(population, values=external)}
+            partition = {
+                "phase": "outer_evaluation", "outer_fold_id": "2025Q2", "inner_fold_id": None,
+                "training_start": population.training_start, "training_end_exclusive": population.training_end_exclusive,
+                "evaluation_start": frame.metadata["evaluation_start"], "evaluation_end_exclusive": frame.metadata["evaluation_end_exclusive"],
+            }
+            frame = replace(frame, threshold_populations=populations, metadata={**frame.metadata, "campaign_partition": partition})
+            frame = with_source_authority(frame, authority)
+            writer = SemanticCacheWriter(cache_root, authority, authority_root=root)
+            record = writer.add(frame); manifest_path = writer.finalize()
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            self.assertIn("npy_float64_le_sorted_v1", {row["encoding"] for row in manifest["components"]})
+            _, decoded = CacheAuthority(manifest_path, cache_root).load_frames({"execution_input_authority": authority}, [record["path"]])
+            restored = decoded[0].threshold_populations[name].values
+            self.assertIsInstance(restored, ExactPopulationView)
+            self.assertEqual(weak_percentile(19.0, external), weak_percentile(19.0, restored))
 
     def test_a1_persistent_state_covers_owner_gap_cooldown_and_strict_rearm(self) -> None:
         start = datetime(2025, 1, 1, tzinfo=timezone.utc)

@@ -148,7 +148,8 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
 
     def prepared_population(name: str) -> Sequence[float]:
         if name not in prepared_populations:
-            prepared_populations[name] = tuple(sorted(float(value) for value in _population(frame, name)))
+            raw = _population(frame, name)
+            prepared_populations[name] = raw if callable(getattr(raw, "weak_percentile", None)) else tuple(sorted(float(value) for value in raw))
         return prepared_populations[name]
 
     if persisted_state is None:
