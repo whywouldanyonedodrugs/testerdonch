@@ -11,7 +11,7 @@ from typing import Any, Mapping, Sequence
 from .canonical import atomic_write_json, canonical_hash, sha256_file
 from .engine_types import ExactPopulationTableView, ThresholdPopulation
 from .family_engines import a1_compression
-from .production_cache import ALLOWED_CANDLE_COLUMNS, SourcePart
+from .production_cache import ALLOWED_CANDLE_COLUMNS, EMPTY_CANDLE_COLUMNS, SourcePart
 
 
 UTC = timezone.utc
@@ -102,7 +102,10 @@ def _load_trade_arrays(parts: Sequence[SourcePart]):
             continue
         path = Path(part.path)
         parquet = pq.ParquetFile(path)
-        if set(parquet.schema_arrow.names) != ALLOWED_CANDLE_COLUMNS:
+        columns = set(parquet.schema_arrow.names)
+        if columns == EMPTY_CANDLE_COLUMNS:
+            continue
+        if columns != ALLOWED_CANDLE_COLUMNS:
             raise PopulationTableError("trade source schema differs while building population table")
         table = parquet.read(columns=["time", "close"])
         times = table["time"].combine_chunks().to_numpy(zero_copy_only=False).astype("<i8", copy=False)
@@ -187,8 +190,8 @@ class A1PopulationTableCompiler:
                 array[:] = fill; array.flush()
             return array
 
-        common = {name: mmap(path, dtype, fill=0) for name, (dtype, path) in common_specs.items()}
-        features = {name: mmap(path, "<f8", fill=np.nan) for name, path in feature_paths.items()}
+        common = {name: mmap(path, dtype) for name, (dtype, path) in common_specs.items()}
+        features = {name: mmap(path, "<f8") for name, path in feature_paths.items()}
         progress_path = root / "BUILD_PROGRESS.json"
         progress = json.loads(progress_path.read_text(encoding="utf-8")) if progress_path.exists() else {
             "schema": "stage24_a1_population_table_progress_v1", "total_rows": total,
