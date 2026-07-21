@@ -20,6 +20,7 @@ from .engine_types import ExactPopulationView
 from .family_engines import a1_compression, a2_context, a3_starter_retest, a4_tsmom
 from .family_engines.common import EngineInputError, ema, log_return, path_smoothness, sample_standard_deviation, wilder_atr
 from .production_cache import ALLOWED_CANDLE_COLUMNS, ProductionCacheCompiler, ProductionCacheError, SourcePart
+from .production_population_tables import A1PopulationTableAuthority, A1PopulationTableCompiler
 from .synthetic import with_source_authority
 
 
@@ -214,6 +215,7 @@ def _thresholds(
     training_start: datetime,
     training_end: datetime,
     store: ExactPopulationStore | None = None,
+    skip_a1: bool = False,
 ) -> tuple[dict[str, ThresholdPopulation], list[dict[str, Any]]]:
     symbols = tuple(sorted(bars_by_symbol))
     if target not in bars_by_symbol or target not in daily_by_symbol:
@@ -230,7 +232,7 @@ def _thresholds(
         else:
             result[name] = population
 
-    impulse_counts = {"6h": 72, "12h": 144, "1d": 288, "3d": 864, "7d": 2016}
+    impulse_counts = {} if skip_a1 else {"6h": 72, "12h": 144, "1d": 288, "3d": 864, "7d": 2016}
     for window, count in impulse_counts.items():
         for side in (-1, 1):
             symbol_values = [
@@ -253,34 +255,33 @@ def _thresholds(
                     population_symbols = symbols
                 add(a1_compression.impulse_population_key(window, scope, side), values, scope, population_symbols)
 
-    base_counts = {"2h": 24, "6h": 72, "12h": 144, "1d": 288, "3d": 864}
+    base_counts = {} if skip_a1 else {"2h": 24, "6h": 72, "12h": 144, "1d": 288, "3d": 864}
     closes = [bar.close for bar in target_bars]
     def shape_values(rows: Sequence[SignalBar], count: int) -> tuple[dict[str, list[float]], list[float]]:
         local_closes = [bar.close for bar in rows]
-        local_returns = [log_return(left, right) for left, right in zip(local_closes, local_closes[1:])]
-        prefix = [0.0]; squares = [0.0]; moves = [0.0]
-        for value, left, right in zip(local_returns, local_closes, local_closes[1:]):
-            prefix.append(prefix[-1] + value); squares.append(squares[-1] + value * value); moves.append(moves[-1] + abs(right - left))
-        def std(start: int, end: int) -> float:
-            n = end - start; total = prefix[end] - prefix[start]; square = squares[end] - squares[start]
-            return math.sqrt(max(0.0, (square - total * total / n) / (n - 1)))
         contractions: dict[str, list[float]] = {}
         for baseline_name, multiple in (("adjacent_equal_duration", 1), ("trailing_5x_base_duration", 5)):
             values = []
-            for index in range(count * (multiple + 1), len(local_closes)):
-                if rows[index].open_ts - rows[index - count * (multiple + 1)].open_ts != timedelta(minutes=5 * count * (multiple + 1)):
+            baseline_count = count * multiple
+            minimum_index = count + baseline_count - 1
+            for index in range(minimum_index, len(local_closes)):
+                if rows[index].open_ts - rows[index - minimum_index].open_ts != timedelta(minutes=5 * minimum_index):
                     continue
-                base_vol = std(index - count, index); prior_vol = std(index - count * (multiple + 1), index - count)
-                if prior_vol > 0:
-                    values.append(base_vol / prior_vol)
+                base_closes = local_closes[index - count + 1:index + 1]
+                baseline_closes = local_closes[index - count - baseline_count + 1:index - count + 1]
+                try:
+                    values.append(a1_compression.features(base_closes, base_closes, baseline_closes, 1)["contraction_ratio"])
+                except EngineInputError:
+                    continue
             contractions[baseline_name] = values
         smooth = []
-        for index in range(count, len(local_closes)):
-            if rows[index].open_ts - rows[index - count].open_ts != timedelta(minutes=5 * count):
+        for index in range(count - 1, len(local_closes)):
+            if rows[index].open_ts - rows[index - count + 1].open_ts != timedelta(minutes=5 * (count - 1)):
                 continue
-            path = moves[index] - moves[index - count]
-            if path > 0:
-                smooth.append(abs(local_closes[index] - local_closes[index - count]) / path)
+            try:
+                smooth.append(path_smoothness(local_closes[index - count + 1:index + 1]))
+            except EngineInputError:
+                continue
         return contractions, smooth
 
     for base_name, count in base_counts.items():
@@ -365,7 +366,7 @@ def _thresholds(
 
     absolute_move_prefix = [0.0]
     for left, right in zip(closes, closes[1:]):
-        absolute_move_prefix.append(absolute_move_prefix[-1] + abs(right - left))
+        absolute_move_prefix.append(absolute_move_prefix[-1] + abs(log_return(left, right)))
     for lookback in (5, 10, 20, 40, 60, 90, 120, 180):
         count = lookback * 288
         smoothness = []
@@ -374,7 +375,7 @@ def _thresholds(
                 continue
             path = absolute_move_prefix[index] - absolute_move_prefix[index - count]
             if path > 0:
-                smoothness.append(abs(closes[index] - closes[index - count]) / path)
+                smoothness.append(abs(log_return(closes[index - count], closes[index])) / path)
         add(a4_tsmom.smoothness_population_key(lookback), smoothness)
         if len(closes) <= max(count + 288, 21 * 288):
             for estimator in ("close_to_close", "Parkinson"):
@@ -521,17 +522,22 @@ class ProductionFamilyInputBuilder:
             for symbol in context_symbols
         }
         daily = {symbol: _valid_daily(rows) for symbol, rows in full_bars.items()}
+        for symbol in symbols:
+            if symbol not in daily:
+                daily[symbol] = _valid_daily(_load_trade_bars(parts[symbol], datetime(2023, 1, 1, tzinfo=UTC), datetime(2026, 1, 1, tzinfo=UTC)))
         exact_funding_by_symbol = {
             symbol: _funding_rows(roles["rankable_funding_package"], symbol)
             for symbol in selected_symbols
         }
         cache_root = self.output_root / "semantic_cache"
         population_store = ExactPopulationStore(cache_root)
+        a1_table_build = A1PopulationTableCompiler(cache_root, parts, pit_rows).build()
+        a1_population_authority = A1PopulationTableAuthority(cache_root, Path(a1_table_build["manifest_path"]))
         writer = SemanticCacheWriter(cache_root, authority, authority_root=self.repository_root, synthetic_only=False)
         matrix: list[dict[str, Any]] = []
         feature_audit: list[dict[str, Any]] = []
         available_feature_signatures: set[str] = set()
-        threshold_cache: dict[tuple[datetime, datetime, str], tuple[dict[str, ThresholdPopulation], list[dict[str, Any]]]] = {}
+        threshold_cache: dict[tuple[datetime, datetime, str, int], tuple[dict[str, ThresholdPopulation], list[dict[str, Any]]]] = {}
         partitions: list[dict[str, Any]] = []
         for outer in fold_graph["outer_folds"]:
             evaluation_start = _utc(outer["outer_evaluation_start"]); evaluation_end = _utc(outer["outer_evaluation_end_exclusive"])
@@ -571,16 +577,41 @@ class ProductionFamilyInputBuilder:
             history_start = decision - timedelta(days=181)
             frame_hashes: dict[str, str] = {}
             for symbol in selected_symbols:
-                threshold_key = (training_start, training_end, symbol)
+                target_decile = int(snapshot["lagged_liquidity_deciles"][symbol])
+                threshold_key = (training_start, training_end, symbol, target_decile)
                 if threshold_key not in threshold_cache:
-                    threshold_cache[threshold_key] = _thresholds(
+                    non_a1_populations, threshold_unavailable = _thresholds(
                         full_bars,
                         daily,
                         target=symbol,
                         training_start=training_start,
                         training_end=training_end,
                         store=population_store,
+                        skip_a1=True,
                     )
+                    a1_populations: dict[str, ThresholdPopulation] = {}
+                    for window in ("6h", "12h", "1d", "3d", "7d"):
+                        for side in (-1, 1):
+                            for scope in ("symbol_side", "liquidity_decile_side", "global_side"):
+                                name = a1_compression.impulse_population_key(window, scope, side)
+                                a1_populations[name] = a1_population_authority.population(
+                                    name, target_symbol=symbol, target_decile=target_decile,
+                                    training_start=training_start, training_end=training_end,
+                                )
+                    for base in ("2h", "6h", "12h", "1d", "3d"):
+                        for scope in ("symbol", "liquidity_decile", "global_PIT"):
+                            for baseline in ("adjacent_equal_duration", "trailing_5x_base_duration"):
+                                name = a1_compression.contraction_population_key(base, baseline, scope)
+                                a1_populations[name] = a1_population_authority.population(
+                                    name, target_symbol=symbol, target_decile=target_decile,
+                                    training_start=training_start, training_end=training_end,
+                                )
+                            name = a1_compression.smoothness_population_key(base, scope)
+                            a1_populations[name] = a1_population_authority.population(
+                                name, target_symbol=symbol, target_decile=target_decile,
+                                training_start=training_start, training_end=training_end,
+                            )
+                    threshold_cache[threshold_key] = ({**non_a1_populations, **a1_populations}, threshold_unavailable)
                 populations, unavailable = threshold_cache[threshold_key]
                 available_feature_signatures.update(populations)
                 feature_audit.extend({
@@ -621,6 +652,12 @@ class ProductionFamilyInputBuilder:
                     "execution_schedule_identity": canonical_hash({"symbol": symbol, "entry_open_ts": decision.isoformat(), "source": "verified_trade_schedule"}),
                     "protected_rows": 0,
                     "economic_outcomes_opened": False,
+                    "cache_authority_components": ({
+                        "path": Path(a1_table_build["manifest_path"]).relative_to(cache_root).as_posix(),
+                        "bytes": Path(a1_table_build["manifest_path"]).stat().st_size,
+                        "sha256": a1_table_build["manifest_sha256"],
+                        "encoding": "canonical_json",
+                    },),
                 }
                 frame = FamilyInput(
                     KRAKEN_PLATFORM,
@@ -674,6 +711,8 @@ class ProductionFamilyInputBuilder:
             "capitalcom_payload_opened": False,
             "source_index_cache_emitted": False,
             "cache_authority_schema": manifest["schema"],
+            "a1_population_table_manifest_sha256": a1_table_build["manifest_sha256"],
+            "a1_population_table_rows": a1_table_build["rows"],
         }
         atomic_write_json(self.output_root / "PRODUCTION_FAMILY_INPUT_BUILD.json", report)
         return report

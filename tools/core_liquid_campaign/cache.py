@@ -90,7 +90,7 @@ def _decode_population_values(value: object, cache_root: Path | None, *, externa
         expected = {
             "schema", "values_path", "values_sha256", "timestamps_path", "timestamps_sha256",
             "symbols_path", "symbols_sha256", "deciles_path", "deciles_sha256", "dtypes",
-            "physical_count", "training_start_ms", "training_end_ms", "selected_count", "unique_count",
+            "physical_count", "training_start_ms", "training_end_ms", "selected_count", "unique_count", "minimum_unique_count_verified", "value_multiplier",
             "symbol_code", "liquidity_decile",
         }
         if set(value) != expected or value.get("dtypes") != {"values": "float64_le", "timestamps": "int64_le", "symbols": "uint16_le", "deciles": "uint8"} or cache_root is None:
@@ -102,7 +102,9 @@ def _decode_population_values(value: object, cache_root: Path | None, *, externa
             deciles_path=str(value["deciles_path"]), deciles_sha256=str(value["deciles_sha256"]),
             physical_count=int(value["physical_count"]), training_start_ms=int(value["training_start_ms"]),
             training_end_ms=int(value["training_end_ms"]), selected_count=int(value["selected_count"]),
-            unique_count=int(value["unique_count"]),
+            unique_count=None if value["unique_count"] is None else int(value["unique_count"]),
+            minimum_unique_count_verified=int(value["minimum_unique_count_verified"]),
+            value_multiplier=int(value["value_multiplier"]),
             symbol_code=None if value["symbol_code"] is None else int(value["symbol_code"]),
             liquidity_decile=None if value["liquidity_decile"] is None else int(value["liquidity_decile"]),
             root=str(cache_root), physical_verified=external_verified,
@@ -303,6 +305,23 @@ class SemanticCacheWriter:
         }
         if provenance != expected_provenance:
             raise CacheBuildError("frame was not derived under the exact execution-input authority")
+        for raw_component in frame.metadata.get("cache_authority_components", ()):
+            if not isinstance(raw_component, Mapping) or set(raw_component) != {"path", "bytes", "sha256", "encoding"}:
+                raise CacheBuildError("frame cache-authority component record is invalid")
+            relative_path = Path(str(raw_component["path"]))
+            if relative_path.is_absolute() or ".." in relative_path.parts:
+                raise CacheBuildError("frame cache-authority component path is unsafe")
+            physical = self.cache_root / relative_path
+            if raw_component["encoding"] != "canonical_json" or not physical.is_file() or physical.stat().st_size != int(raw_component["bytes"]) or sha256_file(physical) != raw_component["sha256"]:
+                raise CacheBuildError("frame cache-authority component bytes differ")
+            component = {
+                **dict(raw_component),
+                "shared_content_sha256": canonical_hash({"path": relative_path.as_posix(), "sha256": raw_component["sha256"], "encoding": raw_component["encoding"]}),
+            }
+            previous = self.components.get(relative_path.as_posix())
+            if previous is not None and previous != component:
+                raise CacheBuildError("frame cache-authority component identity conflicts")
+            self.components[relative_path.as_posix()] = component
         for population in frame.threshold_populations.values():
             values = population.values
             if not isinstance(values, (ExactPopulationView, ExactPopulationTableView)):

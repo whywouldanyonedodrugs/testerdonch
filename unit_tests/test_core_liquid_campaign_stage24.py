@@ -24,6 +24,7 @@ from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceLimits
 from tools.core_liquid_campaign.production_readiness_gate import _a1_state_gate
 from tools.core_liquid_campaign.production_inputs import _thresholds
 from tools.core_liquid_campaign.family_engines import a1_compression
+from tools.core_liquid_campaign.production_population_tables import _feature_arrays
 
 
 class Stage24KnownDefectTests(unittest.TestCase):
@@ -147,11 +148,13 @@ class Stage24KnownDefectTests(unittest.TestCase):
                 if 100 <= timestamp < 300 and symbol == 2 and decile == 3
             ]
             view = ExactPopulationTableView(
-                "populations/values.npy", sha256_file(component_root / "values.npy"),
-                "populations/timestamps.npy", sha256_file(component_root / "timestamps.npy"),
-                "populations/symbols.npy", sha256_file(component_root / "symbols.npy"),
-                "populations/deciles.npy", sha256_file(component_root / "deciles.npy"),
-                120, 100, 300, len(selected), len(set(selected)), 2, 3, str(root),
+                values_path="populations/values.npy", values_sha256=sha256_file(component_root / "values.npy"),
+                timestamps_path="populations/timestamps.npy", timestamps_sha256=sha256_file(component_root / "timestamps.npy"),
+                symbols_path="populations/symbols.npy", symbols_sha256=sha256_file(component_root / "symbols.npy"),
+                deciles_path="populations/deciles.npy", deciles_sha256=sha256_file(component_root / "deciles.npy"),
+                physical_count=120, training_start_ms=100, training_end_ms=300,
+                selected_count=len(selected), unique_count=len(set(selected)), minimum_unique_count_verified=20,
+                symbol_code=2, liquidity_decile=3, root=str(root),
             )
             view.validate_physical()
             self.assertEqual(sorted(selected), list(view))
@@ -310,6 +313,25 @@ class Stage24KnownDefectTests(unittest.TestCase):
         self.assertEqual(len(expected), len(actual))
         for left, right in zip(expected, actual):
             self.assertAlmostEqual(left, right, places=12)
+
+    def test_columnar_a1_features_match_engine_formula_and_fail_closed_at_gap(self) -> None:
+        import numpy as np
+
+        size = 400
+        times = np.arange(size, dtype="<i8") * 300_000 + 1_735_689_600_000
+        closes = 100.0 * np.exp(np.sin(np.arange(size) / 13.0) * 0.01 + np.arange(size) * 0.0001)
+        arrays = _feature_arrays(times, closes)
+        index = 300
+        expected = a1_compression.features(
+            closes[index - 72:index + 1], closes[index - 23:index + 1], closes[index - 47:index - 23], 1,
+        )
+        self.assertAlmostEqual(expected["side_signed_impulse"], arrays["A1_impulse:window=6h"][index], places=14)
+        self.assertAlmostEqual(expected["contraction_ratio"], arrays["A1_contraction:base=2h:baseline=adjacent_equal_duration"][index], places=12)
+        self.assertAlmostEqual(expected["base_smoothness"], arrays["A1_smoothness:base=2h"][index], places=13)
+        gapped_times = times.copy(); gapped_times[250:] += 300_000
+        gapped = _feature_arrays(gapped_times, closes)
+        self.assertTrue(np.isnan(gapped["A1_impulse:window=6h"][300]))
+        self.assertTrue(np.isnan(gapped["A1_contraction:base=2h:baseline=adjacent_equal_duration"][270]))
 
     def test_shadow_provider_uses_actual_accounting_without_real_post_entry_data(self) -> None:
         config = baseline_config("A4_TSMOM_V7")

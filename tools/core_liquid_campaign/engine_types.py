@@ -133,7 +133,9 @@ class ExactPopulationTableView(Sequence[float]):
     training_start_ms: int
     training_end_ms: int
     selected_count: int
-    unique_count: int
+    unique_count: int | None
+    minimum_unique_count_verified: int
+    value_multiplier: int = 1
     symbol_code: int | None = None
     liquidity_decile: int | None = None
     root: str | None = field(default=None, compare=False, repr=False)
@@ -151,6 +153,8 @@ class ExactPopulationTableView(Sequence[float]):
             "physical_count": self.physical_count,
             "training_start_ms": self.training_start_ms, "training_end_ms": self.training_end_ms,
             "selected_count": self.selected_count, "unique_count": self.unique_count,
+            "minimum_unique_count_verified": self.minimum_unique_count_verified,
+            "value_multiplier": self.value_multiplier,
             "symbol_code": self.symbol_code, "liquidity_decile": self.liquidity_decile,
         }
 
@@ -188,7 +192,7 @@ class ExactPopulationTableView(Sequence[float]):
     def validate_physical(self) -> None:
         from .canonical import sha256_file
 
-        if not (0 <= self.training_start_ms < self.training_end_ms) or self.selected_count < 0 or self.unique_count < 0:
+        if self.value_multiplier not in {-1, 1} or not (0 <= self.training_start_ms < self.training_end_ms) or self.selected_count < 0 or not 0 <= self.minimum_unique_count_verified <= 20 or (self.unique_count is not None and self.unique_count < self.minimum_unique_count_verified):
             raise EngineInputError("external threshold table selector metadata is invalid")
         for relative, expected, _ in self.component_records():
             if len(expected) != 64 or any(character not in "0123456789abcdef" for character in expected):
@@ -210,8 +214,9 @@ class ExactPopulationTableView(Sequence[float]):
             mask &= symbols == self.symbol_code
         if self.liquidity_decile is not None:
             mask &= deciles == self.liquidity_decile
-        selected = np.sort(np.asarray(values[mask], dtype="<f8"), kind="mergesort")
-        if len(selected) != self.selected_count or int(np.unique(selected).size) != self.unique_count:
+        selected = np.sort(np.asarray(values[mask], dtype="<f8") * self.value_multiplier, kind="mergesort")
+        actual_unique = int(np.unique(selected).size)
+        if len(selected) != self.selected_count or actual_unique < self.minimum_unique_count_verified or (self.unique_count is not None and actual_unique != self.unique_count):
             raise EngineInputError("external threshold table selector count differs")
         object.__setattr__(self, "_selected_cache", selected)
         return selected
@@ -379,8 +384,11 @@ class ThresholdPopulation:
             finite_count = len(self.values)
             unique_count = self.values.unique_count
             if unique_count is None:
-                selected = self.values._array()[self.values.start_index:self.values.stop]  # type: ignore[union-attr]
-                unique_count = int(__import__("numpy").unique(selected).size)
+                if isinstance(self.values, ExactPopulationTableView):
+                    unique_count = self.values.minimum_unique_count_verified
+                else:
+                    selected = self.values._array()[self.values.start_index:self.values.stop]
+                    unique_count = int(__import__("numpy").unique(selected).size)
         else:
             if any(not isinstance(value, (int, float)) or not math.isfinite(float(value)) for value in self.values):
                 raise EngineInputError("threshold population contains a nonfinite or nonnumeric value")

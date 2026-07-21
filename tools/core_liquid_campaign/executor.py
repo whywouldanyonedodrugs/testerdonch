@@ -199,7 +199,7 @@ class CacheAuthority:
                     raise AuthorizationError("unsafe or duplicate cache component path")
                 path = self.cache_root / relative
                 if component.get("encoding") not in {
-                    "canonical_json_gzip_mtime0", "npy_float64_le_sorted_v1", "npy_float64_le_v1",
+                    "canonical_json", "canonical_json_gzip_mtime0", "npy_float64_le_sorted_v1", "npy_float64_le_v1",
                     "npy_int64_le_v1", "npy_uint16_le_v1", "npy_uint8_v1",
                 } or not _is_sha256(component.get("sha256")) or not _is_sha256(component.get("shared_content_sha256")):
                     raise AuthorizationError("cache component record is incomplete")
