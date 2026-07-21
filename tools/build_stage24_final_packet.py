@@ -46,16 +46,30 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     if gate.get("status") != "pass" or gate.get("implementation_commit") != head:
         raise RuntimeError("production-readiness gate is not a PASS at the reviewed commit")
     cache = json.loads(args.cache_manifest.read_text(encoding="utf-8"))
-    if cache.get("artifact_inventory_sha256") != canonical_hash(cache.get("artifacts", [])) or len(cache.get("artifacts", [])) != 396:
+    cache_artifacts = cache.get("artifacts", [])
+    kda_artifacts = [
+        row for row in cache_artifacts
+        if row.get("campaign_partition", {}).get("phase") == "kda02b_adjudication"
+    ]
+    if (
+        cache.get("artifact_inventory_sha256") != canonical_hash(cache_artifacts)
+        or len(cache_artifacts) != 567
+        or len(kda_artifacts) != 171
+    ):
         raise RuntimeError("final cache authority does not contain the exact complete frame inventory")
 
     args.output_root.mkdir(parents=True, exist_ok=True)
     for name in (
         "FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl", "FINAL_EXECUTION_REGISTRY.jsonl",
         "FINAL_CONTROL_REGISTRY.jsonl", "A2_PARENT_COUNTERPART_REGISTRY.jsonl",
-        "EXECUTION_INPUT_AUTHORITY.json", "FOLD_GRAPH.json", "FAMILY_AXIS_SCHEMA.json",
+        "FOLD_GRAPH.json", "FAMILY_AXIS_SCHEMA.json",
     ):
         shutil.copy2(args.packet_root / name, args.output_root / name)
+    shutil.copy2(args.execution_input_authority, args.output_root / "EXECUTION_INPUT_AUTHORITY.json")
+    kda_reconciliation_path = args.cache_manifest.parent.parent / "KDA02B_RECONCILIATION.json"
+    if not kda_reconciliation_path.is_file():
+        raise RuntimeError("final KDA02B reconciliation is absent")
+    shutil.copy2(kda_reconciliation_path, args.output_root / "KDA02B_RECONCILIATION.json")
     shutil.copy2(args.gate, args.output_root / "PRODUCTION_READINESS_GATE.json")
     shutil.copy2(args.review, args.output_root / "FINAL_INDEPENDENT_REVIEW.json")
     code_inventory = _code_inventory(args.repository_root)
@@ -67,7 +81,8 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         "path": str(args.cache_manifest.resolve()),
         "bytes": args.cache_manifest.stat().st_size,
         "sha256": sha256_file(args.cache_manifest),
-        "artifacts": len(cache["artifacts"]),
+        "artifacts": len(cache_artifacts),
+        "kda02b_artifacts": len(kda_artifacts),
         "components": len(cache.get("components", [])),
         "artifact_inventory_sha256": cache["artifact_inventory_sha256"],
         "component_inventory_sha256": cache.get("component_inventory_sha256"),
@@ -91,13 +106,21 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         "code_inventory": sha256_file(args.output_root / "CODE_HASH_INVENTORY.json"),
         "production_readiness_gate": sha256_file(args.output_root / "PRODUCTION_READINESS_GATE.json"),
         "independent_review": sha256_file(args.output_root / "FINAL_INDEPENDENT_REVIEW.json"),
+        "kda02b_reconciliation": sha256_file(args.output_root / "KDA02B_RECONCILIATION.json"),
     }
     authority = json.loads((args.output_root / "EXECUTION_INPUT_AUTHORITY.json").read_text(encoding="utf-8"))
     manifest = {
         "schema": "stage24_final_executable_campaign_manifest_v1",
         "campaign_id": CAMPAIGN_ID,
         "repository": {"implementation_commit": head, "launch_from_clean_reviewed_descendant": True},
-        "counts": {"registered_attempts": 11968, "unique_economic_executions": 11963, "controls": 800, "families": 5, "outer_folds": 8},
+        "counts": {
+            "registered_attempts": 11968,
+            "unique_economic_executions": 11963,
+            "controls": 800,
+            "families": 5,
+            "primary_outer_folds": 8,
+            "kda02b_adjudication_folds": 9,
+        },
         "primary_hashes": primary,
         "execution_input_authority": authority,
         "cache_authority": cache_authority,
@@ -143,6 +166,8 @@ Launch only after an external approval JSON binds all of:
 - execution registry `{primary['execution_registry']}`
 - control registry `{primary['control_registry']}`
 - cache authority `{primary['cache_authority_manifest']}`
+- execution-input authority `{primary['execution_input_authority']}`
+- KDA02B reconciliation `{primary['kda02b_reconciliation']}`
 
 Repeat authority, source, cache, resource, synthetic-canary and secure Telegram gates atomically. Launch through the reviewed detached service, require one reconciled real unit and the first scheduled heartbeat before health release, and preserve renewable checkpoint accounting without a hard wall stop. Do not access protected or Capital.com data.
 """
@@ -169,6 +194,7 @@ def main() -> int:
     parser.add_argument("--repository-root", type=Path, required=True)
     parser.add_argument("--packet-root", type=Path, required=True)
     parser.add_argument("--cache-manifest", type=Path, required=True)
+    parser.add_argument("--execution-input-authority", type=Path, required=True)
     parser.add_argument("--gate", type=Path, required=True)
     parser.add_argument("--review", type=Path, required=True)
     parser.add_argument("--output-root", type=Path, required=True)

@@ -199,6 +199,7 @@ def control_production_shadow_probe(
     output_root: Path,
     registered_controls: Sequence[Mapping[str, Any]] | None = None,
     production_frames: Sequence[Any] | None = None,
+    execution_registry: Sequence[Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
     identities = [(family, control_id) for family, ids in CONTROL_IDS.items() for control_id in ids]
     physical_by_class: dict[tuple[str, str], Mapping[str, Any]] = {}
@@ -226,6 +227,88 @@ def control_production_shadow_probe(
                     break
             if (family, control_id) not in physical_by_class:
                 raise RuntimeError(f"no physical control address produced the required nonempty fixture: {control_id}")
+
+    actual_production_dispatch: dict[str, dict[str, Any]] = {}
+    if production_frames is not None and registered_controls is not None and execution_registry is not None:
+        registry = {str(row["executable_attempt_id"]): row for row in execution_registry}
+        parent_ids = {
+            "A4_TSMOM_V7": "A4_TSMOM_V7:S22:L:0006:1",
+            "A1_COMPRESSION_V2": "A1_COMPRESSION_V2:S22:L:0865:1",
+            "A3_STARTER_RETEST_V3": "A3_STARTER_RETEST_V3:S22:L:2610:1",
+        }
+        parents = {family: registry[identity] for family, identity in parent_ids.items()}
+        a2 = next(
+            row for row in execution_registry
+            if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1"
+            and row["config"].get("parent_binding_mode") == "source_attempt"
+            and row.get("resolved_parent_executable_attempt_id") in registry
+        )
+        parents["A2_PRIOR_HIGH_RS_CONTEXT_V1"] = a2
+        available_frames = tuple(
+            frame for frame in production_frames
+            if frame.metadata.get("campaign_partition", {}).get("phase") != "kda02b_adjudication"
+        )
+        if not available_frames:
+            raise RuntimeError("actual control production dispatch lacks non-KDA CacheAuthority frames")
+        # One exact compatible frame per family keeps aggregate denominators
+        # identical. Stochastic controls that require a wider allocation
+        # population remain locally unavailable here; their nonempty semantics
+        # are exercised by the production-shaped registered fixtures above.
+        frame_by_family: dict[str, Any] = {}
+        for family, parent in parents.items():
+            for candidate_frame in available_frames:
+                kwargs: dict[str, Any] = {}
+                if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+                    kwargs = {
+                        "parent_binding": {
+                            "parent_binding_template_id": parent["parent_binding_template_id"],
+                            "parent_executable_attempt_id": parent["resolved_parent_executable_attempt_id"],
+                            "parent_only_counterpart_id": parent["parent_only_counterpart_id"],
+                            "overlay_counterpart_id": parent["overlay_counterpart_id"],
+                        },
+                        "parent_frames": (candidate_frame,),
+                    }
+                try:
+                    probe = dispatch_registered_attempt(
+                        parent, (candidate_frame,), registry_by_id=registry,
+                        payoff_provider=ShadowPayoffProvider("stage24-physical-control-frame-selection-v1"), **kwargs,
+                    )
+                except EngineInputError:
+                    continue
+                if probe.get("status") == "complete":
+                    frame_by_family[family] = candidate_frame
+                    break
+            if family not in frame_by_family:
+                raise RuntimeError(f"no compatible physical CacheAuthority control frame: {family}")
+        for family, control_id in identities:
+            frames = (frame_by_family[family],)
+            target_fold = str(frames[0].metadata["campaign_partition"]["outer_fold_id"])
+            candidate = next(
+                row for row in registered_controls
+                if row["family"] == family and row["control_id"] == control_id and row["fold"] == target_fold
+            )
+            control = {**dict(candidate), "execution_status": "execute_once"}
+            parent = parents[family]
+            kwargs: dict[str, Any] = {}
+            if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+                kwargs = {
+                    "parent_binding": {
+                        "parent_binding_template_id": parent["parent_binding_template_id"],
+                        "parent_executable_attempt_id": parent["resolved_parent_executable_attempt_id"],
+                        "parent_only_counterpart_id": parent["parent_only_counterpart_id"],
+                        "overlay_counterpart_id": parent["overlay_counterpart_id"],
+                    },
+                    "parent_frames": frames,
+                }
+            result = execute_control(
+                control, parent, frames, registry_by_id=registry,
+                payoff_provider=ShadowPayoffProvider("stage24-physical-control-production-path-v1"), **kwargs,
+            )
+            if result.get("status") not in {"complete", "unavailable_duplicate_address"}:
+                raise RuntimeError(f"physical CacheAuthority control dispatch failed: {family}/{control_id}")
+            actual_production_dispatch[control_id] = _result_record(control_id, result)
+        if set(actual_production_dispatch) != {control_id for _, control_id in identities}:
+            raise RuntimeError("actual CacheAuthority control dispatch omitted a control class")
     def bound(family: str, control_id: str) -> Mapping[str, Any] | None:
         return physical_by_class.get((family, control_id))
     sequential = {control_id: execute_control_fixture(family, control_id, registered_control=bound(family, control_id)) for family, control_id in identities}
@@ -323,6 +406,8 @@ def control_production_shadow_probe(
         "physical_cache_authority_frames": len(physical_frame_inventory),
         "physical_cache_authority_frame_inventory_sha256": canonical_hash(sorted(physical_frame_inventory)),
         "physical_cache_authority_bound": production_frames is not None,
+        "actual_cacheauthority_control_classes_dispatched": len(actual_production_dispatch),
+        "actual_cacheauthority_control_inventory_sha256": canonical_hash(actual_production_dispatch),
         "reversed_input_order": "pass",
         "restart_reuse": "pass",
         "singleton_case": singleton_result["status"],

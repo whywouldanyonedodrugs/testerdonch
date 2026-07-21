@@ -404,9 +404,15 @@ def _terminal_gate(
     }
 
 
-def _service_evidence_gate(repository_root: Path, *, cache_manifest_sha256: str, implementation_commit: str) -> dict[str, Any]:
+def _service_evidence_gate(
+    repository_root: Path,
+    *,
+    current_service_root: Path,
+    cache_manifest_sha256: str,
+    implementation_commit: str,
+) -> dict[str, Any]:
     roots = {
-        "current_production": repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v14/run",
+        "current_production": current_service_root / "run",
         "restart": repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v02/run",
         "worker_kill": repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v06/run",
         "graceful_resume": repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v07/run",
@@ -421,7 +427,7 @@ def _service_evidence_gate(repository_root: Path, *, cache_manifest_sha256: str,
             "all_workers_stopped": supervisor.get("all_workers_stopped"), "service_identity": supervisor.get("service_identity"),
         }
     attempt_values = list(rows["worker_kill"]["attempts"].values())
-    current_spec_path = repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v14/SHADOW_SERVICE_SPEC.json"
+    current_spec_path = current_service_root / "SHADOW_SERVICE_SPEC.json"
     current_spec = json.loads(current_spec_path.read_text(encoding="utf-8"))
     passed = (
         all(row["campaign_status"] == "complete" and row["health_release"] is True and row["all_workers_stopped"] is True for row in rows.values())
@@ -451,7 +457,7 @@ def run_gate(args: argparse.Namespace) -> dict[str, Any]:
     checks["real_family_inputs_and_engines"] = _real_engine_gate(
         execution, frames, cache_manifest_path=args.cache_manifest, execution_input_authority=execution_input_authority,
     )
-    checks["controls"] = control_production_shadow_probe(args.output / "control_workers", controls, frames)
+    checks["controls"] = control_production_shadow_probe(args.output / "control_workers", controls, frames, execution)
     del frames
     gc.collect()
     checks["representative_benchmark"] = representative_production_benchmark(
@@ -464,6 +470,7 @@ def run_gate(args: argparse.Namespace) -> dict[str, Any]:
     checks["a1_state"] = _a1_state_gate()
     checks["shadow_service"] = _service_evidence_gate(
         args.repository_root,
+        current_service_root=args.shadow_service_root,
         cache_manifest_sha256=sha256_file(args.cache_manifest),
         implementation_commit=_git(args.repository_root, "rev-parse", "HEAD"),
     )
@@ -488,6 +495,11 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--packet-root", type=Path, default=Path("results/rebaseline/stage23_stage22_v04_remediation_20260721_v07"))
     result.add_argument("--cache-manifest", type=Path, default=Path("results/rebaseline/stage24_production_readiness_20260721_v05/semantic_cache/SEMANTIC_CACHE_MANIFEST.json"))
     result.add_argument("--execution-input-authority", type=Path)
+    result.add_argument(
+        "--shadow-service-root",
+        type=Path,
+        default=Path("results/rebaseline/stage24_shadow_service_canary_20260721_v16"),
+    )
     result.add_argument("--stage24-task", type=Path, default=Path("/root/.codex/attachments/631b7b9c-9ca0-435d-a456-2cf1c64062c8/pasted-text.txt"))
     return result
 
