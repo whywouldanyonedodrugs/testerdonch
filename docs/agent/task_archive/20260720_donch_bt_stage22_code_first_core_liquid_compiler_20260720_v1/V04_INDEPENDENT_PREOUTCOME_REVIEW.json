@@ -1,0 +1,306 @@
+{
+  "bindings": {
+    "a2_counterpart_registry_sha256": "f6eb6eb0a7dd73864da0c0444f65257199042f69dd198e854b57b761f12be20a",
+    "control_registry_sha256": "5eb421dd1a6b63f097d082e170ac0cbb62b5f6a3c9cf763f16ecbcb5596fb322",
+    "execution_registry_sha256": "d8646e8f65110b458a9d83bc0d594df8c3cc747c875fc2ab82dfd83a2f63d00d",
+    "family_axis_schema_file_sha256": "c01e5f9c4f5ae824e5f614f966bc3e1e9d5aefec2ccc880506a5466522cff956",
+    "generated_artifact_inventory_sha256": "7d7efc5166a5f820a0d5c37ce4896fb3d53b3003aa90567bc732b23ec25585ac",
+    "implementation_commit": "828c96a4036304d377e414f74929a41f6558451e",
+    "review_target_sha256": "c97701bbbaa9c89c0fcbd4dd03d1765d7b49111918a350d17656b844dba3e046",
+    "source_tree_sha256": "1c8a1aa82bf5419afd94f5d47c4e3e89195762b343bb7ec5f47cad2be667b2d8",
+    "strategy_registry_sha256": "b160332ce2dd502a48b1bc966d9d73d151c82ed6e1489eda77ab7d9c17753cbd"
+  },
+  "blocking_findings": 7,
+  "capitalcom_payload_opened": false,
+  "checks": [
+    {
+      "check": "authority_instruction_sha256",
+      "status": "pass",
+      "value": "58fbec98558850dd8cd39c00cf4b9fc57d38c32cdf5064d97f0e598766fcd169"
+    },
+    {
+      "check": "repository_head_and_cleanliness",
+      "status": "pass",
+      "value": "HEAD 828c96a4036304d377e414f74929a41f6558451e; worktree clean before review record creation"
+    },
+    {
+      "check": "review_target_and_exact_bindings",
+      "status": "pass",
+      "value": "Review target and all eight physical review bindings matched"
+    },
+    {
+      "check": "generated_inventory_rehash",
+      "status": "pass",
+      "value": "106/106 reviewed files matched path, size and SHA-256; composite 7d7efc5166a5f820a0d5c37ce4896fb3d53b3003aa90567bc732b23ec25585ac"
+    },
+    {
+      "check": "execution_source_records",
+      "status": "pass",
+      "value": "All seven execution source records matched path, size and SHA-256"
+    },
+    {
+      "check": "focused_tests",
+      "status": "pass_with_inadequate_production_coverage",
+      "value": "25 tests passed in 37.599 seconds; no test builds the real 187-symbol cache, runs a representative full-fold job, transmits a production-sized result, or executes terminal adjudication"
+    },
+    {
+      "check": "compiled_registry_validation_and_replay",
+      "status": "pass",
+      "value": "11,968 strategy rows; 11,963 execution rows; 800 controls; 2,654 A2 counterparts; 38 deterministic replay files; zero byte mismatch"
+    },
+    {
+      "check": "compileall_git_diff_and_secret_scan",
+      "status": "pass",
+      "value": "No syntax, whitespace or changed-file credential/private-key pattern failure"
+    },
+    {
+      "check": "repository_wide_baseline",
+      "status": "preexisting_environment_failures",
+      "value": "1,252 tests ran; 2 failures and 33 errors were outside the Stage-22 module and matched missing optional dependencies, absent isolated-worktree roots, or stale governance fixtures; all Stage-22 focused tests passed"
+    },
+    {
+      "check": "production_cache_builder_and_full_workload",
+      "status": "fail",
+      "value": "No authority-derived real cache builder or complete 187-symbol/fold/decision reconciliation exists"
+    },
+    {
+      "check": "selection_controls_terminal_contract",
+      "status": "fail",
+      "value": "Frozen beam eligibility, overlap, A2 uplift, duplicate controls, forensics and terminal route decisions are not completely wired"
+    },
+    {
+      "check": "representative_runtime_and_unattended_safety",
+      "status": "fail",
+      "value": "The one-frame canary does not exercise full authority cost, full fold artifacts, production-sized worker results, or a detached restart installation"
+    }
+  ],
+  "economic_outcomes_opened": false,
+  "findings": [
+    {
+      "category": "authority_and_execution_input_construction",
+      "evidence": "build_semantic_cache accepts an already constructed Sequence[FamilyInput], checks only that caller-supplied source_authority metadata contains the approved hashes, and serializes those values. No production code reads the bound Kraken price manifest/payloads, exact funding ZIP, lifecycle ledger, universe reconciliation or fold graph to derive those frames. The launch CLI requires a caller-provided --cache-manifest and never builds or independently replays it. Neither cache construction nor launch proves the exact 187-symbol roster, every registered decision, the approved inner/outer boundaries, PIT known-member gates, or exact funding rows; a nonempty self-consistent cache with fabricated values and copied authority hashes can satisfy the current checks.",
+      "id": "S22-V04-001",
+      "impact": [
+        "authority",
+        "protected_data_isolation",
+        "economic_correctness",
+        "deterministic_reproducibility"
+      ],
+      "locations": [
+        "tools/core_liquid_campaign/cache.py:128",
+        "tools/core_liquid_campaign/cache.py:149",
+        "tools/core_liquid_campaign/cache.py:152",
+        "tools/core_liquid_campaign/cache.py:176",
+        "tools/core_liquid_campaign/executor.py:118",
+        "tools/core_liquid_campaign/executor.py:164",
+        "tools/run_stage22_core_liquid_campaign.py:54",
+        "tools/run_stage22_core_liquid_campaign.py:72"
+      ],
+      "required_acceptance": "Implement a code-owned production cache compiler from the exact physically verified source records. Before any economic dispatch, independently replay and atomically reconcile all 187 symbols, lifecycle/PIT membership and lagged-liquidity ranks, every required decision and fold boundary, fold-local threshold populations, exact Stage-19 funding rows and KDA02B Stage-20 inputs. Reject any missing, extra or caller-authored semantic value before outcome access.",
+      "severity": "critical",
+      "title": "The verified cache envelope is not derived from the bound real source payloads"
+    },
+    {
+      "category": "selection_and_materialization",
+      "evidence": "The compiler records source_prior_anchor_not_main_beam and other selection_role values, but _freeze_beams places every family row into the same candidate set and never checks selection_role. It also does not call the implemented event-overlap deduplicator, and A2 overlays are selected on absolute overlay metrics without the registered paired parent-uplift/main-null requirement. Materialization marks anchors by testing whether lane ends with 'anchor' even though the registry carries legacy_projection/broad_space_filling lanes and stores anchor meaning in selection_role; main_component_null is hard-coded false. Thus prohibited source-prior anchors can enter a main beam while required anchors and component nulls can be omitted from full-ledger materialization.",
+      "id": "S22-V04-002",
+      "impact": [
+        "economic_correctness",
+        "deterministic_reproducibility"
+      ],
+      "locations": [
+        "tools/core_liquid_campaign/compiler.py:209",
+        "tools/core_liquid_campaign/campaign.py:237",
+        "tools/core_liquid_campaign/campaign.py:261",
+        "tools/core_liquid_campaign/campaign.py:267",
+        "tools/core_liquid_campaign/campaign.py:291",
+        "tools/core_liquid_campaign/campaign.py:292",
+        "tools/core_liquid_campaign/selection.py:405"
+      ],
+      "required_acceptance": "Enforce compiled selection_role eligibility before plateau construction and beam selection; run the frozen development-event Jaccard deduplication; select A2 only through its exact paired parent/uplift and registered main-null contract; and prove that all beam survivors, mechanism anchors, main component nulls, frozen near-misses and seeded failed strata enter materialization exactly once.",
+      "severity": "critical",
+      "title": "The orchestrator does not enforce the frozen beam, A2 and materialization eligibility rules"
+    },
+    {
+      "category": "control_execution",
+      "evidence": "The frozen control contract specifies ordered SHA-256 seed tuples, but A4, A2 and A3 permutations derive seeds from implementation-specific mapping payloads. The compiled effective_seed is read but not used by these transformations, while matched_pseudo_event_directives accepts control_address but never includes it in any calculation. execute_control always dispatches a transformed control and never applies duplicate_behavior, so controls that are economically identical to their parent (for example context removal when context is already none, vol removal when target is none, or confirmation removal when already one_close) are counted as independent evidence instead of explicit unavailable_duplicate_address rows.",
+      "id": "S22-V04-003",
+      "impact": [
+        "authority",
+        "economic_correctness",
+        "deterministic_reproducibility"
+      ],
+      "locations": [
+        "tools/core_liquid_campaign/controls.py:119",
+        "tools/core_liquid_campaign/controls.py:150",
+        "tools/core_liquid_campaign/controls.py:187",
+        "tools/core_liquid_campaign/controls.py:200",
+        "tools/core_liquid_campaign/controls.py:206",
+        "tools/core_liquid_campaign/controls.py:224",
+        "tools/core_liquid_campaign/controls.py:246",
+        "tools/core_liquid_campaign/controls.py:253"
+      ],
+      "required_acceptance": "Implement the exact registered seed serialization independently fixture-tested against fixed expected integers and transformed vectors; use the declared control identity/seed fields exactly; and detect, persist and exclude every parent-identical or mutually duplicate control address before control evidence or terminal routes are computed.",
+      "severity": "critical",
+      "title": "Control seeds and duplicate-control semantics still differ from the frozen contract"
+    },
+    {
+      "category": "temporal_and_family_engine_semantics",
+      "evidence": "FamilyInput validates five-minute bars as merely increasing and does not validate daily-bar order or daily continuity. A4 then slices five-minute and daily arrays by position and computes returns, EMA, volatility, prior ranges and ATR without enforcing the registered contiguous-window and no-gap-bridging rules. ThresholdPopulation.validate names a tuple 'finite' but accepts infinities. In symmetric A1, both sides are disarmed after an episode, yet either side falling below q50 rearms both; the frozen state machine requires the owning side to rearm before the opposite side is released. These cases can change events, signals, exits and selection metrics even when the cache values are otherwise authentic.",
+      "id": "S22-V04-004",
+      "impact": [
+        "point_in_time_correctness",
+        "economic_correctness",
+        "deterministic_reproducibility"
+      ],
+      "locations": [
+        "tools/core_liquid_campaign/engine_types.py:114",
+        "tools/core_liquid_campaign/engine_types.py:137",
+        "tools/core_liquid_campaign/engine_types.py:241",
+        "tools/core_liquid_campaign/engine_types.py:247",
+        "tools/core_liquid_campaign/family_engines/a4_tsmom.py:135",
+        "tools/core_liquid_campaign/family_engines/a4_tsmom.py:147",
+        "tools/core_liquid_campaign/family_engines/a1_compression.py:109",
+        "tools/core_liquid_campaign/family_engines/a1_compression.py:121"
+      ],
+      "required_acceptance": "Enforce explicit chronological ordering and the exact registered gap/coverage rules before every five-minute and daily rolling calculation; reject nonfinite threshold populations; and implement the A1 owning-side rearm state with an independent symmetric fixture. Re-run parameterized lookback/threshold and earlier-event invariance coverage on these repaired paths.",
+      "severity": "critical",
+      "title": "Several registered temporal window and A1 state-machine invariants remain unenforced"
+    },
+    {
+      "category": "unattended_runtime_safety",
+      "evidence": "Each worker sends the entire result through a multiprocessing Pipe, including event-ID arrays and full outer/control/materialized ledgers. The supervisor reads the pipe only after process.is_alive becomes false. A child sending a payload larger than the pipe buffer can block in send while remaining alive, so the parent never receives it and eventually kills valid work as a no-progress stall. The canary sends only tiny results and cannot expose this. In addition, _run_jobs accepts complete status without requiring health_release, so a completed campaign can be returned without the first scheduled heartbeat, and service-spec only prints restart metadata rather than installing or executing a detached restart service. Data-local EngineInputError failures are retried as worker deaths and then stop the whole stage instead of persisting the registered local-unavailable status.",
+      "id": "S22-V04-005",
+      "impact": [
+        "deterministic_reproducibility",
+        "unattended_resource_safety"
+      ],
+      "locations": [
+        "tools/core_liquid_campaign/runtime.py:217",
+        "tools/core_liquid_campaign/runtime.py:219",
+        "tools/core_liquid_campaign/runtime.py:352",
+        "tools/core_liquid_campaign/runtime.py:356",
+        "tools/core_liquid_campaign/runtime.py:383",
+        "tools/core_liquid_campaign/runtime.py:402",
+        "tools/core_liquid_campaign/campaign.py:127",
+        "tools/run_stage22_core_liquid_campaign.py:66"
+      ],
+      "required_acceptance": "Persist worker results atomically inside the worker or drain IPC concurrently, and prove a production-sized result cannot deadlock. Exercise resource stop, retry and idempotent recovery with that size. Gate campaign health on one reconciled real registered unit, verified campaign state and the first scheduled 30-minute heartbeat. Provide and test an actual detached restart invocation, and convert registered observation-local missingness to explicit unavailable artifacts without stopping unrelated families.",
+      "severity": "critical",
+      "title": "Production-sized results can deadlock the supervisor and required health/detach gates are not enforced"
+    },
+    {
+      "category": "budget_and_runtime_projection",
+      "evidence": "The capacity artifact measures 20 synthetic jobs, four per family, with exactly one small synthetic frame per job. It calls execute_cached_synthetic_attempt, bypassing ExecutionAuthorization.require and its packet/source hashing. Real jobs pass every artifact for a fold to one attempt, re-read and hash the complete cache inventory, decode all requested symbol/decision frames, and repeat full launch/source verification for each registered attempt. The projection multiplies the one-frame result by a scalar 124 and does not model the actual 187-symbol decision count, A2 slot-specific folds, conditional refinements, outer folds, controls, materialization, large IPC or terminal artifacts. Consequently the 11,968-row optimizer input, 327,104-second estimate, RSS margin and 6.49-GB output estimate are not measurements of the production workload.",
+      "id": "S22-V04-006",
+      "impact": [
+        "deterministic_reproducibility",
+        "unattended_resource_safety"
+      ],
+      "locations": [
+        "tools/core_liquid_campaign/packet.py:173",
+        "tools/core_liquid_campaign/packet.py:213",
+        "tools/core_liquid_campaign/packet.py:234",
+        "tools/core_liquid_campaign/packet.py:239",
+        "tools/core_liquid_campaign/packet.py:325",
+        "tools/core_liquid_campaign/executor.py:49",
+        "tools/core_liquid_campaign/executor.py:143",
+        "tools/core_liquid_campaign/executor.py:497",
+        "tools/core_liquid_campaign/budget.py:70"
+      ],
+      "required_acceptance": "Measure representative production jobs over the complete 187-symbol/fold/decision cache, including one full authority boundary, cache verification/decode, realistic event volume, production-sized persistence/IPC and every conditional stage. Reconcile the exact job and artifact projection for 11,968 attempts plus refinements, beams, outer folds, controls, forensics and materialization, then feed the measured safe capacity back into the outcome-free optimizer.",
+      "severity": "critical",
+      "title": "The four-worker benchmark and 11,968-row projection are not representative of the real campaign"
+    },
+    {
+      "category": "terminal_adjudication_and_reconciliation",
+      "evidence": "After outer evaluation, controls and materialization, CampaignOrchestrator writes TERMINAL_RECONCILIATION with only registry/control/KDA/beam/outer counts and declares the campaign complete. It never calls adjudicate_route, never computes the registered paired control gates or full eight-quarter family vectors, never emits family/address terminal decisions, and never performs the required leave-one-symbol/month/symbol-month, top-contributor, cost/funding/delay and neighborhood forensics. The reconciliation does not compare complete expected job IDs to all stage markers/artifacts or bind a terminal artifact inventory, so count presence alone can be labeled pass.",
+      "id": "S22-V04-007",
+      "impact": [
+        "economic_correctness",
+        "deterministic_reproducibility"
+      ],
+      "locations": [
+        "tools/core_liquid_campaign/campaign.py:371",
+        "tools/core_liquid_campaign/campaign.py:374",
+        "tools/core_liquid_campaign/campaign.py:380",
+        "tools/core_liquid_campaign/campaign.py:381",
+        "tools/core_liquid_campaign/campaign.py:382",
+        "tools/core_liquid_campaign/selection.py:357"
+      ],
+      "required_acceptance": "Wire the frozen common, main-null, component, stress, delay, sample and A2 paired-uplift gates into exact terminal route decisions; produce the complete registered forensic suite; reconcile every expected job, unavailable marker, retry, artifact and hash across all stages; and permit terminal complete only after those decisions and a terminal artifact inventory independently replay.",
+      "severity": "critical",
+      "title": "The campaign declares completion without registered terminal decisions or forensics"
+    }
+  ],
+  "protected_rows_opened": 0,
+  "review_conclusion": "The V04 registries and packet candidate are byte-reproducible, and the earlier A4 formulas, A4 cohort aggregation, named context arithmetic, KDA02B onset logic, exact launch-tree binding and basic lazy process termination repairs materially improve the implementation. However, the real source-to-cache path remains caller-authored, frozen selection/control semantics are not fully wired, the workload benchmark does not represent the 187-symbol campaign, production-sized worker results can deadlock, and terminal decisions/forensics do not exist. Finalization, publication and economic approval must remain blocked until all seven findings are repaired and the exact replacement bytes receive another comprehensive independent pre-outcome review.",
+  "reviewer_identity": {
+    "agent": "/root/stage21_independent_review",
+    "role": "independent_preoutcome_code_and_byte_reviewer"
+  },
+  "schema": "stage22_independent_preoutcome_review_v2",
+  "v03_finding_disposition": [
+    {
+      "id": "S22-V03-001",
+      "status": "unresolved",
+      "summary": "Physical cache bytes now bind decoded frames, but no authority-derived real cache compiler exists; see S22-V04-001."
+    },
+    {
+      "id": "S22-V03-002",
+      "status": "partially_closed",
+      "summary": "A production entry point and stage graph now exist, but source construction, selection and terminal stages are incomplete; see S22-V04-001, S22-V04-002 and S22-V04-007."
+    },
+    {
+      "id": "S22-V03-003",
+      "status": "closed",
+      "summary": "FamilyInput is now one exact decision snapshot with exact-as-of context validation and earlier-event invariance tests."
+    },
+    {
+      "id": "S22-V03-004",
+      "status": "closed",
+      "summary": "The reviewed A4 formulas and five transformations now implement the selected five-minute EMA/volatility, q05/q95 MAD and component-removal definitions."
+    },
+    {
+      "id": "S22-V03-005",
+      "status": "closed",
+      "summary": "Explicit A4 cohort identity now sums weighted symbol contributions once and averages cohorts by UTC day."
+    },
+    {
+      "id": "S22-V03-006",
+      "status": "closed",
+      "summary": "Rank normalization, funding veto, linear breadth/dispersion and parameterized context lookbacks are corrected."
+    },
+    {
+      "id": "S22-V03-007",
+      "status": "closed",
+      "summary": "KDA02B now uses the complete sequential rearm/gap logic and derives the generic control through the matched allocator."
+    },
+    {
+      "id": "S22-V03-008",
+      "status": "partially_closed",
+      "summary": "Control inputs are now derived from parent events and bound frames, but exact seed and duplicate semantics remain open; see S22-V04-003."
+    },
+    {
+      "id": "S22-V03-009",
+      "status": "partially_closed",
+      "summary": "Route precedence and stratified sampling helpers are corrected, but the orchestrator does not enforce all beam/materialization rules or terminal routes; see S22-V04-002 and S22-V04-007."
+    },
+    {
+      "id": "S22-V03-010",
+      "status": "partially_closed",
+      "summary": "Scheduling is lazy and workers are killable processes, but production-sized IPC, health release and detached restart remain unsafe or incomplete; see S22-V04-005."
+    },
+    {
+      "id": "S22-V03-011",
+      "status": "closed",
+      "summary": "Finalization replays the reviewed inventory and launch binds the complete discovered Python launch tree, exact authority artifacts and source records."
+    },
+    {
+      "id": "S22-V03-012",
+      "status": "partially_closed",
+      "summary": "The optimizer now consumes a measured four-worker canary, but that one-frame workload is not representative of production; see S22-V04-006."
+    }
+  ],
+  "verdict": "BLOCK"
+}

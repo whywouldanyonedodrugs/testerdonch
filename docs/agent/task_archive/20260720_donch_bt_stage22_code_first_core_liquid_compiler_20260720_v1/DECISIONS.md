@@ -51,3 +51,27 @@ lines of an existing `program_exposed_historical` Stage-20 summary. No displayed
 value was used to choose or modify an axis, budget, threshold, rule, cost,
 selection criterion or candidate identity. This disclosure is included in the
 independent review scope.
+
+## Terminal pre-outcome decision
+
+The exact V04 candidate is not eligible for finalization. The independent
+review at SHA-256
+`7e97143f89c07fed180aa9e3e5d492ab779ccfc58187d3a71b0a27c4ec45b958`
+returned `BLOCK` with seven consolidated critical findings. They affect the
+authority-derived production cache, selection/materialization, control seeds
+and duplicates, temporal/family invariants, production-sized IPC and health
+release, representative capacity measurement, and terminal adjudication and
+reconciliation.
+
+Consequences:
+
+- V04 remains an immutable reviewed candidate and must not be relabelled PASS.
+- `FINAL_CAMPAIGN_MANIFEST.json`, `FINAL_HUMAN_APPROVAL_REQUEST.json`,
+  `FINAL_LAUNCH_TASK.md`, and their hashes are intentionally absent.
+- No economic campaign, protected-period reader, Capital.com reader, order,
+  deployment, or live-trading path may be invoked.
+- The Stage-22 task branch is preserved locally; `main` and `origin/main` stay
+  at the verified starting authority because publication was authorized only
+  after a passing independent review.
+- Further work requires a new bounded implementation pass against all seven
+  review acceptances followed by another comprehensive independent review.

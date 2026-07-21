@@ -100,3 +100,53 @@ OK
 
 No economic outcome reader, protected row, Capital.com payload, order,
 deployment or live-trading action was invoked.
+
+## V04 deterministic candidate and independent review
+
+The supported repository-root invocation was used without a `PYTHONPATH`
+override:
+
+```text
+.venv/bin/python -m tools.build_stage22_core_liquid_campaign ...
+```
+
+V04 result:
+
+```text
+strategy/adjudication rows: 11,968
+unique execution rows: 11,963
+controls: 800
+A2 parent/counterpart rows: 2,654
+search-space marginal failures: 0
+search-space pairwise failures: 0
+unrepresented valid regions: 0
+generated-file replay: 38/38 byte-identical
+review target SHA-256: c97701bbbaa9c89c0fcbd4dd03d1765d7b49111918a350d17656b844dba3e046
+implementation commit: 828c96a4036304d377e414f74929a41f6558451e
+```
+
+The comprehensive independent review rehashed 106/106 reviewed files and all
+seven source records, repeated the 25 focused tests, and returned:
+
+```text
+verdict: BLOCK
+blocking findings: 7
+review SHA-256: 7e97143f89c07fed180aa9e3e5d492ab779ccfc58187d3a71b0a27c4ec45b958
+```
+
+The review is byte-identical in the V04 candidate and task archive. It blocks
+final manifest generation, final approval-request generation, launch-task
+generation, `main`/`origin/main` publication, and any economic execution.
+
+## V04 repository-wide baseline
+
+```text
+.venv/bin/python -m unittest discover -s unit_tests -v
+Ran 1252 tests
+FAILED (failures=2, errors=33)
+```
+
+All 25 Stage-22 focused tests passed. The other failures matched pre-existing
+missing optional dependencies, absent isolated-worktree result roots, or stale
+governance fixtures and did not reference a changed Stage-22 implementation
+file.
