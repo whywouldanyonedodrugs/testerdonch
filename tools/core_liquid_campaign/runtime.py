@@ -534,7 +534,7 @@ def detached_shadow_service_spec(repository_root: Path, run_root: Path, spec_pat
         "[Unit]", "Description=QLMG Stage 24 reviewed production shadow", "After=network-online.target",
         "StartLimitIntervalSec=3600", "StartLimitBurst=3",
         "[Service]", "Type=simple", f"WorkingDirectory={repository_root}",
-        f"EnvironmentFile={telegram_env_file}", "ExecStart=" + shlex.join(command),
+        f"EnvironmentFile={telegram_env_file}", f"Environment=SYSTEMD_UNIT={service_id}.service", "ExecStart=" + shlex.join(command),
         "Restart=on-failure", "RestartSec=60", "KillMode=control-group", "TimeoutStopSec=300",
         "NoNewPrivileges=true", "[Install]", "WantedBy=default.target", "",
     ])
