@@ -115,4 +115,4 @@ Build one typed, executable, deterministic and outcome-free campaign compiler th
 | 2026-07-20 | M3 | broad-only coverage replay passed at 9,088 rows / 9,083 executions / 800 controls | commit candidate and repeat independent review |
 | 2026-07-21 | M3 | V04 replay passed at 11,968 rows / 11,963 executions / 800 controls; 38 generated files replayed byte-identically | independent review |
 | 2026-07-21 | M4 | independent review returned `BLOCK` with seven consolidated critical findings | preserve reviewed bytes; do not finalize or publish to `main` |
-| 2026-07-21 | M5 | not eligible: review-pass prerequisite failed | create blocked handoff and continuity event only |
+| 2026-07-21 | M5 | review-pass publication is ineligible; blocked Drive handoff round-tripped successfully | publish one blocker continuity event/snapshot |
