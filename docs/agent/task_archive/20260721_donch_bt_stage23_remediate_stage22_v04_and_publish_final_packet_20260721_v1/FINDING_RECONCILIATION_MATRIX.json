@@ -1,5 +1,5 @@
 {
-  "candidate_commit": "84fda51be77431de7151209d28c810fe027b0133",
+  "candidate_commit": "d3dbff9f979398f2bfb37dc9c4c858d4032cf4a2",
   "findings": [
     {
       "affected_code": [
@@ -8,10 +8,14 @@
         "tools/run_stage22_core_liquid_campaign.py"
       ],
       "finding_id": "S22-V04-001",
-      "independent_review_result": "pending",
-      "production_evidence": [],
+      "independent_review_result": "BLOCK: executable cache schema/artifact contract incompatible with CacheAuthority; decision-time FamilyInput cache absent",
+      "production_evidence": [
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/PRODUCTION_CACHE_MANIFEST.json",
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/PRODUCTION_CACHE_REPLAY_AUDIT.json",
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/INDEPENDENT_PREOUTCOME_REVIEW.json"
+      ],
       "root_cause": "The cache builder trusts caller-constructed FamilyInput values and copied authority metadata instead of deriving and reconciling frames from physically verified production sources.",
-      "status": "open",
+      "status": "blocked_after_complete_independent_review",
       "subfindings": [
         "physically verify exact source manifests, bytes, schemas, units, interval and protected partition",
         "derive and reconcile all 187 symbols, lifecycle/PIT eligibility and lagged liquidity",
@@ -23,7 +27,9 @@
         "independently recompute sampled and boundary rows",
         "reject payoff/future-return/ranking columns before construction"
       ],
-      "tests": [],
+      "tests": [
+        "45 focused tests pass, but no production cache artifact can traverse CacheAuthority/CampaignOrchestrator"
+      ],
       "title": "authority-derived cache construction"
     },
     {
@@ -33,10 +39,14 @@
         "tools/core_liquid_campaign/selection.py"
       ],
       "finding_id": "S22-V04-002",
-      "independent_review_result": "pending",
-      "production_evidence": [],
+      "independent_review_result": "BLOCK: missing-parent A2 payload crashes beam freeze; actual aggregate/materialized equality is not enforced",
+      "production_evidence": [
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/PRODUCTION_SELECTION_REPLAY.json",
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/AGGREGATE_MATERIALIZED_PRODUCTION_AUDIT.json",
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/INDEPENDENT_PREOUTCOME_REVIEW.json"
+      ],
       "root_cause": "The orchestrator ignores selection_role, overlap deduplication and paired A2 eligibility, and infers materialization classes from lane names instead of frozen roles.",
-      "status": "open",
+      "status": "blocked_after_complete_independent_review",
       "subfindings": [
         "enforce selection_role before plateau/beam selection",
         "apply frozen development-event Jaccard deduplication",
@@ -47,7 +57,9 @@
         "materialize survivors, anchors, main component nulls, control/forensic objects, frozen near-misses and deterministic failed strata exactly once",
         "prove aggregate/materialized equality for the complete materialization set"
       ],
-      "tests": [],
+      "tests": [
+        "selection-role, A2 pairing and synthetic materialization helpers pass; actual production path remains unexercised"
+      ],
       "title": "selection, A2 binding and materialization"
     },
     {
@@ -57,10 +69,14 @@
         "tools/core_liquid_campaign/campaign.py"
       ],
       "finding_id": "S22-V04-003",
-      "independent_review_result": "pending",
-      "production_evidence": [],
+      "independent_review_result": "BLOCK: deterministic controls dispatch zero frames; randomized transformed-vector/restart replay incomplete",
+      "production_evidence": [
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/FINAL_CONTROL_REGISTRY.jsonl",
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/CONTROL_REPLAY_FIXTURES.json",
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/INDEPENDENT_PREOUTCOME_REVIEW.json"
+      ],
       "root_cause": "Random controls use implementation-specific payload hashes rather than the registered canonical seed, and duplicate/parent-identical controls are dispatched as evidence.",
-      "status": "open",
+      "status": "blocked_after_complete_independent_review",
       "subfindings": [
         "bind canonical control identity to campaign/control/family/fold/parent-slot/replicate/version/seed fields",
         "derive first unsigned big-endian 64 bits of SHA256 over canonical UTF-8 JSON",
@@ -72,7 +88,9 @@
         "prove worker/chunk/restart invariant replay",
         "skip absent-parent conditional controls unless the typed family-level null requires execution"
       ],
-      "tests": [],
+      "tests": [
+        "seed/identity/duplicate focused tests pass; all 20 actual transformed control paths and replay invariance are not proven"
+      ],
       "title": "control seeds, identities and duplicates"
     },
     {
@@ -82,10 +100,13 @@
         "tools/core_liquid_campaign/family_engines/a4_tsmom.py"
       ],
       "finding_id": "S22-V04-004",
-      "independent_review_result": "pending",
-      "production_evidence": [],
+      "independent_review_result": "BLOCK: explicit active-A1 temporal_gap state and required transition/property replay remain absent",
+      "production_evidence": [
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/TEMPORAL_GAP_REPLAY_AUDIT.json",
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/INDEPENDENT_PREOUTCOME_REVIEW.json"
+      ],
       "root_cause": "Temporal inputs are only monotonic, rolling formulas can bridge missing intervals, nonfinite thresholds pass, and A1 symmetric rearm releases both sides from either-side q50 recovery.",
-      "status": "open",
+      "status": "blocked_after_complete_independent_review",
       "subfindings": [
         "enforce chronological daily and five-minute inputs and exact contiguous coverage",
         "never bridge gaps in returns, impulse, base, confirmation, retest, ATR or exits",
@@ -97,7 +118,9 @@
         "reject every nonfinite threshold population",
         "cover all state transitions, sides, q50 equality, cooldown restart and chunk replay"
       ],
-      "tests": [],
+      "tests": [
+        "focused contiguous-window/q50 tests pass; full A1 state-transition mutation/property coverage does not exist"
+      ],
       "title": "temporal gaps and A1 rearm"
     },
     {
@@ -107,10 +130,15 @@
         "tools/run_stage22_core_liquid_campaign.py"
       ],
       "finding_id": "S22-V04-005",
-      "independent_review_result": "pending",
-      "production_evidence": [],
+      "independent_review_result": "BLOCK: canaries bypass real ExecutionAuthorization/cache/executor/install/restart boundary",
+      "production_evidence": [
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/DETACHMENT_CANARY_AUDIT.json",
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/HEALTH_RELEASE_CANARY_AUDIT.json",
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/RESTART_AND_ORPHAN_AUDIT.json",
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/INDEPENDENT_PREOUTCOME_REVIEW.json"
+      ],
       "root_cause": "Large results can deadlock a Pipe, health can complete before required release gates, detach is metadata-only, and local input unavailability is retried as a worker failure.",
-      "status": "open",
+      "status": "blocked_after_complete_independent_review",
       "subfindings": [
         "persist production-sized worker results atomically or drain bounded IPC concurrently with explicit schema/acknowledgement",
         "bounded lazy scheduling, graceful signals, orphan prevention and uncommitted-only requeue",
@@ -121,7 +149,9 @@
         "test actual systemd-user or reviewed tmux detachment after launcher shell exits",
         "route observation-local EngineInputError to explicit unavailable artifacts without stopping other families"
       ],
-      "tests": [],
+      "tests": [
+        "large IPC, recovery, health and detached special-canary tests pass; actual production unattended launch path is not proven"
+      ],
       "title": "IPC, health release and detached supervision"
     },
     {
@@ -131,10 +161,14 @@
         "tools/core_liquid_campaign/budget.py"
       ],
       "finding_id": "S22-V04-006",
-      "independent_review_result": "pending",
-      "production_evidence": [],
+      "independent_review_result": "BLOCK: timed workload is trivial marker lambdas and lacks required production metrics/strata execution",
+      "production_evidence": [
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/REPRESENTATIVE_CAPACITY_BENCHMARK.json",
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/WORKER_SCALING_AUDIT.csv",
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/INDEPENDENT_PREOUTCOME_REVIEW.json"
+      ],
       "root_cause": "The V04 benchmark uses twenty one-frame synthetic jobs and a scalar multiplier rather than the full authorized source/cache/187-symbol/fold/conditional/terminal workload.",
-      "status": "open",
+      "status": "blocked_after_complete_independent_review",
       "subfindings": [
         "benchmark all five families and eight fold positions",
         "cover small/median/large symbols, every feature signature, exit/accounting class and all controls",
@@ -145,7 +179,9 @@
         "construct conservative interval with explicit assumptions and at least 2x safety factor",
         "feed measured safe capacity into optimizer without changing frozen counts unless infeasible"
       ],
-      "tests": [],
+      "tests": [
+        "resource projection helper completes; it does not measure production cache/engine/control/materialization work"
+      ],
       "title": "representative capacity benchmark"
     },
     {
@@ -154,10 +190,14 @@
         "tools/core_liquid_campaign/selection.py"
       ],
       "finding_id": "S22-V04-007",
-      "independent_review_result": "pending",
-      "production_evidence": [],
+      "independent_review_result": "BLOCK: completion permits empty forensics, route/control coverage is incomplete, independent replay absent, terminal inventory becomes stale",
+      "production_evidence": [
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/TERMINAL_COMPLETION_CANARY.json",
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/POSTRUN_RECOMPUTATION_CANARY.json",
+        "results/rebaseline/stage23_stage22_v04_remediation_20260721_v07/INDEPENDENT_PREOUTCOME_REVIEW.json"
+      ],
       "root_cause": "Campaign completion is count-only; it does not execute registered route gates, forensics, terminal status enumeration or complete marker/artifact reconciliation.",
-      "status": "open",
+      "status": "blocked_after_complete_independent_review",
       "subfindings": [
         "terminate every attempt/control in exactly one registered terminal status",
         "reconcile attempt/control/family/fold/phase identities and multiplicity",
@@ -168,11 +208,14 @@
         "verify worker/process shutdown and terminal artifact/source hashes",
         "prohibit completion until all terminal predicates and full expected-job/marker/artifact inventories pass"
       ],
-      "tests": [],
+      "tests": [
+        "terminal identity and resumable-bound-stop helpers pass; full registered terminal path and independent recomputation are not proven"
+      ],
       "title": "terminal adjudication, forensics and reconciliation"
     }
   ],
   "review_authority_sha256": "7e97143f89c07fed180aa9e3e5d492ab779ccfc58187d3a71b0a27c4ec45b958",
   "schema": "stage23_finding_reconciliation_matrix_v1",
-  "status": "in_progress"
+  "final_review_sha256": "ae531e76fadcd69faa28f42b6d4fd9945e7c6d23d606d9b50090efa372a2670b",
+  "status": "independent_review_block"
 }

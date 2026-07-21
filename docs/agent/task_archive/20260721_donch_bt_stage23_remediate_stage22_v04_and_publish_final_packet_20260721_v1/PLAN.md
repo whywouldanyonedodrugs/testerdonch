@@ -1,6 +1,6 @@
 # Stage 23 — remediate Stage-22 V04 and publish final packet
 
-Status: `in_progress`
+Status: `independent_review_block`
 Owner: backtesting agent
 Created UTC: `2026-07-21T06:25:02Z`
 Updated UTC: `2026-07-21T06:25:02Z`
@@ -165,3 +165,5 @@ approval request and launch task for the sole remaining human economic approval.
 | UTC | Milestone | Result | Next action |
 |---|---|---|---|
 | 2026-07-21T06:25:02Z | M1 | authority, continuity, handoff and clean worktree verified | inventory code and implement seven lanes |
+| 2026-07-21T08:23:33Z | M2-M5 | partial mechanical remediation and v07 evidence completed; 45 focused tests and runtime canaries passed | complete independent review |
+| 2026-07-21T08:23:33Z | M6 | independent review BLOCK; seven findings retain blocking subfindings; review SHA-256 `ae531e76...` | stop final publication and return consolidated report |
