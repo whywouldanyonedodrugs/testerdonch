@@ -303,7 +303,7 @@ class Stage24KnownDefectTests(unittest.TestCase):
             return Cache(factory_calls["count"])
 
         records = [
-            {"path": f"frame-{index}", "campaign_partition": {"phase": "inner_validation", "outer_fold_id": "2024Q1", "inner_fold_id": f"M_{index // 3}"}}
+            {"path": f"frame-{index}", "campaign_partition": {"phase": "inner_validation" if index < 3 else "outer_evaluation", "outer_fold_id": "2024Q1", "inner_fold_id": f"M_{index // 3}"}}
             for index in range(6)
         ]
         cold, warm, frames, protected = _bounded_cold_warm_replay(factory, {}, records)

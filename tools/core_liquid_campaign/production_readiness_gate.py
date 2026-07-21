@@ -99,7 +99,7 @@ def _bounded_cold_warm_replay(
 
     def replay() -> tuple[tuple[Any, ...], int]:
         cache = cache_factory()
-        retained: dict[tuple[str, str, str], Any] = {}
+        retained: dict[tuple[str, str], Any] = {}
         protected_rows = 0
         for offset in range(0, len(records), 3):
             batch = records[offset:offset + 3]
@@ -108,11 +108,7 @@ def _bounded_cold_warm_replay(
                 raise RuntimeError("CacheAuthority replay omitted a registered frame")
             for record, frame in zip(batch, frames):
                 partition = record["campaign_partition"]
-                key = (
-                    str(partition["phase"]),
-                    str(partition["outer_fold_id"]),
-                    str(partition.get("inner_fold_id")),
-                )
+                key = (str(partition["phase"]), str(partition["outer_fold_id"]))
                 retained.setdefault(key, frame)
                 protected_rows += int(frame.metadata.get("protected_rows", 0))
         return tuple(retained[key] for key in sorted(retained)), protected_rows
