@@ -130,7 +130,10 @@ def semantic_engine_probe() -> dict[str, Any]:
                         frames = [frame_for_family(family, config)]
                         if family == "A4_TSMOM_V7" and config.get("exit") == "signal_reversal":
                             frames = [a4_frame(config, signal_sign=1), a4_frame(config, signal_sign=-1, anchor=datetime(2025, 6, 2, tzinfo=timezone.utc))]
-                        result = synthetic_probe_attempt(row, frames, registry_by_id={row["executable_attempt_id"]: row})
+                        kwargs: dict[str, Any] = {}
+                        if family == "KDA02B_SURVIVOR_ADJUDICATION_V1" and config.get("adjudication_variant") == "generic_structure_control":
+                            kwargs["control_directives"] = {frames[0].content_sha256(): {"allocator": "matched_pseudo_event_allocator_v2", "matched_decision_ts": frames[0].decision_ts, "parent_event_id": "synthetic-matched-parent", "side": 1}}
+                        result = synthetic_probe_attempt(row, frames, registry_by_id={row["executable_attempt_id"]: row}, **kwargs)
                         executed = result["status"] == "complete"
                         ledger_count = len(result["ledger"])
                     coverage.append({"family": family, "field": spec.name, "value_json": json.dumps(value, separators=(",", ":")), "formula_id": spec.formula_id, "interpreter": FORMULA_INTERPRETERS[spec.formula_id], "fixture": key, "ledger_rows": ledger_count, "status": "pass" if executed else "fail"})
@@ -159,12 +162,14 @@ def end_to_end_family_probe(family: str) -> dict[str, Any]:
 def accounting_probe() -> dict[str, Any]:
     start = datetime(2025, 1, 1, tzinfo=timezone.utc)
     bars = [TradeBar(start + timedelta(minutes=5 * i), start + timedelta(minutes=5 * (i + 1)), 100 + 0.01 * i, 100 + 0.01 * (i + 1)) for i in range(600)]
-    common = dict(entry_index=0, side=1, exit_name="time_1d", atr=None, fixed_target_r=None, structural_level=None, signal_reversal_close_ts=None, cost_bps=14.0, funding_alignment="start_exclusive_end_inclusive", evaluation_start=start, evaluation_end_exclusive=datetime(2026, 1, 1, tzinfo=timezone.utc), gap_allowance_bps=-0.25)
-    favorable = simulate_leg(bars, funding=[FundingPayment(bars[100].open_ts, bars[99].close_ts, -2.0)], **common)
-    adverse = simulate_leg(bars, funding=[FundingPayment(bars[100].open_ts, bars[99].close_ts, 2.0)], **common)
+    common = dict(entry_index=0, side=1, exit_name="time_1d", atr=None, fixed_target_r=None, structural_level=None, signal_reversal_close_ts=None, cost_bps=14.0, funding_alignment="start_exclusive_end_inclusive", evaluation_start=start, evaluation_end_exclusive=datetime(2026, 1, 1, tzinfo=timezone.utc), gap_allowance_bps_per_hour=0.25)
+    favorable_funding = [FundingPayment(start + timedelta(hours=hour), start + timedelta(hours=hour), "-0.02" if hour == 1 else "0") for hour in range(1, 25)]
+    adverse_funding = [FundingPayment(start + timedelta(hours=hour), start + timedelta(hours=hour), "0.02" if hour == 1 else "0") for hour in range(1, 25)]
+    favorable = simulate_leg(bars, funding=favorable_funding, **common)
+    adverse = simulate_leg(bars, funding=adverse_funding, **common)
     checks = {
-        "favorable_report_only": favorable.favorable_funding_bps == 2.0 and math.isclose(float(favorable.net_bps), float(favorable.gross_bps) - float(favorable.cost_bps) - 0.25),
-        "adverse_enters_selection": adverse.funding_bps == -2.25,
+        "favorable_report_only": math.isclose(float(favorable.favorable_funding_bps), 2.0) and math.isclose(float(favorable.net_bps), float(favorable.gross_bps) - float(favorable.cost_bps)),
+        "adverse_enters_selection": math.isclose(float(adverse.funding_bps), -2.0),
         "reportable_separate": favorable.reportable_net_bps > favorable.net_bps,
     }
     return {"schema": "stage22_accounting_probe_v2", "checks": checks, "pass": all(checks.values()), "economic_outcomes_opened": False}
@@ -211,12 +216,23 @@ def selection_route_probe() -> dict[str, Any]:
             ("execution_sensitive", dict(common_gate=True, main_null=True, component_passes={"component": True}, base_positive=True, stress_positive=False, delay_positive=True, sample_sufficient=True)),
             ("sample_limited", dict(common_gate=True, main_null=False, component_passes={"component": False}, base_positive=True, stress_positive=True, delay_positive=True, sample_sufficient=False)),
             ("rejected", dict(common_gate=False, main_null=False, component_passes={"component": False}, base_positive=False, stress_positive=False, delay_positive=False, sample_sufficient=True)),
+            ("common_gate_fail_positive_base", dict(common_gate=False, main_null=True, component_passes={"component": True}, base_positive=True, stress_positive=False, delay_positive=False, sample_sufficient=False)),
         ]
         for case, kwargs in cases:
             if family == "A3_STARTER_RETEST_V3": kwargs["add_fraction"] = 0.25
             route = adjudicate_route(family, **kwargs)
-            rows.append({"family": family, "case": case, "route": route, "status": "pass"})
-    return {"schema": "stage22_selection_route_probe_v1", "rows": rows, "pass": len(rows) == 20}
+            rejected = "overlay_rejected" if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1" else "survivor_rejected" if family == "KDA02B_SURVIVOR_ADJUDICATION_V1" else "translation_rejected"
+            expected = (
+                "execution_sensitive_candidate" if case == "execution_sensitive" else
+                ("sample_limited_context_candidate" if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1" else "sample_limited_candidate") if case == "sample_limited" else
+                rejected if case in {"rejected", "common_gate_fail_positive_base"} else
+                "context_uplift_candidate" if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1" else
+                "starter_plus_add_candidate" if family == "A3_STARTER_RETEST_V3" else
+                "component_supported_survivor" if family == "KDA02B_SURVIVOR_ADJUDICATION_V1" else
+                "control_supported_rolling_candidate"
+            )
+            rows.append({"family": family, "case": case, "route": route, "expected_route": expected, "status": "pass" if route == expected else "fail"})
+    return {"schema": "stage22_selection_route_probe_v2", "rows": rows, "pass": len(rows) == 25 and all(row["status"] == "pass" for row in rows)}
 
 
 def aggregate_materialized_probe() -> dict[str, Any]:
@@ -242,6 +258,11 @@ def aggregate_materialized_probe() -> dict[str, Any]:
             {"status": "negative_infinity_due_to_empty_fold"}
             if inner["p20_with_negative_infinity"] == -math.inf
             else {"status": "available", "value": inner["p20_with_negative_infinity"]}
+        ),
+        "median_with_negative_infinity": (
+            {"status": "negative_infinity_due_to_empty_fold"}
+            if inner["median_with_negative_infinity"] == -math.inf
+            else {"status": "available", "value": inner["median_with_negative_infinity"]}
         ),
     }
     return {"schema": "stage22_aggregate_vs_materialized_probe_v2", "aggregate": aggregate, "materialized": materialized, "exact_equal": exact, "inner_fold_vector": serialized_inner, "empty_inner_folds_preserved": empties, "materialization_policy_addresses": policy, "pass": exact and empties and len(policy) == 2, "economic_outcomes_opened": False}
@@ -278,7 +299,7 @@ def validate_compiled(root: Path) -> dict[str, Any]:
 
 
 REPLAY_FILES = (
-    "FAMILY_AXIS_SCHEMA.json", "FAMILY_AXIS_SCHEMA.sha256", "SEMANTIC_COVERAGE_MATRIX.csv", "ACTIVE_IF_TRUTH_TABLE.csv", "INVALID_COMBINATION_MATRIX.csv",
+    "FOLD_GRAPH.json", "FAMILY_AXIS_SCHEMA.json", "FAMILY_AXIS_SCHEMA.sha256", "SEMANTIC_COVERAGE_MATRIX.csv", "ACTIVE_IF_TRUTH_TABLE.csv", "INVALID_COMBINATION_MATRIX.csv",
     "LEGACY_NORMALIZATION_LEDGER.parquet", "LEGACY_EXECUTABLE_PROJECTION.jsonl", "FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl", "FINAL_EXECUTION_REGISTRY.jsonl",
     "A2_PARENT_COUNTERPART_REGISTRY.jsonl", "OUTCOME_FREE_BUDGET_OPTIMIZER.json", "RAW_SPACE_FILLING_COORDINATES.parquet", "SEARCH_SPACE_COVERAGE_MATRIX.csv",
     "PAIRWISE_COVERAGE_MATRIX.parquet", "UNREPRESENTED_VALID_REGIONS.csv", "REGISTRY_REPLAY_FIXTURES.json", "FINAL_CONTROL_REGISTRY.jsonl", "CONTROL_COVERAGE_MATRIX.csv",
@@ -288,10 +309,10 @@ REPLAY_FILES = (
 )
 
 
-def independent_replay(paths: SourcePaths, root: Path) -> dict[str, Any]:
+def independent_replay(paths: SourcePaths, root: Path, capacity_measurement: Mapping[str, Any]) -> dict[str, Any]:
     replay_dir = Path(tempfile.mkdtemp(prefix="stage22-independent-replay."))
     try:
-        compile_deterministic(paths, replay_dir); mismatches = []
+        compile_deterministic(paths, replay_dir, capacity_measurement); mismatches = []
         for relative in REPLAY_FILES:
             if sha256_file(root / relative) != sha256_file(replay_dir / relative):
                 mismatches.append(relative)

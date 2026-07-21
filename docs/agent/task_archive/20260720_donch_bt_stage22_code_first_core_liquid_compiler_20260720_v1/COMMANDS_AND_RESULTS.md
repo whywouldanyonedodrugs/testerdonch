@@ -70,3 +70,33 @@ OK
 
 The failed `v02` root was preserved and is not a review candidate. The repaired
 candidate is built in a new versioned root.
+
+## V03 review and resumed verification
+
+```text
+V03 review target SHA-256:
+d573d4c6982eb4d6f5d434345c03714bc70fd524ae6c3c464563902ba908b779
+
+V03 independent review SHA-256:
+2af69d48e55d31dbe9b29bf7cf6c8459141eb2c0304368ee2d447773e94b80a0
+
+V03 verdict: BLOCK (12 consolidated findings)
+```
+
+After the second bounded repair and the resumed-session threshold/funding
+audit:
+
+```text
+.venv/bin/python -m unittest -v unit_tests.test_core_liquid_campaign
+Ran 25 tests in 38.275s
+OK
+
+.venv/bin/python -m unittest -v \
+  unit_tests.test_core_liquid_campaign.EngineAccountingControlTests \
+  unit_tests.test_core_liquid_campaign.RuntimeAuthorityAndReviewTests.test_cache_authority_binds_physical_artifact_and_frame_content
+Ran 10 tests in 13.069s
+OK
+```
+
+No economic outcome reader, protected row, Capital.com payload, order,
+deployment or live-trading action was invoked.

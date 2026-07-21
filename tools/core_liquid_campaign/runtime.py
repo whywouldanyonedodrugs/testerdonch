@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import errno
 import json
+import multiprocessing as mp
 import os
 import shutil
 import time
-from concurrent.futures import FIRST_COMPLETED, Executor, Future, ThreadPoolExecutor, wait
+from collections import deque
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping, Sequence
@@ -25,6 +26,10 @@ def _default_status_reader(pid: int) -> str:
     return Path(f"/proc/{pid}/status").read_text(encoding="utf-8")
 
 
+def _default_statm_reader(pid: int) -> str:
+    return Path(f"/proc/{pid}/statm").read_text(encoding="utf-8")
+
+
 def _status_fields(text: str) -> dict[str, str]:
     fields: dict[str, str] = {}
     for line in text.splitlines():
@@ -42,34 +47,68 @@ def _status_identity(text: str) -> tuple[int, int]:
         raise ResourceGateError("unparseable /proc PID/PPID status") from exc
 
 
+class _MissingVmRSS(ResourceGateError):
+    pass
+
+
 def _status_rss(text: str) -> int:
     fields = _status_fields(text)
+    if fields.get("State", "")[:1] in {"Z", "X"}:
+        # A dead descendant can remain in /proc after its address space has
+        # gone.  This is an exact zero, not an I/O or parsing failure; the live
+        # supervisor/root sample remains mandatory.
+        return 0
+    if "VmRSS" not in fields:
+        raise _MissingVmRSS("sampled tree process has no VmRSS")
     try:
         return int(fields["VmRSS"].split()[0]) * 1024
-    except (KeyError, ValueError, IndexError) as exc:
+    except (ValueError, IndexError) as exc:
         raise ResourceGateError("sampled tree process has no parseable VmRSS") from exc
 
 
-def _status_values(text: str) -> tuple[int, int, int]:
-    pid, ppid = _status_identity(text)
-    return pid, ppid, _status_rss(text)
+def _statm_rss(text: str) -> int:
+    fields = text.split()
+    try:
+        pages = int(fields[1])
+    except (ValueError, IndexError) as exc:
+        raise ResourceGateError("sampled tree process has no parseable statm resident pages") from exc
+    if pages < 0:
+        raise ResourceGateError("sampled tree process has negative statm resident pages")
+    return pages * int(os.sysconf("SC_PAGE_SIZE"))
+
+
+def _rss_with_statm_fallback(pid: int, status_text: str, statm_reader: Callable[[int], str]) -> int:
+    try:
+        return _status_rss(status_text)
+    except _MissingVmRSS:
+        return _statm_rss(statm_reader(pid))
 
 
 def _vanished(exc: BaseException) -> bool:
     return isinstance(exc, (FileNotFoundError, ProcessLookupError)) or (isinstance(exc, OSError) and exc.errno == errno.ESRCH)
 
 
-def process_tree_rss(root_pid: int | None = None, *, pid_list: Callable[[], Sequence[int]] = _default_pid_list, status_reader: Callable[[int], str] = _default_status_reader) -> int:
+def process_tree_rss(
+    root_pid: int | None = None,
+    *,
+    pid_list: Callable[[], Sequence[int]] = _default_pid_list,
+    status_reader: Callable[[int], str] = _default_status_reader,
+    statm_reader: Callable[[int], str] = _default_statm_reader,
+) -> int:
     root = os.getpid() if root_pid is None else int(root_pid)
     try:
-        root_status = _status_values(status_reader(root))
+        root_text = status_reader(root)
+        root_identity = _status_identity(root_text)
+        root_rss = _rss_with_statm_fallback(root, root_text, statm_reader)
     except BaseException as exc:
         if _vanished(exc):
             raise ResourceGateError("supervisor/root process cannot be sampled") from exc
         raise
-    if root_status[0] != root:
+    if root_identity[0] != root:
         raise ResourceGateError("supervisor/root PID mismatch")
-    identities: dict[int, tuple[int, int]] = {root: (root_status[0], root_status[1])}
+    if root_rss <= 0:
+        raise ResourceGateError("supervisor/root RSS sample is not positive")
+    identities: dict[int, tuple[int, int]] = {root: root_identity}
     status_text: dict[int, str] = {}
     for pid in pid_list():
         if pid == root:
@@ -88,7 +127,34 @@ def process_tree_rss(root_pid: int | None = None, *, pid_list: Callable[[], Sequ
         for pid, (_, ppid) in identities.items():
             if ppid in descendants and pid not in descendants:
                 descendants.add(pid); changed = True
-    total = root_status[2] + sum(_status_rss(status_text[pid]) for pid in descendants - {root} if pid in status_text)
+    total = root_rss
+    for pid in sorted(descendants - {root}):
+        if pid not in status_text:
+            continue
+        try:
+            total += _status_rss(status_text[pid])
+        except _MissingVmRSS:
+            # A just-forked or just-exited process can expose identity before
+            # VmRSS. Re-sample that exact PID once, then read the kernel's
+            # resident-page field. Persistent malformed data remains
+            # fail-closed, while ESRCH is the permitted vanished entry.
+            try:
+                retry = status_reader(pid)
+            except BaseException as exc:
+                if _vanished(exc):
+                    continue
+                raise
+            retry_pid, retry_ppid = _status_identity(retry)
+            if retry_pid != pid:
+                raise ResourceGateError("descendant PID changed during RSS re-sample")
+            if retry_ppid not in descendants:
+                continue
+            try:
+                total += _rss_with_statm_fallback(pid, retry, statm_reader)
+            except BaseException as exc:
+                if _vanished(exc):
+                    continue
+                raise
     if total <= 0:
         raise ResourceGateError("aggregate process-tree RSS is not positive")
     return total
@@ -148,27 +214,50 @@ def resource_preflight(output_root: Path, limits: ResourceLimits, *, rss_sampler
     return {"rss_bytes": rss, "output_bytes": output, "free_disk_bytes": usage.free, "required_free_disk_bytes": required_free}
 
 
+def _process_target(send: Any, task: Callable[[], Any]) -> None:
+    try:
+        send.send(("ok", task()))
+    except BaseException as exc:
+        try:
+            send.send(("error", type(exc).__name__, str(exc)))
+        except BaseException:
+            pass
+    finally:
+        send.close()
+
+
+@dataclass
+class _Worker:
+    job_id: str
+    task: Callable[[], Any]
+    process: Any
+    receiver: Any
+
+
 class LazySupervisor:
-    """Bounded generation supervisor with atomic markers and idempotent replay."""
+    """Bounded lazy fork-worker supervisor with verified process termination."""
 
     def __init__(
         self,
         run_root: Path,
         limits: ResourceLimits,
         *,
-        executor_factory: Callable[[int], Executor] = lambda workers: ThreadPoolExecutor(max_workers=workers),
-        heartbeat: Callable[[Mapping[str, Any]], None] | None = None,
+        heartbeat: Callable[[Mapping[str, Any]], bool] | None = None,
+        real_unit_validator: Callable[[str, Any], bool] | None = None,
         rss_sampler: Callable[[], int] = process_tree_rss,
         monotonic: Callable[[], float] = time.monotonic,
     ) -> None:
-        self.run_root = run_root; self.limits = limits; self.executor_factory = executor_factory
-        self.heartbeat = heartbeat or (lambda _: None); self.rss_sampler = rss_sampler; self.monotonic = monotonic
+        self.run_root = run_root; self.limits = limits
+        self.heartbeat = heartbeat
+        self.real_unit_validator = real_unit_validator or (lambda _job_id, _result: False)
+        self.rss_sampler = rss_sampler; self.monotonic = monotonic
         self.state_path = run_root / "SUPERVISOR_STATE.json"
         self.marker_root = run_root / "markers"; self.artifact_root = run_root / "artifacts"
+        self._ctx = mp.get_context("fork")
 
     def _load_state(self) -> dict[str, Any]:
         if not self.state_path.exists():
-            return {"schema": "stage22_supervisor_state_v2", "completed": {}, "failed": {}, "attempts": {}, "generation": 0, "status": "new", "heartbeat_count": 0, "first_real_unit_reconciled": False, "health_release": False, "consecutive_supervisor_restarts": 0}
+            return {"schema": "stage22_supervisor_state_v3", "completed": {}, "failed": {}, "attempts": {}, "generation": 0, "status": "new", "heartbeat_count": 0, "heartbeat_success_count": 0, "first_real_unit_reconciled": False, "health_release": False, "consecutive_supervisor_restarts": 0}
         return json.loads(self.state_path.read_text(encoding="utf-8"))
 
     def _save(self, state: Mapping[str, Any]) -> None:
@@ -181,114 +270,146 @@ class LazySupervisor:
         stem = canonical_hash({"job_id": job_id})
         return self.artifact_root / f"{stem}.json", self.marker_root / f"{stem}.json"
 
-    def _commit_result(self, job_id: str, result: Any) -> dict[str, Any]:
+    def _commit_result(self, job_id: str, result: Any, real_unit: bool) -> dict[str, Any]:
         artifact, marker = self._paths(job_id)
         atomic_write_json(artifact, {"job_id": job_id, "result": result})
-        record = {"job_id": job_id, "artifact": artifact.relative_to(self.run_root).as_posix(), "artifact_sha256": sha256_file(artifact), "status": "complete"}
+        record = {"job_id": job_id, "artifact": artifact.relative_to(self.run_root).as_posix(), "artifact_sha256": sha256_file(artifact), "status": "complete", "reconciled_real_registered_unit": bool(real_unit)}
         atomic_write_json(marker, record)
         return record
 
-    def _reconcile(self, job_ids: set[str]) -> dict[str, Any]:
+    def _reconcile_all(self) -> dict[str, Any]:
         completed: dict[str, Any] = {}
         if not self.marker_root.exists():
             return completed
         for marker in sorted(self.marker_root.glob("*.json")):
             record = json.loads(marker.read_text(encoding="utf-8")); job_id = str(record.get("job_id"))
-            if job_id not in job_ids:
-                raise ResourceGateError("marker belongs to an unregistered job")
-            artifact = self.run_root / str(record["artifact"])
-            if not artifact.is_file() or sha256_file(artifact) != record.get("artifact_sha256"):
+            artifact = self.run_root / str(record.get("artifact"))
+            if not job_id or job_id in completed or not artifact.is_file() or sha256_file(artifact) != record.get("artifact_sha256"):
                 raise ResourceGateError("committed marker/artifact reconciliation failed")
             completed[job_id] = record
         return completed
 
-    def _graceful_shutdown(self, executor: Executor, in_flight: Mapping[Future[Any], tuple[str, Callable[[], Any]]], state: dict[str, Any], status: str) -> dict[str, Any]:
-        for future in in_flight:
-            future.cancel()
-        deadline = self.monotonic() + self.limits.graceful_stop_seconds
-        while any(not future.done() for future in in_flight) and self.monotonic() < deadline:
-            wait(tuple(in_flight), timeout=min(self.limits.monitor_interval_seconds, 0.05), return_when=FIRST_COMPLETED)
-        state["status"] = status if all(future.done() for future in in_flight) else "forced_after_grace_timeout"
+    def _start(self, job_id: str, task: Callable[[], Any]) -> _Worker:
+        receiver, sender = self._ctx.Pipe(duplex=False)
+        process = self._ctx.Process(target=_process_target, args=(sender, task), name=f"stage22-{canonical_hash(job_id)[:10]}")
+        process.start(); sender.close()
+        return _Worker(job_id, task, process, receiver)
+
+    def _stop_workers(self, workers: Mapping[str, _Worker]) -> None:
+        deadline = time.monotonic() + self.limits.graceful_stop_seconds
+        for worker in workers.values():
+            if worker.process.is_alive():
+                worker.process.terminate()
+        for worker in workers.values():
+            remaining = max(0.0, deadline - time.monotonic())
+            worker.process.join(remaining)
+        for worker in workers.values():
+            if worker.process.is_alive():
+                worker.process.kill(); worker.process.join()
+            worker.receiver.close()
+        if any(worker.process.is_alive() for worker in workers.values()):
+            raise ResourceGateError("worker process survived the graceful/forced bound stop")
+
+    def _bound_stop(self, workers: dict[str, _Worker], state: dict[str, Any], status: str) -> dict[str, Any]:
+        self._stop_workers(workers); workers.clear()
+        state["status"] = status; state["all_workers_stopped"] = True
         self._save(state)
-        executor.shutdown(wait=False, cancel_futures=True)
         return state
 
     def run(self, jobs: Iterable[tuple[str, Callable[[], Any]]], *, stop_after_completions: int | None = None) -> dict[str, Any]:
         self.limits.validate()
-        job_list = list(jobs)
-        if len({job_id for job_id, _ in job_list}) != len(job_list):
-            raise ResourceGateError("duplicate registered job ID")
-        callable_by_id = dict(job_list); job_ids = set(callable_by_id)
-        state = self._load_state(); completed = self._reconcile(job_ids)
-        failed: dict[str, Any] = dict(state.get("failed", {})); attempts = {str(key): int(value) for key, value in state.get("attempts", {}).items()}
-        pending = [job_id for job_id, _ in job_list if job_id not in completed]; retry_ready: dict[str, float] = {}
-        in_flight: dict[Future[Any], tuple[str, Callable[[], Any]]] = {}
+        iterator = iter(jobs)
+        exhausted = False
+        seen: set[str] = set()
+        completed = self._reconcile_all()
+        state = self._load_state(); failed = dict(state.get("failed", {})); attempts = {str(key): int(value) for key, value in state.get("attempts", {}).items()}
+        pending: deque[tuple[str, Callable[[], Any]]] = deque(); retry_ready: dict[str, tuple[float, Callable[[], Any]]] = {}
+        workers: dict[str, _Worker] = {}
         now = self.monotonic(); last_progress = now; last_heartbeat = now
-        state.update({"status": "running", "limits": asdict(self.limits), "completed": completed, "failed": failed, "attempts": attempts})
+        state.update({"status": "running", "limits": asdict(self.limits), "completed": completed, "failed": failed, "attempts": attempts, "all_workers_stopped": False})
         self._save(state)
-        executor = self.executor_factory(self.limits.max_workers)
         try:
-            while in_flight or pending or retry_ready:
+            while workers or pending or retry_ready or not exhausted:
                 resource_preflight(self.run_root, self.limits, rss_sampler=self.rss_sampler)
                 now = self.monotonic()
-                for job_id in sorted([key for key, ready in retry_ready.items() if ready <= now]):
-                    pending.append(job_id); del retry_ready[job_id]
-                while pending and len(in_flight) < self.limits.max_jobs_in_flight:
-                    resource_preflight(self.run_root, self.limits, rss_sampler=self.rss_sampler)
-                    job_id = pending.pop(0)
-                    if job_id in completed:
-                        continue
-                    attempts[job_id] = attempts.get(job_id, 0) + 1
-                    in_flight[executor.submit(callable_by_id[job_id])] = (job_id, callable_by_id[job_id])
-                done, _ = wait(tuple(in_flight), timeout=self.limits.monitor_interval_seconds, return_when=FIRST_COMPLETED) if in_flight else (set(), set())
-                for future in done:
-                    job_id, _ = in_flight.pop(future)
+                for job_id in sorted([key for key, (ready, _) in retry_ready.items() if ready <= now]):
+                    _, task = retry_ready.pop(job_id); pending.append((job_id, task))
+                while len(workers) + len(pending) < self.limits.max_jobs_in_flight and not exhausted:
                     try:
-                        completed[job_id] = self._commit_result(job_id, future.result()); failed.pop(job_id, None)
-                    except Exception as exc:
-                        if attempts[job_id] <= len(self.limits.retry_delays_seconds):
-                            retry_ready[job_id] = self.monotonic() + self.limits.retry_delays_seconds[attempts[job_id] - 1]
-                        else:
-                            failed[job_id] = {"error_type": type(exc).__name__, "error": str(exc), "attempts": attempts[job_id], "status": "family_job_exhausted"}
-                    last_progress = self.monotonic()
+                        job_id, task = next(iterator)
+                    except StopIteration:
+                        exhausted = True; break
+                    if job_id in seen:
+                        raise ResourceGateError("duplicate registered job ID")
+                    seen.add(job_id)
+                    if job_id not in completed:
+                        pending.append((job_id, task))
+                while pending and len(workers) < self.limits.max_workers:
+                    resource_preflight(self.run_root, self.limits, rss_sampler=self.rss_sampler)
+                    job_id, task = pending.popleft(); attempts[job_id] = attempts.get(job_id, 0) + 1
+                    workers[job_id] = self._start(job_id, task)
+                progressed = False
+                for job_id in sorted(list(workers)):
+                    worker = workers[job_id]
+                    if worker.process.is_alive():
+                        continue
+                    worker.process.join(); message = worker.receiver.recv() if worker.receiver.poll() else ("error", "WorkerProcessExit", f"exitcode={worker.process.exitcode}")
+                    worker.receiver.close(); del workers[job_id]
+                    if message[0] == "ok":
+                        result = message[1]
+                        real_unit = bool(self.real_unit_validator(job_id, result))
+                        completed[job_id] = self._commit_result(job_id, result, real_unit); failed.pop(job_id, None)
+                    elif attempts[job_id] <= len(self.limits.retry_delays_seconds):
+                        retry_ready[job_id] = (self.monotonic() + self.limits.retry_delays_seconds[attempts[job_id] - 1], worker.task)
+                    else:
+                        failed[job_id] = {"error_type": message[1], "error": message[2], "attempts": attempts[job_id], "status": "family_job_exhausted"}
+                    progressed = True; last_progress = self.monotonic()
                     state.update({"completed": completed, "failed": failed, "attempts": attempts})
                     self._save(state)
                     if stop_after_completions is not None and len(completed) >= stop_after_completions:
-                        return self._graceful_shutdown(executor, in_flight, state, "graceful_bound_stop")
+                        return self._bound_stop(workers, state, "graceful_bound_stop")
                 now = self.monotonic()
                 if now - last_heartbeat >= self.limits.heartbeat_seconds:
-                    payload = {"completed": len(completed), "failed": len(failed), "in_flight": len(in_flight), "generation": state.get("generation")}
-                    self.heartbeat(payload); state["heartbeat_count"] = int(state.get("heartbeat_count", 0)) + 1; last_heartbeat = now
-                    self._save(state)
-                state["first_real_unit_reconciled"] = bool(completed)
-                state["health_release"] = bool(completed) and int(state.get("heartbeat_count", 0)) >= 1
-                if now - last_progress > self.limits.no_progress_seconds and (pending or retry_ready or in_flight):
-                    restarts = int(state.get("consecutive_supervisor_restarts", 0)) + 1
-                    state["consecutive_supervisor_restarts"] = restarts
+                    if self.heartbeat is None:
+                        raise ResourceGateError("scheduled heartbeat transport is not configured")
+                    payload = {"completed": len(completed), "failed": len(failed), "in_flight": len(workers), "generation": state.get("generation")}
+                    delivered = self.heartbeat(payload)
+                    state["heartbeat_count"] = int(state.get("heartbeat_count", 0)) + 1
+                    if delivered is True:
+                        state["heartbeat_success_count"] = int(state.get("heartbeat_success_count", 0)) + 1
+                    last_heartbeat = now; self._save(state)
+                state["first_real_unit_reconciled"] = any(record.get("reconciled_real_registered_unit") is True for record in completed.values())
+                state["health_release"] = state["first_real_unit_reconciled"] and int(state.get("heartbeat_success_count", 0)) >= 1
+                if now - last_progress > self.limits.no_progress_seconds and (pending or retry_ready or workers or not exhausted):
+                    restarts = int(state.get("consecutive_supervisor_restarts", 0)) + 1; state["consecutive_supervisor_restarts"] = restarts
                     status = "restart_required_from_atomic_generation" if restarts <= self.limits.maximum_supervisor_restarts else "global_resumable_bound_stop_stalled"
-                    return self._graceful_shutdown(executor, in_flight, state, status)
-            state.update({"completed": completed, "failed": failed, "attempts": attempts, "status": "complete" if not failed else "complete_with_family_job_exhaustion", "first_real_unit_reconciled": bool(completed), "health_release": bool(completed) and int(state.get("heartbeat_count", 0)) >= 1})
-            self._save(state); executor.shutdown(wait=True)
+                    return self._bound_stop(workers, state, status)
+                if not progressed:
+                    time.sleep(min(self.limits.monitor_interval_seconds, 0.05))
+            unknown_markers = set(completed) - seen
+            if unknown_markers:
+                raise ResourceGateError("reconciled marker belongs to a job absent from the complete lazy registry")
+            state.update({"completed": completed, "failed": failed, "attempts": attempts, "status": "complete" if not failed else "complete_with_family_job_exhaustion", "all_workers_stopped": True})
+            state["first_real_unit_reconciled"] = any(record.get("reconciled_real_registered_unit") is True for record in completed.values())
+            state["health_release"] = state["first_real_unit_reconciled"] and int(state.get("heartbeat_success_count", 0)) >= 1
+            self._save(state)
             return state
         except Exception:
-            self._graceful_shutdown(executor, in_flight, state, "resource_or_common_failure_bound_stop")
+            self._bound_stop(workers, state, "resource_or_common_failure_bound_stop")
             raise
 
 
-def detached_service_spec(repository_root: Path, run_root: Path, manifest_sha256: str, workers: int) -> dict[str, Any]:
+def detached_service_spec(repository_root: Path, run_root: Path, manifest_sha256: str, workers: int, *, manifest: Path, approval_request: Path, external_approval: Path, cache_manifest: Path) -> dict[str, Any]:
     if workers > 4 or not all(character in "0123456789abcdef" for character in manifest_sha256) or len(manifest_sha256) != 64:
         raise ResourceGateError("invalid detached service binding")
     service_id = f"qlmg-stage22-{manifest_sha256[:12]}"
-    return {
-        "service_id": service_id,
-        "working_directory": str(repository_root),
-        "run_root": str(run_root),
-        "workers": workers,
-        "restart": "on-failure",
-        "restart_limit": 3,
-        "independent_of_chat": True,
-        "environment": {"PYTHONPATH": None, "invocation": "installed package or repository-root python -m only"},
-    }
+    command = [
+        "python3", "-m", "tools.run_stage22_core_liquid_campaign", "run",
+        "--manifest", str(manifest), "--approval-request", str(approval_request),
+        "--external-approval", str(external_approval), "--cache-manifest", str(cache_manifest),
+        "--run-root", str(run_root), "--workers", str(workers),
+    ]
+    return {"service_id": service_id, "working_directory": str(repository_root), "run_root": str(run_root), "workers": workers, "restart": "on-failure", "restart_limit": 3, "independent_of_chat": True, "exec_start": command, "environment": {"PYTHONPATH": None, "invocation": "repository-root python3 -m tools.run_stage22_core_liquid_campaign"}}
 
 
 def synthetic_recovery_canary(root: Path) -> dict[str, Any]:
@@ -297,43 +418,42 @@ def synthetic_recovery_canary(root: Path) -> dict[str, Any]:
         def __call__(self) -> float:
             self.value += 1000.0
             return self.value
-    clock = Clock(); heartbeats: list[Mapping[str, Any]] = []; calls = {"flaky": 0}
+    clock = Clock(); heartbeats: list[Mapping[str, Any]] = []
+    retry_flag = root / "retry.flag"
     def flaky() -> int:
-        calls["flaky"] += 1
-        if calls["flaky"] == 1:
+        if not retry_flag.exists():
+            retry_flag.write_text("first worker exited\n", encoding="utf-8")
             raise RuntimeError("synthetic worker death")
         return 7
-    jobs = [("stable-1", lambda: 1), ("flaky", flaky), ("stable-2", lambda: 2)]
-    limits = ResourceLimits(max_workers=2, max_jobs_in_flight=2, max_output_bytes=1024**3, minimum_free_disk_bytes=1, minimum_free_disk_fraction=0.0, monitor_interval_seconds=0.001)
-    first = LazySupervisor(root, limits, heartbeat=heartbeats.append, monotonic=clock).run(jobs, stop_after_completions=1)
-    resumed = LazySupervisor(root, limits, heartbeat=heartbeats.append, monotonic=clock).run(jobs)
-    replay = LazySupervisor(root, limits, heartbeat=heartbeats.append, monotonic=clock).run(jobs)
+    jobs = [("stable-1", lambda: {"registered_attempt_id": "stable-1", "value": 1}), ("flaky", flaky), ("stable-2", lambda: {"registered_attempt_id": "stable-2", "value": 2})]
+    limits = ResourceLimits(max_workers=2, max_jobs_in_flight=2, max_output_bytes=1024**3, minimum_free_disk_bytes=1, minimum_free_disk_fraction=0.0, heartbeat_seconds=1, monitor_interval_seconds=0.001)
+    heartbeat = lambda payload: (heartbeats.append(payload) or True)
+    validator = lambda job_id, result: isinstance(result, Mapping) and result.get("registered_attempt_id") == job_id
+    first = LazySupervisor(root, limits, heartbeat=heartbeat, real_unit_validator=validator, monotonic=clock).run(iter(jobs), stop_after_completions=1)
+    resumed = LazySupervisor(root, limits, heartbeat=heartbeat, real_unit_validator=validator, monotonic=clock).run(iter(jobs))
+    replay = LazySupervisor(root, limits, heartbeat=heartbeat, real_unit_validator=validator, monotonic=clock).run(iter(jobs))
     markers = list((root / "markers").glob("*.json")); artifacts = list((root / "artifacts").glob("*.json"))
-    excursion_root = root / "resource_excursion"
-    rss_calls = {"count": 0}
+    excursion_root = root / "resource_excursion"; rss_calls = {"count": 0}; late_write = excursion_root / "late-write"
     def excursion_rss() -> int:
         rss_calls["count"] += 1
         return limits.max_rss_bytes + 1 if rss_calls["count"] == 3 else 1
+    def slow() -> int:
+        time.sleep(1.0); late_write.write_text("unsafe\n", encoding="utf-8"); return 3
     excursion_stopped = False
     try:
-        LazySupervisor(excursion_root, limits, rss_sampler=excursion_rss).run([("slow", lambda: (time.sleep(0.02), 3)[1])])
+        LazySupervisor(excursion_root, limits, heartbeat=heartbeat, rss_sampler=excursion_rss).run(iter([("slow", slow)]))
     except ResourceGateError:
         excursion_stopped = True
-    excursion_resumed = LazySupervisor(excursion_root, limits, rss_sampler=lambda: 1).run([("slow", lambda: 3)])
+    time.sleep(0.05)
+    no_late_write = not late_write.exists()
+    excursion_resumed = LazySupervisor(excursion_root, limits, heartbeat=heartbeat).run(iter([("slow", lambda: 3)]))
     return {
-        "first_status": first["status"],
-        "resumed_status": resumed["status"],
-        "replay_status": replay["status"],
-        "completed": len(replay["completed"]),
-        "markers_reconciled": len(markers),
-        "artifacts_reconciled": len(artifacts),
-        "worker_death_retried": calls["flaky"] == 2,
-        "heartbeat_delivered": bool(heartbeats),
-        "health_release": bool(replay.get("health_release")),
-        "continuous_resource_excursion_stopped": excursion_stopped,
-        "resource_excursion_idempotently_resumed": excursion_resumed["status"] == "complete",
-        "idempotent": resumed["completed"] == replay["completed"],
-        "pass": first["status"] == "graceful_bound_stop" and resumed["status"] == "complete" and replay["status"] == "complete" and len(replay["completed"]) == 3 and len(markers) == 3 and len(artifacts) == 3 and calls["flaky"] == 2 and bool(heartbeats) and bool(replay.get("health_release")) and excursion_stopped and excursion_resumed["status"] == "complete",
+        "first_status": first["status"], "resumed_status": resumed["status"], "replay_status": replay["status"],
+        "completed": len(replay["completed"]), "markers_reconciled": len(markers), "artifacts_reconciled": len(artifacts),
+        "worker_death_retried": retry_flag.exists(), "heartbeat_delivered": bool(heartbeats), "health_release": bool(replay.get("health_release")),
+        "continuous_resource_excursion_stopped": excursion_stopped, "all_stopped_before_bound_stop": no_late_write,
+        "resource_excursion_idempotently_resumed": excursion_resumed["status"] == "complete", "idempotent": resumed["completed"] == replay["completed"],
+        "pass": first["status"] == "graceful_bound_stop" and resumed["status"] == "complete" and replay["status"] == "complete" and len(replay["completed"]) == 3 and len(markers) == 3 and len(artifacts) == 3 and retry_flag.exists() and bool(heartbeats) and bool(replay.get("health_release")) and excursion_stopped and no_late_write and excursion_resumed["status"] == "complete",
     }
 
 

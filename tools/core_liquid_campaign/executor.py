@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 from .accounting import aggregate_parent_legs, simulate_leg
+from .cache import decoded_frame_with_locator
 from .canonical import canonical_hash, sha256_file
 from .engine_types import FamilyInput, KRAKEN_PLATFORM, PROTECTED_START, RANKABLE_START
 from .family_engines import a1_compression, a2_context, a3_starter_retest, a4_tsmom, kda02b_adjudication
@@ -27,6 +28,13 @@ def _is_sha256(value: object) -> bool:
 
 def _is_git_commit(value: object) -> bool:
     return isinstance(value, str) and len(value) in {40, 64} and all(character in "0123456789abcdef" for character in value)
+
+
+def _launch_tree_paths(repository_root: Path) -> list[str]:
+    package = repository_root / "tools/core_liquid_campaign"
+    paths = [path.relative_to(repository_root).as_posix() for path in package.rglob("*.py") if path.is_file()]
+    paths.extend(("tools/build_stage22_core_liquid_campaign.py", "tools/run_stage22_core_liquid_campaign.py", "unit_tests/test_core_liquid_campaign.py"))
+    return sorted(set(paths))
 
 
 @dataclass(frozen=True)
@@ -67,18 +75,36 @@ class ExecutionAuthorization:
         if actual_commit != expected_commit:
             ancestry = subprocess.run(
                 ["git", "-C", str(self.repository_root), "merge-base", "--is-ancestor", str(expected_commit), actual_commit],
-                capture_output=True,
+                check=False,
             )
             if ancestry.returncode != 0:
-                raise AuthorizationError("live repository is not a descendant of the approved implementation commit")
+                raise AuthorizationError("live repository is not the reviewed implementation or its publication-only descendant")
         code_inventory = self.manifest_path.parent / "CODE_HASH_INVENTORY.json"
         if sha256_file(code_inventory) != manifest.get("primary_hashes", {}).get("code_inventory"):
             raise AuthorizationError("live code inventory bytes differ from manifest")
         inventory = json.loads(code_inventory.read_text(encoding="utf-8"))
+        if inventory.get("complete_launch_tree") is not True:
+            raise AuthorizationError("code inventory does not attest the complete launch tree")
+        recorded_paths = sorted(str(record["path"]) for record in inventory.get("files", []))
+        if recorded_paths != _launch_tree_paths(self.repository_root):
+            raise AuthorizationError("live launch-tree file set differs from the reviewed inventory")
         for record in inventory.get("files", []):
             path = self.repository_root / record["path"]
             if not path.is_file() or sha256_file(path) != record["sha256"]:
                 raise AuthorizationError(f"approved implementation file drift: {record['path']}")
+        for record in manifest.get("artifact_dependencies", []):
+            path = self.manifest_path.parent / str(record["path"])
+            if not path.is_file() or path.stat().st_size != int(record["bytes"]) or sha256_file(path) != record["sha256"]:
+                raise AuthorizationError(f"approved packet dependency drift: {record['path']}")
+        input_authority = manifest.get("execution_input_authority", {})
+        source_records = input_authority.get("source_records")
+        if not isinstance(source_records, list) or not source_records:
+            raise AuthorizationError("approved execution-input authority has no physical source inventory")
+        for record in source_records:
+            raw_path = Path(str(record.get("path", "")))
+            path = raw_path if raw_path.is_absolute() else self.repository_root / raw_path
+            if not path.is_file() or path.stat().st_size != int(record.get("bytes", -1)) or sha256_file(path) != record.get("sha256"):
+                raise AuthorizationError(f"execution-input source authority drift: {record.get('role')}")
         return manifest
 
 
@@ -89,7 +115,7 @@ class CacheAuthority:
     manifest_path: Path
     cache_root: Path
 
-    def validate(self, campaign_manifest: Mapping[str, Any], frames: Sequence[FamilyInput]) -> dict[str, Any]:
+    def load_frames(self, campaign_manifest: Mapping[str, Any], artifact_paths: Sequence[str]) -> tuple[dict[str, Any], tuple[FamilyInput, ...]]:
         expected = campaign_manifest.get("execution_input_authority", {})
         if not self.manifest_path.is_file():
             raise AuthorizationError("physical cache manifest is absent")
@@ -98,11 +124,16 @@ class CacheAuthority:
             raise AuthorizationError("cache manifest schema differs from the approved contract")
         if cache.get("platform") != KRAKEN_PLATFORM or cache.get("rankable_interval") != "[2023-01-01T00:00:00Z,2026-01-01T00:00:00Z)":
             raise AuthorizationError("cache platform or protected boundary mismatch")
-        required = ("source_manifest_sha256", "pit_universe_sha256", "funding_manifest_sha256", "cache_contract_sha256")
+        required = ("source_manifest_sha256", "pit_universe_sha256", "funding_manifest_sha256", "cache_contract_sha256", "fold_graph_sha256")
         for key in required:
             value = cache.get(key)
             if not _is_sha256(value) or value != expected.get(key):
                 raise AuthorizationError(f"cache dependency mismatch: {key}")
+        if cache.get("rankable_funding_package_sha256") != expected.get("rankable_funding_package_sha256"):
+            raise AuthorizationError("cache rankable funding package mismatch")
+        expected_source_inventory = canonical_hash(expected.get("source_records", ()))
+        if cache.get("source_record_inventory_sha256") != expected_source_inventory:
+            raise AuthorizationError("cache source-record inventory differs from the approved authority")
         records = cache.get("artifacts")
         if not isinstance(records, list) or not records:
             raise AuthorizationError("cache manifest has no physical artifacts")
@@ -119,18 +150,34 @@ class CacheAuthority:
             if not path.is_file() or path.stat().st_size != record.get("bytes") or sha256_file(path) != record.get("sha256"):
                 raise AuthorizationError(f"cache artifact mismatch: {relative}")
             by_path[str(relative)] = record
-        if not frames:
-            raise AuthorizationError("no raw family input was supplied")
-        for frame in frames:
-            frame.validate()
-            bindings = frame.metadata.get("cache_bindings")
-            if not isinstance(bindings, Mapping) or any(bindings.get(key) != cache[key] for key in required):
-                raise AuthorizationError("raw frame is not bound to the approved cache dependencies")
-            artifact_path = frame.metadata.get("cache_artifact_path")
-            record = by_path.get(str(artifact_path))
-            if record is None or frame.content_sha256() != record["frame_content_sha256"]:
-                raise AuthorizationError("raw frame content is not bound to a verified cache artifact")
-        return cache
+        if not artifact_paths or len(set(artifact_paths)) != len(artifact_paths):
+            raise AuthorizationError("cache artifact request is empty or duplicated")
+        frames = []
+        bindings = {key: cache[key] for key in required}
+        for relative in artifact_paths:
+            record = by_path.get(str(relative))
+            if record is None:
+                raise AuthorizationError(f"unregistered semantic-cache artifact: {relative}")
+            frame = decoded_frame_with_locator(self.cache_root / str(relative), str(relative), bindings)
+            if frame.content_sha256() != record["frame_content_sha256"]:
+                raise AuthorizationError("decoded cache payload differs from its bound frame content hash")
+            partition = frame.metadata.get("campaign_partition")
+            if not isinstance(partition, Mapping):
+                raise AuthorizationError("decoded cache frame lacks its exact fold partition")
+            canonical_partition = {
+                key: require_utc(value).isoformat() if key.endswith(("_start", "_exclusive")) else value
+                for key, value in partition.items()
+            }
+            if canonical_partition != record.get("campaign_partition"):
+                raise AuthorizationError("decoded cache partition differs from its manifest record")
+            if frame.metadata.get("source_authority") != {
+                **bindings,
+                "source_record_inventory_sha256": cache.get("source_record_inventory_sha256"),
+                "rankable_funding_package_sha256": cache.get("rankable_funding_package_sha256"),
+            }:
+                raise AuthorizationError("decoded frame provenance differs from the verified cache authority")
+            frames.append(frame)
+        return cache, tuple(frames)
 
 
 def validate_registered_attempt(row: Mapping[str, Any]) -> None:
@@ -173,6 +220,7 @@ def _observation(frame: FamilyInput, event: Mapping[str, Any], base_net: float, 
         component_metrics=tuple(component_metrics),
         holding_seconds_weighted=exposure * (exit_ts - entry_ts).total_seconds(),
         eligible_symbol_seconds=float(frame.metadata.get("eligible_symbol_seconds", max(1.0, (exit_ts - entry_ts).total_seconds()))),
+        cohort_id=str(event["cohort_id"]) if event.get("cohort_id") is not None else None,
     )
 
 
@@ -186,9 +234,10 @@ def _simulate_event(frame: FamilyInput, family: str, config: Mapping[str, Any], 
     fixed_target = None if fixed in (None, "none") else float(fixed)
     exit_name = str(event.get("exit", config.get("exit", "time_1d")))
     cost = float(event.get("cost_bps", 14.0))
-    alignment = str(event.get("funding_alignment", "start_exclusive_end_inclusive"))
+    alignment = str(event.get("funding_alignment", "minimum_of_registered_start_end"))
     funding = () if event.get("funding_zero") else frame.funding
-    gap = float(frame.metadata.get("funding_gap_allowance_bps", 0.0))
+    base_gap_rate = float(frame.metadata.get("base_gap_allowance_bps_per_hour", 0.0))
+    stress_gap_rate = float(frame.metadata.get("stress_gap_allowance_bps_per_hour", base_gap_rate))
     base_exposure = float(event.get("exposure", 1.0)) * context_multiplier
     if family == "A3_STARTER_RETEST_V3":
         starter_fraction = float(event["starter_fraction"])
@@ -207,7 +256,7 @@ def _simulate_event(frame: FamilyInput, family: str, config: Mapping[str, Any], 
             evaluation_start=require_utc(frame.metadata["evaluation_start"]),
             evaluation_end_exclusive=require_utc(frame.metadata["evaluation_end_exclusive"]),
             exposure=context_multiplier,
-            gap_allowance_bps=gap,
+            gap_allowance_bps_per_hour=base_gap_rate,
         )
         if starter.status != "complete" or starter.exit_ts is None:
             return None, {"event_id": event["event_id"], "status": starter.status, "starter": starter.to_dict()}
@@ -220,9 +269,25 @@ def _simulate_event(frame: FamilyInput, family: str, config: Mapping[str, Any], 
                 retest = a3_starter_retest.RetestResult("unavailable_permuted_no_add", None, None, None)
             elif forced_lag is not None:
                 candidate_index = entry_index + int(forced_lag)
-                window_seconds = {"6h": 21600, "1d": 86400, "3d": 259200}[str(event["retest_window"])]
-                valid = candidate_index < len(bars) and require_utc(bars[candidate_index].open_ts) < starter.exit_ts and (require_utc(bars[candidate_index].open_ts) - starter.entry_ts).total_seconds() < window_seconds
-                retest = a3_starter_retest.RetestResult("complete_permuted" if valid else "unavailable_permuted_lag", None, None, candidate_index if valid else None)
+                natural = a3_starter_retest.run_retest_state_machine(
+                    frame,
+                    direction="long" if int(event["side"]) == 1 else "short",
+                    level=float(event["level"]),
+                    atr=float(event["atr"]),
+                    depth=float(event["retest_depth"]),
+                    starter_entry_index=entry_index,
+                    starter_exit_ts=starter.exit_ts,
+                    window=str(event["retest_window"]),
+                )
+                if natural.add_entry_index != candidate_index:
+                    return None, {
+                        "event_id": event["event_id"],
+                        "status": "unavailable_control_retest_predicate_not_met_at_permuted_lag",
+                        "starter": starter.to_dict(),
+                        "assigned_add_lag_bars": int(forced_lag),
+                        "natural_retest": natural.__dict__,
+                    }
+                retest = a3_starter_retest.RetestResult("complete_permuted", natural.activation_index, natural.reclaim_index, candidate_index)
             else:
                 retest = a3_starter_retest.run_retest_state_machine(
                     frame,
@@ -250,7 +315,7 @@ def _simulate_event(frame: FamilyInput, family: str, config: Mapping[str, Any], 
                     evaluation_start=require_utc(frame.metadata["evaluation_start"]),
                     evaluation_end_exclusive=require_utc(frame.metadata["evaluation_end_exclusive"]),
                     exposure=context_multiplier,
-                    gap_allowance_bps=gap,
+                    gap_allowance_bps_per_hour=base_gap_rate,
                 )
         parent = aggregate_parent_legs(starter, starter_fraction, add, add_fraction)
         stress_starter = simulate_leg(
@@ -268,7 +333,7 @@ def _simulate_event(frame: FamilyInput, family: str, config: Mapping[str, Any], 
             evaluation_start=require_utc(frame.metadata["evaluation_start"]),
             evaluation_end_exclusive=require_utc(frame.metadata["evaluation_end_exclusive"]),
             exposure=context_multiplier,
-            gap_allowance_bps=gap,
+            gap_allowance_bps_per_hour=stress_gap_rate,
         )
         stress_add = None
         if add is not None and retest is not None and retest.add_entry_index is not None:
@@ -277,7 +342,7 @@ def _simulate_event(frame: FamilyInput, family: str, config: Mapping[str, Any], 
                 fixed_target_r=fixed_target, structural_level=event.get("level") if exit_name == "breakout_failure" else None,
                 signal_reversal_close_ts=None, funding=funding, cost_bps=32.0, funding_alignment=alignment,
                 evaluation_start=require_utc(frame.metadata["evaluation_start"]), evaluation_end_exclusive=require_utc(frame.metadata["evaluation_end_exclusive"]),
-                exposure=context_multiplier, gap_allowance_bps=gap,
+                exposure=context_multiplier, gap_allowance_bps_per_hour=stress_gap_rate,
             )
         stress_parent = aggregate_parent_legs(stress_starter, starter_fraction, stress_add, add_fraction)
         enriched = {**event, "entry_ts": starter.entry_ts}
@@ -298,7 +363,7 @@ def _simulate_event(frame: FamilyInput, family: str, config: Mapping[str, Any], 
         evaluation_start=require_utc(frame.metadata["evaluation_start"]),
         evaluation_end_exclusive=require_utc(frame.metadata["evaluation_end_exclusive"]),
         exposure=base_exposure,
-        gap_allowance_bps=gap,
+        gap_allowance_bps_per_hour=base_gap_rate,
     )
     if base.status != "complete" or base.exit_ts is None or base.net_bps is None:
         return None, {"event_id": event["event_id"], "status": base.status, "base": base.to_dict()}
@@ -306,22 +371,22 @@ def _simulate_event(frame: FamilyInput, family: str, config: Mapping[str, Any], 
         bars, entry_index=entry_index, side=int(event["side"]), exit_name=exit_name, atr=event.get("atr"), fixed_target_r=fixed_target,
         structural_level=event.get("structural_level"), signal_reversal_close_ts=set(event.get("signal_reversal_close_ts", ())), funding=funding,
         cost_bps=32.0, funding_alignment=alignment, evaluation_start=require_utc(frame.metadata["evaluation_start"]),
-        evaluation_end_exclusive=require_utc(frame.metadata["evaluation_end_exclusive"]), exposure=base_exposure, gap_allowance_bps=gap,
+        evaluation_end_exclusive=require_utc(frame.metadata["evaluation_end_exclusive"]), exposure=base_exposure, gap_allowance_bps_per_hour=stress_gap_rate,
     )
     enriched = {**event, "entry_ts": base.entry_ts}
     observation = _observation(frame, enriched, base.net_bps, float(stress.net_bps), base.exit_ts, exposure=base_exposure, component_metrics=(("favorable_funding_report_only", float(base.favorable_funding_bps)),))
     return observation, {"event_id": event["event_id"], "status": "complete", "base": base.to_dict(), "stress": stress.to_dict()}
 
 
-def _generate_events(family: str, frame: FamilyInput, config: Mapping[str, Any], control_id: str | None) -> list[dict[str, Any]]:
+def _generate_events(family: str, frame: FamilyInput, config: Mapping[str, Any], control_id: str | None, control_directive: Mapping[str, Any] | None) -> list[dict[str, Any]]:
     if family == "A4_TSMOM_V7":
-        return a4_tsmom.evaluate(frame, config, control_id=control_id)
+        return a4_tsmom.evaluate(frame, config, control_id=control_id, control_directive=control_directive)
     if family == "A1_COMPRESSION_V2":
-        return a1_compression.evaluate(frame, config, control_id=control_id)
+        return a1_compression.evaluate(frame, config, control_id=control_id, control_directive=control_directive)
     if family == "A3_STARTER_RETEST_V3":
-        return a3_starter_retest.evaluate(frame, config, control_id=control_id)
+        return a3_starter_retest.evaluate(frame, config, control_id=control_id, control_directive=control_directive)
     if family == "KDA02B_SURVIVOR_ADJUDICATION_V1":
-        return kda02b_adjudication.evaluate(frame, config, control_id=control_id)
+        return kda02b_adjudication.evaluate(frame, config, control_id=control_id, control_directive=control_directive)
     raise EngineInputError(f"family requires parent-bound dispatcher: {family}")
 
 
@@ -333,6 +398,7 @@ def dispatch_registered_attempt(
     parent_binding: Mapping[str, Any] | None = None,
     parent_frames: Sequence[FamilyInput] | None = None,
     control_id: str | None = None,
+    control_directives: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Code-owned path from raw/cache frames through engine, accounting and aggregate."""
     validate_registered_attempt(row)
@@ -367,19 +433,21 @@ def dispatch_registered_attempt(
                 "parent_only_counterpart_id": row["parent_only_counterpart_id"],
                 "overlay_counterpart_id": row["overlay_counterpart_id"],
             }
-            overlay = a2_context.evaluate_overlay(frame, config, base_event, control_id=control_id)
+            directive = None if control_directives is None else control_directives.get(frame.content_sha256())
+            overlay = a2_context.evaluate_overlay(frame, config, base_event, control_id=control_id, control_directive=directive)
             multiplier = float(overlay["context_multiplier"])
             observation = EventObservation(
                 **{**parent_observation.__dict__, "base_net_bps": parent_observation.base_net_bps * multiplier, "stress_net_bps": parent_observation.stress_net_bps * multiplier, "holding_seconds_weighted": parent_observation.holding_seconds_weighted * multiplier,
                    "component_metrics": tuple(overlay["context_components"])},
             )
             observations.append(observation)
-            ledger.append({"event_id": event_id, "status": "complete", "parent_executable_attempt_id": parent_id, "parent_only_counterpart_id": row["parent_only_counterpart_id"], "overlay_counterpart_id": row["overlay_counterpart_id"], "context_multiplier": multiplier, "parent_ledger_sha256": canonical_hash(source_ledger)})
+            ledger.append({"event_id": event_id, "status": "complete", "parent_executable_attempt_id": parent_id, "parent_only_counterpart_id": row["parent_only_counterpart_id"], "overlay_counterpart_id": row["overlay_counterpart_id"], "context_multiplier": multiplier, "context_components": overlay["context_components"], "parent_ledger_sha256": canonical_hash(source_ledger)})
     else:
         generated_work: list[tuple[FamilyInput, dict[str, Any]]] = []
         for frame in frames:
             frame.validate()
-            generated_work.extend((frame, event) for event in _generate_events(family, frame, config, control_id))
+            directive = None if control_directives is None else control_directives.get(frame.content_sha256())
+            generated_work.extend((frame, event) for event in _generate_events(family, frame, config, control_id, directive))
         if family == "A4_TSMOM_V7" and config.get("exit") == "signal_reversal":
             ordered_work = sorted(generated_work, key=lambda item: (item[0].symbol, require_utc(item[1]["decision_ts"])))
             for index, (frame, event) in enumerate(ordered_work):
@@ -388,6 +456,11 @@ def dispatch_registered_attempt(
             generated_work = ordered_work
         for frame, event in generated_work:
             observation, materialized = _simulate_event(frame, family, config, event)
+            materialized["engine_event"] = {
+                key: (require_utc(value).isoformat() if isinstance(value, datetime) else value)
+                for key, value in event.items()
+                if key in {"event_id", "cohort_id", "side", "decision_ts", "entry_index", "signal_scalar", "starter_fraction", "add_fraction", "control_add_lag_bars", "matched_parent_event_id"}
+            }
             ledger.append(materialized)
             if observation is not None:
                 observations.append(observation)
@@ -399,14 +472,16 @@ def dispatch_registered_attempt(
             accepted.append(item)
             last_exit[item.symbol] = item.exit_ts
     if family == "A4_TSMOM_V7":
-        cohort_sizes: dict[datetime, int] = {}
+        cohort_sizes: dict[str, int] = {}
         for item in accepted:
-            cohort_sizes[item.entry_ts] = cohort_sizes.get(item.entry_ts, 0) + 1
+            if item.cohort_id is None:
+                raise EngineInputError("A4 accepted event lacks explicit cohort identity")
+            cohort_sizes[item.cohort_id] = cohort_sizes.get(item.cohort_id, 0) + 1
         accepted = [EventObservation(**{
             **item.__dict__,
-            "base_net_bps": item.base_net_bps / cohort_sizes[item.entry_ts],
-            "stress_net_bps": item.stress_net_bps / cohort_sizes[item.entry_ts],
-            "holding_seconds_weighted": item.holding_seconds_weighted / cohort_sizes[item.entry_ts],
+            "base_net_bps": item.base_net_bps / cohort_sizes[str(item.cohort_id)],
+            "stress_net_bps": item.stress_net_bps / cohort_sizes[str(item.cohort_id)],
+            "holding_seconds_weighted": item.holding_seconds_weighted / cohort_sizes[str(item.cohort_id)],
         }) for item in accepted]
     return {
         "status": "complete",
@@ -421,18 +496,25 @@ def dispatch_registered_attempt(
 
 def execute_registered_attempt(
     row: Mapping[str, Any],
-    frames: Sequence[FamilyInput],
     *,
     cache_authority: CacheAuthority,
     authorization: ExecutionAuthorization,
+    artifact_paths: Sequence[str],
     registry_by_id: Mapping[str, Mapping[str, Any]],
     parent_binding: Mapping[str, Any] | None = None,
-    parent_frames: Sequence[FamilyInput] | None = None,
+    parent_artifact_paths: Sequence[str] | None = None,
     control_id: str | None = None,
+    control_directives: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
     manifest = authorization.require()
-    cache = cache_authority.validate(manifest, [*frames, *(parent_frames or ())])
-    result = dispatch_registered_attempt(row, frames, registry_by_id=registry_by_id, parent_binding=parent_binding, parent_frames=parent_frames, control_id=control_id)
+    cache, frames = cache_authority.load_frames(manifest, artifact_paths)
+    if parent_artifact_paths is None:
+        parent_frames: Sequence[FamilyInput] = ()
+    else:
+        parent_cache, parent_frames = cache_authority.load_frames(manifest, parent_artifact_paths)
+        if canonical_hash(parent_cache) != canonical_hash(cache):
+            raise AuthorizationError("parent and overlay cache authorities differ")
+    result = dispatch_registered_attempt(row, frames, registry_by_id=registry_by_id, parent_binding=parent_binding, parent_frames=parent_frames, control_id=control_id, control_directives=control_directives)
     result["cache_manifest_sha256"] = sha256_file(cache_authority.manifest_path)
     result["cache_content_identity_sha256"] = canonical_hash(cache)
     result["external_approval_sha256"] = sha256_file(authorization.external_approval_path)
@@ -445,12 +527,37 @@ def synthetic_probe_attempt(row: Mapping[str, Any], frames: Sequence[FamilyInput
     return result
 
 
+def execute_cached_synthetic_attempt(
+    row: Mapping[str, Any],
+    *,
+    cache_authority: CacheAuthority,
+    campaign_manifest: Mapping[str, Any],
+    artifact_paths: Sequence[str],
+    registry_by_id: Mapping[str, Mapping[str, Any]],
+    parent_artifact_paths: Sequence[str] | None = None,
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """Production cache/dispatcher path with an explicit non-economic canary gate."""
+    cache, frames = cache_authority.load_frames(campaign_manifest, artifact_paths)
+    if cache.get("synthetic_only") is not True or any(frame.metadata.get("synthetic_only") is not True for frame in frames):
+        raise AuthorizationError("pre-outcome canary may execute only explicitly synthetic cache frames")
+    if parent_artifact_paths is not None:
+        parent_cache, parent_frames = cache_authority.load_frames(campaign_manifest, parent_artifact_paths)
+        if canonical_hash(parent_cache) != canonical_hash(cache) or any(frame.metadata.get("synthetic_only") is not True for frame in parent_frames):
+            raise AuthorizationError("synthetic parent cache authority differs from the primary cache")
+        kwargs["parent_frames"] = parent_frames
+    result = dispatch_registered_attempt(row, frames, registry_by_id=registry_by_id, **kwargs)
+    result.update({"synthetic_only": True, "economic_outcomes_opened": False, "cache_manifest_sha256": sha256_file(cache_authority.manifest_path)})
+    return result
+
+
 __all__ = [
     "AuthorizationError",
     "CacheAuthority",
     "ExecutionAuthorization",
     "dispatch_registered_attempt",
     "execute_registered_attempt",
+    "execute_cached_synthetic_attempt",
     "synthetic_probe_attempt",
     "validate_registered_attempt",
 ]

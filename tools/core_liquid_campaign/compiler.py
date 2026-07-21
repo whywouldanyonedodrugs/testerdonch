@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import tempfile
+import zipfile
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -54,6 +55,7 @@ EXPECTED_SOURCE_EXECUTABLE = 2913
 EXPECTED_SOURCE_CONDITIONAL = 608
 EXPECTED_LEGACY_PROJECTIONS = 3776
 EXPECTED_FINAL_CONTROLS = 800
+EXPECTED_FOLD_GRAPH_SHA256 = "dcb8ce67acdbf987945dd6b000bb3a13954a0a3eabaf019aa7ecba6c0d48f6e2"
 
 
 @dataclass(frozen=True)
@@ -95,6 +97,32 @@ def verify_sources(paths: SourcePaths) -> dict[str, Any]:
         raise ValueError(f"source registry count mismatch: {strategy_rows}/{control_rows}")
     verified["source_row_counts"] = {"strategy": strategy_rows, "control": control_rows}
     return verified
+
+
+def shared_semantic_cache_contract() -> dict[str, Any]:
+    return {
+        "schema": "stage22_shared_semantic_cache_contract_v2",
+        "cache_objects": ["decision_calendar", "PIT_universe_and_lagged_liquidity", "daily_and_5m_feature_panels", "prior_highs_lows", "ATR_and_volatility", "breadth_dispersion", "BTC_ETH_context", "funding", "entry_exit_lookup_arrays", "event_keys"],
+        "hash_inputs": ["source_manifest_sha256", "decoded_content_sha256", "family_axis_schema_sha256", "feature_formula_id", "fold_graph_sha256", "threshold_training_interval", "rankable_interval", "protected_cutoff", "PIT_universe_hash", "funding_manifest_hash", "selected_event_key_hash"],
+        "source_compiler": "code-owned source readers must construct canonical FamilyInput payloads; production execution accepts only decoded registered artifacts",
+        "does_not_invalidate": ["report_wrapper", "narrative_text", "presentation_only_format"],
+        "must_invalidate": ["feature_meaning", "source_manifest", "schema", "fold_training_boundary", "protected_boundary", "selected_event_keys", "funding_semantics", "PIT_universe"],
+        "unknown_input": "fail_closed",
+    }
+
+
+def _extract_fold_graph(paths: SourcePaths, output_root: Path) -> None:
+    with zipfile.ZipFile(paths.stage21_v1_zip) as archive:
+        names = [name for name in archive.namelist() if name.endswith("INNER_OUTER_FOLD_MAP.json")]
+        if len(names) != 1:
+            raise ValueError("Stage-21 V1 ZIP has no unique fold graph")
+        raw = archive.read(names[0])
+    if hashlib.sha256(raw).hexdigest() != EXPECTED_FOLD_GRAPH_SHA256:
+        raise ValueError("Stage-21 fold graph bytes differ from frozen authority")
+    payload = json.loads(raw)
+    if len(payload.get("outer_folds", ())) != 8:
+        raise ValueError("frozen fold graph does not contain eight outer folds")
+    atomic_write_bytes(output_root / "FOLD_GRAPH.json", raw)
 
 
 def _write_csv(path: Path, fieldnames: Sequence[str], rows: Iterable[Mapping[str, Any]]) -> None:
@@ -527,9 +555,10 @@ def _legacy_control_lineage(path: Path) -> list[dict[str, Any]]:
     } for index, row in enumerate(rows, start=1)]
 
 
-def compile_deterministic(paths: SourcePaths, output_root: Path) -> dict[str, Any]:
+def compile_deterministic(paths: SourcePaths, output_root: Path, capacity_measurement: Mapping[str, Any]) -> dict[str, Any]:
     output_root.mkdir(parents=True, exist_ok=True)
     authority = verify_sources(paths)
+    _extract_fold_graph(paths, output_root)
     atomic_write_json(output_root / "SOURCE_AUTHORITY.json", {"schema": "stage22_source_authority_v1", "status": "pass", "sources": authority})
     schema_doc = schema_document()
     atomic_write_json(output_root / "FAMILY_AXIS_SCHEMA.json", schema_doc)
@@ -553,7 +582,7 @@ def compile_deterministic(paths: SourcePaths, output_root: Path) -> dict[str, An
     atomic_write_bytes(output_root / "LEGACY_DUPLICATE_AND_SUPERSESSION_AUDIT.md", duplicate_report.encode("utf-8"))
 
     existing_counts = Counter(row["family_id"] for row in legacy_projections)
-    budget = optimize_budget(dict(existing_counts))
+    budget = optimize_budget(dict(existing_counts), capacity_measurement)
     broad_counts = budget["new_broad_counts"]
     atomic_write_json(output_root / "OUTCOME_FREE_BUDGET_OPTIMIZER.json", budget)
     new_rows, raw_coordinates, generator_summary = generate_new_broad(legacy_projections, broad_counts)
@@ -650,14 +679,7 @@ def compile_deterministic(paths: SourcePaths, output_root: Path) -> dict[str, An
     atomic_write_json(output_root / "SELECTION_ROUTE_PROBE_AUDIT.json", route_probe)
     atomic_write_json(output_root / "ACCOUNTING_PROBE_AUDIT.json", account_probe)
     atomic_write_json(output_root / "SAFE_PRUNING_POLICY.json", safe_pruning_policy())
-    atomic_write_json(output_root / "SHARED_SEMANTIC_CACHE_CONTRACT.json", {
-        "schema": "stage22_shared_semantic_cache_contract_v1",
-        "cache_objects": ["decision_calendar", "PIT_universe_and_lagged_liquidity", "daily_and_5m_feature_panels", "prior_highs_lows", "ATR_and_volatility", "breadth_dispersion", "BTC_ETH_context", "funding", "entry_exit_lookup_arrays", "event_keys"],
-        "hash_inputs": ["source_manifest_sha256", "content_sha256", "family_axis_schema_sha256", "feature_formula_id", "rankable_interval", "protected_cutoff", "PIT_universe_hash", "funding_manifest_hash", "selected_event_key_hash"],
-        "does_not_invalidate": ["report_wrapper", "narrative_text", "presentation_only_format"],
-        "must_invalidate": ["feature_meaning", "source_manifest", "schema", "protected_boundary", "selected_event_keys", "funding_semantics", "PIT_universe"],
-        "unknown_input": "fail_closed",
-    })
+    atomic_write_json(output_root / "SHARED_SEMANTIC_CACHE_CONTRACT.json", shared_semantic_cache_contract())
     atomic_write_json(output_root / "HISTORICAL_LINEAGE_DECISIONS.json", {
         "schema": "stage22_historical_lineage_decisions_v1",
         "programme_exposure_class": "program_exposed_historical",

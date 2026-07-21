@@ -121,7 +121,7 @@ def average_rank_percentiles(values: Sequence[float]) -> list[float]:
         while end < len(ordered) and ordered[end][0] == ordered[cursor][0]:
             end += 1
         average_one_based_rank = ((cursor + 1) + end) / 2.0
-        normalized = (average_one_based_rank - 1.0) / (len(values) - 1.0)
+        normalized = average_one_based_rank / len(values)
         for _, index in ordered[cursor:end]:
             result[index] = normalized
         cursor = end

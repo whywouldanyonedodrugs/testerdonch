@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import math
-from dataclasses import replace
 from datetime import timedelta
 from typing import Any, Mapping, Sequence
 
@@ -11,6 +10,18 @@ from .common import EngineInputError, log_return, path_smoothness, percentile_fr
 
 
 ENGINE_ID = "a1_compression_engine_v1"
+
+
+def impulse_population_key(window: str, scope: str, side: int) -> str:
+    return f"A1_impulse:window={window}:scope={scope}:side={side}"
+
+
+def contraction_population_key(base_duration: str, baseline: str, scope: str) -> str:
+    return f"A1_contraction:base={base_duration}:baseline={baseline}:scope={scope}"
+
+
+def smoothness_population_key(base_duration: str, scope: str) -> str:
+    return f"A1_smoothness:base={base_duration}:scope={scope}"
 
 
 def realized_volatility(closes: Sequence[float]) -> float:
@@ -56,23 +67,42 @@ def _population(frame: FamilyInput, name: str) -> Sequence[float]:
         population = frame.threshold_populations[name]
     except KeyError as exc:
         raise EngineInputError(f"missing threshold population: {name}") from exc
-    population.validate(pooled="global" in name or "liquidity_decile" in name)
+    population.validate(pooled="global" in name or "liquidity_decile" in name, decision_ts=frame.decision_ts)
     return population.values
 
 
-def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str | None = None) -> list[dict[str, Any]]:
+def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str | None = None, control_directive: Mapping[str, Any] | None = None) -> list[dict[str, Any]]:
     """Run the complete A1 episode state machine from completed five-minute bars."""
     frame.validate()
+    frame.require_pit_top_n(int(config["PIT_liquidity_top_n"]))
     bars = frame.five_minute_bars
     require_contiguous_5m(bars)
     impulse_n = _bar_count(str(config["impulse_window"]))
     base_n = _bar_count(str(config["base_duration"]))
     baseline_n = base_n if config["contraction_baseline"] == "adjacent_equal_duration" else 5 * base_n
     if control_id == "A1_MATCHED_PSEUDO_EVENT_MAIN_NULL":
-        pseudo_side = int(frame.metadata["pseudo_side"])
-        if pseudo_side not in (-1, 1):
-            raise EngineInputError("A1 pseudo-event side is invalid")
-        sides = (pseudo_side,)
+        if not isinstance(control_directive, Mapping) or control_directive.get("allocator") != "matched_pseudo_event_allocator_v2":
+            raise EngineInputError("A1 matched pseudo event lacks its derived allocator directive")
+        side = control_directive.get("side")
+        if side not in (-1, 1) or control_directive.get("matched_decision_ts") != require_utc(frame.decision_ts):
+            raise EngineInputError("A1 matched pseudo event directive is not bound to this frame")
+        entry_index = next((i for i, bar in enumerate(bars) if require_utc(bar.open_ts) >= require_utc(frame.decision_ts)), None)
+        decision_index = next((i for i, bar in enumerate(bars) if require_utc(bar.close_ts) == require_utc(frame.decision_ts)), None)
+        if entry_index is None or decision_index is None or decision_index < base_n:
+            return []
+        base_bars = bars[decision_index - base_n + 1:decision_index + 1]
+        atr_window = int(config["ATR_window_days"] or 20)
+        available_daily = [bar for bar in frame.daily_bars if require_utc(bar.close_ts) < require_utc(frame.decision_ts)]
+        atr_daily = available_daily[-(atr_window + 1):]
+        atr = wilder_atr([bar.high for bar in atr_daily], [bar.low for bar in atr_daily], [bar.close for bar in atr_daily], atr_window) if str(config["exit"]).startswith("ATR_") else None
+        return [{
+            "event_id": canonical_hash({"control": control_id, "parent_event_id": control_directive["parent_event_id"], "symbol": frame.symbol, "decision_ts": require_utc(frame.decision_ts).isoformat()}),
+            "side": int(side), "decision_ts": require_utc(frame.decision_ts), "entry_index": entry_index,
+            "structural_level": (min(bar.close for bar in base_bars) if side == 1 else max(bar.close for bar in base_bars)) if config["exit"] == "base_failure" else None,
+            "atr": atr, "context_multiplier": 1.0, "matched_parent_event_id": control_directive["parent_event_id"],
+        }]
+    if control_id == "A1_MATCHED_PSEUDO_EVENT_MAIN_NULL":
+        raise AssertionError("matched pseudo control returned through the direct branch")
     else:
         sides = (1, -1) if config["direction"] == "symmetric" else (1 if config["direction"] == "long" else -1,)
     threshold = int(str(config["impulse_rank_min"])[1:]) / 100.0
@@ -86,7 +116,7 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
         for side in sides:
             impulse = [bar.close for bar in bars[index - impulse_n:index + 1]]
             score = side * log_return(impulse[0], impulse[-1])
-            population_name = f"A1_impulse:{config['impulse_rank_scope']}:{side}"
+            population_name = impulse_population_key(str(config["impulse_window"]), str(config["impulse_rank_scope"]), side)
             percentile, passes = percentile_from_population(score, _population(frame, population_name), str(config["impulse_rank_min"]))
             if not armed[side] and percentile < 0.50:
                 armed[side] = True
@@ -132,14 +162,14 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
         if config["contraction_rank_max"] != "none" and control_id not in {"A1_CONTRACTION_REMOVED", "A1_PRICE_ONLY_IMPULSE"}:
             contraction_percentile, _ = percentile_from_population(
                 computed["contraction_ratio"],
-                _population(frame, f"A1_contraction:{config['shape_rank_scope']}"),
+                _population(frame, contraction_population_key(str(config["base_duration"]), str(config["contraction_baseline"]), str(config["shape_rank_scope"]))),
             )
             contraction_ok = contraction_percentile <= int(str(config["contraction_rank_max"])[1:]) / 100.0
         smoothness_ok = True
         if config["smoothness_rank_min"] != "none" and control_id not in {"A1_SMOOTHNESS_REMOVED", "A1_PRICE_ONLY_IMPULSE"}:
             _, smoothness_ok = percentile_from_population(
                 computed["base_smoothness"],
-                _population(frame, f"A1_smoothness:{config['shape_rank_scope']}"),
+                _population(frame, smoothness_population_key(str(config["base_duration"]), str(config["shape_rank_scope"]))),
                 str(config["smoothness_rank_min"]),
             )
         if not contraction_ok or not smoothness_ok:
@@ -158,9 +188,15 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
         if max(confirmation_indices) >= len(bars):
             break
         confirmation_bars = [bars[item] for item in confirmation_indices]
+        final_confirmation_ts = require_utc(confirmation_bars[-1].close_ts)
+        if final_confirmation_ts > require_utc(frame.decision_ts):
+            break
         if confirmation == "close_plus_bounded_15m_delay" and require_utc(confirmation_bars[1].close_ts) - require_utc(confirmation_bars[0].close_ts) != timedelta(minutes=15):
             raise EngineInputError("A1 delayed confirmation is not exactly fifteen minutes")
         if not all(side * (bar.close - extreme) > 0 for bar in confirmation_bars):
+            index = max(confirmation_indices) + 1
+            continue
+        if final_confirmation_ts != require_utc(frame.decision_ts):
             index = max(confirmation_indices) + 1
             continue
         final_confirmation = confirmation_bars[-1]
@@ -170,12 +206,13 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
             continue
         structural_level = min(bar.close for bar in base_bars) if side == 1 else max(bar.close for bar in base_bars)
         atr_window = int(config["ATR_window_days"] or 20)
-        daily = frame.daily_bars[-(atr_window + 1):]
+        available_daily = [bar for bar in frame.daily_bars if require_utc(bar.close_ts) < final_confirmation_ts]
+        daily = available_daily[-(atr_window + 1):]
         atr = wilder_atr([bar.high for bar in daily], [bar.low for bar in daily], [bar.close for bar in daily], atr_window) if str(config["exit"]).startswith("ATR_") else None
         context_multiplier = 1.0
-        if config["context_overlay"] != "none" and control_id != "A1_CONTEXT_REMOVED":
+        if config["context_overlay"] != "none" and control_id not in {"A1_CONTEXT_REMOVED", "A1_PRICE_ONLY_IMPULSE", "A1_MATCHED_PSEUDO_EVENT_MAIN_NULL"}:
             from .a2_context import named_context_multiplier
-            context_multiplier = named_context_multiplier(replace(frame, decision_ts=require_utc(final_confirmation.close_ts)), str(config["context_overlay"]), side)
+            context_multiplier = named_context_multiplier(frame, str(config["context_overlay"]), side)
         episodes.append({
             "event_id": event_id(frame.symbol, side, require_utc(impulse_bars[0].close_ts).isoformat(), require_utc(impulse_bars[-1].close_ts).isoformat(), require_utc(base_bars[0].close_ts).isoformat(), require_utc(base_bars[-1].close_ts).isoformat(), require_utc(final_confirmation.close_ts).isoformat()),
             "side": side,
@@ -221,4 +258,4 @@ def contract() -> dict[str, Any]:
     }
 
 
-__all__ = ["confirmation_pass", "contract", "evaluate", "event_id", "features"]
+__all__ = ["confirmation_pass", "contract", "contraction_population_key", "evaluate", "event_id", "features", "impulse_population_key", "smoothness_population_key"]

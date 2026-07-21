@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from dataclasses import replace
 from datetime import timedelta
 from typing import Any, Mapping
 
@@ -11,6 +10,10 @@ from .common import EngineInputError, percentile_from_population, require_utc, w
 
 
 ENGINE_ID = "a3_starter_retest_engine_v1"
+
+
+def breakout_population_key(lookback_days: int, atr_window_days: int, scope: str, side: int) -> str:
+    return f"A3_breakout:lookback={lookback_days}:atr={atr_window_days}:scope={scope}:side={side}"
 
 
 def breakout_magnitude(close: float, level: float, atr: float, direction: str) -> float:
@@ -98,24 +101,25 @@ def run_retest_state_machine(
     return RetestResult("unavailable_no_reclaim", activation_index, None, None)
 
 
-def _population(frame: FamilyInput, scope: str, side: int):
-    name = f"A3_breakout:{scope}:{side}"
+def _population(frame: FamilyInput, lookback: int, atr_window: int, scope: str, side: int):
+    name = breakout_population_key(lookback, atr_window, scope, side)
     try:
         population = frame.threshold_populations[name]
     except KeyError as exc:
         raise EngineInputError(f"missing threshold population: {name}") from exc
-    population.validate(pooled="global" in scope or "liquidity_decile" in scope)
+    population.validate(pooled="global" in scope or "liquidity_decile" in scope, decision_ts=frame.decision_ts)
     return population.values
 
 
-def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str | None = None) -> list[dict[str, Any]]:
+def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str | None = None, control_directive: Mapping[str, Any] | None = None) -> list[dict[str, Any]]:
     """Generate directional starter events and retain a stateful retest plan."""
     frame.validate()
+    frame.require_pit_top_n(int(config["PIT_liquidity_top_n"]))
     require_contiguous_5m(frame.five_minute_bars)
     direction = str(config["direction"])
     side = 1 if direction == "long" else -1
     lookback = int(config["breakout_lookback_days"])
-    daily = frame.daily_bars
+    daily = tuple(bar for bar in frame.daily_bars if require_utc(bar.close_ts) < require_utc(frame.decision_ts))
     if len(daily) < max(lookback, int(config["ATR_window_days"] or 20) + 1):
         raise EngineInputError("A3 daily history is incomplete")
     level = max(bar.high for bar in daily[-lookback:]) if side == 1 else min(bar.low for bar in daily[-lookback:])
@@ -123,6 +127,22 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
     atr_daily = daily[-(atr_window + 1):]
     atr = wilder_atr([bar.high for bar in atr_daily], [bar.low for bar in atr_daily], [bar.close for bar in atr_daily], atr_window)
     bars = frame.five_minute_bars
+    if control_id == "A3_RETEST_TIME_PERMUTED_MAIN_NULL" and (not isinstance(control_directive, Mapping) or "add_lag_bars" not in control_directive):
+        raise EngineInputError("A3 retest permutation lacks a derived add-lag directive")
+    if control_id == "A3_MATCHED_PSEUDO_EVENT":
+        if not isinstance(control_directive, Mapping) or control_directive.get("allocator") != "matched_pseudo_event_allocator_v2" or control_directive.get("side") != side or control_directive.get("matched_decision_ts") != require_utc(frame.decision_ts):
+            raise EngineInputError("A3 matched pseudo event lacks an exact derived allocator directive")
+        entry_index = next((i for i, bar in enumerate(bars) if require_utc(bar.open_ts) >= require_utc(frame.decision_ts)), None)
+        if entry_index is None:
+            return []
+        return [{
+            "event_id": canonical_hash({"control": control_id, "parent_event_id": control_directive["parent_event_id"], "symbol": frame.symbol, "decision_ts": require_utc(frame.decision_ts).isoformat()}),
+            "side": side, "decision_ts": require_utc(frame.decision_ts), "entry_index": entry_index, "level": level, "atr": atr,
+            "magnitude": breakout_magnitude(bars[max(0, entry_index - 1)].close, level, atr, direction),
+            "starter_fraction": float(config["starter_fraction"]), "add_fraction": float(config["add_fraction"]),
+            "retest_depth": config.get("retest_depth_ATR"), "retest_window": config.get("retest_window"), "context_multiplier": 1.0,
+            "matched_parent_event_id": control_directive["parent_event_id"],
+        }]
     events: list[dict[str, Any]] = []
     for index in range(1, len(bars) - 4):
         prior, crossing = bars[index - 1], bars[index]
@@ -132,7 +152,7 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
             continue
         magnitude = breakout_magnitude(crossing.close, level, atr, direction)
         if control_id not in {"A3_CONFIRMATION_REMOVED", "A3_MATCHED_PSEUDO_EVENT"}:
-            _, passes = percentile_from_population(magnitude, _population(frame, str(config["breakout_rank_scope"]), side), str(config["breakout_rank_min"]))
+            _, passes = percentile_from_population(magnitude, _population(frame, lookback, atr_window, str(config["breakout_rank_scope"]), side), str(config["breakout_rank_min"]))
             if not passes:
                 continue
         confirmation = str(config["confirmation"])
@@ -145,9 +165,14 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
         else:
             raise EngineInputError(f"unsupported A3 confirmation: {confirmation}")
         selected = [bars[item] for item in confirmation_indices]
+        final_confirmation_ts = require_utc(selected[-1].close_ts)
+        if final_confirmation_ts > require_utc(frame.decision_ts):
+            break
         if confirmation == "close_plus_15m_delay" and require_utc(selected[-1].close_ts) - require_utc(selected[0].close_ts) != timedelta(minutes=15):
             raise EngineInputError("A3 delayed confirmation is not exactly fifteen minutes")
         if not all(side * (bar.close - level) > 0 for bar in selected):
+            continue
+        if final_confirmation_ts != require_utc(frame.decision_ts):
             continue
         entry_index = confirmation_indices[-1] + 1
         if require_utc(bars[entry_index].open_ts) - require_utc(selected[-1].close_ts) > timedelta(minutes=10):
@@ -155,7 +180,7 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
         context_multiplier = 1.0
         if config["context_overlay"] != "none" and control_id != "A3_CONTEXT_REMOVED":
             from .a2_context import named_context_multiplier
-            context_multiplier = named_context_multiplier(replace(frame, decision_ts=require_utc(selected[-1].close_ts)), str(config["context_overlay"]), side)
+            context_multiplier = named_context_multiplier(frame, str(config["context_overlay"]), side)
         events.append({
             "event_id": event_id(frame.symbol, direction, require_utc(crossing.close_ts).isoformat(), level, canonical_hash(config)),
             "side": side,
@@ -164,12 +189,12 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
             "level": level,
             "atr": atr,
             "magnitude": magnitude,
-            "starter_fraction": float(config["starter_fraction"]),
+            "starter_fraction": 1.0 if control_id == "A3_STARTER_ONLY" else float(config["starter_fraction"]),
             "add_fraction": 0.0 if control_id == "A3_STARTER_ONLY" else float(config["add_fraction"]),
             "retest_depth": config.get("retest_depth_ATR"),
             "retest_window": config.get("retest_window"),
             "context_multiplier": context_multiplier,
-            "control_add_lag_bars": frame.metadata.get("control_add_lag_bars") if control_id == "A3_RETEST_TIME_PERMUTED_MAIN_NULL" else None,
+            "control_add_lag_bars": control_directive.get("add_lag_bars") if control_id == "A3_RETEST_TIME_PERMUTED_MAIN_NULL" and isinstance(control_directive, Mapping) else None,
         })
     return events
 
@@ -202,4 +227,4 @@ def contract() -> dict[str, Any]:
     }
 
 
-__all__ = ["RetestResult", "breakout_magnitude", "contract", "evaluate", "event_id", "parent_weights", "retest_state", "run_retest_state_machine"]
+__all__ = ["RetestResult", "breakout_magnitude", "breakout_population_key", "contract", "evaluate", "event_id", "parent_weights", "retest_state", "run_retest_state_machine"]

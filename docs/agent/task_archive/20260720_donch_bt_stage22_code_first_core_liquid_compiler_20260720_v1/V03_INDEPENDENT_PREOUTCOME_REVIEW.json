@@ -1,0 +1,373 @@
+{
+  "bindings": {
+    "a2_counterpart_registry_sha256": "fe8ca04d2abe8f547b2ecc6e5bc08f4d9901c74e10024e43914a7086e17ddc42",
+    "control_registry_sha256": "5eb421dd1a6b63f097d082e170ac0cbb62b5f6a3c9cf763f16ecbcb5596fb322",
+    "execution_registry_sha256": "a0cad9b22f4a98641093d9c5ecc5dd6842de6855cbda2d27ce04703ad626f89d",
+    "family_axis_schema_file_sha256": "c01e5f9c4f5ae824e5f614f966bc3e1e9d5aefec2ccc880506a5466522cff956",
+    "generated_artifact_inventory_sha256": "a308070619c3e35944d13799d078e560a40e34212c3cfffc812751231dfe97e7",
+    "implementation_commit": "a2b5eaa5e7521ddc914ea1aae601401ba1d51a44",
+    "review_target_sha256": "d573d4c6982eb4d6f5d434345c03714bc70fd524ae6c3c464563902ba908b779",
+    "source_tree_sha256": "5a740e9d58417826ab3c89d53ee07e9f9a2e8beecda20dbb74c659ef74fa9d86",
+    "strategy_registry_sha256": "b5a5ad48c202b016eee6c6cbf8b45f741dd6594f5a0d540bc98acc586049b0a3"
+  },
+  "blocking_findings": 12,
+  "capitalcom_payload_opened": false,
+  "checks": [
+    {
+      "check": "authority_instruction_sha256",
+      "status": "pass",
+      "value": "58fbec98558850dd8cd39c00cf4b9fc57d38c32cdf5064d97f0e598766fcd169"
+    },
+    {
+      "check": "repository_head_and_cleanliness",
+      "status": "pass",
+      "value": "HEAD a2b5eaa5e7521ddc914ea1aae601401ba1d51a44; worktree clean"
+    },
+    {
+      "check": "review_target_and_exact_bindings",
+      "status": "pass",
+      "value": "All requested physical hashes matched"
+    },
+    {
+      "check": "generated_inventory_rehash",
+      "status": "pass",
+      "value": "56/56 files matched; composite a308070619c3e35944d13799d078e560a40e34212c3cfffc812751231dfe97e7"
+    },
+    {
+      "check": "execution_source_records",
+      "status": "pass",
+      "value": "All five source records matched path, size and SHA-256"
+    },
+    {
+      "check": "focused_tests",
+      "status": "pass_with_inadequate_assertions",
+      "value": "18 tests passed in 22.201 seconds; passing tests do not exercise the blocking semantic and production-path conditions above"
+    },
+    {
+      "check": "compiled_registry_validation",
+      "status": "pass",
+      "value": "9,088 strategy rows; 9,083 execution rows; 800 controls; 2,270 A2 counterpart rows"
+    },
+    {
+      "check": "a2_registry_structure",
+      "status": "pass",
+      "value": "2,270 unique overlay addresses; 1,408 beam-slot bindings use only ranks 1-5; 862 exact source-parent bindings"
+    },
+    {
+      "check": "compileall_git_diff_and_secret_scan",
+      "status": "pass",
+      "value": "No syntax, whitespace or credential-pattern failure"
+    }
+  ],
+  "economic_outcomes_opened": false,
+  "findings": [
+    {
+      "category": "authority_and_point_in_time_isolation",
+      "evidence": "CacheAuthority verifies an artifact's physical SHA-256 and independently compares a caller-supplied frame's canonical hash to a manifest field, but it never deserializes that artifact and proves that the decoded content is the frame. The focused test demonstrates the defect by using the unrelated bytes 'frame-bytes' as the artifact while validation passes. PIT_liquidity_top_n has no engine consumer beyond schema/validator declarations; pit_eligible is a caller-supplied boolean independent of the registered top-N value. Threshold populations also carry no training interval, availability timestamp or source provenance.",
+      "id": "S22-V03-001",
+      "impact": [
+        "authority",
+        "protected_data_isolation",
+        "economic_correctness",
+        "deterministic_reproducibility"
+      ],
+      "locations": [
+        "tools/core_liquid_campaign/executor.py:92",
+        "tools/core_liquid_campaign/executor.py:101",
+        "tools/core_liquid_campaign/executor.py:111",
+        "tools/core_liquid_campaign/executor.py:124",
+        "unit_tests/test_core_liquid_campaign.py:312",
+        "unit_tests/test_core_liquid_campaign.py:314",
+        "unit_tests/test_core_liquid_campaign.py:321",
+        "tools/core_liquid_campaign/engine_types.py:117",
+        "tools/core_liquid_campaign/schema.py:181",
+        "tools/core_liquid_campaign/schema.py:200",
+        "tools/core_liquid_campaign/schema.py:249"
+      ],
+      "required_acceptance": "Provide a deterministic cache builder and decoder from the exact verified source, funding, lifecycle and universe authorities. At execution, decode the SHA-256-verified artifact and compare its canonical decoded payload to the frame actually dispatched. Bind and enforce exact funding-package, fold-training, threshold-population, PIT membership and registered top-N semantics; caller-provided booleans or vectors cannot establish those facts.",
+      "severity": "critical",
+      "title": "Verified cache bytes are not cryptographically connected to the FamilyInput used by the executor"
+    },
+    {
+      "category": "executable_campaign_contract",
+      "evidence": "The only CLI supports packet build and finalize. Repository-wide call-site tracing found production executor, selection, control and supervisor functions used only by validators/tests or internal recursive dispatch. No command loads the 9,083 execution rows, builds and independently verifies semantic caches, executes development folds, freezes medoids/refinements/beams, resolves A2 slots, runs outer folds and controls, materializes the registered subset, persists stage state or launches a detached service. FINAL_LAUNCH_TASK merely instructs a future agent to invent this wiring.",
+      "id": "S22-V03-002",
+      "impact": [
+        "authority",
+        "economic_correctness",
+        "deterministic_reproducibility",
+        "unattended_resource_safety"
+      ],
+      "locations": [
+        "tools/build_stage22_core_liquid_campaign.py:12",
+        "tools/build_stage22_core_liquid_campaign.py:36",
+        "tools/core_liquid_campaign/packet.py:413",
+        "tools/core_liquid_campaign/packet.py:421",
+        "tools/core_liquid_campaign/executor.py:422",
+        "tools/core_liquid_campaign/selection.py:190",
+        "tools/core_liquid_campaign/controls.py:144"
+      ],
+      "required_acceptance": "Implement one hash-bound production entry point that executes the complete frozen stage graph without caller-selected economic choices, including cache construction/replay, all fold boundaries, refinement registration, beam freezing, A2 resolution, controls, materialization, terminal reconciliation and detached-supervisor integration. Exercise it with an outcome-free end-to-end canary.",
+      "severity": "critical",
+      "title": "There is no production campaign orchestrator or launch entry point"
+    },
+    {
+      "category": "temporal_semantics",
+      "evidence": "A1 scans an entire 5-minute frame for multiple episodes but uses the last daily ATR window and the frame's unsliced context for every historical confirmation. A3 computes one latest prior level and ATR and applies them to every crossing in the entire 5-minute history. Replacing decision_ts for named contexts does not slice the underlying daily/context arrays. ContextInputs has no availability contract and FamilyInput.validate validates only frame.daily_bars, not BTC, ETH, breadth, dispersion or cross-sectional context. The synthetic fixtures themselves place decisions after the frame anchor while retaining one fixed daily/context snapshot.",
+      "id": "S22-V03-003",
+      "impact": [
+        "protected_data_isolation",
+        "economic_correctness"
+      ],
+      "locations": [
+        "tools/core_liquid_campaign/family_engines/a1_compression.py:63",
+        "tools/core_liquid_campaign/family_engines/a1_compression.py:84",
+        "tools/core_liquid_campaign/family_engines/a1_compression.py:172",
+        "tools/core_liquid_campaign/family_engines/a1_compression.py:178",
+        "tools/core_liquid_campaign/family_engines/a3_starter_retest.py:111",
+        "tools/core_liquid_campaign/family_engines/a3_starter_retest.py:121",
+        "tools/core_liquid_campaign/family_engines/a3_starter_retest.py:127",
+        "tools/core_liquid_campaign/engine_types.py:131",
+        "tools/core_liquid_campaign/engine_types.py:182",
+        "tools/core_liquid_campaign/family_engines/a2_context.py:79",
+        "tools/core_liquid_campaign/family_engines/a2_context.py:107"
+      ],
+      "required_acceptance": "Define a single unambiguous frame contract: either exactly one event decision per frame or an event loop that slices every daily, intraday, threshold and context input as of each candidate decision. Enforce source_close_ts and feature_available_ts for all context objects and add deterministic earlier-event invariance tests where later bars/context are changed.",
+      "severity": "critical",
+      "title": "A1, A3 and context inputs are not evaluated as-of each emitted event decision"
+    },
+    {
+      "category": "family_engine_semantics",
+      "evidence": "The retained definition uses completed 5-minute windows, W*288 adjust=false EMA with a t-minus-one-day reference, 5-minute annualized realized volatility, ensemble signed-return/vol and EMA-slope/vol components, q05/q95 winsorization and symbol-training MAD. The engine instead uses daily closes, an EMA span of roughly half the daily lookback, sqrt(365) volatility, unnormalized ensemble signed/EMA components and q01/q99 winsorization. A4_GENERIC_SIGNED_RETURN changes only estimator rather than also disabling vol target, path and context. A4_PATH_COMPONENT_REMOVED skips only the path gate and does not remove the ensemble breakout component.",
+      "id": "S22-V03-004",
+      "impact": [
+        "economic_correctness",
+        "deterministic_reproducibility"
+      ],
+      "locations": [
+        "docs/agent/task_archive/20260720_donch_bt_stage21_research_adequacy_and_core_discovery_packet_20260720_v1/build_packet.py:319",
+        "docs/agent/task_archive/20260720_donch_bt_stage21_research_adequacy_and_core_discovery_packet_20260720_v1/build_packet.py:322",
+        "docs/agent/task_archive/20260720_donch_bt_stage21_research_adequacy_and_core_discovery_packet_20260720_v1/build_packet.py:324",
+        "docs/agent/task_archive/20260720_donch_bt_stage21_research_adequacy_and_core_discovery_packet_20260720_v1/build_packet.py:325",
+        "docs/agent/task_archive/20260720_donch_bt_stage21_research_adequacy_and_core_discovery_packet_20260720_v1/build_packet.py:597",
+        "docs/agent/task_archive/20260720_donch_bt_stage21_research_adequacy_and_core_discovery_packet_20260720_v1/build_packet.py:601",
+        "tools/core_liquid_campaign/family_engines/a4_tsmom.py:15",
+        "tools/core_liquid_campaign/family_engines/a4_tsmom.py:46",
+        "tools/core_liquid_campaign/family_engines/a4_tsmom.py:80",
+        "tools/core_liquid_campaign/family_engines/a4_tsmom.py:101",
+        "tools/core_liquid_campaign/family_engines/a4_tsmom.py:112",
+        "tools/core_liquid_campaign/family_engines/a4_tsmom.py:115",
+        "tools/core_liquid_campaign/family_engines/a4_tsmom.py:147"
+      ],
+      "required_acceptance": "Implement the selected A4 formulas and all five controls exactly, with fixed independent fixtures for EMA, volatility, ensemble winsorization/MAD and each control transformation. Any intentional economic redefinition must be explicitly recorded pre-outcome and regenerated through the typed schema and registries.",
+      "severity": "critical",
+      "title": "A4 estimator and registered A4 controls do not implement the retained source definitions"
+    },
+    {
+      "category": "accounting",
+      "evidence": "Executor divides each accepted A4 contribution by simultaneous cohort size. aggregate_streaming then groups all event contributions by day and takes another arithmetic mean across events. For one N-symbol cohort this produces sum(contributions)/N² instead of the registered sum of weights e_i*c_i/N. It also lacks an explicit cohort key, so multiple rebalance cohorts with unequal sizes cannot be aggregated as a mean of cohort returns.",
+      "id": "S22-V03-005",
+      "impact": [
+        "economic_correctness"
+      ],
+      "locations": [
+        "tools/core_liquid_campaign/executor.py:401",
+        "tools/core_liquid_campaign/executor.py:405",
+        "tools/core_liquid_campaign/selection.py:113",
+        "tools/core_liquid_campaign/selection.py:129",
+        "tools/core_liquid_campaign/selection.py:138",
+        "docs/agent/task_archive/20260720_donch_bt_stage21_research_adequacy_and_core_discovery_packet_20260720_v1/build_packet.py:328"
+      ],
+      "required_acceptance": "Represent cohort identity explicitly, sum weighted symbol contributions within each cohort once, then average nonempty cohort returns within each UTC day. Add multi-symbol and multiple-unequal-cohort reconciliation tests against an independently materialized ledger.",
+      "severity": "critical",
+      "title": "A4 cohort returns are divided by cohort size twice"
+    },
+    {
+      "category": "context_and_rank_semantics",
+      "evidence": "The contract says average one-based ranks divided by member count; average_rank_percentiles instead computes (rank-1)/(N-1). The funding veto is registered at side-signed payer-burden percentile >=0.90, but code vetoes at >=0.50 and silently defaults missing current burden to zero. The breadth/dispersion named context is registered as a linear multiplier; code routes it through binary permission. A2 breadth and dispersion lookback axes are not consumed by the engine.",
+      "id": "S22-V03-006",
+      "impact": [
+        "economic_correctness",
+        "point_in_time_correctness"
+      ],
+      "locations": [
+        "tools/core_liquid_campaign/family_engines/common.py:113",
+        "tools/core_liquid_campaign/family_engines/common.py:123",
+        "tools/core_liquid_campaign/family_engines/a2_context.py:201",
+        "tools/core_liquid_campaign/family_engines/a2_context.py:204",
+        "tools/core_liquid_campaign/family_engines/a2_context.py:205",
+        "tools/core_liquid_campaign/family_engines/a2_context.py:222",
+        "docs/agent/task_archive/20260720_donch_bt_stage21_research_adequacy_and_core_discovery_packet_20260720_v1/build_packet.py:333",
+        "docs/agent/task_archive/20260720_donch_bt_stage21_research_adequacy_and_core_discovery_packet_20260720_v1/build_packet.py:345"
+      ],
+      "required_acceptance": "Implement the exact tie/rank normalization, fail closed on missing current context, use the registered 0.90 funding veto and linear breadth/dispersion formula, and ensure every context lookback axis changes the actual computation. Add exact numeric fixtures.",
+      "severity": "critical",
+      "title": "Cross-sectional ranks and named context overlays implement different economics from the source contract"
+    },
+    {
+      "category": "kda02b_semantics",
+      "evidence": "Frozen Stage-20 onset logic rearms only after every mandatory predicate is false and treats gaps/invalid rows as barriers. The new engine accepts current-all-true whenever the immediately previous row is not all-true, so a single false predicate incorrectly rearms it and longer state/gap behavior is absent. generic_structure_control merely consumes a caller-provided boolean instead of running the required matched pseudo-event allocator with exact side, horizon, entry, exit and cost.",
+      "id": "S22-V03-007",
+      "impact": [
+        "economic_correctness",
+        "deterministic_reproducibility"
+      ],
+      "locations": [
+        "tools/qlmg_stage20_campaign.py:368",
+        "tools/qlmg_stage20_campaign.py:374",
+        "tools/qlmg_stage20_campaign.py:379",
+        "tools/qlmg_stage20_campaign.py:388",
+        "tools/core_liquid_campaign/family_engines/kda02b_adjudication.py:50",
+        "tools/core_liquid_campaign/family_engines/kda02b_adjudication.py:60",
+        "tools/core_liquid_campaign/family_engines/kda02b_adjudication.py:100",
+        "tools/core_liquid_campaign/family_engines/kda02b_adjudication.py:127",
+        "tools/core_liquid_campaign/family_engines/kda02b_adjudication.py:135",
+        "docs/agent/task_archive/20260720_donch_bt_stage21_research_adequacy_and_core_discovery_packet_20260720_v1/CONTROL_AND_FORENSIC_CONTRACT.json:14"
+      ],
+      "required_acceptance": "Port and independently fixture-test the complete sequential onset/rearm/barrier state machine. Implement generic_structure_control through the exact registered matched allocator and accounting path, without a caller-selected predicate.",
+      "severity": "critical",
+      "title": "KDA02B onset rearming and generic-structure control are not the frozen Stage-20 mechanics"
+    },
+    {
+      "category": "control_execution",
+      "evidence": "A4 sign, A2 context vectors, A3 retest lags and pseudo-candidate frames are supplied in frame.metadata rather than derived from exact parent events by the registered allocator. The pseudo allocator does not match side, hour-of-week, liquidity decile or exclusion interval; it keys without-replacement globally by decision timestamp rather than per control address and silently drops parents with no candidate. Its seed omits the exact parent event ID. The control probe establishes only that each branch returns without exception.",
+      "id": "S22-V03-008",
+      "impact": [
+        "authority",
+        "economic_correctness",
+        "deterministic_reproducibility"
+      ],
+      "locations": [
+        "tools/core_liquid_campaign/controls.py:99",
+        "tools/core_liquid_campaign/controls.py:115",
+        "tools/core_liquid_campaign/controls.py:121",
+        "tools/core_liquid_campaign/controls.py:127",
+        "tools/core_liquid_campaign/controls.py:131",
+        "tools/core_liquid_campaign/controls.py:134",
+        "tools/core_liquid_campaign/family_engines/a2_context.py:183",
+        "tools/core_liquid_campaign/family_engines/a3_starter_retest.py:172",
+        "docs/agent/task_archive/20260720_donch_bt_stage21_research_adequacy_and_core_discovery_packet_20260720_v1/build_packet.py:593",
+        "docs/agent/task_archive/20260720_donch_bt_stage21_research_adequacy_and_core_discovery_packet_20260720_v1/build_packet.py:595",
+        "docs/agent/task_archive/20260720_donch_bt_stage21_research_adequacy_and_core_discovery_packet_20260720_v1/build_packet.py:598",
+        "docs/agent/task_archive/20260720_donch_bt_stage21_research_adequacy_and_core_discovery_packet_20260720_v1/build_packet.py:616"
+      ],
+      "required_acceptance": "Derive every control transform from verified exact parent events and bound market inputs. Implement all registered strata, exclusions, without-replacement scope, seed construction and explicit unavailable rows. Tests must compare exact transformed event sets and accounting, not merely successful dispatch.",
+      "severity": "critical",
+      "title": "Registered controls depend on caller-supplied transformed metadata and the pseudo-event allocator omits mandatory matching rules"
+    },
+    {
+      "category": "selection_and_materialization",
+      "evidence": "adjudicate_route returns execution_sensitive or sample_limited before requiring common_gate, so a definition failing integrity or registered controls can be promoted solely because base_positive is true. materialization_policy selects failed rows using one address modulus, not a stratified sample by family/fold/failure class. selection_route_probe labels every returned route pass and does not assert expected route semantics.",
+      "id": "S22-V03-009",
+      "impact": [
+        "economic_correctness",
+        "deterministic_reproducibility"
+      ],
+      "locations": [
+        "tools/core_liquid_campaign/selection.py:307",
+        "tools/core_liquid_campaign/selection.py:308",
+        "tools/core_liquid_campaign/selection.py:310",
+        "tools/core_liquid_campaign/selection.py:375",
+        "tools/core_liquid_campaign/selection.py:383",
+        "tools/core_liquid_campaign/validators.py:206",
+        "tools/core_liquid_campaign/validators.py:217",
+        "tools/core_liquid_campaign/validators.py:219",
+        "docs/agent/task_archive/20260720_donch_bt_stage22_code_first_core_liquid_compiler_20260720_v1/received/DONCH_STAGE21_V3_EXECUTABLE_ECONOMIC_CONTRACT_2026-07-20.json:78"
+      ],
+      "required_acceptance": "Make the frozen common/base gate a prerequisite for execution-sensitive and sample-limited routes, preserve explicit rejection for integrity/control failures, and implement a predeclared deterministic stratified failed-audit sample. Add negative route fixtures that assert exact labels.",
+      "severity": "high",
+      "title": "Route adjudication can promote failed common gates and failed-audit materialization is not stratified"
+    },
+    {
+      "category": "unattended_runtime_safety",
+      "evidence": "run immediately materializes the entire job iterable with list(jobs). Economic work runs in ThreadPoolExecutor; cancelling a running Future and shutdown(wait=False) cannot terminate that thread, so RSS/disk/no-progress excursions can leave work running and writing after a claimed stop. A restart-required state is returned normally and no service command performs the restart. detached_service_spec is metadata without an executable command or installer. health release treats any reconciled marker as a real registered economic unit, and the heartbeat defaults to a no-op. The canary uses tiny threads, a synthetic clock and no production dispatcher/cache/Telegram path.",
+      "id": "S22-V03-010",
+      "impact": [
+        "unattended_resource_safety",
+        "deterministic_reproducibility"
+      ],
+      "locations": [
+        "tools/core_liquid_campaign/runtime.py:151",
+        "tools/core_liquid_campaign/runtime.py:159",
+        "tools/core_liquid_campaign/runtime.py:205",
+        "tools/core_liquid_campaign/runtime.py:213",
+        "tools/core_liquid_campaign/runtime.py:216",
+        "tools/core_liquid_campaign/runtime.py:218",
+        "tools/core_liquid_campaign/runtime.py:242",
+        "tools/core_liquid_campaign/runtime.py:263",
+        "tools/core_liquid_campaign/runtime.py:268",
+        "tools/core_liquid_campaign/runtime.py:278",
+        "tools/core_liquid_campaign/runtime.py:294"
+      ],
+      "required_acceptance": "Consume jobs lazily, use a worker model with demonstrable cooperative or process termination, wait for and verify all workers stopped before committing a bound stop, provide an executable detached service/restart path, bind health to a reconciled real registered cell and successful scheduled Telegram heartbeat, and run a production-path synthetic canary.",
+      "severity": "critical",
+      "title": "The supervisor is neither truly lazy nor able to enforce a bound stop on running jobs"
+    },
+    {
+      "category": "final_launch_authority",
+      "evidence": "ExecutionAuthorization accepts any descendant of the approved commit if listed inventory files still match. A descendant can add an unlisted launch/cache module and alter execution semantics. _generated_inventory is computed only while building the review target; finalize_packet validates selected registries but does not recompute the complete generated inventory against the reviewed composite. The inherited manifest is read for one internal field without verifying its expected physical SHA-256.",
+      "id": "S22-V03-011",
+      "impact": [
+        "authority",
+        "deterministic_reproducibility"
+      ],
+      "locations": [
+        "tools/core_liquid_campaign/executor.py:58",
+        "tools/core_liquid_campaign/executor.py:67",
+        "tools/core_liquid_campaign/executor.py:68",
+        "tools/core_liquid_campaign/executor.py:74",
+        "tools/core_liquid_campaign/packet.py:225",
+        "tools/core_liquid_campaign/packet.py:263",
+        "tools/core_liquid_campaign/packet.py:314",
+        "tools/core_liquid_campaign/packet.py:319",
+        "tools/core_liquid_campaign/packet.py:323"
+      ],
+      "required_acceptance": "Require the exact approved repository commit or bind and verify the complete launch tree, including the production runner. Recompute the full reviewed artifact inventory at finalization and every launch boundary, and bind/verify the inherited manifest's physical bytes before using it.",
+      "severity": "critical",
+      "title": "Launch authorization permits unreviewed descendant commits and finalization does not re-establish all reviewed byte bindings"
+    },
+    {
+      "category": "budget_and_runtime_projection",
+      "evidence": "The 9,088 count is chosen before benchmarking from a hard-coded 2.4 multiplier and undocumented ENGINE_WORK_UNITS. The later benchmark performs one sequential tiny synthetic dispatch per family, linearly multiplies elapsed time and divides by four. It does not measure four concurrent workers, cache construction/I/O, memory peaks, storage throughput or artifact volume. The resulting projection explicitly calls itself only a synthetic floor.",
+      "id": "S22-V03-012",
+      "impact": [
+        "deterministic_reproducibility",
+        "unattended_resource_safety"
+      ],
+      "locations": [
+        "tools/core_liquid_campaign/budget.py:23",
+        "tools/core_liquid_campaign/budget.py:25",
+        "tools/core_liquid_campaign/budget.py:64",
+        "tools/core_liquid_campaign/budget.py:68",
+        "tools/core_liquid_campaign/budget.py:71",
+        "tools/core_liquid_campaign/budget.py:81",
+        "tools/core_liquid_campaign/packet.py:160",
+        "tools/core_liquid_campaign/packet.py:167",
+        "tools/core_liquid_campaign/packet.py:185",
+        "tools/core_liquid_campaign/packet.py:191",
+        "tools/core_liquid_campaign/packet.py:205"
+      ],
+      "required_acceptance": "Feed measured, reproducible engine/cache runtime and memory/disk projections into the outcome-free optimizer as required by the task. Benchmark the selected concurrent worker count on representative production-path synthetic workload and demonstrate the RSS, free-disk, output and throughput safety margins.",
+      "severity": "high",
+      "title": "The outcome-free optimizer does not use the measured benchmark and four-worker safety was not benchmarked"
+    }
+  ],
+  "incidental_historical_summary_exposure": {
+    "conclusion": "The disclosed incidental exposure does not compromise this v03 byte/code review because it was non-protected, pre-existing programme-exposed summary material and was not used in any implementation or review decision. It remains disclosed separately and does not cure or worsen the blocking implementation findings.",
+    "description": "A prior shell search surfaced a header and several lines from an existing program_exposed_historical Stage-20 summary.",
+    "economic_outcomes_opened_during_this_independent_review": false,
+    "independence_impact": "none",
+    "occurred_before_v03_review": true,
+    "protected_data": false,
+    "raw_market_payload": false,
+    "used_for_axis_budget_threshold_rule_selection_or_review_decision": false
+  },
+  "protected_rows_opened": 0,
+  "review_conclusion": "Exact bytes and generated registries are reproducible, but the reviewed implementation is not yet an executable, point-in-time-safe or unattended-safe campaign contract. Finalization, publication and any economic launch must remain blocked until all twelve findings are repaired and the exact replacement bytes receive a repeated independent pre-outcome review.",
+  "reviewer_identity": {
+    "agent": "/root/stage21_independent_review",
+    "role": "independent_preoutcome_code_and_byte_reviewer"
+  },
+  "schema": "stage22_independent_preoutcome_review_v2",
+  "verdict": "BLOCK"
+}

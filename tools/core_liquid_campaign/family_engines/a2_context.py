@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from statistics import median
 from typing import Any, Mapping, Sequence
 
 from ..canonical import canonical_hash
@@ -9,6 +10,10 @@ from .common import EngineInputError, average_rank_percentiles, component_thresh
 
 
 ENGINE_ID = "a2_context_engine_v1"
+
+
+def proximity_population_key(lookback_days: int, atr_window_days: int, side: int) -> str:
+    return f"A2_proximity:lookback={lookback_days}:atr={atr_window_days}:side={side}"
 
 
 def component_vector(config: Mapping[str, Any], raw: Mapping[str, float]) -> list[tuple[str, float]]:
@@ -124,7 +129,7 @@ def raw_component_percentiles(frame: FamilyInput, config: Mapping[str, Any], sid
         atr = wilder_atr([bar.high for bar in atr_bars], [bar.low for bar in atr_bars], [bar.close for bar in atr_bars], atr_window)
         current = completed_intraday[-1].close
         proximity = (current - level) / atr if side == 1 else (level - current) / atr
-        result["proximity"] = _timeseries_percentile(proximity, frame.threshold_populations[f"A2_proximity:{side}"].values)
+        result["proximity"] = _timeseries_percentile(proximity, frame.threshold_populations[proximity_population_key(lookback, atr_window, side)].values)
         if config["reclaim_state"] == "continuous_distance":
             result["reclaim"] = result["proximity"]
         elif config["reclaim_state"] == "first_close_above":
@@ -137,7 +142,9 @@ def raw_component_percentiles(frame: FamilyInput, config: Mapping[str, Any], sid
         btc_return = _return(frame.context.btc_daily, lookback)
         raw_rs = side * (symbol_return - btc_return)
         scope = str(config["RS_population_scope"])
-        candidates = dict(frame.context.cross_section_returns)
+        candidates = dict(frame.context.cross_section_returns_by_lookback.get(lookback, {}))
+        if not candidates:
+            raise EngineInputError("A2 registered RS lookback has no bound cross-sectional snapshot")
         if scope == "liquidity_decile":
             decile = frame.context.cross_section_liquidity_deciles.get(frame.symbol)
             candidates = {symbol: value for symbol, value in candidates.items() if frame.context.cross_section_liquidity_deciles.get(symbol) == decile}
@@ -157,16 +164,32 @@ def raw_component_percentiles(frame: FamilyInput, config: Mapping[str, Any], sid
         result["BTC_ETH"] = _btc_eth_component(frame, config, side)
     breadth_mode = str(config["breadth_dispersion"])
     if breadth_mode in {"breadth", "both"}:
-        current = float(frame.metadata["current_breadth"])
-        percentile = _timeseries_percentile(current, frame.context.breadth_history)
+        lookback = int(config["breadth_return_lookback_days"])
+        returns = frame.context.cross_section_returns_by_lookback.get(lookback)
+        if not returns or len(returns) < 5:
+            raise EngineInputError("A2 registered breadth lookback has insufficient PIT members")
+        current = sum(float(value) > 0 for value in returns.values()) / len(returns)
+        history = frame.context.breadth_history_by_lookback.get(lookback)
+        if history is None:
+            raise EngineInputError("A2 registered breadth lookback has no fold-training history")
+        percentile = _timeseries_percentile(current, history)
         result["breadth"] = percentile if side == 1 else 1.0 - percentile
     if breadth_mode in {"dispersion", "both"}:
-        current = float(frame.metadata["current_dispersion"])
-        result["dispersion"] = _timeseries_percentile(current, frame.context.dispersion_history)
+        lookback = int(config["dispersion_return_lookback_days"])
+        returns = frame.context.cross_section_returns_by_lookback.get(lookback)
+        if not returns or len(returns) < 5:
+            raise EngineInputError("A2 registered dispersion lookback has insufficient PIT members")
+        values = [float(value) for value in returns.values()]
+        center = median(values)
+        current = median(abs(value - center) for value in values)
+        history = frame.context.dispersion_history_by_lookback.get(lookback)
+        if history is None:
+            raise EngineInputError("A2 registered dispersion lookback has no fold-training history")
+        result["dispersion"] = _timeseries_percentile(current, history)
     return result
 
 
-def evaluate_overlay(frame: FamilyInput, config: Mapping[str, Any], parent_event: Mapping[str, Any], *, control_id: str | None = None) -> dict[str, Any]:
+def evaluate_overlay(frame: FamilyInput, config: Mapping[str, Any], parent_event: Mapping[str, Any], *, control_id: str | None = None, control_directive: Mapping[str, Any] | None = None) -> dict[str, Any]:
     side = int(parent_event["side"])
     raw = raw_component_percentiles(frame, config, side)
     effective = dict(config)
@@ -181,9 +204,9 @@ def evaluate_overlay(frame: FamilyInput, config: Mapping[str, Any], parent_event
     if control_id == "A2_PARENT_ONLY":
         multiplier, components = 1.0, []
     elif control_id == "A2_CONTEXT_PERMUTED_MAIN_NULL":
-        supplied = frame.metadata.get("control_context_vector")
+        supplied = None if control_directive is None else control_directive.get("context_vector")
         if not isinstance(supplied, (list, tuple)):
-            raise EngineInputError("permuted A2 context vector is absent")
+            raise EngineInputError("derived permuted A2 context vector is absent")
         components = [(str(name), float(value)) for name, value in supplied]
         multiplier = overlay_multiplier(str(config["overlay_action"]), components)
     else:
@@ -202,9 +225,11 @@ def named_context_multiplier(frame: FamilyInput, overlay: str, side: int) -> flo
     if overlay == "none":
         return 1.0
     if overlay == "funding_veto":
-        current = float(frame.metadata.get("current_funding_burden_bps", 0.0))
-        percentile = weak_percentile(current, frame.context.funding_burden_history)
-        return 1.0 if percentile < 0.5 else 0.0
+        if frame.context.funding_burden_current is None:
+            raise EngineInputError("current funding burden is unavailable")
+        current = side * float(frame.context.funding_burden_current)
+        percentile = weak_percentile(current, tuple(side * float(value) for value in frame.context.funding_burden_history))
+        return 1.0 if percentile < 0.90 else 0.0
     if overlay == "prior_high_RS":
         config = {
             "proximity_rank": "q50",
@@ -227,8 +252,14 @@ def named_context_multiplier(frame: FamilyInput, overlay: str, side: int) -> flo
             "BTC_ETH_context": "trend" if overlay == "BTC_ETH" else "none",
             "BTC_ETH_trend_pair_days": "20_60",
             "breadth_dispersion": "both" if overlay == "breadth_dispersion" else "none",
+            "breadth_return_lookback_days": 20,
+            "dispersion_return_lookback_days": 20,
         }
         components = component_vector(config, raw_component_percentiles(frame, config, side))
+        if overlay == "breadth_dispersion":
+            by_name = dict(components)
+            combined = 0.5 * by_name["breadth"] + 0.5 * by_name["dispersion"]
+            return max(0.0, min(1.0, 2.0 * combined - 1.0))
         return overlay_multiplier("permission", components)
     raise EngineInputError(f"unsupported named context overlay: {overlay}")
 
@@ -255,4 +286,4 @@ def contract() -> dict[str, Any]:
     }
 
 
-__all__ = ["component_vector", "contract", "counterpart_ids", "evaluate_overlay", "named_context_multiplier", "overlay_multiplier", "paired_uplift", "parent_slot_id", "raw_component_percentiles"]
+__all__ = ["component_vector", "contract", "counterpart_ids", "evaluate_overlay", "named_context_multiplier", "overlay_multiplier", "paired_uplift", "parent_slot_id", "proximity_population_key", "raw_component_percentiles"]

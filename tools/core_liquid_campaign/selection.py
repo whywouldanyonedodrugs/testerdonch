@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import math
 from dataclasses import dataclass
 from datetime import datetime
@@ -8,7 +9,7 @@ from typing import Any, Iterable, Mapping, Sequence
 
 import numpy as np
 
-from .canonical import canonical_json_bytes
+from .canonical import canonical_hash, canonical_json_bytes
 from .family_engines.common import type7_quantile_with_negative_infinity
 from .schema import gower_distance
 
@@ -35,6 +36,7 @@ class EventObservation:
     component_metrics: tuple[tuple[str, float], ...] = ()
     holding_seconds_weighted: float = 0.0
     eligible_symbol_seconds: float | None = None
+    cohort_id: str | None = None
 
 
 def aggregate_materialized(events: Sequence[EventObservation]) -> dict[str, Any]:
@@ -42,6 +44,7 @@ def aggregate_materialized(events: Sequence[EventObservation]) -> dict[str, Any]
     if len({item.event_id for item in ordered}) != len(ordered):
         raise ValueError("duplicate economic event ID")
     by_day: dict[str, list[EventObservation]] = {}
+    cohorts: dict[tuple[str, str], list[EventObservation]] = {}
     by_symbol: dict[str, float] = {}
     by_month: dict[str, float] = {}
     by_year: dict[int, float] = {}
@@ -50,13 +53,17 @@ def aggregate_materialized(events: Sequence[EventObservation]) -> dict[str, Any]
         if item.platform != "kraken_native_linear_pf" or not (item.decision_ts <= item.entry_ts < item.exit_ts) or item.exit_ts.year >= 2026:
             raise ValueError("event observation violates platform or rankable timestamp firewall")
         by_day.setdefault(item.market_day, []).append(item)
+        cohorts.setdefault((item.market_day, item.cohort_id or item.event_id), []).append(item)
         by_symbol[item.symbol] = by_symbol.get(item.symbol, 0.0) + item.base_net_bps
         by_month[item.month] = by_month.get(item.month, 0.0) + item.base_net_bps
         by_year[item.year] = by_year.get(item.year, 0.0) + item.base_net_bps
         for name, value in item.component_metrics:
             component_values.setdefault(name, []).append(float(value))
-    day_base = [sum(item.base_net_bps for item in rows) / len(rows) for _, rows in sorted(by_day.items())]
-    day_stress = [sum(item.stress_net_bps for item in rows) / len(rows) for _, rows in sorted(by_day.items())]
+    cohort_base = {key: sum(item.base_net_bps for item in rows) for key, rows in cohorts.items()}
+    cohort_stress = {key: sum(item.stress_net_bps for item in rows) for key, rows in cohorts.items()}
+    day_base = {day: sum(value for (item_day, _), value in cohort_base.items() if item_day == day) / sum(item_day == day for item_day, _ in cohort_base) for day in sorted(by_day)}
+    day_stress = {day: sum(value for (item_day, _), value in cohort_stress.items() if item_day == day) / sum(item_day == day for item_day, _ in cohort_stress) for day in sorted(by_day)}
+    day_contributions = {day: sum(item.base_net_bps for item in rows) for day, rows in sorted(by_day.items())}
     total_abs = sum(abs(item.base_net_bps) for item in ordered)
     concentration = lambda values: (max((abs(value) for value in values), default=0.0) / total_abs if total_abs else 0.0)
     eligible_day_values = {item.eligible_days for item in ordered if item.eligible_days is not None}
@@ -70,16 +77,24 @@ def aggregate_materialized(events: Sequence[EventObservation]) -> dict[str, Any]
     return {
         "event_count": len(ordered),
         "market_days": len(by_day),
-        "base_net_bps": sum(day_base) / len(day_base) if day_base else None,
-        "stress_net_bps": sum(day_stress) / len(day_stress) if day_stress else None,
+        "base_net_bps": sum(day_base.values()) / len(day_base) if day_base else None,
+        "stress_net_bps": sum(day_stress.values()) / len(day_stress) if day_stress else None,
         "median_event_base_bps": median([item.base_net_bps for item in ordered]) if ordered else None,
+        "median_trade_bps": median([item.base_net_bps for item in ordered]) if ordered else None,
         "trimmed_mean_event_base_bps": _trimmed_mean([item.base_net_bps for item in ordered]),
         "symbol_concentration": concentration(by_symbol.values()),
+        "day_concentration": concentration(day_contributions.values()),
         "month_concentration": concentration(by_month.values()),
         "year_concentration": concentration(by_year.values()),
+        "maximum_concentration": max(concentration(by_symbol.values()), concentration(day_contributions.values()), concentration(by_year.values())),
         "symbol_contributions": dict(sorted(by_symbol.items())),
+        "day_contributions": day_contributions,
+        "day_base_net_bps": day_base,
+        "day_stress_net_bps": day_stress,
         "month_contributions": dict(sorted(by_month.items())),
         "year_contributions": {str(key): value for key, value in sorted(by_year.items())},
+        "UTC_hour_clusters": len({item.entry_ts.strftime("%Y-%m-%dT%H") for item in ordered}),
+        "left_tail_utility": _left_tail_utility(list(day_base.values())),
         "threshold_coverage": sum(item.threshold_eligible for item in ordered) / len(ordered) if ordered else None,
         "opportunity_frequency_per_30d": 30.0 * len(ordered) / eligible_days if eligible_days else None,
         "occupancy": sum(item.holding_seconds_weighted for item in ordered) / occupancy_denominator if occupancy_denominator else None,
@@ -92,6 +107,8 @@ def aggregate_streaming(events: Iterable[EventObservation]) -> dict[str, Any]:
     seen: set[str] = set()
     day_base: dict[str, list[float]] = {}
     day_stress: dict[str, list[float]] = {}
+    cohort_base: dict[tuple[str, str], float] = {}
+    cohort_stress: dict[tuple[str, str], float] = {}
     symbol_sums: dict[str, float] = {}
     month_sums: dict[str, float] = {}
     year_sums: dict[int, float] = {}
@@ -99,6 +116,7 @@ def aggregate_streaming(events: Iterable[EventObservation]) -> dict[str, Any]:
     component_sums: dict[str, tuple[float, int]] = {}
     eligible_days_values: set[int] = set()
     occupancy_denominators: set[float] = set()
+    hour_clusters: set[str] = set()
     threshold_count = 0
     holding = 0.0
     count = 0
@@ -112,11 +130,15 @@ def aggregate_streaming(events: Iterable[EventObservation]) -> dict[str, Any]:
         event_values.append(item.base_net_bps)
         day_base.setdefault(item.market_day, []).append(item.base_net_bps)
         day_stress.setdefault(item.market_day, []).append(item.stress_net_bps)
+        cohort_key = (item.market_day, item.cohort_id or item.event_id)
+        cohort_base[cohort_key] = cohort_base.get(cohort_key, 0.0) + item.base_net_bps
+        cohort_stress[cohort_key] = cohort_stress.get(cohort_key, 0.0) + item.stress_net_bps
         symbol_sums[item.symbol] = symbol_sums.get(item.symbol, 0.0) + item.base_net_bps
         month_sums[item.month] = month_sums.get(item.month, 0.0) + item.base_net_bps
         year_sums[item.year] = year_sums.get(item.year, 0.0) + item.base_net_bps
         threshold_count += int(item.threshold_eligible)
         holding += item.holding_seconds_weighted
+        hour_clusters.add(item.entry_ts.strftime("%Y-%m-%dT%H"))
         if item.eligible_days is not None:
             eligible_days_values.add(item.eligible_days)
         if item.eligible_symbol_seconds is not None:
@@ -126,8 +148,9 @@ def aggregate_streaming(events: Iterable[EventObservation]) -> dict[str, Any]:
             component_sums[name] = (subtotal + float(value), n + 1)
     if len(eligible_days_values) > 1 or len(occupancy_denominators) > 1:
         raise ValueError("inconsistent aggregate denominator")
-    base_days = [sum(day_base[key]) / len(day_base[key]) for key in sorted(day_base)]
-    stress_days = [sum(day_stress[key]) / len(day_stress[key]) for key in sorted(day_stress)]
+    base_days = {day: sum(value for (item_day, _), value in cohort_base.items() if item_day == day) / sum(item_day == day for item_day, _ in cohort_base) for day in sorted(day_base)}
+    stress_days = {day: sum(value for (item_day, _), value in cohort_stress.items() if item_day == day) / sum(item_day == day for item_day, _ in cohort_stress) for day in sorted(day_stress)}
+    day_contributions = {day: sum(day_base[day]) for day in sorted(day_base)}
     total_abs = sum(abs(value) for value in event_values)
     concentration = lambda values: max((abs(value) for value in values), default=0.0) / total_abs if total_abs else 0.0
     eligible_days = next(iter(eligible_days_values)) if eligible_days_values else None
@@ -135,16 +158,24 @@ def aggregate_streaming(events: Iterable[EventObservation]) -> dict[str, Any]:
     return {
         "event_count": count,
         "market_days": len(day_base),
-        "base_net_bps": sum(base_days) / len(base_days) if base_days else None,
-        "stress_net_bps": sum(stress_days) / len(stress_days) if stress_days else None,
+        "base_net_bps": sum(base_days.values()) / len(base_days) if base_days else None,
+        "stress_net_bps": sum(stress_days.values()) / len(stress_days) if stress_days else None,
         "median_event_base_bps": median(event_values) if event_values else None,
+        "median_trade_bps": median(event_values) if event_values else None,
         "trimmed_mean_event_base_bps": _trimmed_mean(event_values),
         "symbol_concentration": concentration(symbol_sums.values()),
+        "day_concentration": concentration(day_contributions.values()),
         "month_concentration": concentration(month_sums.values()),
         "year_concentration": concentration(year_sums.values()),
+        "maximum_concentration": max(concentration(symbol_sums.values()), concentration(day_contributions.values()), concentration(year_sums.values())),
         "symbol_contributions": dict(sorted(symbol_sums.items())),
+        "day_contributions": day_contributions,
+        "day_base_net_bps": base_days,
+        "day_stress_net_bps": stress_days,
         "month_contributions": dict(sorted(month_sums.items())),
         "year_contributions": {str(key): value for key, value in sorted(year_sums.items())},
+        "UTC_hour_clusters": len(hour_clusters),
+        "left_tail_utility": _left_tail_utility(list(base_days.values())),
         "threshold_coverage": threshold_count / count if count else None,
         "opportunity_frequency_per_30d": 30.0 * count / eligible_days if eligible_days else None,
         "occupancy": holding / occupancy_denominator if occupancy_denominator else None,
@@ -161,6 +192,24 @@ def _trimmed_mean(values: Sequence[float], fraction: float = 0.1) -> float | Non
     return sum(selected) / len(selected)
 
 
+def _left_tail_utility(day_values: Sequence[float]) -> float | None:
+    if not day_values:
+        return None
+    cumulative = 0.0
+    peak = 0.0
+    maximum_drawdown = 0.0
+    for value in day_values:
+        cumulative += float(value)
+        peak = max(peak, cumulative)
+        maximum_drawdown = max(maximum_drawdown, peak - cumulative)
+    return -maximum_drawdown
+
+
+def registered_bootstrap_seed(canonical_address: str, fold_id: str) -> int:
+    payload = canonical_json_bytes([20260721, canonical_address, fold_id])
+    return int.from_bytes(hashlib.sha256(payload).digest()[:8], "big", signed=False)
+
+
 def inner_fold_summary(values: Sequence[float | None]) -> dict[str, Any]:
     explicit = [INNER_FOLD_EMPTY if value is None else float(value) for value in values]
     if any(math.isnan(value) or value == math.inf for value in explicit):
@@ -171,6 +220,7 @@ def inner_fold_summary(values: Sequence[float | None]) -> dict[str, Any]:
         "fold_count": len(explicit),
         "nonempty_count": len(finite),
         "nonempty_fraction": len(finite) / len(explicit) if explicit else 0.0,
+        "median_with_negative_infinity": type7_quantile_with_negative_infinity(explicit, 0.5) if explicit else -math.inf,
         "p20_with_negative_infinity": type7_quantile_with_negative_infinity(explicit, 0.2) if explicit else -math.inf,
         "empty_count": len(explicit) - len(finite),
     }
@@ -305,6 +355,12 @@ def paired_control_pass(uplifts_by_day: Sequence[float], coverage: float, seed: 
 
 
 def adjudicate_route(family_id: str, common_gate: bool, main_null: bool, component_passes: Mapping[str, bool], *, base_positive: bool, stress_positive: bool, delay_positive: bool, sample_sufficient: bool, add_fraction: float | None = None) -> str:
+    if not common_gate or not base_positive:
+        if family_id == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+            return "overlay_rejected"
+        if family_id == "KDA02B_SURVIVOR_ADJUDICATION_V1":
+            return "survivor_rejected"
+        return "translation_rejected"
     if base_positive and (not stress_positive or not delay_positive):
         return "execution_sensitive_candidate"
     if base_positive and not sample_sufficient:
@@ -372,16 +428,35 @@ def family_outer_vector(fold_values: Mapping[str, Sequence[float]], fold_order: 
     return [median(fold_values[fold]) if fold in fold_values and fold_values[fold] else -math.inf for fold in fold_order]
 
 
-def materialization_policy(rows: Sequence[Mapping[str, Any]], failed_audit_modulus: int = 97) -> list[str]:
+def materialization_policy(rows: Sequence[Mapping[str, Any]], failed_audit_per_stratum: int = 1, seed: int = 20260722) -> list[str]:
+    """Freeze ledgers plus a deterministic failed sample stratified by family/fold/failure.
+
+    The audit sample is selected without outcome magnitude: one or more rows
+    with the smallest seeded address hash in every observed failed stratum.
+    """
+    if failed_audit_per_stratum < 0:
+        raise ValueError("failed-audit sample count cannot be negative")
     selected: set[str] = set()
+    failed: dict[tuple[str, str, str], list[str]] = {}
     for row in rows:
         address = str(row["canonical_economic_address_sha256"])
         if row.get("beam_survivor") or row.get("mechanism_anchor") or row.get("main_component_null"):
             selected.add(address)
         if row.get("near_miss") and row.get("near_miss_rule") == "one_failed_nonintegrity_gate_within_10pct":
             selected.add(address)
-        if not row.get("passed") and int(address[:8], 16) % failed_audit_modulus == 0:
-            selected.add(address)
+        if not row.get("passed"):
+            stratum = (
+                str(row.get("family_id", row.get("family", "unknown_family"))),
+                str(row.get("outer_fold_id", row.get("fold_id", row.get("fold", "unknown_fold")))),
+                str(row.get("failure_class", row.get("status", "unspecified_failure"))),
+            )
+            failed.setdefault(stratum, []).append(address)
+    for stratum, addresses in sorted(failed.items()):
+        ordered = sorted(
+            set(addresses),
+            key=lambda address: (canonical_hash({"seed": seed, "stratum": list(stratum), "address": address}), address),
+        )
+        selected.update(ordered[:failed_audit_per_stratum])
     return sorted(selected)
 
 
@@ -391,4 +466,5 @@ def safe_pruning_policy() -> dict[str, Any]:
         "stage_boundary": ["no_eligible_plateau_under_frozen_rule", "component_null_exact_economic_equality", "family_specific_integrity_failure"],
         "prohibited": ["early_unprofitability", "first_fold_loss", "symbol_loss", "month_loss", "stochastic_successive_halving"],
         "independent_family_continuation": True,
+        "failed_materialization_audit": "one seeded address per family x fold x failure_class stratum; seed=20260722; no outcome magnitude input",
     }

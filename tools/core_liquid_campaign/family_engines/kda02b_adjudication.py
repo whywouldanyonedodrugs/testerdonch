@@ -94,29 +94,58 @@ def _predicates(source: Mapping[str, Any], axes: Mapping[str, str], thresholds: 
         else:
             value = _finite_number(source, "liquidation_intensity_robust_z")
             liquidation = _between(value, _finite_number(thresholds, "liquidation_q80"), _finite_number(thresholds, "liquidation_q100"))
-    return {"price": price, "oi": oi, "liquidation": liquidation, "generic_structure": bool(source.get("generic_structure_predicate", False))}
+    return {"price": price, "oi": oi, "liquidation": liquidation}
 
 
-def _raw_feature_pair(frame: FamilyInput) -> tuple[Mapping[str, Any], Mapping[str, Any]]:
-    current = frame.metadata.get("kda02b_current_features")
-    previous = frame.metadata.get("kda02b_previous_features")
-    if not isinstance(current, Mapping) or not isinstance(previous, Mapping):
-        raise EngineInputError("KDA02B raw current/previous feature rows are absent")
+def _raw_feature_history(frame: FamilyInput) -> tuple[Mapping[str, Any], ...]:
+    raw = frame.metadata.get("kda02b_feature_history")
+    if not isinstance(raw, (tuple, list)) or len(raw) < 2 or any(not isinstance(item, Mapping) for item in raw):
+        raise EngineInputError("KDA02B sequential raw feature history is absent")
+    history = tuple(raw)
     decision = require_utc(frame.decision_ts)
-    for label, source in (("current", current), ("previous", previous)):
+    previous_close = None
+    for source in history:
         source_close = source.get("source_close_ts"); available = source.get("feature_available_ts")
         if not hasattr(source_close, "tzinfo") or not hasattr(available, "tzinfo"):
-            raise EngineInputError(f"KDA02B {label} feature timestamps are absent")
+            raise EngineInputError("KDA02B feature timestamps are absent")
         if require_utc(source_close) > decision or require_utc(available) > decision:
             raise EngineInputError("KDA02B derivative feature is not point-in-time available")
-        if not all(source.get(key) is True for key in ("known_lifecycle_mask", "trade_coverage", "mark_coverage", "analytics_coverage")):
-            raise EngineInputError("KDA02B required raw feature coverage is unavailable")
-    if require_utc(previous["source_close_ts"]) >= require_utc(current["source_close_ts"]):
-        raise EngineInputError("KDA02B previous feature row is not strictly earlier")
-    return current, previous
+        if previous_close is not None and require_utc(source_close) <= previous_close:
+            raise EngineInputError("KDA02B feature history is not strictly sorted")
+        previous_close = require_utc(source_close)
+    if require_utc(history[-1]["feature_available_ts"]) != decision:
+        raise EngineInputError("KDA02B final feature row does not bind the exact decision")
+    return history
 
 
-def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str | None = None) -> list[dict[str, Any]]:
+def _is_valid(source: Mapping[str, Any]) -> bool:
+    return all(source.get(key) is True for key in ("known_lifecycle_mask", "trade_coverage", "mark_coverage", "analytics_coverage"))
+
+
+def onset_indices(history: tuple[Mapping[str, Any], ...], axes: Mapping[str, str], thresholds: Mapping[str, Any], variant: str) -> list[int]:
+    """Port of Stage-20: rearm only on all-false; gaps/invalid rows are barriers."""
+    onsets: list[int] = []
+    armed = False
+    previous_close = None
+    for index, source in enumerate(history):
+        close = require_utc(source["source_close_ts"])
+        gap = previous_close is None or close - previous_close != timedelta(minutes=5)
+        previous_close = close
+        if gap or not _is_valid(source):
+            armed = False
+            if not _is_valid(source):
+                continue
+        predicates = apply_variant(_predicates(source, axes, thresholds), variant)
+        all_true = all(predicates.values())
+        all_false = not any(predicates.values())
+        if all_false:
+            armed = True
+        elif all_true and armed:
+            onsets.append(index); armed = False
+    return onsets
+
+
+def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str | None = None, control_directive: Mapping[str, Any] | None = None) -> list[dict[str, Any]]:
     """Compute the exact frozen KDA02B predicates from bound raw derivative features."""
     frame.validate()
     cell_id = str(config["stage20_cell_id"])
@@ -124,17 +153,22 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
     expected_contract = cell_contract_sha256(cell_id)
     if frame.metadata.get("stage20_cell_contract_sha256") != expected_contract:
         raise EngineInputError("KDA02B cell contract hash does not match the code-owned frozen grammar")
-    current, previous = _raw_feature_pair(frame)
+    history = _raw_feature_history(frame)
     thresholds = frame.metadata.get("fold_thresholds")
     if not isinstance(thresholds, Mapping):
         raise EngineInputError("KDA02B fold-local threshold model is absent")
     axes = contract["axes"]
     variant = str(control_id or config["adjudication_variant"])
-    current_predicates = apply_variant(_predicates(current, axes, thresholds), variant)
-    previous_predicates = apply_variant(_predicates(previous, axes, thresholds), variant)
-    current_all = all(current_predicates.values())
-    previous_all = all(previous_predicates.values())
-    if not current_all or previous_all:
+    if variant == "generic_structure_control":
+        if not isinstance(control_directive, Mapping) or control_directive.get("allocator") != "matched_pseudo_event_allocator_v2" or control_directive.get("matched_decision_ts") != require_utc(frame.decision_ts):
+            raise EngineInputError("KDA02B generic structure requires a bound matched-pseudo allocator directive")
+        current_predicates = {"matched_pseudo_event": True}
+    else:
+        onsets = onset_indices(history, axes, thresholds, variant)
+        if not onsets or onsets[-1] != len(history) - 1:
+            return []
+        current_predicates = apply_variant(_predicates(history[-1], axes, thresholds), variant)
+    if not all(current_predicates.values()):
         return []
     sign = -1 if axes["price_state"] == "negative" else 1
     side = sign if axes["branch"] == "continuation" else -sign

@@ -13,14 +13,15 @@ from pathlib import Path
 
 from tools.core_liquid_campaign.accounting import FundingPayment, TradeBar, aggregate_parent_legs, simulate_leg
 from tools.core_liquid_campaign.budget import optimize_budget
+from tools.core_liquid_campaign.cache import build_semantic_cache
 from tools.core_liquid_campaign.canonical import atomic_write_json, canonical_hash, sha256_file
-from tools.core_liquid_campaign.controls import CONTROL_IDS, compile_controls, transformed_inputs
+from tools.core_liquid_campaign.controls import CONTROL_IDS, compile_controls, derive_control_inputs, matched_pseudo_event_directives
 from tools.core_liquid_campaign.engine_types import FamilyInput
 from tools.core_liquid_campaign.executor import AuthorizationError, CacheAuthority, ExecutionAuthorization, validate_registered_attempt
-from tools.core_liquid_campaign.family_engines import a2_context, a3_starter_retest
-from tools.core_liquid_campaign.family_engines.common import EngineInputError, average_rank_percentiles, liquidity_decile, require_available
+from tools.core_liquid_campaign.family_engines import a1_compression, a2_context, a3_starter_retest, a4_tsmom, kda02b_adjudication
+from tools.core_liquid_campaign.family_engines.common import EngineInputError, average_rank_percentiles, ema, liquidity_decile, require_available
 from tools.core_liquid_campaign.generator import point, radical_inverse
-from tools.core_liquid_campaign.packet import _require_bound_review
+from tools.core_liquid_campaign.packet import _code_inventory, _require_bound_review
 from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceGateError, ResourceLimits, process_tree_rss, synthetic_recovery_canary
 from tools.core_liquid_campaign.schema import (
     FAMILY_ORDER,
@@ -49,7 +50,7 @@ from tools.core_liquid_campaign.selection import (
     select_beam,
     stable_neighborhoods,
 )
-from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame
+from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame, a4_frame, kda_frame, with_source_authority
 from tools.core_liquid_campaign.validators import (
     accounting_probe,
     aggregate_materialized_probe,
@@ -148,14 +149,19 @@ class SchemaAndGeneratorTests(unittest.TestCase):
         self.assertEqual(radical_inverse(1, 2), 0.5)
         self.assertEqual(radical_inverse(2, 2), 0.25)
         self.assertEqual(point("A4_TSMOM_V7", 0, 4), (0.2177356780122084, 0.5008439442248556, 0.5540227863773837, 0.5121447628219784))
-        budget = optimize_budget({"A4_TSMOM_V7": 704, "A1_COMPRESSION_V2": 848, "A2_PRIOR_HIGH_RS_CONTEXT_V1": 863, "A3_STARTER_RETEST_V3": 1152, "KDA02B_SURVIVOR_ADJUDICATION_V1": 209})
-        self.assertEqual(budget["target_total_attempt_rows"], 9088)
+        measurement = {
+            "status": "pass", "workers": 4, "development_dispatches_per_address": 1,
+            "families": [{"family": family, "seconds_per_dispatch": 1.0 + index, "output_bytes_per_dispatch": 4096.0} for index, family in enumerate(FAMILY_ORDER)],
+        }
+        budget = optimize_budget({"A4_TSMOM_V7": 704, "A1_COMPRESSION_V2": 848, "A2_PRIOR_HIGH_RS_CONTEXT_V1": 863, "A3_STARTER_RETEST_V3": 1152, "KDA02B_SURVIVOR_ADJUDICATION_V1": 209}, measurement)
+        self.assertTrue(8000 <= budget["target_total_attempt_rows"] <= 12000)
+        self.assertEqual(budget["capacity_measurement_sha256"], canonical_hash(measurement))
         self.assertNotIn("return", json.dumps(budget["inputs"]).lower())
 
 
 class EngineAccountingControlTests(unittest.TestCase):
     def _leg(self, source: list[TradeBar], **changes: object):
-        values = dict(entry_index=0, side=1, exit_name="time_1d", atr=None, fixed_target_r=None, structural_level=None, signal_reversal_close_ts=None, funding=(), cost_bps=14.0, funding_alignment="start_exclusive_end_inclusive", evaluation_start=datetime(2025, 1, 1, tzinfo=UTC), evaluation_end_exclusive=datetime(2026, 1, 1, tzinfo=UTC), gap_allowance_bps=-0.25)
+        values = dict(entry_index=0, side=1, exit_name="time_1d", atr=None, fixed_target_r=None, structural_level=None, signal_reversal_close_ts=None, funding=(), cost_bps=14.0, funding_alignment="start_exclusive_end_inclusive", evaluation_start=datetime(2025, 1, 1, tzinfo=UTC), evaluation_end_exclusive=datetime(2026, 1, 1, tzinfo=UTC), gap_allowance_bps_per_hour=0.25)
         values.update(changes)
         return simulate_leg(source, **values)
 
@@ -181,6 +187,86 @@ class EngineAccountingControlTests(unittest.TestCase):
             self.assertIsNotNone(result.activation_index)
             self.assertLess(result.activation_index, result.reclaim_index)
 
+    def test_a4_exact_estimators_and_control_semantics(self) -> None:
+        values = [10.0, 11.0, 13.0, 12.0]
+        alpha = 2.0 / 3.0
+        expected = [values[0]]
+        for value in values[1:]:
+            expected.append(alpha * value + (1.0 - alpha) * expected[-1])
+        self.assertEqual(ema(values, 2), expected)
+        closes = [100.0, 101.0, 99.0, 102.0]
+        returns = [math.log(right / left) for left, right in zip(closes, closes[1:])]
+        mean = sum(returns) / len(returns)
+        expected_vol = math.sqrt(sum((value - mean) ** 2 for value in returns) / (len(returns) - 1)) * math.sqrt(365 * 288)
+        config = baseline_config("A4_TSMOM_V7")
+        self.assertAlmostEqual(a4_tsmom.volatility(config, closes), expected_vol)
+        population = tuple(float(value) for value in range(40))
+        clipped = [min(37.05, max(1.95, value)) for value in population]
+        center = (clipped[19] + clipped[20]) / 2.0
+        deviations = sorted(abs(value - center) for value in clipped)
+        mad = (deviations[19] + deviations[20]) / 2.0
+        self.assertAlmostEqual(a4_tsmom._mad_scaled(100.0, population), (37.05 - center) / mad)
+        base = a4_frame(config)
+        generic = a4_tsmom.evaluate(base, config, control_id="A4_GENERIC_SIGNED_RETURN")[0]
+        unscaled = a4_tsmom.evaluate(base, config, control_id="A4_VOL_SCALING_REMOVED")[0]
+        contextless = a4_tsmom.evaluate(base, config, control_id="A4_CONTEXT_REMOVED")[0]
+        permuted = a4_tsmom.evaluate(base, config, control_id="A4_SIGN_PERMUTED_MAIN_NULL", control_directive={"signal_sign": -1})[0]
+        self.assertEqual((generic["exposure"], generic["context_multiplier"]), (1.0, 1.0))
+        self.assertEqual(unscaled["exposure"], 1.0)
+        self.assertEqual(contextless["context_multiplier"], 1.0)
+        self.assertEqual(permuted["side"], -1)
+
+    def test_threshold_population_identity_includes_every_formula_axis(self) -> None:
+        self.assertNotEqual(
+            a1_compression.impulse_population_key("6h", "symbol_side", 1),
+            a1_compression.impulse_population_key("7d", "symbol_side", 1),
+        )
+        self.assertNotEqual(
+            a1_compression.contraction_population_key("12h", "adjacent_equal_duration", "symbol"),
+            a1_compression.contraction_population_key("12h", "trailing_5x_base_duration", "symbol"),
+        )
+        self.assertNotEqual(
+            a3_starter_retest.breakout_population_key(5, 10, "symbol_side", 1),
+            a3_starter_retest.breakout_population_key(60, 10, "symbol_side", 1),
+        )
+        self.assertNotEqual(
+            a4_tsmom.ensemble_population_key("signed_return", 5, "close_to_close"),
+            a4_tsmom.ensemble_population_key("signed_return", 5, "Parkinson"),
+        )
+        frame = a1_frame()
+        self.assertNotEqual(frame.context.breadth_history_by_lookback[5], frame.context.breadth_history_by_lookback[60])
+
+    def test_one_decision_frames_are_invariant_to_future_bars(self) -> None:
+        for frame, config, evaluator in (
+            (a1_frame(), baseline_config("A1_COMPRESSION_V2"), a1_compression.evaluate),
+            (a3_frame(), baseline_config("A3_STARTER_RETEST_V3"), a3_starter_retest.evaluate),
+        ):
+            original = evaluator(frame, config)
+            changed = tuple(
+                replace(bar, close=bar.close * 1.01, high=max(bar.high, bar.close * 1.01), low=min(bar.low, bar.close * 1.01))
+                if bar.open_ts >= frame.decision_ts else bar
+                for bar in frame.five_minute_bars
+            )
+            replay = evaluator(replace(frame, five_minute_bars=changed), config)
+            keep = lambda event: {key: value for key, value in event.items() if key not in {"entry_index"}}
+            self.assertEqual([keep(event) for event in original], [keep(event) for event in replay])
+            with self.assertRaises(EngineInputError):
+                replace(frame, context=replace(frame.context, as_of_ts=frame.decision_ts + timedelta(minutes=5))).validate()
+
+    def test_kda_complete_rearm_and_gap_barrier(self) -> None:
+        frame = kda_frame(); contract = kda02b_adjudication.cell_contract(frame.metadata["stage20_cell_id"])
+        axes = contract["axes"]; thresholds = frame.metadata["fold_thresholds"]
+        false_row, true_row = frame.metadata["kda02b_feature_history"]
+        partial = {**true_row, "oi_log_change_1h": 0.0}
+        start = datetime(2025, 1, 1, tzinfo=UTC)
+        def at(row, index):
+            close = start + timedelta(minutes=5 * index)
+            return {**row, "source_close_ts": close, "feature_available_ts": close}
+        history = tuple(at(row, index) for index, row in enumerate((false_row, true_row, partial, true_row, false_row, true_row)))
+        self.assertEqual(kda02b_adjudication.onset_indices(history, axes, thresholds, "identity_replay"), [1, 5])
+        gapped = (at(false_row, 0), at(true_row, 1), at(true_row, 4), at(false_row, 5), at(true_row, 6))
+        self.assertEqual(kda02b_adjudication.onset_indices(gapped, axes, thresholds, "identity_replay"), [1, 4])
+
     def test_all_accounting_paths_and_favorable_funding_is_report_only(self) -> None:
         self.assertEqual(self._leg(trade_bars()).exit_reason, "time")
         stop = trade_bars(); stop[1] = replace(stop[1], close=95.0, low=94.9, high=100.2)
@@ -193,11 +279,17 @@ class EngineAccountingControlTests(unittest.TestCase):
         self.assertEqual(self._leg(reversal, exit_name="signal_reversal", signal_reversal_close_ts={reversal[1].close_ts}).exit_reason, "signal_reversal")
         structure = trade_bars(); structure[1] = replace(structure[1], close=98.0, low=97.9)
         self.assertEqual(self._leg(structure, exit_name="base_failure", structural_level=99.0).exit_reason, "structural_or_ATR_stop")
-        payment = FundingPayment(trade_bars()[100].open_ts, trade_bars()[99].close_ts, -2.0)
-        favorable = self._leg(trade_bars(), funding=(payment,))
+        start = trade_bars()[0].open_ts
+        funding = tuple(
+            FundingPayment(start + timedelta(hours=hour), start + timedelta(hours=hour), "-0.02" if hour == 1 else "0")
+            for hour in range(1, 25)
+        )
+        favorable = self._leg(trade_bars(), funding=funding)
         self.assertGreater(favorable.favorable_funding_bps, 0)
         self.assertGreater(favorable.reportable_net_bps, favorable.net_bps)
-        self.assertAlmostEqual(favorable.net_bps, favorable.gross_bps - favorable.cost_bps - 0.25)
+        self.assertAlmostEqual(favorable.net_bps, favorable.gross_bps - favorable.cost_bps)
+        missing = self._leg(trade_bars(), funding=())
+        self.assertAlmostEqual(missing.gap_allowance_bps, -6.0)
         parent = aggregate_parent_legs(favorable, 0.5, favorable, 0.25)
         self.assertAlmostEqual(parent["net_bps"], 0.75 * favorable.net_bps)
         self.assertTrue(accounting_probe()["pass"])
@@ -211,7 +303,7 @@ class EngineAccountingControlTests(unittest.TestCase):
         with self.assertRaises(EngineInputError): replace(frame, platform="capitalcom_otc").validate()
         assert_rankable_interval(datetime(2023, 1, 1, tzinfo=UTC), datetime(2026, 1, 1, tzinfo=UTC))
         with self.assertRaises(ValueError): assert_rankable_interval(datetime(2023, 1, 1, tzinfo=UTC), datetime(2026, 1, 1, tzinfo=UTC) + timedelta(microseconds=1))
-        self.assertEqual(average_rank_percentiles([1, 2, 2, 4]), [0.0, 0.5, 0.5, 1.0])
+        self.assertEqual(average_rank_percentiles([1, 2, 2, 4]), [0.25, 0.625, 0.625, 1.0])
         self.assertEqual([liquidity_decile(value) for value in (0, 0.1, 0.999, 1)], [1, 2, 10, 10])
 
     def test_finite_controls_and_real_dispatch_coverage(self) -> None:
@@ -227,10 +319,31 @@ class EngineAccountingControlTests(unittest.TestCase):
         self.assertTrue(all(1 <= row["beam_rank"] <= 5 for row in rows))
         probe = control_engine_probe()
         self.assertTrue(probe["pass"], probe["failures"])
-        frame = a1_frame(); metadata = dict(frame.metadata); metadata["control_signal_sign"] = -1
-        changed, branch = transformed_inputs("A4_SIGN_PERMUTED_MAIN_NULL", [replace(frame, metadata=metadata)], 1)
-        self.assertEqual(branch, "A4_SIGN_PERMUTED_MAIN_NULL")
-        self.assertIsInstance(changed[0], FamilyInput)
+        self.assertTrue(all(row["transformation_allocator_version"] == "stage22_exact_control_dispatch_v2" for row in rows))
+
+    def test_matched_pseudo_allocator_exact_strata_exclusion_and_unavailable(self) -> None:
+        config = baseline_config("A1_COMPRESSION_V2")
+        parent_frame = a1_frame(config, anchor=datetime(2025, 6, 1, tzinfo=UTC))
+        candidate = a1_frame(config, anchor=datetime(2025, 6, 15, tzinfo=UTC))
+        row = {
+            "campaign_id": "kraken_core_liquid_discovery_campaign_003_code_first_stage22", "executable_attempt_id": "parent",
+            "family_id": "A1_COMPRESSION_V2", "config": config, "canonical_economic_address_sha256": economic_address("A1_COMPRESSION_V2", config)[1],
+            "execution_disposition": "execute_once", "duplicate_of_executable_attempt_id": None,
+        }
+        parent = end_to_end_family_probe("A1_COMPRESSION_V2")
+        # Regenerate against this exact frame so event IDs and exclusion intervals match.
+        from tools.core_liquid_campaign.executor import synthetic_probe_attempt
+        parent = synthetic_probe_attempt(row, [parent_frame], registry_by_id={"parent": row})
+        sides = {item["event_id"]: int(item["engine_event"]["side"]) for item in parent["ledger"] if item.get("status") == "complete"}
+        selected, directives, unavailable = matched_pseudo_event_directives(parent["observations"], [parent_frame, candidate], parent_sides=sides, control_id="A1_MATCHED_PSEUDO_EVENT_MAIN_NULL", seed=7, control_address="a" * 64, maximum_holding=timedelta(days=10))
+        self.assertEqual((len(selected), unavailable), (1, []))
+        directive = directives[selected[0].content_sha256()]
+        self.assertEqual((selected[0].decision_ts.weekday(), selected[0].decision_ts.hour), (parent_frame.decision_ts.weekday(), parent_frame.decision_ts.hour))
+        self.assertEqual(directive["side"], next(iter(sides.values())))
+        repeat = matched_pseudo_event_directives(parent["observations"], [parent_frame, candidate], parent_sides=sides, control_id="A1_MATCHED_PSEUDO_EVENT_MAIN_NULL", seed=7, control_address="a" * 64, maximum_holding=timedelta(days=10))
+        self.assertEqual([item.content_sha256() for item in selected], [item.content_sha256() for item in repeat[0]])
+        missing = matched_pseudo_event_directives(parent["observations"], [parent_frame], parent_sides=sides, control_id="A1_MATCHED_PSEUDO_EVENT_MAIN_NULL", seed=7, control_address="a" * 64, maximum_holding=timedelta(days=10))
+        self.assertEqual(missing[2][0]["status"], "unavailable_no_matched_pseudo_event")
 
 
 class SelectionTests(unittest.TestCase):
@@ -255,6 +368,19 @@ class SelectionTests(unittest.TestCase):
             {"status": "negative_infinity_due_to_empty_fold"},
         )
         json.dumps(probe, allow_nan=False)
+
+    def test_unequal_a4_cohorts_are_summed_once_then_day_averaged(self) -> None:
+        day = datetime(2025, 2, 1, tzinfo=UTC)
+        events = [
+            EventObservation("c1-a", "A", "2025-02-01", "2025-02", 2025, 5.0, 4.0, "2025-02-01", day, day + timedelta(minutes=5), day + timedelta(hours=1), cohort_id="c1"),
+            EventObservation("c1-b", "B", "2025-02-01", "2025-02", 2025, 15.0, 12.0, "2025-02-01", day, day + timedelta(minutes=5), day + timedelta(hours=1), cohort_id="c1"),
+            EventObservation("c2-a", "A", "2025-02-01", "2025-02", 2025, 30.0, 24.0, "2025-02-01", day + timedelta(hours=8), day + timedelta(hours=8, minutes=5), day + timedelta(hours=9), cohort_id="c2"),
+        ]
+        expected_base = ((5.0 + 15.0) + 30.0) / 2.0
+        expected_stress = ((4.0 + 12.0) + 24.0) / 2.0
+        for aggregate in (aggregate_streaming(iter(events)), aggregate_materialized(events)):
+            self.assertEqual(aggregate["base_net_bps"], expected_base)
+            self.assertEqual(aggregate["stress_net_bps"], expected_stress)
 
     def test_plateau_medoid_refinement_beam_dedup_and_routes(self) -> None:
         configs = []
@@ -300,6 +426,36 @@ class RuntimeAuthorityAndReviewTests(unittest.TestCase):
         with self.assertRaises(ResourceGateError): process_tree_rss(root, pid_list=lambda: [root], status_reader=lambda _: (_ for _ in ()).throw(ProcessLookupError()))
         with self.assertRaises(PermissionError): process_tree_rss(root, pid_list=lambda: [root, 101], status_reader=lambda pid: self.status(root, 1, 100) if pid == root else (_ for _ in ()).throw(PermissionError()))
 
+    def test_process_tree_missing_vmrss_uses_exact_statm_and_remains_fail_closed(self) -> None:
+        root = 100
+        calls = {101: 0}
+        def disappeared(pid: int) -> str:
+            if pid == root:
+                return self.status(root, 1, 100)
+            calls[pid] += 1
+            if calls[pid] == 1:
+                return f"Pid:\t{pid}\nPPid:\t{root}\nState:\tR (running)\n"
+            raise ProcessLookupError()
+        self.assertEqual(
+            process_tree_rss(root, pid_list=lambda: [root, 101], status_reader=disappeared),
+            100 * 1024,
+        )
+
+        live_missing = lambda pid: self.status(root, 1, 100) if pid == root else f"Pid:\t{pid}\nPPid:\t{root}\nState:\tR (running)\n"
+        page = os.sysconf("SC_PAGE_SIZE")
+        self.assertEqual(
+            process_tree_rss(root, pid_list=lambda: [root, 102], status_reader=live_missing, statm_reader=lambda _: "20 3 0 0 0 0 0\n"),
+            100 * 1024 + 3 * page,
+        )
+        with self.assertRaises(OSError):
+            process_tree_rss(root, pid_list=lambda: [root, 102], status_reader=live_missing, statm_reader=lambda _: (_ for _ in ()).throw(OSError(errno.EIO, "I/O failure")))
+        with self.assertRaises(ResourceGateError):
+            process_tree_rss(root, pid_list=lambda: [root], status_reader=lambda _: f"Pid:\t{root}\nPPid:\t1\nState:\tR (running)\n", statm_reader=lambda _: "0 0 0 0 0 0 0\n")
+
+        malformed = lambda pid: self.status(root, 1, 100) if pid == root else f"Pid:\t{pid}\nPPid:\t{root}\nVmRSS:\tbad kB\n"
+        with self.assertRaises(ResourceGateError):
+            process_tree_rss(root, pid_list=lambda: [root, 102], status_reader=malformed, statm_reader=lambda _: "20 3 0 0 0 0 0\n")
+
     def test_runtime_bound_stop_recovery_retry_and_no_hard_wall(self) -> None:
         with self.assertRaises(ResourceGateError): ResourceLimits(wall_time_seconds=1).validate()
         with tempfile.TemporaryDirectory() as raw:
@@ -311,29 +467,44 @@ class RuntimeAuthorityAndReviewTests(unittest.TestCase):
 
     def test_cache_authority_binds_physical_artifact_and_frame_content(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
-            root = Path(raw); artifact = root / "frames" / "a.json"; artifact.parent.mkdir(); artifact.write_bytes(b"frame-bytes")
-            bindings = {"source_manifest_sha256": "a" * 64, "pit_universe_sha256": "b" * 64, "funding_manifest_sha256": "c" * 64, "cache_contract_sha256": "d" * 64}
-            original = a1_frame(); metadata = {**original.metadata, "cache_bindings": bindings, "cache_artifact_path": "frames/a.json"}; frame = replace(original, metadata=metadata)
-            records = [{"path": "frames/a.json", "bytes": artifact.stat().st_size, "sha256": sha256_file(artifact), "frame_content_sha256": frame.content_sha256()}]
-            cache = {"schema": "stage22_semantic_cache_manifest_v1", "platform": "kraken_native_linear_pf", "rankable_interval": "[2023-01-01T00:00:00Z,2026-01-01T00:00:00Z)", **bindings, "artifacts": records, "artifact_inventory_sha256": canonical_hash(records)}
-            manifest_path = root / "cache.json"; atomic_write_json(manifest_path, cache)
-            campaign = {"execution_input_authority": {**bindings, "cache_manifest_contract": {"schema": "stage22_semantic_cache_manifest_v1"}}}
-            CacheAuthority(manifest_path, root).validate(campaign, [frame])
-            corrupted = replace(frame, symbol="TAMPER")
-            with self.assertRaises(AuthorizationError): CacheAuthority(manifest_path, root).validate(campaign, [corrupted])
-            artifact.write_bytes(b"tampered")
-            with self.assertRaises(AuthorizationError): CacheAuthority(manifest_path, root).validate(campaign, [frame])
+            root = Path(raw); source = root / "source.json"; atomic_write_json(source, {"synthetic": True})
+            record = {"role": "synthetic", "path": "source.json", "bytes": source.stat().st_size, "sha256": sha256_file(source)}
+            authority = {
+                "platform": "kraken_native_linear_pf", "rankable_interval": "[2023-01-01T00:00:00Z,2026-01-01T00:00:00Z)",
+                "source_manifest_sha256": record["sha256"], "pit_universe_sha256": "b" * 64,
+                "funding_manifest_sha256": "c" * 64, "cache_contract_sha256": "d" * 64, "fold_graph_sha256": "e" * 64,
+                "rankable_funding_package_sha256": "f" * 64, "source_records": [record],
+                "cache_manifest_contract": {"schema": "stage22_semantic_cache_manifest_v1"},
+            }
+            frame = with_source_authority(a1_frame(), authority)
+            manifest_path = build_semantic_cache(root / "cache", authority, [frame], authority_root=root, synthetic_only=True)
+            campaign = {"execution_input_authority": authority}
+            cache, decoded = CacheAuthority(manifest_path, root / "cache").load_frames(campaign, [json.loads(manifest_path.read_text())["artifacts"][0]["path"]])
+            self.assertEqual(decoded[0].content_sha256(), frame.content_sha256())
+            artifact = root / "cache" / cache["artifacts"][0]["path"]; artifact.write_bytes(b"tampered")
+            with self.assertRaises(AuthorizationError): CacheAuthority(manifest_path, root / "cache").load_frames(campaign, [cache["artifacts"][0]["path"]])
 
     def test_execution_authority_is_file_and_commit_bound(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw); subprocess.run(["git", "init", "-q", str(root)], check=True); subprocess.run(["git", "-C", str(root), "config", "user.email", "test@example.invalid"], check=True); subprocess.run(["git", "-C", str(root), "config", "user.name", "Test"], check=True)
-            code = root / "code.py"; code.write_text("x=1\n", encoding="utf-8"); subprocess.run(["git", "-C", str(root), "add", "code.py"], check=True); subprocess.run(["git", "-C", str(root), "commit", "-qm", "fixture"], check=True)
+            code = root / "tools/core_liquid_campaign/code.py"; code.parent.mkdir(parents=True); code.write_text("x=1\n", encoding="utf-8")
+            for relative in ("tools/build_stage22_core_liquid_campaign.py", "tools/run_stage22_core_liquid_campaign.py", "unit_tests/test_core_liquid_campaign.py"):
+                path = root / relative; path.parent.mkdir(parents=True, exist_ok=True); path.write_text("# fixture\n", encoding="utf-8")
+            source = root / "SOURCE.json"; atomic_write_json(source, {"authority": True})
+            subprocess.run(["git", "-C", str(root), "add", "."], check=True); subprocess.run(["git", "-C", str(root), "commit", "-qm", "fixture"], check=True)
             commit = subprocess.run(["git", "-C", str(root), "rev-parse", "HEAD"], check=True, capture_output=True, text=True).stdout.strip()
-            inventory = {"files": [{"path": "code.py", "sha256": sha256_file(code)}]}; inventory_path = root / "CODE_HASH_INVENTORY.json"; atomic_write_json(inventory_path, inventory)
-            manifest = {"campaign_id": "kraken_core_liquid_discovery_campaign_003_code_first_stage22", "repository": {"implementation_commit": commit}, "primary_hashes": {"code_inventory": sha256_file(inventory_path)}}; manifest_path = root / "manifest.json"; atomic_write_json(manifest_path, manifest)
+            inventory = _code_inventory(root); inventory_path = root / "CODE_HASH_INVENTORY.json"; atomic_write_json(inventory_path, inventory)
+            source_record = {"role": "fixture", "path": "SOURCE.json", "bytes": source.stat().st_size, "sha256": sha256_file(source)}
+            manifest = {"campaign_id": "kraken_core_liquid_discovery_campaign_003_code_first_stage22", "repository": {"implementation_commit": commit}, "primary_hashes": {"code_inventory": sha256_file(inventory_path)}, "execution_input_authority": {"source_records": [source_record]}}; manifest_path = root / "manifest.json"; atomic_write_json(manifest_path, manifest)
             request_path = root / "request.json"; atomic_write_json(request_path, {"campaign_id": manifest["campaign_id"], "final_campaign_manifest_sha256": sha256_file(manifest_path)})
             approval_path = root / "approval.json"; atomic_write_json(approval_path, {"campaign_id": manifest["campaign_id"], "final_campaign_manifest_sha256": sha256_file(manifest_path), "final_human_approval_request_sha256": sha256_file(request_path), "repository_implementation_commit": commit, "approved": True, "authorization": "launch_exact_frozen_stage22_campaign"})
             ExecutionAuthorization(manifest_path, request_path, approval_path, root).require()
+            doc = root / "COMPLETION.md"; doc.write_text("publication only\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(root), "add", "COMPLETION.md"], check=True); subprocess.run(["git", "-C", str(root), "commit", "-qm", "publish docs"], check=True)
+            ExecutionAuthorization(manifest_path, request_path, approval_path, root).require()
+            extra = root / "tools/core_liquid_campaign/unreviewed.py"; extra.write_text("unsafe=True\n", encoding="utf-8")
+            with self.assertRaises(AuthorizationError): ExecutionAuthorization(manifest_path, request_path, approval_path, root).require()
+            extra.unlink()
             code.write_text("x=2\n", encoding="utf-8")
             with self.assertRaises(AuthorizationError): ExecutionAuthorization(manifest_path, request_path, approval_path, root).require()
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import math
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
+from decimal import Decimal, InvalidOperation
 from typing import Any, Iterable, Mapping, Sequence
 
 from .family_engines.common import EngineInputError, require_utc
@@ -41,18 +42,25 @@ class TradeBar:
 
 @dataclass(frozen=True)
 class FundingPayment:
-    payment_ts: datetime
+    row_timestamp: datetime
     publication_ts: datetime
-    rate_bps: float
+    absolute_rate_usd_per_contract_unit: str
     source_partition: str = "exact"
 
     def validate(self) -> None:
-        if require_utc(self.publication_ts) > require_utc(self.payment_ts):
-            raise EngineInputError("funding publication occurs after payment")
+        timestamp = require_utc(self.row_timestamp)
+        if timestamp.minute or timestamp.second or timestamp.microsecond:
+            raise EngineInputError("funding row timestamp is not an exact UTC-hour boundary")
+        if require_utc(self.publication_ts) > timestamp:
+            raise EngineInputError("funding publication occurs after its registered row timestamp")
         if self.source_partition != "exact":
             raise EngineInputError("rankable accounting requires exact funding partition")
-        if not math.isfinite(self.rate_bps):
-            raise EngineInputError("funding rate must be finite")
+        try:
+            rate = Decimal(self.absolute_rate_usd_per_contract_unit)
+        except (InvalidOperation, ValueError) as exc:
+            raise EngineInputError("funding absolute rate is not a canonical decimal") from exc
+        if not rate.is_finite():
+            raise EngineInputError("funding absolute rate must be finite")
 
 
 @dataclass(frozen=True)
@@ -98,26 +106,53 @@ def _atr_multiple(exit_name: str) -> float | None:
     return None
 
 
-def _funding_cashflow(payments: Iterable[FundingPayment], entry_ts: datetime, exit_ts: datetime, side: int, alignment: str) -> float:
-    if alignment == "minimum_of_registered_start_end":
-        materialized = tuple(payments)
-        return min(
-            _funding_cashflow(materialized, entry_ts, exit_ts, side, "start_inclusive_end_exclusive"),
-            _funding_cashflow(materialized, entry_ts, exit_ts, side, "start_exclusive_end_inclusive"),
-        )
-    total = 0.0
-    for payment in sorted(payments, key=lambda item: require_utc(item.payment_ts)):
+def _funding_alignment(
+    payments: Iterable[FundingPayment], entry_ts: datetime, exit_ts: datetime,
+    side: int, entry_price: float, alignment: str,
+) -> tuple[float, float]:
+    """Exact Stage-19 hourly absolute-rate cashflow and uncovered hours."""
+    if alignment not in {"start_inclusive_end_exclusive", "start_exclusive_end_inclusive"}:
+        raise EngineInputError(f"unknown funding alignment: {alignment}")
+    entry = require_utc(entry_ts); exit_ = require_utc(exit_ts)
+    rates: dict[datetime, Decimal] = {}
+    for payment in payments:
         payment.validate()
-        timestamp = require_utc(payment.payment_ts)
+        timestamp = require_utc(payment.row_timestamp)
+        if timestamp in rates:
+            raise EngineInputError("duplicate exact funding row timestamp")
+        rates[timestamp] = Decimal(payment.absolute_rate_usd_per_contract_unit)
+    cursor = entry.replace(minute=0, second=0, microsecond=0)
+    if alignment == "start_exclusive_end_inclusive":
+        cursor += timedelta(hours=1)
+    cashflow = Decimal(0); missing_hours = Decimal(0)
+    while True:
         if alignment == "start_inclusive_end_exclusive":
-            included = require_utc(entry_ts) <= timestamp < require_utc(exit_ts)
-        elif alignment == "start_exclusive_end_inclusive":
-            included = require_utc(entry_ts) < timestamp <= require_utc(exit_ts)
+            start, end = cursor, cursor + timedelta(hours=1)
         else:
-            raise EngineInputError(f"unknown funding alignment: {alignment}")
-        if included:
-            total += -side * payment.rate_bps
-    return total
+            start, end = cursor - timedelta(hours=1), cursor
+        overlap_seconds = max(0.0, (min(exit_, end) - max(entry, start)).total_seconds())
+        if overlap_seconds > 0:
+            fraction = Decimal(str(overlap_seconds)) / Decimal(3600)
+            if cursor in rates:
+                cashflow += -Decimal(side) * rates[cursor] * fraction / Decimal(str(entry_price)) * Decimal(10000)
+            else:
+                missing_hours += fraction
+        if end >= exit_:
+            break
+        cursor += timedelta(hours=1)
+    return float(cashflow), float(missing_hours)
+
+
+def _funding_cashflow(
+    payments: Iterable[FundingPayment], entry_ts: datetime, exit_ts: datetime,
+    side: int, entry_price: float, alignment: str,
+) -> tuple[float, float]:
+    materialized = tuple(payments)
+    if alignment == "minimum_of_registered_start_end":
+        start = _funding_alignment(materialized, entry_ts, exit_ts, side, entry_price, "start_inclusive_end_exclusive")
+        end = _funding_alignment(materialized, entry_ts, exit_ts, side, entry_price, "start_exclusive_end_inclusive")
+        return min(0.0, start[0], end[0]), max(start[1], end[1])
+    return _funding_alignment(materialized, entry_ts, exit_ts, side, entry_price, alignment)
 
 
 def simulate_leg(
@@ -135,7 +170,7 @@ def simulate_leg(
     funding_alignment: str,
     evaluation_end_exclusive: datetime,
     exposure: float = 1.0,
-    gap_allowance_bps: float = 0.0,
+    gap_allowance_bps_per_hour: float = 0.0,
     maximum_fill_delay: timedelta = timedelta(minutes=10),
     evaluation_start: datetime | None = None,
 ) -> LegResult:
@@ -155,8 +190,8 @@ def simulate_leg(
         raise EngineInputError("entry is outside evaluation boundary")
     if not math.isfinite(exposure) or exposure < 0:
         raise EngineInputError("leg exposure must be nonnegative and finite")
-    if not math.isfinite(gap_allowance_bps) or gap_allowance_bps > 0:
-        raise EngineInputError("funding gap allowance must be zero or adverse")
+    if not math.isfinite(gap_allowance_bps_per_hour) or gap_allowance_bps_per_hour < 0:
+        raise EngineInputError("funding gap allowance rate must be finite and nonnegative")
     if cost_bps < 0 or not math.isfinite(cost_bps):
         raise EngineInputError("round-trip cost must be nonnegative and finite")
     entry_price = entry.open
@@ -201,9 +236,10 @@ def simulate_leg(
         return LegResult("unavailable_boundary_crossing", entry_ts, None, entry_price, None, side, None, None, None, None, None, None, None, None)
     exit_ts = require_utc(fill_bar.open_ts)
     gross = side * (fill_bar.open / entry_price - 1.0) * 10000.0
-    exact_funding = _funding_cashflow(funding, entry_ts, exit_ts, side, funding_alignment)
+    exact_funding, missing_hours = _funding_cashflow(funding, entry_ts, exit_ts, side, entry_price, funding_alignment)
     adverse_funding = min(exact_funding, 0.0)
     favorable_funding = max(exact_funding, 0.0)
+    gap_allowance_bps = -gap_allowance_bps_per_hour * missing_hours
     weighted_gross = exposure * gross
     weighted_cost = exposure * cost_bps
     weighted_adverse_funding = exposure * (adverse_funding + gap_allowance_bps)
@@ -262,7 +298,7 @@ def contract() -> dict[str, Any]:
     return {
         "price_roles": {"trade_close": "triggers/features", "trade_open": "fills", "mark": "not substituted", "index": "not substituted"},
         "costs": {"base_round_trip_bps_per_leg": 14.0, "stress_round_trip_bps_per_leg": 32.0},
-        "funding": "exact signed cashflow at registered boundary alignment; favourable funding is report-only and cannot activate, rank, rescue, or select; adverse exact funding and registered adverse gap allowance enter selection net",
+        "funding": "Stage-19 exact hourly absolute-rate cashflow divided by entry trade open at both registered alignments; favourable funding is report-only; adverse=min(0,start,end) and the nonpositive per-hour gap allowance enter selection net",
         "trigger": "completed close only",
         "fill": "next lifecycle-valid authorized trade open at or after trigger with an enforced ten-minute maximum lookup delay",
         "simultaneous_exit_priority": list(EXIT_PRIORITY),

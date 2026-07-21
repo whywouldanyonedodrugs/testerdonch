@@ -3,16 +3,22 @@ from __future__ import annotations
 import json
 import os
 import resource
+import shutil
 import subprocess
 import time
+import zipfile
 from collections import Counter
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
+from .cache import build_semantic_cache
+from .campaign import synthetic_production_path_job
 from .canonical import atomic_write_bytes, atomic_write_json, canonical_hash, file_record, sha256_file
-from .compiler import EXPECTED_FINAL_CONTROLS, SourcePaths, compile_deterministic
-from .runtime import ResourceLimits, physical_memory_bytes, process_tree_rss, synthetic_recovery_canary
-from .schema import CAMPAIGN_ID, FAMILY_ORDER
+from .compiler import EXPECTED_FINAL_CONTROLS, SourcePaths, compile_deterministic, shared_semantic_cache_contract
+from .executor import CacheAuthority
+from .runtime import LazySupervisor, ResourceLimits, directory_size, physical_memory_bytes, process_tree_rss, synthetic_recovery_canary
+from .schema import CAMPAIGN_ID, FAMILY_ORDER, baseline_config, economic_address, normalize_config
+from .synthetic import frame_for_family, with_source_authority
 from .validators import (
     aggregate_materialized_probe,
     end_to_end_family_probe,
@@ -21,32 +27,7 @@ from .validators import (
 )
 
 
-CODE_PATHS = (
-    "tools/build_stage22_core_liquid_campaign.py",
-    "tools/core_liquid_campaign/__init__.py",
-    "tools/core_liquid_campaign/canonical.py",
-    "tools/core_liquid_campaign/schema.py",
-    "tools/core_liquid_campaign/generator.py",
-    "tools/core_liquid_campaign/budget.py",
-    "tools/core_liquid_campaign/compiler.py",
-    "tools/core_liquid_campaign/controls.py",
-    "tools/core_liquid_campaign/engine_types.py",
-    "tools/core_liquid_campaign/executor.py",
-    "tools/core_liquid_campaign/accounting.py",
-    "tools/core_liquid_campaign/selection.py",
-    "tools/core_liquid_campaign/runtime.py",
-    "tools/core_liquid_campaign/synthetic.py",
-    "tools/core_liquid_campaign/validators.py",
-    "tools/core_liquid_campaign/packet.py",
-    "tools/core_liquid_campaign/family_engines/__init__.py",
-    "tools/core_liquid_campaign/family_engines/common.py",
-    "tools/core_liquid_campaign/family_engines/a4_tsmom.py",
-    "tools/core_liquid_campaign/family_engines/a1_compression.py",
-    "tools/core_liquid_campaign/family_engines/a2_context.py",
-    "tools/core_liquid_campaign/family_engines/a3_starter_retest.py",
-    "tools/core_liquid_campaign/family_engines/kda02b_adjudication.py",
-    "unit_tests/test_core_liquid_campaign.py",
-)
+INHERITED_STAGE21_MANIFEST_SHA256 = "edeb26248831791b90c7aede801afd5a258ecf4f61710eb3146852b94b4f34c7"
 
 
 EXECUTION_SOURCE_RECORDS = (
@@ -64,6 +45,16 @@ EXECUTION_SOURCE_RECORDS = (
         "rankable_funding_package_manifest",
         "docs/agent/task_archive/20260720_donch_bt_stage_19_local_official_funding_export_packet_20260720_v2/RANKABLE_FUNDING_PACKAGE_MANIFEST.json",
         "e048915160a6f55b313568f9a2df908b196c04557fb719273ad07957efcb6f9b",
+    ),
+    (
+        "rankable_funding_package",
+        "/opt/testerdonch/results/rebaseline/phase_kraken_local_official_funding_export_20260720_v4/kraken_funding_rankable_2023_2025.zip",
+        "6c0969727c882ca6439c57c3b7d03367e1b2d26ee46823e56b983756d026ef64",
+    ),
+    (
+        "kraken_acquisition_manifest",
+        "/opt/parquet/kraken_derivatives/manifests/phase_kraken_k0_data_foundation_20260630_v1_20260630_163815_download_manifest.csv",
+        "f598cc1fb5714386923272399b98fa560c119c96fd5af33f5b30735f40cea420",
     ),
     (
         "campaign_universe_reconciliation",
@@ -102,13 +93,21 @@ def sha256_file_from_records(records: Sequence[Mapping[str, Any]]) -> str:
 
 
 def _code_inventory(repository_root: Path) -> dict[str, Any]:
+    package = repository_root / "tools/core_liquid_campaign"
+    discovered = [path.relative_to(repository_root).as_posix() for path in package.rglob("*.py") if path.is_file()]
+    discovered.extend(("tools/build_stage22_core_liquid_campaign.py", "tools/run_stage22_core_liquid_campaign.py", "unit_tests/test_core_liquid_campaign.py"))
     files = []
-    for relative in CODE_PATHS:
+    for relative in sorted(set(discovered)):
         path = repository_root / relative
         if not path.is_file():
             raise FileNotFoundError(path)
         files.append({"path": relative, "bytes": path.stat().st_size, "sha256": sha256_file(path)})
-    return {"files": files, "source_tree_sha256": sha256_file_from_records(files)}
+    return {
+        "complete_launch_tree": True,
+        "discovery_contract": "all Python files below tools/core_liquid_campaign plus exact build/run CLIs and focused unit test",
+        "files": files,
+        "source_tree_sha256": sha256_file_from_records(files),
+    }
 
 
 def _registry_rows(path: Path) -> list[dict[str, Any]]:
@@ -141,8 +140,9 @@ def _write_execution_input_authority(output_root: Path, repository_root: Path) -
         "source_manifest_sha256": verified_sources[0]["sha256"],
         "pit_universe_sha256": sha256_file(output_root / "PIT_UNIVERSE_CONTRACT.json"),
         "funding_manifest_sha256": verified_sources[1]["sha256"],
-        "rankable_funding_package_sha256": "6c0969727c882ca6439c57c3b7d03367e1b2d26ee46823e56b983756d026ef64",
+        "rankable_funding_package_sha256": next(record["sha256"] for record in verified_sources if record["role"] == "rankable_funding_package"),
         "cache_contract_sha256": cache_contract_hash,
+        "fold_graph_sha256": sha256_file(output_root / "FOLD_GRAPH.json"),
         "cache_manifest_contract": {
             "schema": "stage22_semantic_cache_manifest_v1",
             "artifact_inventory": "nonempty; every physical cache artifact is SHA-256 verified and binds its deserialized FamilyInput content hash",
@@ -157,69 +157,236 @@ def _write_execution_input_authority(output_root: Path, repository_root: Path) -
     return authority
 
 
-def benchmark(root: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    registry = _registry_rows(root / "FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl")
-    rows: list[dict[str, Any]] = []
-    elapsed_by_family: dict[str, float] = {}
+def _synthetic_row(family: str, identifier: str) -> dict[str, Any]:
+    config = normalize_config(family, baseline_config(family))
+    return {
+        "campaign_id": CAMPAIGN_ID,
+        "executable_attempt_id": identifier,
+        "family_id": family,
+        "config": config,
+        "canonical_economic_address_sha256": economic_address(family, config)[1],
+        "execution_disposition": "execute_once",
+        "duplicate_of_executable_attempt_id": None,
+    }
+
+
+def benchmark(
+    root: Path,
+    *,
+    execution_authority: Mapping[str, Any] | None = None,
+    authority_root: Path | None = None,
+    state_name: str = "PRODUCTION_PATH_CAPACITY_CANARY_STATE",
+    development_dispatches_per_address: int = 1,
+) -> dict[str, Any]:
+    """Measure four concurrent workers through cache decode, dispatch and atomic persistence."""
+    state_root = root / state_name
+    if execution_authority is None:
+        source = state_root / "SYNTHETIC_SOURCE_AUTHORITY.json"
+        atomic_write_json(source, {"schema": "stage22_synthetic_capacity_source_v1", "values": "deterministic_nonmarket_fixtures", "economic_outcomes_opened": False})
+        source_record = {"role": "synthetic_capacity_source", "path": source.relative_to(root).as_posix(), "bytes": source.stat().st_size, "sha256": sha256_file(source)}
+        authority = {
+            "schema": "stage22_execution_input_authority_v1", "platform": "kraken_native_linear_pf",
+            "rankable_interval": "[2023-01-01T00:00:00Z,2026-01-01T00:00:00Z)",
+            "source_manifest_sha256": source_record["sha256"], "pit_universe_sha256": canonical_hash({"synthetic": "PIT universe"}),
+            "funding_manifest_sha256": canonical_hash({"synthetic": "funding"}), "rankable_funding_package_sha256": canonical_hash({"synthetic": "funding package"}),
+            "cache_contract_sha256": canonical_hash(shared_semantic_cache_contract()), "fold_graph_sha256": canonical_hash({"synthetic": "fold graph"}),
+            "cache_manifest_contract": {"schema": "stage22_semantic_cache_manifest_v1"}, "source_records": [source_record],
+        }
+        verified_authority_root = root
+    else:
+        authority = dict(execution_authority)
+        if authority_root is None:
+            raise ValueError("authority-bound capacity benchmark requires its repository root")
+        verified_authority_root = authority_root
+    parent = _synthetic_row("A1_COMPRESSION_V2", "capacity-parent-a1")
+    rows = {family: _synthetic_row(family, f"capacity-{family}") for family in FAMILY_ORDER if family != "A2_PRIOR_HIGH_RS_CONTEXT_V1"}
+    overlay = _synthetic_row("A2_PRIOR_HIGH_RS_CONTEXT_V1", "capacity-a2")
+    template = canonical_hash({"capacity": "a2-parent-slot"})
+    overlay.update({
+        "execution_disposition": "execute_if_parent_available",
+        "parent_binding_template_id": template,
+        "parent_only_counterpart_id": canonical_hash({"template": template, "role": "parent_only"}),
+        "overlay_counterpart_id": canonical_hash({"template": template, "role": "overlay"}),
+    })
+    rows["A2_PRIOR_HIGH_RS_CONTEXT_V1"] = overlay
+    registry = {row["executable_attempt_id"]: row for row in (*rows.values(), parent)}
+    frames_by_family = {
+        family: with_source_authority(frame_for_family(family, row["config"]), authority)
+        for family, row in rows.items() if family != "A2_PRIOR_HIGH_RS_CONTEXT_V1"
+    }
+    parent_frame = with_source_authority(frame_for_family("A1_COMPRESSION_V2", parent["config"]), authority)
+    frames_by_family["A2_PRIOR_HIGH_RS_CONTEXT_V1"] = parent_frame
+    unique_frames = {frame.content_sha256(): frame for frame in frames_by_family.values()}
+    cache_root = state_root / "cache"
+    cache_started = time.perf_counter()
+    cache_manifest_path = build_semantic_cache(cache_root, authority, tuple(unique_frames.values()), authority_root=verified_authority_root, synthetic_only=True)
+    cache_seconds = time.perf_counter() - cache_started
+    cache_payload = json.loads(cache_manifest_path.read_text(encoding="utf-8"))
+    path_by_hash = {record["frame_content_sha256"]: record["path"] for record in cache_payload["artifacts"]}
+    cache_authority = CacheAuthority(cache_manifest_path, cache_root)
+    campaign_manifest = {"execution_input_authority": authority}
+    binding = {
+        "parent_binding_template_id": template,
+        "parent_executable_attempt_id": parent["executable_attempt_id"],
+        "parent_only_counterpart_id": overlay["parent_only_counterpart_id"],
+        "overlay_counterpart_id": overlay["overlay_counterpart_id"],
+    }
+    jobs = []
+    for replicate in range(4):
+        for family in FAMILY_ORDER:
+            row = rows[family]; path = path_by_hash[frames_by_family[family].content_sha256()]
+            job_id = f"capacity:{replicate}:{family}"
+            base = synthetic_production_path_job(
+                row,
+                cache_authority=cache_authority,
+                campaign_manifest=campaign_manifest,
+                artifact_paths=[path],
+                registry=registry,
+                job_id=job_id,
+                parent_binding=binding if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1" else None,
+                parent_artifact_paths=[path] if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1" else None,
+            )
+            def timed(base=base, family=family):
+                started = time.perf_counter(); result = base(); result["benchmark_family"] = family; result["benchmark_elapsed_seconds"] = time.perf_counter() - started; return result
+            jobs.append((job_id, timed))
+    peak_rss = {"bytes": process_tree_rss()}
+    def rss_sample() -> int:
+        value = process_tree_rss(); peak_rss["bytes"] = max(peak_rss["bytes"], value); return value
+    heartbeats: list[Mapping[str, Any]] = []
+    class CanaryClock:
+        value = 0.0
+        def __call__(self) -> float:
+            self.value += 0.2
+            return self.value
+    limits = ResourceLimits(max_workers=4, max_jobs_in_flight=4, heartbeat_seconds=1, monitor_interval_seconds=0.005)
+    started = time.perf_counter()
+    supervisor = LazySupervisor(
+        state_root / "supervisor",
+        limits,
+        heartbeat=lambda payload: (heartbeats.append(dict(payload)) or True),
+        real_unit_validator=lambda job_id, result: isinstance(result, Mapping) and result.get("registered_job_id") == job_id and result.get("synthetic_only") is True,
+        rss_sampler=rss_sample,
+        monotonic=CanaryClock(),
+    ).run(iter(jobs))
+    concurrent_seconds = time.perf_counter() - started
+    if supervisor["status"] != "complete" or not supervisor.get("health_release") or not heartbeats:
+        raise AssertionError("four-worker production-path capacity canary failed")
+    io_path = state_root / "throughput-probe.bin"; io_bytes = 8 * 1024**2; payload = b"\0" * io_bytes
+    io_started = time.perf_counter()
+    with io_path.open("wb") as handle:
+        handle.write(payload); handle.flush(); os.fsync(handle.fileno())
+    io_seconds = max(time.perf_counter() - io_started, 1e-9); io_sha = sha256_file(io_path); io_path.unlink()
+    family_results: dict[str, list[tuple[float, int]]] = {family: [] for family in FAMILY_ORDER}
+    for marker in (state_root / "supervisor/markers").glob("*.json"):
+        record = json.loads(marker.read_text(encoding="utf-8")); artifact = state_root / "supervisor" / record["artifact"]
+        result = json.loads(artifact.read_text(encoding="utf-8"))["result"]
+        family_results[result["benchmark_family"]].append((float(result["benchmark_elapsed_seconds"]), artifact.stat().st_size))
+    families = []
     for family in FAMILY_ORDER:
-        before_rss = process_tree_rss()
-        started = time.perf_counter()
-        result = end_to_end_family_probe(family)
-        elapsed = time.perf_counter() - started
-        after_rss = process_tree_rss()
-        if result["status"] != "complete" or not result.get("synthetic_only"):
-            raise AssertionError(f"real-dispatch synthetic benchmark failed: {family}")
-        elapsed_by_family[family] = elapsed
-        count = sum(row["family_id"] == family and row["execution_disposition"] != "multiplicity_only_duplicate" for row in registry)
-        rows.append({
+        samples = family_results[family]
+        if len(samples) != 4:
+            raise AssertionError(f"capacity benchmark did not reconcile four {family} dispatches")
+        families.append({
             "family": family,
-            "registered_execution_addresses": count,
-            "real_dispatch_invocations": 1,
-            "ledger_rows": len(result["ledger"]),
-            "observation_rows": len(result["observations"]),
-            "elapsed_seconds": f"{elapsed:.9f}",
-            "rss_before_bytes": before_rss,
-            "rss_after_bytes": after_rss,
+            "dispatches": 4,
+            "seconds_per_dispatch": sum(value for value, _ in samples) / len(samples),
+            "output_bytes_per_dispatch": sum(value for _, value in samples) / len(samples),
+        })
+    usage = shutil.disk_usage(root)
+    return {
+        "schema": "stage22_four_worker_production_path_capacity_v1",
+        "status": "pass",
+        "workers": 4,
+        "jobs_in_flight": 4,
+        "production_dispatches": len(jobs),
+        "development_dispatches_per_address": development_dispatches_per_address,
+        "families": families,
+        "cache_construction_seconds": cache_seconds,
+        "cache_bytes": directory_size(cache_root),
+        "concurrent_wall_seconds": concurrent_seconds,
+        "peak_process_tree_rss_bytes": peak_rss["bytes"],
+        "rss_limit_bytes": limits.max_rss_bytes,
+        "persisted_output_bytes": directory_size(state_root / "supervisor"),
+        "output_limit_bytes": limits.max_output_bytes,
+        "disk_probe_bytes": io_bytes,
+        "disk_probe_sha256": io_sha,
+        "disk_write_seconds": io_seconds,
+        "disk_write_bytes_per_second": io_bytes / io_seconds,
+        "free_disk_bytes_after_probe": usage.free,
+        "minimum_free_disk_bytes": max(limits.minimum_free_disk_bytes, int(usage.total * limits.minimum_free_disk_fraction)),
+        "scheduled_heartbeat_count": len(heartbeats),
+        "health_release": supervisor["health_release"],
+        "economic_outcomes_opened": False,
+        "protected_rows_opened": 0,
+        "capitalcom_payload_opened": False,
+    }
+
+
+def runtime_projection(root: Path, capacity: Mapping[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    registry = _registry_rows(root / "FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl")
+    execution_count = sum(row["execution_disposition"] != "multiplicity_only_duplicate" for row in registry)
+    family_measurement = {row["family"]: row for row in capacity["families"]}
+    rows = []
+    projected_worker_seconds = 0.0; projected_output = 0.0
+    multiplier = int(capacity["development_dispatches_per_address"])
+    for family in FAMILY_ORDER:
+        count = sum(row["family_id"] == family and row["execution_disposition"] != "multiplicity_only_duplicate" for row in registry)
+        measured = family_measurement[family]
+        family_multiplier = 1 if family == "KDA02B_SURVIVOR_ADJUDICATION_V1" else multiplier
+        projected_worker_seconds += count * family_multiplier * float(measured["seconds_per_dispatch"])
+        projected_output += count * family_multiplier * float(measured["output_bytes_per_dispatch"])
+        rows.append({
+            "family": family, "registered_execution_addresses": count, "real_dispatch_invocations": measured["dispatches"],
+            "elapsed_seconds": f"{float(measured['seconds_per_dispatch']):.9f}", "output_bytes_per_dispatch": f"{float(measured['output_bytes_per_dispatch']):.3f}",
             "economic_outcomes_opened": "false",
         })
     limits = ResourceLimits()
-    single_worker_seconds = sum(
-        elapsed_by_family[family]
-        * sum(row["family_id"] == family and row["execution_disposition"] != "multiplicity_only_duplicate" for row in registry)
-        for family in FAMILY_ORDER
-    )
     projection = {
-        "schema": "stage22_runtime_projection_v2",
+        "schema": "stage22_runtime_projection_v3",
         "basis": {
-            "measurement": "one complete synthetic raw-input->engine->accounting->aggregate dispatch per family",
-            "registered_execution_addresses": sum(row["execution_disposition"] != "multiplicity_only_duplicate" for row in registry),
-            "measured_single_worker_synthetic_seconds": single_worker_seconds,
-            "measured_four_worker_synthetic_floor_seconds": single_worker_seconds / limits.max_workers,
-            "registry_bytes": (root / "FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl").stat().st_size,
-            "raw_coordinate_bytes": (root / "RAW_SPACE_FILLING_COORDINATES.parquet").stat().st_size,
-            "logical_cpus": os.cpu_count(),
-            "physical_memory_bytes": physical_memory_bytes(),
-            "current_process_tree_rss_bytes": process_tree_rss(),
-            "maxrss_ru_bytes": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024,
+            "measurement": "four concurrent workers through canonical cache decode, real dispatcher/accounting and atomic supervisor persistence; four samples per family",
+            "capacity_measurement_sha256": canonical_hash(capacity),
+            "registered_execution_addresses": execution_count,
+            "projected_worker_seconds": projected_worker_seconds,
+            "projected_four_worker_seconds": projected_worker_seconds / 4,
+            "projected_output_bytes": projected_output,
+            "measured_peak_process_tree_rss_bytes": capacity["peak_process_tree_rss_bytes"],
+            "measured_disk_write_bytes_per_second": capacity["disk_write_bytes_per_second"],
+            "logical_cpus": os.cpu_count(), "physical_memory_bytes": physical_memory_bytes(),
+            "current_process_tree_rss_bytes": process_tree_rss(), "maxrss_ru_bytes": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024,
         },
-        "interpretation": "measured synthetic compute floor, not an economic wall-time estimate; the detached supervisor uses renewable checkpoints and bounded safety stops",
+        "interpretation": "measured outcome-free production-path projection; renewable checkpoints retain no hard wall stop",
         "hard_wall_time": None,
         "limits": {
-            "workers": limits.max_workers,
-            "jobs_in_flight": limits.max_jobs_in_flight,
-            "aggregate_process_tree_rss_bytes": limits.max_rss_bytes,
-            "campaign_output_bytes": limits.max_output_bytes,
-            "minimum_free_disk_bytes": limits.minimum_free_disk_bytes,
-            "minimum_free_disk_fraction": limits.minimum_free_disk_fraction,
-            "heartbeat_seconds": limits.heartbeat_seconds,
-            "graceful_stop_seconds": limits.graceful_stop_seconds,
-            "no_progress_seconds": limits.no_progress_seconds,
-            "retry_delays_seconds": list(limits.retry_delays_seconds),
+            "workers": limits.max_workers, "jobs_in_flight": limits.max_jobs_in_flight,
+            "aggregate_process_tree_rss_bytes": limits.max_rss_bytes, "campaign_output_bytes": limits.max_output_bytes,
+            "minimum_free_disk_bytes": limits.minimum_free_disk_bytes, "minimum_free_disk_fraction": limits.minimum_free_disk_fraction,
+            "heartbeat_seconds": limits.heartbeat_seconds, "graceful_stop_seconds": limits.graceful_stop_seconds,
+            "no_progress_seconds": limits.no_progress_seconds, "retry_delays_seconds": list(limits.retry_delays_seconds),
             "maximum_supervisor_restarts": limits.maximum_supervisor_restarts,
+        },
+        "safety_margins": {
+            "rss_bytes": limits.max_rss_bytes - int(capacity["peak_process_tree_rss_bytes"]),
+            "projected_output_bytes": limits.max_output_bytes - int(projected_output),
+            "free_disk_bytes": int(capacity["free_disk_bytes_after_probe"]) - int(capacity["minimum_free_disk_bytes"]),
         },
         "economic_outcomes_opened": False,
     }
+    if min(projection["safety_margins"].values()) <= 0:
+        raise AssertionError("measured production-path resource margin is not positive")
     return rows, projection
+
+
+def _development_dispatch_multiplier(paths: SourcePaths) -> int:
+    with zipfile.ZipFile(paths.stage21_v1_zip) as archive:
+        names = [name for name in archive.namelist() if name.endswith("INNER_OUTER_FOLD_MAP.json")]
+        if len(names) != 1:
+            raise ValueError("Stage-21 V1 ZIP has no unique fold graph")
+        graph = json.loads(archive.read(names[0]))
+    value = sum(len(outer["inner_folds"]) for outer in graph["outer_folds"])
+    if value <= 0:
+        raise ValueError("fold graph has no development dispatches")
+    return value
 
 
 def _generated_inventory(root: Path) -> dict[str, Any]:
@@ -230,6 +397,7 @@ def _generated_inventory(root: Path) -> dict[str, Any]:
         "FINAL_LAUNCH_TASK.md",
         "FINAL_PACKET_HASH_INVENTORY.json",
         "ARTIFACT_MANIFEST.json",
+        "INDEPENDENT_PREOUTCOME_REVIEW.json",
     }
     records = [file_record(root, path) for path in sorted(root.rglob("*")) if path.is_file() and path.name not in excluded]
     return {"artifacts": records, "sha256": sha256_file_from_records(records)}
@@ -239,21 +407,36 @@ def build_candidate(paths: SourcePaths, output_root: Path, repository_root: Path
     actual_commit = subprocess.run(["git", "-C", str(repository_root), "rev-parse", "HEAD"], check=True, capture_output=True, text=True).stdout.strip()
     if actual_commit != implementation_commit:
         raise ValueError("implementation commit is not repository HEAD")
-    compiled = compile_deterministic(paths, output_root)
+    output_root.mkdir(parents=True, exist_ok=True)
+    dispatch_multiplier = _development_dispatch_multiplier(paths)
+    provisional = benchmark(output_root, state_name="PROVISIONAL_CAPACITY_CANARY_STATE", development_dispatches_per_address=dispatch_multiplier)
+    compile_deterministic(paths, output_root, provisional)
+    input_authority = _write_execution_input_authority(output_root, repository_root)
+    capacity = benchmark(
+        output_root,
+        execution_authority=input_authority,
+        authority_root=repository_root,
+        state_name="AUTHORITY_BOUND_PRODUCTION_PATH_CANARY_STATE",
+        development_dispatches_per_address=dispatch_multiplier,
+    )
+    atomic_write_json(output_root / "CAPACITY_BENCHMARK.json", capacity)
+    atomic_write_json(output_root / "PRODUCTION_PATH_SYNTHETIC_CANARY.json", {**capacity, "canary_role": "authority-bound cache/decode/dispatcher/supervisor/heartbeat/health-release"})
+    shutil.rmtree(output_root / "PROVISIONAL_CAPACITY_CANARY_STATE")
+    compiled = compile_deterministic(paths, output_root, capacity)
     input_authority = _write_execution_input_authority(output_root, repository_root)
     validation = validate_compiled(output_root)
-    replay = independent_replay(paths, output_root)
+    replay = independent_replay(paths, output_root, capacity)
     aggregate = aggregate_materialized_probe()
     if not aggregate["pass"]:
         raise AssertionError("aggregate/materialized probe failed")
     atomic_write_json(output_root / "AGGREGATE_VS_MATERIALIZED_PROBE_AUDIT.json", aggregate)
-    benchmark_rows, runtime_projection = benchmark(output_root)
+    benchmark_rows, projection = runtime_projection(output_root, capacity)
     _write_csv(
         output_root / "ENGINE_BENCHMARK_SUMMARY.csv",
-        ("family", "registered_execution_addresses", "real_dispatch_invocations", "ledger_rows", "observation_rows", "elapsed_seconds", "rss_before_bytes", "rss_after_bytes", "economic_outcomes_opened"),
+        ("family", "registered_execution_addresses", "real_dispatch_invocations", "elapsed_seconds", "output_bytes_per_dispatch", "economic_outcomes_opened"),
         benchmark_rows,
     )
-    atomic_write_json(output_root / "RUNTIME_PROJECTION.json", runtime_projection)
+    atomic_write_json(output_root / "RUNTIME_PROJECTION.json", projection)
     canary = synthetic_recovery_canary(output_root / "SYNTHETIC_RUNTIME_CANARY_STATE")
     if not canary["pass"]:
         raise AssertionError("runtime canary failed")
@@ -320,6 +503,11 @@ def finalize_packet(output_root: Path, repository_root: Path, implementation_com
     live_code = _code_inventory(repository_root)
     if live_code["source_tree_sha256"] != candidate["review_bindings"]["source_tree_sha256"]:
         raise ValueError("live implementation differs from independently reviewed source bytes")
+    recomputed_inventory = _generated_inventory(output_root)
+    if recomputed_inventory["sha256"] != candidate["review_bindings"]["generated_artifact_inventory_sha256"] or recomputed_inventory["artifacts"] != candidate["reviewed_artifacts"]:
+        raise ValueError("generated artifact inventory differs from the independently reviewed bytes")
+    if sha256_file(inherited_manifest_path) != INHERITED_STAGE21_MANIFEST_SHA256:
+        raise ValueError("inherited Stage-21 manifest physical hash mismatch")
     inherited = json.loads(inherited_manifest_path.read_text(encoding="utf-8"))
     dependency_records = [file_record(output_root, path) for path in _dependency_files(output_root)]
     registry = _registry_rows(output_root / "FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl")
@@ -361,6 +549,7 @@ def finalize_packet(output_root: Path, repository_root: Path, implementation_com
         },
         "artifact_dependencies": dependency_records,
         "inherited_economic_dependency_sha256": inherited["economic_dependency_sha256"],
+        "inherited_stage21_manifest_sha256": INHERITED_STAGE21_MANIFEST_SHA256,
         "selection_contract": {
             "plateau": "Gower radius 0.15; >=5 distinct cells; >=2 varied axes; >=60% base-positive; median base>0; median stress>-18bps; every inner vector retains explicit negative-infinity empties and >=75% nonempty",
             "beam": "maximum five per family/fold; deterministic lexicographic order; no manual selection",
