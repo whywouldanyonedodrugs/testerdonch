@@ -7,7 +7,8 @@ from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from tools.core_liquid_campaign.canonical import atomic_write_json, canonical_hash, pretty_json_bytes
+from tools.core_liquid_campaign.cache import SemanticCacheWriter
+from tools.core_liquid_campaign.canonical import atomic_write_json, canonical_hash, pretty_json_bytes, sha256_file
 from tools.core_liquid_campaign.a1_state import initial_state, transition
 from tools.core_liquid_campaign.family_engines.common import EngineInputError, weak_percentile, weak_percentile_prevalidated_sorted
 from tools.core_liquid_campaign.campaign import CampaignOrchestrator
@@ -103,6 +104,41 @@ class Stage24KnownDefectTests(unittest.TestCase):
         self.assertEqual("pass", evidence["status"])
         payload = pretty_json_bytes(evidence)
         self.assertIn(b'"last_valid_ts": "2025-01-01T00:25:00+00:00"', payload)
+
+    def test_typed_kda_cache_unavailability_becomes_terminal_jobs(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            source = root / "source.json"
+            atomic_write_json(source, {"fixture": True})
+            source_record = {"role": "fixture", "path": "source.json", "bytes": source.stat().st_size, "sha256": sha256_file(source)}
+            authority = {
+                "platform": "kraken_native_linear_pf",
+                "rankable_interval": "[2023-01-01T00:00:00Z,2026-01-01T00:00:00Z)",
+                "source_manifest_sha256": source_record["sha256"], "pit_universe_sha256": "b" * 64,
+                "funding_manifest_sha256": "c" * 64, "cache_contract_sha256": "d" * 64,
+                "fold_graph_sha256": "e" * 64, "rankable_funding_package_sha256": "f" * 64,
+                "source_records": [source_record], "cache_manifest_contract": {"schema": "stage22_semantic_cache_manifest_v1"},
+            }
+            writer = SemanticCacheWriter(root / "cache", authority, authority_root=root, synthetic_only=False)
+            partition = {
+                "phase": "outer_evaluation", "outer_fold_id": "2024Q1", "inner_fold_id": None,
+                "training_start": datetime(2023, 1, 1, tzinfo=timezone.utc),
+                "training_end_exclusive": datetime(2023, 12, 22, tzinfo=timezone.utc),
+                "evaluation_start": datetime(2024, 1, 1, tzinfo=timezone.utc),
+                "evaluation_end_exclusive": datetime(2024, 4, 1, tzinfo=timezone.utc),
+            }
+            record = writer.add_unavailable(
+                family_id="KDA02B_SURVIVOR_ADJUDICATION_V1", partition=partition,
+                reason="exact raw decision fields unavailable", authority_sha256="a" * 64,
+            )
+            cache = {"artifacts": [], "typed_unavailable": [record]}
+            row = self._attempt("KDA02B_SURVIVOR_ADJUDICATION_V1", "kda-row")
+            orchestrator = object.__new__(CampaignOrchestrator)
+            jobs = list(orchestrator._kda_jobs([row], {"kda-row": row}, cache))
+            self.assertEqual(1, len(jobs))
+            result = jobs[0][1]()
+            self.assertEqual(("unavailable_data", "explicit_empty_unavailable_observation"), (result["status"], result["materialization"]))
+            self.assertEqual("a" * 64, result["authority_sha256"])
 
     def test_shadow_provider_uses_actual_accounting_without_real_post_entry_data(self) -> None:
         config = baseline_config("A4_TSMOM_V7")

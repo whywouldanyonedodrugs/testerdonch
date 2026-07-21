@@ -524,7 +524,14 @@ class ProductionFamilyInputBuilder:
                 frame_hashes[symbol] = record["frame_content_sha256"]
             for family in FAMILIES:
                 if family == "KDA02B_SURVIVOR_ADJUDICATION_V1":
-                    matrix.append({"family": family, "phase": partition["phase"], "outer_fold_id": partition["outer_fold_id"], "inner_fold_id": partition["inner_fold_id"], "status": "unavailable_data", "reason": "authorized Stage20 event tape has event identities but no raw decision-time derivative feature columns", "authority_sha256": kda["event_tape_inventory_sha256"]})
+                    reason = "authorized Stage20 event tape has event identities but no raw decision-time derivative feature columns"
+                    unavailable_record = writer.add_unavailable(
+                        family_id=family,
+                        partition=partition,
+                        reason=reason,
+                        authority_sha256=kda["event_tape_inventory_sha256"],
+                    )
+                    matrix.append({"family": family, "phase": partition["phase"], "outer_fold_id": partition["outer_fold_id"], "inner_fold_id": partition["inner_fold_id"], "status": "unavailable_data", "reason": reason, "authority_sha256": kda["event_tape_inventory_sha256"], "unavailable_identity_sha256": unavailable_record["unavailable_identity_sha256"]})
                 else:
                     matrix.append({"family": family, "phase": partition["phase"], "outer_fold_id": partition["outer_fold_id"], "inner_fold_id": partition["inner_fold_id"], "status": "available", "frame_content_sha256_by_symbol": frame_hashes})
         manifest_path = writer.finalize()

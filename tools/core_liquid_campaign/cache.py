@@ -191,7 +191,39 @@ class SemanticCacheWriter:
             raise CacheBuildError("cache construction has no verified source authorities")
         self.source_composite = canonical_hash(execution_input_authority["source_records"])
         self.artifacts: list[dict[str, Any]] = []
+        self.typed_unavailable: list[dict[str, Any]] = []
         self.paths: set[str] = set()
+
+    def add_unavailable(
+        self,
+        *,
+        family_id: str,
+        partition: Mapping[str, Any],
+        reason: str,
+        authority_sha256: str,
+    ) -> dict[str, Any]:
+        if not reason or len(authority_sha256) != 64:
+            raise CacheBuildError("typed cache unavailability lacks its reason or authority")
+        required = {
+            "phase", "outer_fold_id", "inner_fold_id", "training_start",
+            "training_end_exclusive", "evaluation_start", "evaluation_end_exclusive",
+        }
+        if set(partition) != required:
+            raise CacheBuildError("typed cache unavailability has an invalid partition")
+        canonical_partition = _content_partition(partition)
+        record = {
+            "family_id": family_id,
+            "status": "unavailable_data",
+            "reason": reason,
+            "authority_sha256": authority_sha256,
+            "campaign_partition": canonical_partition,
+        }
+        identity = canonical_hash(record)
+        if any(item["unavailable_identity_sha256"] == identity for item in self.typed_unavailable):
+            return next(item for item in self.typed_unavailable if item["unavailable_identity_sha256"] == identity)
+        stored = {**record, "unavailable_identity_sha256": identity}
+        self.typed_unavailable.append(stored)
+        return stored
 
     def add(self, frame: FamilyInput) -> dict[str, Any]:
         frame.validate()
@@ -246,6 +278,15 @@ class SemanticCacheWriter:
             "source_record_inventory_sha256": self.source_composite,
             "artifacts": artifacts,
             "artifact_inventory_sha256": canonical_hash(artifacts),
+            "typed_unavailable": sorted(
+                self.typed_unavailable,
+                key=lambda row: (
+                    str(row["family_id"]),
+                    str(row["campaign_partition"]["phase"]),
+                    str(row["campaign_partition"]["outer_fold_id"]),
+                    str(row["campaign_partition"]["inner_fold_id"]),
+                ),
+            ),
             "construction": "canonical decoded FamilyInput payload from exact physically verified authorities",
             "synthetic_only": self.synthetic_only,
         }

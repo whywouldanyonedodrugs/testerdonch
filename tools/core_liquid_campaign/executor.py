@@ -176,6 +176,14 @@ class CacheAuthority:
             raise AuthorizationError("cache manifest has no physical artifacts")
         if cache.get("artifact_inventory_sha256") != canonical_hash(records):
             raise AuthorizationError("cache artifact inventory hash mismatch")
+        unavailable = cache.get("typed_unavailable", [])
+        if not isinstance(unavailable, list):
+            raise AuthorizationError("cache typed-unavailable inventory is invalid")
+        for row in unavailable:
+            identity = row.get("unavailable_identity_sha256")
+            content = {key: value for key, value in row.items() if key != "unavailable_identity_sha256"}
+            if row.get("status") != "unavailable_data" or not row.get("reason") or not _is_sha256(row.get("authority_sha256")) or identity != canonical_hash(content):
+                raise AuthorizationError("cache typed-unavailable record is incomplete or drifted")
         if self._cache_manifest is None:
             by_path = {}
             fingerprints = {"__manifest__": self._fingerprint(self.manifest_path)}

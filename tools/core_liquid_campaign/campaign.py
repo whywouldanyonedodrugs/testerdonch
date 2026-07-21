@@ -580,7 +580,33 @@ class CampaignOrchestrator:
         rows = [row for row in execution if row["family_id"] == "KDA02B_SURVIVOR_ADJUDICATION_V1"]
         artifacts = self._artifacts(cache, phase="kda02b_adjudication")
         if rows and not artifacts:
-            raise CampaignContractError("exact Stage-20 KDA02B adjudication cache is absent")
+            unavailable = [
+                item for item in cache.get("typed_unavailable", ())
+                if item.get("family_id") == "KDA02B_SURVIVOR_ADJUDICATION_V1"
+                and item.get("status") == "unavailable_data"
+            ]
+            if not unavailable:
+                raise CampaignContractError("exact Stage-20 KDA02B adjudication cache is absent without typed authority reason")
+            reasons = {(str(item.get("reason")), str(item.get("authority_sha256"))) for item in unavailable}
+            if len(reasons) != 1:
+                raise CampaignContractError("KDA02B typed cache unavailability is inconsistent")
+            reason, authority_sha256 = next(iter(reasons))
+            for row in rows:
+                job_id = f"kda02b:{row['executable_attempt_id']}"
+                yield job_id, (lambda row=row, job_id=job_id, reason=reason, authority_sha256=authority_sha256: {
+                    "status": "unavailable_data",
+                    "registered_attempt_id": row["executable_attempt_id"],
+                    "registered_job_id": job_id,
+                    "family_id": row["family_id"],
+                    "reason": reason,
+                    "authority_sha256": authority_sha256,
+                    "aggregate": {},
+                    "observation_count": 0,
+                    "day_base_net_bps": {},
+                    "event_ids": [],
+                    "materialization": "explicit_empty_unavailable_observation",
+                })
+            return
         for row in rows:
             job_id = f"kda02b:{row['executable_attempt_id']}"
             yield job_id, self._execution_job(row, artifacts, registry, job_id, materialize=True)
