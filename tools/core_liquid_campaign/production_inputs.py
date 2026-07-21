@@ -4,6 +4,7 @@ import csv
 import json
 import math
 import zipfile
+import argparse
 from collections import defaultdict
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
@@ -417,10 +418,11 @@ class ProductionFamilyInputBuilder:
         if sha256_file(self.fold_graph_path) != authority["fold_graph_sha256"] or len(fold_graph.get("outer_folds", ())) != 8:
             raise ProductionInputError("fold graph authority mismatch")
         pit_rows = [json.loads(line) for line in (verifier.output_root / pit["artifact"]["path"]).read_text(encoding="utf-8").splitlines() if line]
-        selected_symbols = ("PF_XBTUSD", "PF_ETHUSD", "PF_SOLUSD", "PF_XRPUSD", "PF_DOGEUSD", "PF_ADAUSD", "PF_LINKUSD", "PF_AVAXUSD")
+        context_symbols = ("PF_XBTUSD", "PF_ETHUSD", "PF_SOLUSD", "PF_XRPUSD", "PF_DOGEUSD", "PF_ADAUSD", "PF_LINKUSD", "PF_AVAXUSD")
+        selected_symbols = ("PF_XBTUSD", "PF_ADAUSD", "PF_AVAXUSD")
         full_bars = {
             symbol: _load_trade_bars(parts[symbol], datetime(2023, 1, 1, tzinfo=UTC), datetime(2026, 1, 1, tzinfo=UTC))
-            for symbol in selected_symbols
+            for symbol in context_symbols
         }
         daily = {symbol: _valid_daily(rows) for symbol, rows in full_bars.items()}
         exact_funding_by_symbol = {
@@ -443,10 +445,31 @@ class ProductionFamilyInputBuilder:
                 "evaluation_start": evaluation_start, "evaluation_end_exclusive": evaluation_end,
                 "decision": evaluation_start + timedelta(days=19),
             })
+            for inner in outer["inner_folds"]:
+                inner_evaluation_start = _utc(inner["validation_start"])
+                inner_evaluation_end = _utc(inner["validation_end_exclusive"])
+                partitions.append({
+                    "phase": "inner_validation", "outer_fold_id": outer["outer_fold_id"],
+                    "inner_fold_id": inner["inner_fold_id"],
+                    "training_start": _utc(inner["training_start"]),
+                    "training_end_exclusive": _utc(inner["training_latest_exit_exclusive"]),
+                    "evaluation_start": inner_evaluation_start,
+                    "evaluation_end_exclusive": inner_evaluation_end,
+                    "decision": inner_evaluation_start + timedelta(days=19),
+                })
+        partitions.sort(key=lambda row: (
+            row["training_end_exclusive"], row["evaluation_start"], row["phase"],
+            row["outer_fold_id"], str(row["inner_fold_id"]),
+        ))
+        active_threshold_boundary: tuple[datetime, datetime] | None = None
         for partition_with_decision in partitions:
             partition = {key: value for key, value in partition_with_decision.items() if key != "decision"}
             decision = partition_with_decision["decision"]
             training_start = partition["training_start"]; training_end = partition["training_end_exclusive"]
+            boundary = (training_start, training_end)
+            if boundary != active_threshold_boundary:
+                threshold_cache.clear()
+                active_threshold_boundary = boundary
             snapshot = _snapshot(pit_rows, decision)
             history_start = decision - timedelta(days=181)
             frame_hashes: dict[str, str] = {}
@@ -559,4 +582,29 @@ class ProductionFamilyInputBuilder:
         return report
 
 
-__all__ = ["FAMILIES", "ProductionFamilyInputBuilder", "ProductionInputError"]
+def parser() -> argparse.ArgumentParser:
+    result = argparse.ArgumentParser(description="Build the authority-bound Stage 24 production FamilyInput cache")
+    result.add_argument("--authority", type=Path, required=True)
+    result.add_argument("--fold-graph", type=Path, required=True)
+    result.add_argument("--output", type=Path, required=True)
+    result.add_argument("--repository-root", type=Path, default=Path.cwd())
+    return result
+
+
+def main() -> int:
+    args = parser().parse_args()
+    report = ProductionFamilyInputBuilder(
+        authority_path=args.authority,
+        fold_graph_path=args.fold_graph,
+        output_root=args.output,
+        repository_root=args.repository_root,
+    ).build()
+    print(json.dumps({"status": report["status"], "cache_manifest_sha256": report["cache_manifest_sha256"]}, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+
+
+__all__ = ["FAMILIES", "ProductionFamilyInputBuilder", "ProductionInputError", "main"]
