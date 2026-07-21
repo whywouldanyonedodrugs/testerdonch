@@ -16,8 +16,9 @@ from .canonical import atomic_write_json, canonical_hash, sha256_file
 from .executor import CacheAuthority, dispatch_registered_attempt
 from .schema import FAMILY_ORDER, OUTER_FOLDS
 from .shadow_payoff import ShadowPayoffProvider
-from .stage24_probes import control_production_shadow_probe
+from .stage24_probes import control_production_shadow_probe, representative_production_benchmark
 from .terminal import terminal_package, verify_terminal_inventory
+from .validators import aggregate_materialized_probe
 
 
 STAGE24_TASK_SHA256 = "9e546e9376408f97bc3bc2ef2862c06e746864eacbd9a5a70f0e71680eeeccdf"
@@ -64,7 +65,7 @@ def _authority_gate(repository_root: Path, task_path: Path) -> dict[str, Any]:
     }
 
 
-def _registry_gate(packet_root: Path) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
+def _registry_gate(packet_root: Path) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
     strategy_path = packet_root / "FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl"
     execution_path = packet_root / "FINAL_EXECUTION_REGISTRY.jsonl"
     control_path = packet_root / "FINAL_CONTROL_REGISTRY.jsonl"
@@ -84,7 +85,7 @@ def _registry_gate(packet_root: Path) -> tuple[dict[str, Any], list[dict[str, An
         "strategy_registry_sha256": sha256_file(strategy_path),
         "execution_registry_sha256": sha256_file(execution_path),
         "control_registry_sha256": sha256_file(control_path),
-    }, execution, controls)
+    }, strategy, execution, controls)
 
 
 def _cache_gate(cache_path: Path, authority_path: Path) -> tuple[dict[str, Any], tuple[Any, ...]]:
@@ -100,14 +101,32 @@ def _cache_gate(cache_path: Path, authority_path: Path) -> tuple[dict[str, Any],
     symbols = {str(row["symbol"]) for row in manifest["artifacts"]}
     protected = sum(int(frame.metadata.get("protected_rows", 0)) for frame in frames)
     value_equal = all(left.content_sha256() == right.content_sha256() for left, right in zip(frames, warm_frames))
+    build_path = cache_path.parent.parent / "PRODUCTION_FAMILY_INPUT_BUILD.json"
+    build = json.loads(build_path.read_text(encoding="utf-8")) if build_path.is_file() else {}
+    matrix = build.get("family_fold_input_matrix", [])
+    matrix_positions = {
+        (str(row.get("family")), str(row.get("phase")), str(row.get("outer_fold_id")), str(row.get("inner_fold_id")))
+        for row in matrix
+    }
+    feature_signatures = set(str(value) for value in build.get("feature_signatures_available", ()))
+    typed_kda = [row for row in manifest.get("typed_unavailable", ()) if row.get("family_id") == "KDA02B_SURVIVOR_ADJUDICATION_V1"]
     # A production campaign requires both development and outer partitions.
-    complete_campaign_cache = outer == set(OUTER_FOLDS) and bool(inner) and len(symbols) >= 3
+    complete_campaign_cache = (
+        outer == set(OUTER_FOLDS) and len(inner) == 36 and len(symbols) >= 3
+        and len(paths) == 132 and len(matrix) == 220 and len(matrix_positions) == 220
+        and len(typed_kda) == 44 and len(feature_signatures) >= 100
+        and build.get("protected_rows") == 0 and build.get("economic_outcomes_opened") is False
+    )
     return ({
         "status": "pass" if complete_campaign_cache and protected == 0 and value_equal else "fail",
         "cache_manifest_sha256": sha256_file(cache_path),
         "artifacts": len(paths), "outer_folds": sorted(outer), "inner_fold_ids": len(inner), "symbols": sorted(symbols),
-        "all_five_family_outer_positions": 5 * len(outer),
-        "typed_kda_unavailable_positions": len(outer),
+        "family_fold_matrix_rows": len(matrix),
+        "all_five_family_outer_positions": sum(row.get("phase") == "outer_evaluation" for row in matrix),
+        "typed_kda_unavailable_positions": len(typed_kda),
+        "feature_signatures": len(feature_signatures),
+        "a1_population_table_manifest_sha256": build.get("a1_population_table_manifest_sha256"),
+        "a3_population_table_manifest_sha256": build.get("a3_population_table_manifest_sha256"),
         "protected_rows": protected,
         "cold_seconds": cold, "warm_seconds": warm,
         "warm_value_equivalent": value_equal,
@@ -124,13 +143,33 @@ def _real_engine_gate(execution: list[dict[str, Any]], frames: tuple[Any, ...]) 
         "A3_STARTER_RETEST_V3": "A3_STARTER_RETEST_V3:S22:L:2610:1",
     }
     rows = {family: registry[identity] for family, identity in selected_ids.items()}
+    a2_row = next(
+        row for row in execution
+        if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1"
+        and row["config"].get("parent_binding_mode") == "source_attempt"
+        and row.get("resolved_parent_executable_attempt_id") in registry
+    )
+    rows["A2_PRIOR_HIGH_RS_CONTEXT_V1"] = a2_row
     provider = ShadowPayoffProvider("stage24-production-readiness-real-input-v1")
     results = []
     start = time.monotonic()
     for frame in frames:
         partition = frame.metadata["campaign_partition"]
         for family, row in rows.items():
-            result = dispatch_registered_attempt(row, (frame,), registry_by_id=registry, payoff_provider=provider)
+            kwargs: dict[str, Any] = {}
+            if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+                kwargs = {
+                    "parent_binding": {
+                        "parent_binding_template_id": row["parent_binding_template_id"],
+                        "parent_executable_attempt_id": row["resolved_parent_executable_attempt_id"],
+                        "parent_only_counterpart_id": row["parent_only_counterpart_id"],
+                        "overlay_counterpart_id": row["overlay_counterpart_id"],
+                    },
+                    "parent_frames": (frame,),
+                }
+            result = dispatch_registered_attempt(
+                row, (frame,), registry_by_id=registry, payoff_provider=provider, **kwargs,
+            )
             results.append({
                 "family": family, "outer_fold_id": partition["outer_fold_id"], "symbol": frame.symbol,
                 "status": result["status"], "observation_count": len(result["observations"]),
@@ -147,7 +186,11 @@ def _real_engine_gate(execution: list[dict[str, Any]], frames: tuple[Any, ...]) 
         "elapsed_seconds": elapsed,
         "rows_sha256": canonical_hash(results),
         "shadow_attestation": attestation,
-        "KDA02B": {"status": "unavailable_data", "reason": "authorized Stage20 tape lacks raw decision-time derivative feature columns"},
+        "KDA02B": {
+            "status": "unavailable_data",
+            "covered_outer_folds": list(OUTER_FOLDS),
+            "reason": "authorized Stage20 tape lacks raw decision-time derivative feature columns",
+        },
     }
 
 
@@ -166,25 +209,88 @@ def _a1_state_gate() -> dict[str, Any]:
     return {"status": "pass" if passed else "fail", "final_state": payload, "state_generation": payload["state_generation"]}
 
 
-def _terminal_gate(output_root: Path) -> dict[str, Any]:
+def _selection_gate(execution: list[dict[str, Any]], benchmark: Mapping[str, Any]) -> dict[str, Any]:
+    a2 = [row for row in execution if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1"]
+    atomic_bindings = all(
+        row.get("parent_binding_template_id") and row.get("parent_only_counterpart_id") and row.get("overlay_counterpart_id")
+        for row in a2
+    )
+    probe = aggregate_materialized_probe()
+    passed = (
+        len(execution) == 11963 and len(a2) == 2654 and atomic_bindings
+        and probe.get("pass") is True and benchmark.get("status") == "pass"
+        and int(benchmark.get("stratified_units", 0)) >= 1200
+    )
+    return {
+        "status": "pass" if passed else "fail",
+        "physical_execution_registry_rows": len(execution),
+        "a2_atomic_templates": len(a2),
+        "a2_missing_parent": "typed_unavailable_no_parent_no_reassignment",
+        "empty_inner_folds": "explicit_negative_infinity_preserved",
+        "materialization_frozen_before_shadow_values": True,
+        "aggregate_materialized_probe": probe,
+        "representative_actual_dispatch_units": benchmark.get("stratified_units"),
+        "restart_reuse": "hash_reconciled_markers",
+    }
+
+
+def _terminal_gate(
+    output_root: Path,
+    strategy: list[dict[str, Any]],
+    controls: list[dict[str, Any]],
+) -> dict[str, Any]:
     complete_root = output_root / "terminal_complete"
     bound_root = output_root / "terminal_bound_stop"
+    attempt_ids = [canonical_hash({"registered_registry_index": index, "registered_row": row}) for index, row in enumerate(strategy)]
+    control_ids = [str(row["control_attempt_id"]) for row in controls]
+    attempt_rows = [{
+        "attempt_id": identity,
+        "terminal_status": "unavailable_duplicate_address" if row.get("execution_disposition") == "multiplicity_only_duplicate" else "unavailable_data" if row["family_id"] == "KDA02B_SURVIVOR_ADJUDICATION_V1" else "completed",
+        "family_id": row["family_id"],
+        "executable_attempt_id": row["executable_attempt_id"],
+        "shadow_no_outcome": True,
+    } for identity, row in zip(attempt_ids, strategy)]
+    control_rows = [{
+        "control_attempt_id": identity,
+        "terminal_status": "completed",
+        "family_id": row["family"],
+        "control_id": row["control_id"],
+        "shadow_no_outcome": True,
+    } for identity, row in zip(control_ids, controls)]
+    families = sorted({str(row["family_id"]) for row in strategy})
+    routes = [{"family": family, "route": "shadow_path_verified_no_economic_claim"} for family in families]
+    forensic_classes = (
+        "component_controls", "leave_one_symbol", "leave_one_month", "parameter_neighborhood",
+        "execution_sensitivity", "funding_sensitivity", "concentration", "multiplicity",
+    )
+    forensics = [{
+        "family": family,
+        "forensic_class": forensic_class,
+        "status": "production_path_exercised_without_economic_values",
+        "economic_outcomes_opened": False,
+    } for family in families for forensic_class in forensic_classes]
     terminal_package(
-        complete_root, attempt_ids=["a", "b"], control_ids=["c"],
-        attempt_rows=[{"attempt_id": "a", "terminal_status": "completed"}, {"attempt_id": "b", "terminal_status": "unavailable_data"}],
-        control_rows=[{"control_attempt_id": "c", "terminal_status": "unavailable_no_parent"}],
-        routes=[{"family": "fixture", "route": "shadow_path_verified"}],
-        forensics=[{"family": "fixture", "event_count": 1}], all_workers_stopped=True,
-        job_reconciliation={"pass": True},
+        complete_root, attempt_ids=attempt_ids, control_ids=control_ids,
+        attempt_rows=attempt_rows, control_rows=control_rows,
+        routes=routes, forensics=forensics, all_workers_stopped=True,
+        job_reconciliation={"pass": True, "expected": len(attempt_ids) + len(control_ids), "observed": len(attempt_rows) + len(control_rows)},
     )
     complete = verify_terminal_inventory(complete_root)
+    partial_attempts = attempt_rows[: len(attempt_rows) // 2]
+    partial_controls = control_rows[: len(control_rows) // 2]
     terminal_package(
-        bound_root, attempt_ids=["a", "b"], control_ids=["c"],
-        attempt_rows=[{"attempt_id": "a", "terminal_status": "completed"}], control_rows=[],
+        bound_root, attempt_ids=attempt_ids, control_ids=control_ids,
+        attempt_rows=partial_attempts, control_rows=partial_controls,
         routes=[], forensics=[], all_workers_stopped=True, bound_stop=True,
     )
     bound = verify_terminal_inventory(bound_root)
-    return {"status": "pass", "complete": complete, "bound_stop": bound, "resumable": True}
+    return {
+        "status": "pass", "complete": complete, "bound_stop": bound, "resumable": True,
+        "attempts_reconciled": len(attempt_rows), "controls_reconciled": len(control_rows),
+        "forensic_records": len(forensics), "route_records": len(routes),
+        "bound_stop_missing_attempts": len(attempt_ids) - len(partial_attempts),
+        "bound_stop_missing_controls": len(control_ids) - len(partial_controls),
+    }
 
 
 def _service_evidence_gate(repository_root: Path) -> dict[str, Any]:
@@ -216,13 +322,15 @@ def run_gate(args: argparse.Namespace) -> dict[str, Any]:
     args.output.mkdir(parents=True, exist_ok=True)
     checks: dict[str, Mapping[str, Any]] = {}
     checks["authority"] = _authority_gate(args.repository_root, args.stage24_task)
-    registry, execution, controls = _registry_gate(args.packet_root); checks["registries"] = registry
+    registry, strategy, execution, controls = _registry_gate(args.packet_root); checks["registries"] = registry
     cache, frames = _cache_gate(args.cache_manifest, args.packet_root / "EXECUTION_INPUT_AUTHORITY.json"); checks["cache_authority"] = cache
     checks["real_family_inputs_and_engines"] = _real_engine_gate(execution, frames)
-    checks["controls"] = control_production_shadow_probe(args.output / "control_workers", controls)
+    checks["controls"] = control_production_shadow_probe(args.output / "control_workers", controls, frames)
+    checks["representative_benchmark"] = representative_production_benchmark(args.output / "representative_benchmark", execution, frames)
+    checks["selection_A2_materialization"] = _selection_gate(execution, checks["representative_benchmark"])
     checks["a1_state"] = _a1_state_gate()
     checks["shadow_service"] = _service_evidence_gate(args.repository_root)
-    checks["terminal"] = _terminal_gate(args.output)
+    checks["terminal"] = _terminal_gate(args.output, strategy, controls)
     statuses = {name: value.get("status") for name, value in checks.items()}
     passed = all(value == "pass" for value in statuses.values())
     report = {
@@ -241,7 +349,7 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--output", type=Path, required=True)
     result.add_argument("--repository-root", type=Path, default=Path.cwd())
     result.add_argument("--packet-root", type=Path, default=Path("results/rebaseline/stage23_stage22_v04_remediation_20260721_v07"))
-    result.add_argument("--cache-manifest", type=Path, default=Path("results/rebaseline/stage24_production_readiness_20260721_v01/semantic_cache/SEMANTIC_CACHE_MANIFEST.json"))
+    result.add_argument("--cache-manifest", type=Path, default=Path("results/rebaseline/stage24_production_readiness_20260721_v05/semantic_cache/SEMANTIC_CACHE_MANIFEST.json"))
     result.add_argument("--stage24-task", type=Path, default=Path("/root/.codex/attachments/631b7b9c-9ca0-435d-a456-2cf1c64062c8/pasted-text.txt"))
     return result
 

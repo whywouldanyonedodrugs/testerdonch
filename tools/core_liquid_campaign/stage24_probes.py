@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import time
 from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
@@ -11,6 +13,9 @@ from .controls import CONTROL_IDS, effective_seed, execute_control, reconcile_co
 from .runtime import LazySupervisor, ResourceLimits
 from .schema import CAMPAIGN_ID, baseline_config, economic_address, normalize_config
 from .shadow_payoff import ShadowPayoffProvider
+from .executor import dispatch_registered_attempt, validate_registered_attempt
+from .family_engines.common import EngineInputError
+from .selection import aggregate_streaming
 from .synthetic import a1_frame, a3_frame, a4_frame
 
 
@@ -193,9 +198,18 @@ def _read_supervisor_results(root: Path) -> dict[str, Mapping[str, Any]]:
 def control_production_shadow_probe(
     output_root: Path,
     registered_controls: Sequence[Mapping[str, Any]] | None = None,
+    production_frames: Sequence[Any] | None = None,
 ) -> dict[str, Any]:
     identities = [(family, control_id) for family, ids in CONTROL_IDS.items() for control_id in ids]
     physical_by_class: dict[tuple[str, str], Mapping[str, Any]] = {}
+    physical_frame_inventory = []
+    if production_frames is not None:
+        for frame in production_frames:
+            if frame.metadata.get("production_input") is not True or frame.metadata.get("protected_rows") != 0 or not isinstance(frame.metadata.get("source_authority"), Mapping):
+                raise RuntimeError("control probe received a non-production or unbound CacheAuthority frame")
+            physical_frame_inventory.append(frame.content_sha256())
+        if not physical_frame_inventory:
+            raise RuntimeError("control probe received no physical CacheAuthority frames")
     if registered_controls is not None:
         if len(registered_controls) != 800 or len({str(row["control_attempt_id"]) for row in registered_controls}) != 800:
             raise RuntimeError("physical control registry is not the frozen 800-row multiplicity")
@@ -240,7 +254,13 @@ def control_production_shadow_probe(
         replay = LazySupervisor(root, limits).run(iter(reversed(jobs)))
         if first["status"] != "complete" or replay["status"] != "complete":
             raise RuntimeError("control worker/restart probe did not complete")
-        records = _read_supervisor_results(root)
+        records = {}
+        for marker_path in sorted((root / "markers").glob("*.json")):
+            marker = json.loads(marker_path.read_text(encoding="utf-8"))
+            artifact = root / marker["artifact"]
+            if sha256_file(artifact) != marker["artifact_sha256"]:
+                raise RuntimeError("benchmark supervisor artifact hash mismatch")
+            records[str(marker["job_id"])] = json.loads(artifact.read_text(encoding="utf-8"))["result"]
         if records != sequential:
             raise RuntimeError("control worker execution differs from sequential replay")
         worker_hashes[str(workers)] = canonical_hash(records)
@@ -300,6 +320,9 @@ def control_production_shadow_probe(
         "chunk_size_transformed_inventory_sha256": chunk_orders,
         "physical_control_registry_rows": 0 if registered_controls is None else len(registered_controls),
         "physical_control_registry_bound": registered_controls is not None,
+        "physical_cache_authority_frames": len(physical_frame_inventory),
+        "physical_cache_authority_frame_inventory_sha256": canonical_hash(sorted(physical_frame_inventory)),
+        "physical_cache_authority_bound": production_frames is not None,
         "reversed_input_order": "pass",
         "restart_reuse": "pass",
         "singleton_case": singleton_result["status"],
@@ -309,4 +332,155 @@ def control_production_shadow_probe(
     }
 
 
-__all__ = ["control_production_shadow_probe", "execute_control_fixture"]
+def representative_production_benchmark(
+    output_root: Path,
+    execution: Sequence[Mapping[str, Any]],
+    frames: Sequence[Any],
+) -> dict[str, Any]:
+    """Run a deterministic, outcome-firewalled production dispatcher sample."""
+    registry = {str(row["executable_attempt_id"]): row for row in execution}
+    compile_started = time.monotonic()
+    for row in execution:
+        validate_registered_attempt(row)
+    compile_seconds = time.monotonic() - compile_started
+    outer_frames: dict[str, Any] = {}
+    for frame in sorted(frames, key=lambda item: (item.metadata["campaign_partition"]["outer_fold_id"], item.symbol, item.decision_ts)):
+        partition = frame.metadata["campaign_partition"]
+        if partition["phase"] == "outer_evaluation" and partition["outer_fold_id"] not in outer_frames:
+            outer_frames[str(partition["outer_fold_id"])] = frame
+
+    def stratified(rows: Sequence[Mapping[str, Any]], count: int = 30) -> list[Mapping[str, Any]]:
+        ordered = sorted(rows, key=lambda row: str(row["canonical_economic_address_sha256"]))
+        if len(ordered) <= count:
+            return ordered
+        return [ordered[min(len(ordered) - 1, index * len(ordered) // count)] for index in range(count)]
+
+    family_rows: dict[str, list[Mapping[str, Any]]] = {}
+    for family in ("A4_TSMOM_V7", "A1_COMPRESSION_V2", "A3_STARTER_RETEST_V3"):
+        family_rows[family] = stratified([row for row in execution if row["family_id"] == family])
+    family_rows["A2_PRIOR_HIGH_RS_CONTEXT_V1"] = stratified([
+        row for row in execution
+        if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1"
+        and row["config"].get("parent_binding_mode") == "source_attempt"
+        and row.get("resolved_parent_executable_attempt_id") in registry
+    ])
+    family_rows["KDA02B_SURVIVOR_ADJUDICATION_V1"] = stratified([
+        row for row in execution if row["family_id"] == "KDA02B_SURVIVOR_ADJUDICATION_V1"
+    ])
+    if any(len(rows) < 30 for rows in family_rows.values()):
+        raise RuntimeError("representative benchmark has fewer than thirty addresses in a family stratum")
+    job_specs = [
+        (family, fold, row, outer_frames[fold])
+        for family, rows in family_rows.items()
+        for fold in sorted(outer_frames)
+        for row in rows
+    ]
+
+    def task(family: str, fold: str, row: Mapping[str, Any], frame: Any):
+        def run() -> dict[str, Any]:
+            provider = ShadowPayoffProvider("stage24-representative-production-benchmark-v1")
+            if family == "KDA02B_SURVIVOR_ADJUDICATION_V1":
+                return {
+                    "status": "unavailable_data", "registered_attempt_id": row["executable_attempt_id"],
+                    "family": family, "outer_fold_id": fold, "observation_count": 0,
+                    "result_sha256": canonical_hash({"status": "unavailable_data", "authority_reason": "typed_kda_decision_fields_absent"}),
+                    "shadow_attestation": provider.attestation(),
+                }
+            kwargs: dict[str, Any] = {}
+            if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+                kwargs = {
+                    "parent_binding": {
+                        "parent_binding_template_id": row["parent_binding_template_id"],
+                        "parent_executable_attempt_id": row["resolved_parent_executable_attempt_id"],
+                        "parent_only_counterpart_id": row["parent_only_counterpart_id"],
+                        "overlay_counterpart_id": row["overlay_counterpart_id"],
+                    },
+                    "parent_frames": (frame,),
+                }
+            try:
+                result = dispatch_registered_attempt(row, (frame,), registry_by_id=registry, payoff_provider=provider, **kwargs)
+                recomputed = aggregate_streaming(iter(result.get("observations", ())))
+                if recomputed != result.get("aggregate"):
+                    raise RuntimeError("representative aggregate differs from its materialized observations")
+                status = str(result["status"])
+                digest = canonical_hash({
+                    "status": status,
+                    "aggregate": result.get("aggregate", {}),
+                    "events": sorted(item.event_id for item in result.get("observations", ())),
+                })
+                observations = len(result.get("observations", ()))
+            except EngineInputError as exc:
+                status = "unavailable_data"; observations = 0
+                digest = canonical_hash({"status": status, "reason": str(exc)})
+            return {
+                "status": status,
+                "registered_attempt_id": row["executable_attempt_id"],
+                "family": family,
+                "outer_fold_id": fold,
+                "observation_count": observations,
+                "result_sha256": digest,
+                "shadow_attestation": provider.attestation(),
+            }
+        return run
+
+    limits = ResourceLimits(
+        max_workers=min(4, os.cpu_count() or 1), max_jobs_in_flight=min(4, os.cpu_count() or 1),
+        max_rss_bytes=10 * 1024**3, max_output_bytes=4 * 1024**3,
+        minimum_free_disk_bytes=8 * 1024**3, heartbeat_seconds=1800,
+    )
+    full_root = output_root / "stratified-full"
+    started = time.monotonic()
+    full = LazySupervisor(full_root, limits).run(iter(
+        (f"benchmark:{family}:{fold}:{row['executable_attempt_id']}", task(family, fold, row, frame))
+        for family, fold, row, frame in job_specs
+    ))
+    full_seconds = time.monotonic() - started
+    if full["status"] != "complete" or int(full["completed_count"]) != len(job_specs):
+        raise RuntimeError("representative production benchmark did not complete")
+
+    scaling_specs = job_specs[::max(1, len(job_specs) // 40)][:40]
+    scaling: dict[str, Any] = {}
+    inventories: dict[str, str] = {}
+    for workers in range(1, min(4, os.cpu_count() or 1) + 1):
+        root = output_root / f"scaling-{workers}"
+        worker_limits = ResourceLimits(
+            max_workers=workers, max_jobs_in_flight=workers, max_rss_bytes=10 * 1024**3,
+            max_output_bytes=1024**3, minimum_free_disk_bytes=8 * 1024**3, heartbeat_seconds=1800,
+        )
+        start = time.monotonic()
+        state = LazySupervisor(root, worker_limits).run(iter(
+            (f"scale:{family}:{fold}:{row['executable_attempt_id']}", task(family, fold, row, frame))
+            for family, fold, row, frame in scaling_specs
+        ))
+        elapsed = time.monotonic() - start
+        records = _read_supervisor_results(root)
+        inventories[str(workers)] = canonical_hash(records)
+        scaling[str(workers)] = {
+            "seconds": elapsed, "completed": state["completed_count"],
+            "peak_process_tree_rss_bytes": state.get("peak_process_tree_rss_bytes"),
+            "peak_output_bytes": state.get("peak_output_bytes"),
+        }
+    if len(set(inventories.values())) != 1:
+        raise RuntimeError("production benchmark result hashes differ by worker count")
+    projected = full_seconds / max(1, len(job_specs)) * len(execution) * 44
+    return {
+        "schema": "stage24_representative_production_benchmark_v1",
+        "status": "pass",
+        "full_registry_compiled_rows": len(execution),
+        "stratified_units": len(job_specs),
+        "units_by_family_fold": 30,
+        "outer_folds": len(outer_frames),
+        "full_sample_seconds": full_seconds,
+        "full_sample_peak_process_tree_rss_bytes": full.get("peak_process_tree_rss_bytes"),
+        "full_sample_peak_output_bytes": full.get("peak_output_bytes"),
+        "registry_compile_seconds": compile_seconds,
+        "worker_scaling": scaling,
+        "worker_scaling_result_inventory_sha256": inventories,
+        "conservative_projected_seconds_2x": projected * 2.0,
+        "projection_basis": "measured real CacheAuthority FamilyInput engine/dispatcher/accounting sample; 2x operational safety factor",
+        "economic_outcomes_opened": False,
+        "real_post_entry_rows_opened": 0,
+    }
+
+
+__all__ = ["control_production_shadow_probe", "execute_control_fixture", "representative_production_benchmark"]
