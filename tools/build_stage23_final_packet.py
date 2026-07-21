@@ -222,14 +222,16 @@ def _runtime_evidence(output: Path, repository_root: Path) -> None:
     ).returncode == 0
     if systemd_available:
         service_identity = f"qlmg-stage23-detach-canary-{os.getpid()}.service"
+        marker_absent_at_launcher_return = not detach_marker.exists()
         subprocess.run([
             "systemd-run", "--user", f"--unit={service_identity.removesuffix('.service')}",
-            "--collect", "--property=Type=exec", "--no-block",
+            "--collect", "--property=Type=exec", f"--working-directory={repository_root}", "--no-block",
             *canary_command,
         ], check=True, capture_output=True, text=True)
         mechanism = "systemd --user transient service"
     else:
         service_identity = f"qlmg-s23-canary-{os.getpid()}"
+        marker_absent_at_launcher_return = not detach_marker.exists()
         subprocess.run(["tmux", "new-session", "-d", "-s", service_identity, *canary_command], check=True)
         mechanism = "reviewed tmux detached session fallback"
     deadline = time.monotonic() + 10
@@ -237,7 +239,21 @@ def _runtime_evidence(output: Path, repository_root: Path) -> None:
     if not systemd_available:
         subprocess.run(["tmux", "kill-session", "-t", service_identity], check=False)
     detached = detach_marker.exists()
-    atomic_write_json(output / "DETACHMENT_CANARY_AUDIT.json", {"schema": "stage23_detachment_canary_v1", "mechanism": mechanism, "service_identity": service_identity, "systemd_user_available": systemd_available, "command": canary_command, "actual_campaign_module_and_supervisor_path": True, "launching_command_returned_before_marker": True, "remote_work_continued": detached, "browser_ssh_agent_dependency": False, "status": "pass" if detached else "fail"})
+    atomic_write_json(output / "DETACHMENT_CANARY_AUDIT.json", {"schema": "stage23_detachment_canary_v1", "mechanism": mechanism, "service_identity": service_identity, "systemd_user_available": systemd_available, "working_directory": str(repository_root), "command": canary_command, "actual_campaign_module_and_supervisor_path": True, "launching_command_returned_before_marker": marker_absent_at_launcher_return, "remote_work_continued": detached, "browser_ssh_agent_dependency": False, "status": "pass" if detached and marker_absent_at_launcher_return else "fail"})
+
+
+def _require_passing_audits(output: Path, names: Sequence[str]) -> None:
+    failures = []
+    for name in names:
+        path = output / name
+        if not path.is_file():
+            failures.append(f"{name}:missing")
+            continue
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        if payload.get("status") != "pass":
+            failures.append(f"{name}:{payload.get('status')}")
+    if failures:
+        raise RuntimeError("required Stage23 evidence audit failed: " + ", ".join(failures))
 
 
 def _capacity_evidence(output: Path, execution: Sequence[Mapping[str, Any]], strategy: Sequence[Mapping[str, Any]], production: Mapping[str, Any], build_metrics: Mapping[str, Any], fold_graph: Mapping[str, Any]) -> None:
@@ -365,7 +381,16 @@ def build_evidence(args: argparse.Namespace) -> None:
     _control_evidence(output, source_controls)
     _temporal_evidence(output)
     _runtime_evidence(output, args.repository_root)
+    _require_passing_audits(output, (
+        "HEALTH_RELEASE_CANARY_AUDIT.json",
+        "RESTART_AND_ORPHAN_AUDIT.json",
+        "DETACHMENT_CANARY_AUDIT.json",
+    ))
     _capacity_evidence(output, execution, strategy, production, json.loads((primary / "BUILD_METRICS.json").read_text(encoding="utf-8")), json.loads((candidate / "FOLD_GRAPH.json").read_text(encoding="utf-8")))
+    _require_passing_audits(output, (
+        "REPRESENTATIVE_CAPACITY_BENCHMARK.json",
+        "RESOURCE_AND_STORAGE_PROJECTION.json",
+    ))
     _terminal_evidence(output)
     atomic_write_json(output / "SAFE_PRUNING_AND_EFFICIENCY.json", {"schema": "stage23_safe_pruning_efficiency_v1", "policy": safe_pruning_policy(), "feature_signature_grouping": "exact family/config semantic hash", "aggregate_first": True, "materialization_conditional": True, "outcome_ordering": False, "multiplicity_preserved": True, "status": "pass"})
     compiled = validate_compiled(args.candidate_root)

@@ -468,6 +468,16 @@ class RuntimeAuthorityAndReviewTests(unittest.TestCase):
             self.assertTrue(result["continuous_resource_excursion_stopped"])
             self.assertTrue(result["idempotent"])
 
+    def test_runtime_recovery_canary_uses_fresh_immutable_generation(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            first = synthetic_recovery_canary(root)
+            second = synthetic_recovery_canary(root)
+            self.assertTrue(first["pass"], first)
+            self.assertTrue(second["pass"], second)
+            self.assertEqual(first["canary_generation"], 1)
+            self.assertEqual(second["canary_generation"], 2)
+
     def test_cache_authority_binds_physical_artifact_and_frame_content(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw); source = root / "source.json"; atomic_write_json(source, {"synthetic": True})

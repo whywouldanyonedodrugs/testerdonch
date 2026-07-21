@@ -540,6 +540,13 @@ def launch_detached_supervisor(spec: Mapping[str, Any], unit_root: Path) -> dict
 
 
 def synthetic_recovery_canary(root: Path) -> dict[str, Any]:
+    # A packet/evidence build itself may be resumed.  Keep each canary attempt
+    # immutable instead of reusing a previously terminal supervisor state,
+    # while exercising restart/reconciliation inside that fresh attempt.
+    generation = 1
+    while (root / f"generation-{generation:04d}").exists():
+        generation += 1
+    root = root / f"generation-{generation:04d}"
     class Clock:
         value = 0.0
         def __call__(self) -> float:
@@ -575,6 +582,7 @@ def synthetic_recovery_canary(root: Path) -> dict[str, Any]:
     no_late_write = not late_write.exists()
     excursion_resumed = LazySupervisor(excursion_root, limits, heartbeat=heartbeat).run(iter([("slow", lambda: 3)]))
     return {
+        "canary_generation": generation,
         "first_status": first["status"], "resumed_status": resumed["status"], "replay_status": replay["status"],
         "completed": len(replay["completed"]), "markers_reconciled": len(markers), "artifacts_reconciled": len(artifacts),
         "worker_death_retried": retry_flag.exists(), "heartbeat_delivered": bool(heartbeats), "health_release": bool(replay.get("health_release")),
