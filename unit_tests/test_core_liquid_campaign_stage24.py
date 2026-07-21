@@ -16,6 +16,7 @@ from tools.core_liquid_campaign.controls import CONTROL_IDS, derive_control_inpu
 from tools.core_liquid_campaign.executor import dispatch_registered_attempt
 from tools.core_liquid_campaign.schema import CAMPAIGN_ID, baseline_config, economic_address, normalize_config
 from tools.core_liquid_campaign.shadow_payoff import ShadowPayoffProvider
+from tools.core_liquid_campaign.shadow_service import _write_shadow_bound_stop
 from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame, a4_frame, frame_for_family
 from tools.core_liquid_campaign.terminal import TerminalContractError, independent_terminal_recomputation, terminal_package, verify_terminal_inventory
 from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceLimits
@@ -397,6 +398,15 @@ class Stage24KnownDefectTests(unittest.TestCase):
             self.assertEqual(stored, replay)
             self.assertEqual(sha256_file(root / "INDEPENDENT_RECOMPUTATION.json"), payload["independent_recomputation_sha256"])
             self.assertEqual("pass", verify_terminal_inventory(root)["status"])
+
+    def test_real_shadow_bound_stop_uses_generation_scoped_terminal_builder(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            first = _write_shadow_bound_stop(root, generation=3, attempt_id="a", all_workers_stopped=True)
+            replay = _write_shadow_bound_stop(root, generation=3, attempt_id="a", all_workers_stopped=True)
+            self.assertEqual(first, replay)
+            package = json.loads((root / "terminal_bound_stops/generation-000003/TERMINAL_PACKAGE.json").read_text())
+            self.assertEqual(("global_bound_stop_incomplete", True), (package["status"], package["resumable"]))
 
     def test_stale_scheduled_heartbeat_stops_workers_without_late_commit(self) -> None:
         import time

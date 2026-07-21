@@ -21,6 +21,31 @@ class ShadowAuthorizationError(PermissionError):
     pass
 
 
+def _write_shadow_bound_stop(
+    run_root: Path,
+    *,
+    generation: int,
+    attempt_id: str,
+    all_workers_stopped: bool,
+) -> dict[str, Any]:
+    root = run_root / "terminal_bound_stops" / f"generation-{generation:06d}"
+    if (root / "TERMINAL_ARTIFACT_INVENTORY.json").is_file():
+        return verify_terminal_inventory(root)
+    terminal_package(
+        root,
+        attempt_ids=[attempt_id],
+        control_ids=[],
+        attempt_rows=[],
+        control_rows=[],
+        routes=[],
+        forensics=[],
+        all_workers_stopped=all_workers_stopped,
+        bound_stop=True,
+        job_reconciliation={"pass": False, "reason": "resumable_shadow_bound_stop"},
+    )
+    return verify_terminal_inventory(root)
+
+
 def _jsonable(value: Any) -> Any:
     if isinstance(value, datetime):
         return require_utc(value).isoformat()
@@ -164,11 +189,18 @@ def run_shadow_service(spec_path: Path) -> dict[str, Any]:
     )
     supervisor_state = supervisor.run(iter([(job_id, job)]), require_health_release=True)
     if supervisor_state.get("status") != "complete" or supervisor_state.get("health_release") is not True:
+        bound_terminal = _write_shadow_bound_stop(
+            run_root,
+            generation=int(supervisor_state.get("generation", 0)),
+            attempt_id=str(row["executable_attempt_id"]),
+            all_workers_stopped=supervisor_state.get("all_workers_stopped") is True,
+        )
         state.update({
             "status": str(supervisor_state.get("status", "global_resumable_bound_stop")),
             "health_release": False,
             "all_workers_stopped": supervisor_state.get("all_workers_stopped") is True,
             "resumable": True,
+            "terminal_bound_stop_inventory": bound_terminal,
         })
         atomic_write_json(state_path, state)
         return state
@@ -219,4 +251,4 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 
-__all__ = ["ShadowAuthorization", "ShadowAuthorizationError", "run_shadow_service"]
+__all__ = ["ShadowAuthorization", "ShadowAuthorizationError", "_write_shadow_bound_stop", "run_shadow_service"]
