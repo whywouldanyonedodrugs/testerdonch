@@ -542,7 +542,8 @@ def detached_shadow_service_spec(repository_root: Path, run_root: Path, spec_pat
     command = [
         str(repository_root / ".venv/bin/python"),
         "-m",
-        "tools.core_liquid_campaign.shadow_service",
+        "tools.run_stage22_core_liquid_campaign",
+        "shadow-run",
         "--spec",
         str(spec_path),
     ]
@@ -565,7 +566,7 @@ def detached_shadow_service_spec(repository_root: Path, run_root: Path, spec_pat
         "exec_start": command,
         "systemd_user_unit": unit,
         "telegram_environment": {"path": str(telegram_env_file), "owner_uid": secret_stat.st_uid, "mode": oct(secret_stat.st_mode & 0o777), "contents_recorded": False},
-        "environment": {"PYTHONPATH": None, "invocation": "reviewed worktree .venv/bin/python -m tools.core_liquid_campaign.shadow_service"},
+        "environment": {"PYTHONPATH": None, "invocation": "reviewed worktree .venv/bin/python -m tools.run_stage22_core_liquid_campaign shadow-run"},
     }
 
 

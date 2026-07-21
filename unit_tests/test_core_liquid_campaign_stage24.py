@@ -21,6 +21,7 @@ from tools.core_liquid_campaign.shadow_service import _write_shadow_bound_stop
 from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame, a4_frame, frame_for_family, with_source_authority
 from tools.core_liquid_campaign.terminal import TerminalContractError, independent_terminal_recomputation, terminal_package, verify_terminal_inventory
 from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceLimits
+from tools.core_liquid_campaign.runtime import detached_shadow_service_spec
 from tools.core_liquid_campaign.production_readiness_gate import _a1_state_gate
 from tools.core_liquid_campaign.production_inputs import _a2_proximity_feature_arrays, _thresholds
 from tools.core_liquid_campaign.family_engines import a1_compression
@@ -677,6 +678,36 @@ class Stage24KnownDefectTests(unittest.TestCase):
             self.assertEqual(first, replay)
             package = json.loads((root / "terminal_bound_stops/generation-000003/TERMINAL_PACKAGE.json").read_text())
             self.assertEqual(("global_bound_stop_incomplete", True), (package["status"], package["resumable"]))
+
+    def test_detached_shadow_service_uses_supported_campaign_cli(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            repository = root / "repository"
+            repository.mkdir()
+            spec_path = root / "SHADOW_SERVICE_SPEC.json"
+            atomic_write_json(spec_path, {"schema": "stage24_shadow_service_spec_v1"})
+            telegram = root / "telegram.env"
+            telegram.write_text("TOKEN=fixture\n", encoding="utf-8")
+            telegram.chmod(0o600)
+            service = detached_shadow_service_spec(
+                repository,
+                root / "run",
+                spec_path,
+                sha256_file(spec_path),
+                telegram_env_file=telegram,
+            )
+            self.assertEqual(
+                [
+                    str(repository / ".venv/bin/python"),
+                    "-m",
+                    "tools.run_stage22_core_liquid_campaign",
+                    "shadow-run",
+                    "--spec",
+                    str(spec_path),
+                ],
+                service["exec_start"],
+            )
+            self.assertIsNone(service["environment"]["PYTHONPATH"])
 
     def test_stale_scheduled_heartbeat_stops_workers_without_late_commit(self) -> None:
         import time
