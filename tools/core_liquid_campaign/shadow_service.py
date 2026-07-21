@@ -111,6 +111,9 @@ def run_shadow_service(spec_path: Path) -> dict[str, Any]:
 
     def job() -> dict[str, Any]:
         _, frames = cache.load_frames({"execution_input_authority": authority}, [artifact_path])
+        worker_hold = float(spec.get("worker_hold_seconds", 0.0))
+        if worker_hold > 0:
+            time.sleep(worker_hold)
         provider = ShadowPayoffProvider(str(spec["synthetic_provider_version"]))
         result = dispatch_registered_attempt(
             row,

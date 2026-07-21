@@ -17,6 +17,7 @@ from tools.core_liquid_campaign.schema import CAMPAIGN_ID, baseline_config, econ
 from tools.core_liquid_campaign.shadow_payoff import ShadowPayoffProvider
 from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame, a4_frame, frame_for_family
 from tools.core_liquid_campaign.terminal import TerminalContractError, terminal_package, verify_terminal_inventory
+from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceLimits
 
 
 class Stage24KnownDefectTests(unittest.TestCase):
@@ -280,6 +281,41 @@ class Stage24KnownDefectTests(unittest.TestCase):
             (root / "FORENSIC_RECORDS.json").write_bytes(b"tampered")
             with self.assertRaises(TerminalContractError):
                 verify_terminal_inventory(root)
+
+    def test_stale_scheduled_heartbeat_stops_workers_without_late_commit(self) -> None:
+        import time
+
+        class Clock:
+            value = 0.0
+
+            def __call__(self) -> float:
+                self.value += 1000.0
+                return self.value
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            late = root / "late-write"
+            deliveries = {"count": 0}
+
+            def heartbeat(_payload: object) -> bool:
+                deliveries["count"] += 1
+                return deliveries["count"] == 1
+
+            def slow() -> dict[str, object]:
+                time.sleep(1.0)
+                late.write_text("unsafe\n", encoding="utf-8")
+                return {"registered_attempt_id": "slow", "status": "complete", "aggregate": {}}
+
+            limits = ResourceLimits(
+                max_workers=1, max_jobs_in_flight=1, max_output_bytes=32 * 1024**2,
+                minimum_free_disk_bytes=1, minimum_free_disk_fraction=0.0,
+                heartbeat_seconds=1, monitor_interval_seconds=0.001,
+            )
+            state = LazySupervisor(root, limits, heartbeat=heartbeat, monotonic=Clock()).run(iter([("slow", slow)]))
+            time.sleep(0.05)
+            self.assertEqual("global_resumable_bound_stop_heartbeat_stale", state["status"])
+            self.assertTrue(state["all_workers_stopped"])
+            self.assertFalse(late.exists())
 
 
 if __name__ == "__main__":
