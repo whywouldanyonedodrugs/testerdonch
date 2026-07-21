@@ -6,6 +6,8 @@ import os
 import subprocess
 import time
 from collections import Counter
+from dataclasses import asdict, is_dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Mapping
 
@@ -20,6 +22,18 @@ from .terminal import terminal_package, verify_terminal_inventory
 
 STAGE24_TASK_SHA256 = "9e546e9376408f97bc3bc2ef2862c06e746864eacbd9a5a70f0e71680eeeccdf"
 DIRTY_ORIGINAL_SHA256 = "d24aad2612fb79bb0893e13b9cac2592539ac9c783ad95c3b00fafc64bb37b1b"
+
+
+def _jsonable(value: Any) -> Any:
+    if isinstance(value, datetime):
+        return value.isoformat()
+    if is_dataclass(value) and not isinstance(value, type):
+        return _jsonable(asdict(value))
+    if isinstance(value, Mapping):
+        return {str(key): _jsonable(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_jsonable(item) for item in value]
+    return value
 
 
 def _jsonl(path: Path) -> list[dict[str, Any]]:
@@ -147,7 +161,7 @@ def _a1_state_gate() -> dict[str, Any]:
     state = transition(state, timestamp=start + timedelta(minutes=15), action="base")
     state = transition(state, timestamp=start + timedelta(minutes=20), action="confirmation")
     state = transition(state, timestamp=start + timedelta(minutes=25), action="gap")
-    payload = state.payload()
+    payload = _jsonable(state.payload())
     passed = payload["state"] == "history_rebuild" and payload["owner"] == 1 and payload["terminal_episode_reason"] == "temporal_gap"
     return {"status": "pass" if passed else "fail", "final_state": payload, "state_generation": payload["state_generation"]}
 

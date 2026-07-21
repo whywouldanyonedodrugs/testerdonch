@@ -7,7 +7,7 @@ from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from tools.core_liquid_campaign.canonical import atomic_write_json, canonical_hash
+from tools.core_liquid_campaign.canonical import atomic_write_json, canonical_hash, pretty_json_bytes
 from tools.core_liquid_campaign.a1_state import initial_state, transition
 from tools.core_liquid_campaign.family_engines.common import EngineInputError, weak_percentile, weak_percentile_prevalidated_sorted
 from tools.core_liquid_campaign.campaign import CampaignOrchestrator
@@ -18,6 +18,7 @@ from tools.core_liquid_campaign.shadow_payoff import ShadowPayoffProvider
 from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame, a4_frame, frame_for_family
 from tools.core_liquid_campaign.terminal import TerminalContractError, terminal_package, verify_terminal_inventory
 from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceLimits
+from tools.core_liquid_campaign.production_readiness_gate import _a1_state_gate
 
 
 class Stage24KnownDefectTests(unittest.TestCase):
@@ -96,6 +97,12 @@ class Stage24KnownDefectTests(unittest.TestCase):
         state = transition(state, timestamp=start + timedelta(hours=1), action="cooldown_expired")
         self.assertEqual("disarmed", state.state)
         self.assertEqual(6, state.state_generation)
+
+    def test_production_gate_a1_evidence_is_canonical_json_serializable(self) -> None:
+        evidence = _a1_state_gate()
+        self.assertEqual("pass", evidence["status"])
+        payload = pretty_json_bytes(evidence)
+        self.assertIn(b'"last_valid_ts": "2025-01-01T00:25:00+00:00"', payload)
 
     def test_shadow_provider_uses_actual_accounting_without_real_post_entry_data(self) -> None:
         config = baseline_config("A4_TSMOM_V7")
