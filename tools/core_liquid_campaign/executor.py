@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import math
 import subprocess
+from collections import OrderedDict
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -132,7 +133,7 @@ class CacheAuthority:
     _cache_manifest: dict[str, Any] | None = field(default=None, init=False, repr=False)
     _records_by_path: dict[str, Mapping[str, Any]] = field(default_factory=dict, init=False, repr=False)
     _components_by_path: dict[str, Mapping[str, Any]] = field(default_factory=dict, init=False, repr=False)
-    _decoded_frames: dict[str, FamilyInput] = field(default_factory=dict, init=False, repr=False)
+    _decoded_frames: OrderedDict[str, FamilyInput] = field(default_factory=OrderedDict, init=False, repr=False)
     _fingerprints: dict[str, tuple[int, int, int, int]] = field(default_factory=dict, init=False, repr=False)
     _expected_authority_sha256: str | None = field(default=None, init=False, repr=False)
 
@@ -141,8 +142,19 @@ class CacheAuthority:
         stat = path.stat()
         return (int(stat.st_dev), int(stat.st_ino), int(stat.st_size), int(stat.st_mtime_ns))
 
-    def _require_unchanged_preloaded_bytes(self) -> None:
-        for relative, expected in self._fingerprints.items():
+    def _require_unchanged_preloaded_bytes(self, requested_paths: Sequence[str] | None = None) -> None:
+        if requested_paths is None:
+            items = self._fingerprints.items()
+        else:
+            required = {"__manifest__", *requested_paths}
+            for relative in requested_paths:
+                if relative not in self._fingerprints:
+                    raise AuthorizationError(f"unregistered semantic-cache artifact: {relative}")
+                record = self._records_by_path.get(relative)
+                if record is not None and record.get("shared_payload_path"):
+                    required.add(str(record["shared_payload_path"]))
+            items = ((relative, self._fingerprints[relative]) for relative in sorted(required))
+        for relative, expected in items:
             path = self.manifest_path if relative == "__manifest__" else self.cache_root / relative
             if not path.is_file() or self._fingerprint(path) != expected:
                 raise AuthorizationError(f"preloaded cache bytes changed after hash verification: {relative}")
@@ -153,7 +165,7 @@ class CacheAuthority:
         if self._cache_manifest is not None:
             if expected_authority_sha256 != self._expected_authority_sha256:
                 raise AuthorizationError("caller authority differs from the preloaded cache authority")
-            self._require_unchanged_preloaded_bytes()
+            self._require_unchanged_preloaded_bytes([str(path) for path in artifact_paths])
             cache = self._cache_manifest
             by_path = self._records_by_path
             components_by_path = self._components_by_path
@@ -266,17 +278,25 @@ class CacheAuthority:
                 raise AuthorizationError("decoded frame provenance differs from the verified cache authority")
             if newly_decoded:
                 self._decoded_frames[str(relative)] = frame
+                while len(self._decoded_frames) > 12:
+                    self._decoded_frames.popitem(last=False)
+            else:
+                self._decoded_frames.move_to_end(str(relative))
             frames.append(frame)
         return cache, tuple(frames)
 
     def preload_frames(self, campaign_manifest: Mapping[str, Any]) -> tuple[dict[str, Any], tuple[FamilyInput, ...]]:
-        """Verify and decode the full cache once in the supervisor before fork."""
+        """Verify the full physical authority without eagerly decoding the campaign."""
         if self._cache_manifest is None:
             raw = json.loads(self.manifest_path.read_text(encoding="utf-8"))
             paths = [str(record["path"]) for record in raw.get("artifacts", ())]
         else:
             paths = sorted(self._records_by_path)
-        return self.load_frames(campaign_manifest, paths)
+        if not paths:
+            raise AuthorizationError("cache manifest has no frame to verify")
+        cache, _ = self.load_frames(campaign_manifest, paths[:1])
+        self._decoded_frames.clear()
+        return cache, ()
 
 
 def validate_registered_attempt(row: Mapping[str, Any]) -> None:

@@ -10,7 +10,7 @@ from collections import Counter
 from dataclasses import asdict, is_dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
 
 from .a1_state import initial_state, transition
 from .canonical import atomic_write_json, canonical_hash, sha256_file
@@ -91,38 +91,54 @@ def _registry_gate(packet_root: Path) -> tuple[dict[str, Any], list[dict[str, An
 
 
 def _bounded_cold_warm_replay(
-    cache: CacheAuthority,
+    cache_factory: Callable[[], CacheAuthority],
     campaign_manifest: Mapping[str, Any],
-    paths: list[str],
-) -> tuple[float, float, tuple[Any, ...]]:
-    """Replay the full cache twice without retaining two decoded copies."""
+    records: list[Mapping[str, Any]],
+) -> tuple[float, float, tuple[Any, ...], int]:
+    """Replay every artifact twice while retaining one frame per partition."""
+
+    def replay() -> tuple[tuple[Any, ...], int]:
+        cache = cache_factory()
+        retained: dict[tuple[str, str, str], Any] = {}
+        protected_rows = 0
+        for offset in range(0, len(records), 3):
+            batch = records[offset:offset + 3]
+            _, frames = cache.load_frames(campaign_manifest, [str(row["path"]) for row in batch])
+            if len(frames) != len(batch):
+                raise RuntimeError("CacheAuthority replay omitted a registered frame")
+            for record, frame in zip(batch, frames):
+                partition = record["campaign_partition"]
+                key = (
+                    str(partition["phase"]),
+                    str(partition["outer_fold_id"]),
+                    str(partition.get("inner_fold_id")),
+                )
+                retained.setdefault(key, frame)
+                protected_rows += int(frame.metadata.get("protected_rows", 0))
+        return tuple(retained[key] for key in sorted(retained)), protected_rows
+
     cold_start = time.monotonic()
-    _, cold_frames = cache.load_frames(campaign_manifest, paths)
+    cold_frames, cold_protected = replay()
     cold = time.monotonic() - cold_start
-    if len(cold_frames) != len(paths):
-        raise RuntimeError("cold CacheAuthority replay omitted a registered frame")
-    # CacheAuthority validates every decoded frame against its registered
-    # frame_content_sha256.  Release that fully verified tuple before the warm
-    # replay so the gate cannot double the production resident set.
     del cold_frames
     gc.collect()
     warm_start = time.monotonic()
-    _, warm_frames = cache.load_frames(campaign_manifest, paths)
+    warm_frames, warm_protected = replay()
     warm = time.monotonic() - warm_start
-    if len(warm_frames) != len(paths):
-        raise RuntimeError("warm CacheAuthority replay omitted a registered frame")
-    return cold, warm, warm_frames
+    if cold_protected != warm_protected:
+        raise RuntimeError("cold/warm protected-row accounting differs")
+    return cold, warm, warm_frames, warm_protected
 
 
 def _cache_gate(cache_path: Path, authority_path: Path) -> tuple[dict[str, Any], tuple[Any, ...]]:
     authority = json.loads(authority_path.read_text(encoding="utf-8"))
     manifest = json.loads(cache_path.read_text(encoding="utf-8"))
-    cache = CacheAuthority(cache_path, cache_path.parent)
-    paths = [str(row["path"]) for row in manifest["artifacts"]]
-    cold, warm, frames = _bounded_cold_warm_replay(
-        cache,
+    records = list(manifest["artifacts"])
+    paths = [str(row["path"]) for row in records]
+    cold, warm, frames, protected = _bounded_cold_warm_replay(
+        lambda: CacheAuthority(cache_path, cache_path.parent),
         {"execution_input_authority": authority},
-        paths,
+        records,
     )
     partitions = [row["campaign_partition"] for row in manifest["artifacts"]]
     outer = {str(row["outer_fold_id"]) for row in partitions if row["phase"] == "outer_evaluation"}
@@ -132,7 +148,6 @@ def _cache_gate(cache_path: Path, authority_path: Path) -> tuple[dict[str, Any],
         for row in partitions
     }
     symbols = {str(row["symbol"]) for row in manifest["artifacts"]}
-    protected = sum(int(frame.metadata.get("protected_rows", 0)) for frame in frames)
     # Both independent decodes passed CacheAuthority's per-frame content hash
     # check against the same immutable manifest records.
     value_equal = True
@@ -156,6 +171,8 @@ def _cache_gate(cache_path: Path, authority_path: Path) -> tuple[dict[str, Any],
         "status": "pass" if complete_campaign_cache and protected == 0 and value_equal else "fail",
         "cache_manifest_sha256": sha256_file(cache_path),
         "artifacts": len(paths), "outer_folds": sorted(outer), "inner_fold_ids": len(inner),
+        "decoded_artifacts_cold_and_warm": len(paths) * 2,
+        "retained_partition_representatives": len(frames),
         "inner_partition_positions": len(partition_positions) - len(outer), "symbols": sorted(symbols),
         "family_fold_matrix_rows": len(matrix),
         "all_five_family_outer_positions": sum(row.get("phase") == "outer_evaluation" for row in matrix),

@@ -514,14 +514,26 @@ class RuntimeAuthorityAndReviewTests(unittest.TestCase):
                 "cache_manifest_contract": {"schema": "stage22_semantic_cache_manifest_v1"},
             }
             first = with_source_authority(a1_frame(), authority)
-            second_partition = {**first.metadata["campaign_partition"], "outer_fold_id": "2025Q3"}
-            second = replace(first, metadata={**first.metadata, "campaign_partition": second_partition})
-            manifest_path = build_semantic_cache(root / "cache", authority, [first, second], authority_root=root, synthetic_only=True)
+            inputs = [
+                replace(first, metadata={
+                    **first.metadata,
+                    "campaign_partition": {
+                        **first.metadata["campaign_partition"],
+                        "outer_fold_id": "2025Q2" if index % 2 == 0 else "2025Q3",
+                        "inner_fold_id": f"M_{index:02d}",
+                    },
+                })
+                for index in range(14)
+            ]
+            manifest_path = build_semantic_cache(root / "cache", authority, inputs, authority_root=root, synthetic_only=True)
             manifest = json.loads(manifest_path.read_text())
-            self.assertEqual((2, 1), (len(manifest["artifacts"]), len(manifest["components"])))
+            self.assertEqual((14, 1), (len(manifest["artifacts"]), len(manifest["components"])))
             cache = CacheAuthority(manifest_path, root / "cache")
             _, frames = cache.load_frames({"execution_input_authority": authority}, [row["path"] for row in manifest["artifacts"]])
             self.assertEqual({"2025Q2", "2025Q3"}, {frame.metadata["campaign_partition"]["outer_fold_id"] for frame in frames})
+            self.assertEqual(12, len(cache._decoded_frames))
+            self.assertNotIn(manifest["artifacts"][0]["path"], cache._decoded_frames)
+            self.assertIn(manifest["artifacts"][-1]["path"], cache._decoded_frames)
             component = root / "cache" / manifest["components"][0]["path"]
             component.write_bytes(b"tampered")
             with self.assertRaises(AuthorizationError):

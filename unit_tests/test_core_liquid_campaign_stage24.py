@@ -127,7 +127,11 @@ class Stage24KnownDefectTests(unittest.TestCase):
             record = writer.add(frame); manifest_path = writer.finalize()
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             self.assertIn("npy_float64_le_sorted_v1", {row["encoding"] for row in manifest["components"]})
-            _, decoded = CacheAuthority(manifest_path, cache_root).load_frames({"execution_input_authority": authority}, [record["path"]])
+            cache = CacheAuthority(manifest_path, cache_root)
+            _, preloaded = cache.preload_frames({"execution_input_authority": authority})
+            self.assertEqual((), preloaded)
+            self.assertEqual(0, len(cache._decoded_frames))
+            _, decoded = cache.load_frames({"execution_input_authority": authority}, [record["path"]])
             restored = decoded[0].threshold_populations[name].values
             self.assertIsInstance(restored, ExactPopulationView)
             self.assertEqual(weak_percentile(19.0, external), weak_percentile(19.0, restored))
@@ -277,28 +281,33 @@ class Stage24KnownDefectTests(unittest.TestCase):
 
     def test_full_cache_warm_replay_releases_cold_frames_first(self) -> None:
         class Frame:
-            pass
+            metadata: dict[str, object] = {}
+
+        cold_refs: list[weakref.ReferenceType[Frame]] = []
+        factory_calls = {"count": 0}
 
         class Cache:
-            calls = 0
-            cold_refs: list[weakref.ReferenceType[Frame]] = []
+            def __init__(self, generation: int) -> None:
+                self.generation = generation
 
             def load_frames(self, _manifest: object, paths: list[str]) -> tuple[dict[str, object], tuple[Frame, ...]]:
-                self.calls += 1
-                if self.calls == 2:
-                    self.assert_cold_released()
                 frames = tuple(Frame() for _ in paths)
-                if self.calls == 1:
-                    self.cold_refs = [weakref.ref(frame) for frame in frames]
+                if self.generation == 1:
+                    cold_refs.extend(weakref.ref(frame) for frame in frames)
                 return {}, frames
 
-            def assert_cold_released(self) -> None:
-                if any(reference() is not None for reference in self.cold_refs):
-                    raise AssertionError("cold cache frames remained live during warm replay")
+        def factory() -> Cache:
+            factory_calls["count"] += 1
+            if factory_calls["count"] == 2 and any(reference() is not None for reference in cold_refs):
+                raise AssertionError("cold cache frames remained live during warm replay")
+            return Cache(factory_calls["count"])
 
-        cache = Cache()
-        cold, warm, frames = _bounded_cold_warm_replay(cache, {}, ["a", "b", "c"])
-        self.assertEqual((2, 3), (cache.calls, len(frames)))
+        records = [
+            {"path": f"frame-{index}", "campaign_partition": {"phase": "inner_validation", "outer_fold_id": "2024Q1", "inner_fold_id": f"M_{index // 3}"}}
+            for index in range(6)
+        ]
+        cold, warm, frames, protected = _bounded_cold_warm_replay(factory, {}, records)
+        self.assertEqual((2, 2, 0), (factory_calls["count"], len(frames), protected))
         self.assertGreaterEqual(cold, 0.0)
         self.assertGreaterEqual(warm, 0.0)
 
