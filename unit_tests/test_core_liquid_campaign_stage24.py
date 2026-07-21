@@ -23,7 +23,7 @@ from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame, a4_frame, f
 from tools.core_liquid_campaign.terminal import TerminalContractError, independent_terminal_recomputation, terminal_package, verify_terminal_inventory
 from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceLimits
 from tools.core_liquid_campaign.runtime import detached_shadow_service_spec
-from tools.core_liquid_campaign.production_readiness_gate import _a1_state_gate, _bounded_cold_warm_replay
+from tools.core_liquid_campaign.production_readiness_gate import _a1_state_gate, _bounded_cold_warm_replay, _outer_benchmark_frames
 from tools.core_liquid_campaign.production_inputs import _a2_proximity_feature_arrays, _thresholds
 from tools.core_liquid_campaign.family_engines import a1_compression
 from tools.core_liquid_campaign.production_population_tables import A1PopulationTableAuthority, _a3_symbol_events, _feature_arrays
@@ -310,6 +310,20 @@ class Stage24KnownDefectTests(unittest.TestCase):
         self.assertEqual((2, 2, 0), (factory_calls["count"], len(frames), protected))
         self.assertGreaterEqual(cold, 0.0)
         self.assertGreaterEqual(warm, 0.0)
+
+    def test_benchmark_releases_inner_frames_before_fork(self) -> None:
+        class Frame:
+            def __init__(self, phase: str, fold: str) -> None:
+                self.metadata = {"campaign_partition": {"phase": phase, "outer_fold_id": fold}}
+
+        frames = tuple(
+            Frame(phase, fold)
+            for fold in ("2024Q1", "2024Q2", "2024Q3", "2024Q4", "2025Q1", "2025Q2", "2025Q3", "2025Q4")
+            for phase in ("inner_validation", "outer_evaluation")
+        )
+        selected = _outer_benchmark_frames(frames)
+        self.assertEqual(8, len(selected))
+        self.assertTrue(all(frame.metadata["campaign_partition"]["phase"] == "outer_evaluation" for frame in selected))
 
     def test_cache_restores_a1_cooldown_deadline_as_utc_datetime(self) -> None:
         value = _restore_metadata({"cooldown_until": "2025-01-01T01:00:00+00:00"})

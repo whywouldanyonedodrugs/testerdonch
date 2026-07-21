@@ -263,6 +263,17 @@ def _a1_state_gate() -> dict[str, Any]:
     return {"status": "pass" if passed else "fail", "final_state": payload, "state_generation": payload["state_generation"]}
 
 
+def _outer_benchmark_frames(frames: tuple[Any, ...]) -> tuple[Any, ...]:
+    selected = tuple(
+        frame for frame in frames
+        if frame.metadata["campaign_partition"]["phase"] == "outer_evaluation"
+    )
+    folds = {str(frame.metadata["campaign_partition"]["outer_fold_id"]) for frame in selected}
+    if len(selected) != len(OUTER_FOLDS) or folds != set(OUTER_FOLDS):
+        raise RuntimeError("benchmark does not have exactly one retained frame per outer fold")
+    return selected
+
+
 def _selection_gate(execution: list[dict[str, Any]], benchmark: Mapping[str, Any]) -> dict[str, Any]:
     a2 = [row for row in execution if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1"]
     atomic_bindings = all(
@@ -391,7 +402,10 @@ def run_gate(args: argparse.Namespace) -> dict[str, Any]:
     cache, frames = _cache_gate(args.cache_manifest, args.packet_root / "EXECUTION_INPUT_AUTHORITY.json"); checks["cache_authority"] = cache
     checks["real_family_inputs_and_engines"] = _real_engine_gate(execution, frames)
     checks["controls"] = control_production_shadow_probe(args.output / "control_workers", controls, frames)
-    checks["representative_benchmark"] = representative_production_benchmark(args.output / "representative_benchmark", execution, frames)
+    benchmark_frames = _outer_benchmark_frames(frames)
+    del frames
+    gc.collect()
+    checks["representative_benchmark"] = representative_production_benchmark(args.output / "representative_benchmark", execution, benchmark_frames)
     checks["selection_A2_materialization"] = _selection_gate(execution, checks["representative_benchmark"])
     checks["a1_state"] = _a1_state_gate()
     checks["shadow_service"] = _service_evidence_gate(
