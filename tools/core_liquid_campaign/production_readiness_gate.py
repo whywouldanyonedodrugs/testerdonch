@@ -349,7 +349,7 @@ def _terminal_gate(
 
 def _service_evidence_gate(repository_root: Path, *, cache_manifest_sha256: str, implementation_commit: str) -> dict[str, Any]:
     roots = {
-        "current_production": repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v11/run",
+        "current_production": repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v12/run",
         "restart": repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v02/run",
         "worker_kill": repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v06/run",
         "graceful_resume": repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v07/run",
@@ -364,7 +364,7 @@ def _service_evidence_gate(repository_root: Path, *, cache_manifest_sha256: str,
             "all_workers_stopped": supervisor.get("all_workers_stopped"), "service_identity": supervisor.get("service_identity"),
         }
     attempt_values = list(rows["worker_kill"]["attempts"].values())
-    current_spec_path = repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v11/SHADOW_SERVICE_SPEC.json"
+    current_spec_path = repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v12/SHADOW_SERVICE_SPEC.json"
     current_spec = json.loads(current_spec_path.read_text(encoding="utf-8"))
     passed = (
         all(row["campaign_status"] == "complete" and row["health_release"] is True and row["all_workers_stopped"] is True for row in rows.values())
