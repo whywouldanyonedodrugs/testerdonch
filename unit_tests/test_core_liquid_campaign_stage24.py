@@ -317,6 +317,40 @@ class Stage24KnownDefectTests(unittest.TestCase):
             self.assertTrue(state["all_workers_stopped"])
             self.assertFalse(late.exists())
 
+    def test_abrupt_worker_pipe_eof_requeues_and_recovers_once(self) -> None:
+        import os
+
+        class Clock:
+            value = 0.0
+
+            def __call__(self) -> float:
+                self.value += 100.0
+                return self.value
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            first_attempt = root / "first-attempt"
+
+            def abrupt_then_complete() -> dict[str, object]:
+                if not first_attempt.exists():
+                    first_attempt.write_text("abrupt worker exit\n", encoding="utf-8")
+                    os._exit(17)
+                return {"registered_attempt_id": "abrupt", "status": "complete", "aggregate": {}}
+
+            limits = ResourceLimits(
+                max_workers=1, max_jobs_in_flight=1, max_output_bytes=32 * 1024**2,
+                minimum_free_disk_bytes=1, minimum_free_disk_fraction=0.0,
+                heartbeat_seconds=1800, monitor_interval_seconds=0.001,
+            )
+            state = LazySupervisor(root, limits, heartbeat=lambda _payload: True, monotonic=Clock()).run(
+                iter([("abrupt", abrupt_then_complete)])
+            )
+            self.assertEqual("complete", state["status"])
+            self.assertEqual(2, state["attempts"]["abrupt"])
+            self.assertEqual(1, state["completed_count"])
+            self.assertTrue(state["all_workers_stopped"])
+            self.assertEqual([], state["worker_pids"])
+
 
 if __name__ == "__main__":
     unittest.main()

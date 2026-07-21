@@ -353,7 +353,12 @@ class LazySupervisor:
 
     def _bound_stop(self, workers: dict[str, _Worker], state: dict[str, Any], status: str) -> dict[str, Any]:
         self._stop_workers(workers); workers.clear()
-        state["status"] = status; state["all_workers_stopped"] = True
+        state.update({
+            "status": status,
+            "all_workers_stopped": True,
+            "worker_pids": [],
+            "in_flight_count": 0,
+        })
         self._save(state)
         return state
 
@@ -411,7 +416,13 @@ class LazySupervisor:
                     # the large payload is already fsynced/renamed in staging.
                     if not worker.receiver.poll() and worker.process.is_alive():
                         continue
-                    message = worker.receiver.recv() if worker.receiver.poll() else ("error", "WorkerProcessExit", f"exitcode={worker.process.exitcode}")
+                    if worker.receiver.poll():
+                        try:
+                            message = worker.receiver.recv()
+                        except EOFError:
+                            message = ("error", "WorkerProcessExit", f"exitcode={worker.process.exitcode}")
+                    else:
+                        message = ("error", "WorkerProcessExit", f"exitcode={worker.process.exitcode}")
                     worker.process.join()
                     worker.receiver.close(); del workers[job_id]
                     if message[0] in {"committed", "unavailable"}:
