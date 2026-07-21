@@ -52,6 +52,9 @@ The exact evidence, locations, impacts and acceptance language are preserved in
 - Economic outcomes opened: no.
 - Protected rows opened: no.
 - Capital.com payload opened: no.
+- Blocked Drive handoff: round-trip verified at
+  `https://drive.google.com/drive/folders/1QY83U5brxxKxyrGPuIyMlPxtFK4WlSM8`.
+- Dynamic continuity: sequence 5 published and round-trip verified.
 
 ## Intentionally absent
 
