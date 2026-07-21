@@ -54,7 +54,9 @@ The exact evidence, locations, impacts and acceptance language are preserved in
 - Capital.com payload opened: no.
 - Blocked Drive handoff: round-trip verified at
   `https://drive.google.com/drive/folders/1QY83U5brxxKxyrGPuIyMlPxtFK4WlSM8`.
-- Dynamic continuity: sequence 5 published and round-trip verified.
+- Dynamic continuity: Stage-22 blocker event published at sequence 5; a
+  separate repository-state correction advanced the current pointer to
+  sequence 6. Both transactions round-trip verified.
 - Original checkout: refs unchanged, but an unexplained external modification
   of tracked binary `code` was discovered at final verification and preserved;
   see `ORIGINAL_CHECKOUT_FINAL_STATE.md`.
