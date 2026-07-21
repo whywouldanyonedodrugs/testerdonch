@@ -35,6 +35,32 @@ def _read_payload(path: Path, encoding: str) -> Mapping[str, Any]:
     return payload
 
 
+def _read_reference_payload(
+    path: Path,
+    *,
+    cache_root: Path,
+    components_by_path: Mapping[str, Mapping[str, Any]],
+) -> Mapping[str, Any]:
+    reference = _read_payload(path, "canonical_json")
+    if set(reference) != {"schema", "shared_payload_path", "shared_payload_sha256", "campaign_partition"} or reference.get("schema") != "family_input_reference_v1":
+        raise CacheBuildError("semantic-cache frame reference schema differs")
+    relative = Path(str(reference["shared_payload_path"]))
+    if relative.is_absolute() or ".." in relative.parts:
+        raise CacheBuildError("semantic-cache shared payload path is unsafe")
+    record = components_by_path.get(relative.as_posix())
+    if record is None or record.get("sha256") != reference.get("shared_payload_sha256"):
+        raise CacheBuildError("semantic-cache frame reference is not bound to a registered component")
+    component_path = cache_root / relative
+    if not component_path.is_file() or component_path.stat().st_size != record.get("bytes") or sha256_file(component_path) != record.get("sha256"):
+        raise CacheBuildError("semantic-cache shared payload bytes differ")
+    payload = dict(_read_payload(component_path, str(record.get("encoding"))))
+    metadata = payload.get("metadata")
+    if not isinstance(metadata, Mapping) or metadata.get("campaign_partition") is not None:
+        raise CacheBuildError("semantic-cache shared payload contains an unbound partition")
+    payload["metadata"] = {**metadata, "campaign_partition": reference["campaign_partition"]}
+    return payload
+
+
 def _datetime(value: object) -> datetime:
     if not isinstance(value, str):
         raise CacheBuildError("cache timestamp is not an ISO-8601 string")
@@ -192,6 +218,7 @@ class SemanticCacheWriter:
         self.source_composite = canonical_hash(execution_input_authority["source_records"])
         self.artifacts: list[dict[str, Any]] = []
         self.typed_unavailable: list[dict[str, Any]] = []
+        self.components: dict[str, dict[str, Any]] = {}
         self.paths: set[str] = set()
 
     def add_unavailable(
@@ -238,20 +265,48 @@ class SemanticCacheWriter:
             raise CacheBuildError("frame was not derived under the exact execution-input authority")
         payload = frame.content_payload()
         content_hash = canonical_hash(payload)
-        relative = Path("frames") / f"{content_hash}.json.gz"
+        relative = Path("frames") / f"{content_hash}.ref.json"
         if relative.as_posix() in self.paths:
             raise CacheBuildError("semantic cache contains a duplicate frame content identity")
+        shared_payload = dict(payload)
+        metadata = dict(shared_payload["metadata"])
+        metadata["campaign_partition"] = None
+        shared_payload["metadata"] = metadata
+        shared_content_hash = canonical_hash(shared_payload)
+        shared_relative = Path("components") / f"{shared_content_hash}.json.gz"
+        shared_path = self.cache_root / shared_relative
+        if shared_relative.as_posix() not in self.components:
+            atomic_write_bytes(shared_path, gzip.compress(canonical_json_bytes(shared_payload), compresslevel=6, mtime=0))
+            self.components[shared_relative.as_posix()] = {
+                "path": shared_relative.as_posix(),
+                "bytes": shared_path.stat().st_size,
+                "sha256": sha256_file(shared_path),
+                "encoding": "canonical_json_gzip_mtime0",
+                "shared_content_sha256": shared_content_hash,
+            }
         path = self.cache_root / relative
-        atomic_write_bytes(path, gzip.compress(canonical_json_bytes(payload), compresslevel=6, mtime=0))
-        decoded = decode_family_input(_read_payload(path, "canonical_json_gzip_mtime0"))
+        reference = {
+            "schema": "family_input_reference_v1",
+            "shared_payload_path": shared_relative.as_posix(),
+            "shared_payload_sha256": self.components[shared_relative.as_posix()]["sha256"],
+            "campaign_partition": _content_partition(partition),
+        }
+        atomic_write_bytes(path, canonical_json_bytes(reference))
+        decoded = decode_family_input(_read_reference_payload(
+            path,
+            cache_root=self.cache_root,
+            components_by_path=self.components,
+        ))
         if decoded.content_sha256() != content_hash:
             raise CacheBuildError("cache encode/decode replay mismatch")
         record = {
             "path": relative.as_posix(), "bytes": path.stat().st_size, "sha256": sha256_file(path),
-            "encoding": "canonical_json_gzip_mtime0",
+            "encoding": "family_input_reference_v1",
             "frame_content_sha256": content_hash, "fold_id": frame.fold_id, "symbol": frame.symbol,
             "decision_ts": require_utc(frame.decision_ts).isoformat(),
             "campaign_partition": _content_partition(partition),
+            "shared_payload_path": shared_relative.as_posix(),
+            "shared_content_sha256": shared_content_hash,
         }
         self.paths.add(relative.as_posix())
         self.artifacts.append(record)
@@ -278,6 +333,8 @@ class SemanticCacheWriter:
             "source_record_inventory_sha256": self.source_composite,
             "artifacts": artifacts,
             "artifact_inventory_sha256": canonical_hash(artifacts),
+            "components": sorted(self.components.values(), key=lambda row: str(row["path"])),
+            "component_inventory_sha256": canonical_hash(sorted(self.components.values(), key=lambda row: str(row["path"]))),
             "typed_unavailable": sorted(
                 self.typed_unavailable,
                 key=lambda row: (
@@ -300,8 +357,15 @@ def decoded_frame_with_locator(
     bindings: Mapping[str, str],
     *,
     encoding: str = "canonical_json",
+    cache_root: Path | None = None,
+    components_by_path: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> FamilyInput:
-    payload = _read_payload(path, encoding)
+    if encoding == "family_input_reference_v1":
+        if cache_root is None or components_by_path is None:
+            raise CacheBuildError("semantic-cache reference decoder lacks its component inventory")
+        payload = _read_reference_payload(path, cache_root=cache_root, components_by_path=components_by_path)
+    else:
+        payload = _read_payload(path, encoding)
     frame = decode_family_input(payload)
     located = replace(frame, metadata={**frame.metadata, "cache_artifact_path": relative, "cache_bindings": dict(bindings)})
     _mark_validated_frame(located)

@@ -129,6 +129,7 @@ class CacheAuthority:
     cache_root: Path
     _cache_manifest: dict[str, Any] | None = field(default=None, init=False, repr=False)
     _records_by_path: dict[str, Mapping[str, Any]] = field(default_factory=dict, init=False, repr=False)
+    _components_by_path: dict[str, Mapping[str, Any]] = field(default_factory=dict, init=False, repr=False)
     _decoded_frames: dict[str, FamilyInput] = field(default_factory=dict, init=False, repr=False)
     _fingerprints: dict[str, tuple[int, int, int, int]] = field(default_factory=dict, init=False, repr=False)
     _expected_authority_sha256: str | None = field(default=None, init=False, repr=False)
@@ -153,6 +154,7 @@ class CacheAuthority:
             self._require_unchanged_preloaded_bytes()
             cache = self._cache_manifest
             by_path = self._records_by_path
+            components_by_path = self._components_by_path
         else:
             if not self.manifest_path.is_file():
                 raise AuthorizationError("physical cache manifest is absent")
@@ -176,6 +178,9 @@ class CacheAuthority:
             raise AuthorizationError("cache manifest has no physical artifacts")
         if cache.get("artifact_inventory_sha256") != canonical_hash(records):
             raise AuthorizationError("cache artifact inventory hash mismatch")
+        components = cache.get("components", [])
+        if not isinstance(components, list) or cache.get("component_inventory_sha256", canonical_hash([])) != canonical_hash(components):
+            raise AuthorizationError("cache shared-component inventory hash mismatch")
         unavailable = cache.get("typed_unavailable", [])
         if not isinstance(unavailable, list):
             raise AuthorizationError("cache typed-unavailable inventory is invalid")
@@ -186,7 +191,19 @@ class CacheAuthority:
                 raise AuthorizationError("cache typed-unavailable record is incomplete or drifted")
         if self._cache_manifest is None:
             by_path = {}
+            components_by_path = {}
             fingerprints = {"__manifest__": self._fingerprint(self.manifest_path)}
+            for component in components:
+                relative = Path(str(component.get("path", "")))
+                if relative.is_absolute() or ".." in relative.parts or relative.as_posix() in components_by_path:
+                    raise AuthorizationError("unsafe or duplicate cache component path")
+                path = self.cache_root / relative
+                if component.get("encoding") != "canonical_json_gzip_mtime0" or not _is_sha256(component.get("sha256")) or not _is_sha256(component.get("shared_content_sha256")):
+                    raise AuthorizationError("cache component record is incomplete")
+                if not path.is_file() or path.stat().st_size != component.get("bytes") or sha256_file(path) != component.get("sha256"):
+                    raise AuthorizationError(f"cache component mismatch: {relative}")
+                components_by_path[relative.as_posix()] = component
+                fingerprints[relative.as_posix()] = self._fingerprint(path)
             for record in records:
                 relative = Path(record["path"])
                 if relative.is_absolute() or ".." in relative.parts:
@@ -200,6 +217,7 @@ class CacheAuthority:
                 fingerprints[str(relative)] = self._fingerprint(path)
             self._cache_manifest = dict(cache)
             self._records_by_path = by_path
+            self._components_by_path = components_by_path
             self._fingerprints = fingerprints
             self._expected_authority_sha256 = expected_authority_sha256
         if not artifact_paths or len(set(artifact_paths)) != len(artifact_paths):
@@ -214,13 +232,15 @@ class CacheAuthority:
             newly_decoded = frame is None
             if frame is None:
                 encoding = str(record.get("encoding", "canonical_json"))
-                if encoding not in {"canonical_json", "canonical_json_gzip_mtime0"}:
+                if encoding not in {"canonical_json", "canonical_json_gzip_mtime0", "family_input_reference_v1"}:
                     raise AuthorizationError("cache artifact has an unsupported encoding")
                 frame = decoded_frame_with_locator(
                     self.cache_root / str(relative),
                     str(relative),
                     bindings,
                     encoding=encoding,
+                    cache_root=self.cache_root,
+                    components_by_path=components_by_path,
                 )
                 if frame.content_sha256() != record["frame_content_sha256"]:
                     raise AuthorizationError("decoded cache payload differs from its bound frame content hash")

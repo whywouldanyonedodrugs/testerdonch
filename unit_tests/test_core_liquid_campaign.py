@@ -502,6 +502,31 @@ class RuntimeAuthorityAndReviewTests(unittest.TestCase):
                 cache_authority.load_frames(campaign, [cache["artifacts"][0]["path"]])
             with self.assertRaises(AuthorizationError): CacheAuthority(manifest_path, root / "cache").load_frames(campaign, [cache["artifacts"][0]["path"]])
 
+    def test_cache_reference_deduplicates_shared_payload_but_binds_each_partition(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw); source = root / "source.json"; atomic_write_json(source, {"synthetic": True})
+            record = {"role": "synthetic", "path": "source.json", "bytes": source.stat().st_size, "sha256": sha256_file(source)}
+            authority = {
+                "platform": "kraken_native_linear_pf", "rankable_interval": "[2023-01-01T00:00:00Z,2026-01-01T00:00:00Z)",
+                "source_manifest_sha256": record["sha256"], "pit_universe_sha256": "b" * 64,
+                "funding_manifest_sha256": "c" * 64, "cache_contract_sha256": "d" * 64, "fold_graph_sha256": "e" * 64,
+                "rankable_funding_package_sha256": "f" * 64, "source_records": [record],
+                "cache_manifest_contract": {"schema": "stage22_semantic_cache_manifest_v1"},
+            }
+            first = with_source_authority(a1_frame(), authority)
+            second_partition = {**first.metadata["campaign_partition"], "outer_fold_id": "2025Q3"}
+            second = replace(first, metadata={**first.metadata, "campaign_partition": second_partition})
+            manifest_path = build_semantic_cache(root / "cache", authority, [first, second], authority_root=root, synthetic_only=True)
+            manifest = json.loads(manifest_path.read_text())
+            self.assertEqual((2, 1), (len(manifest["artifacts"]), len(manifest["components"])))
+            cache = CacheAuthority(manifest_path, root / "cache")
+            _, frames = cache.load_frames({"execution_input_authority": authority}, [row["path"] for row in manifest["artifacts"]])
+            self.assertEqual({"2025Q2", "2025Q3"}, {frame.metadata["campaign_partition"]["outer_fold_id"] for frame in frames})
+            component = root / "cache" / manifest["components"][0]["path"]
+            component.write_bytes(b"tampered")
+            with self.assertRaises(AuthorizationError):
+                cache.load_frames({"execution_input_authority": authority}, [manifest["artifacts"][0]["path"]])
+
     def test_execution_authority_is_file_and_commit_bound(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw); subprocess.run(["git", "init", "-q", str(root)], check=True); subprocess.run(["git", "-C", str(root), "config", "user.email", "test@example.invalid"], check=True); subprocess.run(["git", "-C", str(root), "config", "user.name", "Test"], check=True)
