@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+import weakref
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -22,7 +23,7 @@ from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame, a4_frame, f
 from tools.core_liquid_campaign.terminal import TerminalContractError, independent_terminal_recomputation, terminal_package, verify_terminal_inventory
 from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceLimits
 from tools.core_liquid_campaign.runtime import detached_shadow_service_spec
-from tools.core_liquid_campaign.production_readiness_gate import _a1_state_gate
+from tools.core_liquid_campaign.production_readiness_gate import _a1_state_gate, _bounded_cold_warm_replay
 from tools.core_liquid_campaign.production_inputs import _a2_proximity_feature_arrays, _thresholds
 from tools.core_liquid_campaign.family_engines import a1_compression
 from tools.core_liquid_campaign.production_population_tables import A1PopulationTableAuthority, _a3_symbol_events, _feature_arrays
@@ -273,6 +274,33 @@ class Stage24KnownDefectTests(unittest.TestCase):
         self.assertEqual("pass", evidence["status"])
         payload = pretty_json_bytes(evidence)
         self.assertIn(b'"last_valid_ts": "2025-01-01T00:25:00+00:00"', payload)
+
+    def test_full_cache_warm_replay_releases_cold_frames_first(self) -> None:
+        class Frame:
+            pass
+
+        class Cache:
+            calls = 0
+            cold_refs: list[weakref.ReferenceType[Frame]] = []
+
+            def load_frames(self, _manifest: object, paths: list[str]) -> tuple[dict[str, object], tuple[Frame, ...]]:
+                self.calls += 1
+                if self.calls == 2:
+                    self.assert_cold_released()
+                frames = tuple(Frame() for _ in paths)
+                if self.calls == 1:
+                    self.cold_refs = [weakref.ref(frame) for frame in frames]
+                return {}, frames
+
+            def assert_cold_released(self) -> None:
+                if any(reference() is not None for reference in self.cold_refs):
+                    raise AssertionError("cold cache frames remained live during warm replay")
+
+        cache = Cache()
+        cold, warm, frames = _bounded_cold_warm_replay(cache, {}, ["a", "b", "c"])
+        self.assertEqual((2, 3), (cache.calls, len(frames)))
+        self.assertGreaterEqual(cold, 0.0)
+        self.assertGreaterEqual(warm, 0.0)
 
     def test_cache_restores_a1_cooldown_deadline_as_utc_datetime(self) -> None:
         value = _restore_metadata({"cooldown_until": "2025-01-01T01:00:00+00:00"})
