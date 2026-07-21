@@ -91,6 +91,9 @@ class CampaignOrchestrator:
 
     def _authority(self) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], dict[str, dict[str, Any]], dict[str, Any]]:
         manifest = self.authorization.require()
+        expected_cache = manifest.get("primary_hashes", {}).get("cache_authority_manifest") or manifest.get("primary_hashes", {}).get("production_cache_manifest")
+        if expected_cache != sha256_file(self.cache_authority.manifest_path):
+            raise CampaignContractError("launch cache authority differs from the reviewed campaign manifest")
         paths = {
             "strategy": self.packet_root / "FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl",
             "execution": self.packet_root / "FINAL_EXECUTION_REGISTRY.jsonl",

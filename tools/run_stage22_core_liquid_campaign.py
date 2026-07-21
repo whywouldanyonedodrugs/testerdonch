@@ -78,6 +78,9 @@ def main() -> int:
         return 0
     authorization = ExecutionAuthorization(args.manifest, args.approval_request, args.external_approval, args.repository_root)
     manifest = authorization.require()
+    expected_cache = manifest.get("primary_hashes", {}).get("cache_authority_manifest") or manifest.get("primary_hashes", {}).get("production_cache_manifest")
+    if expected_cache != __import__("hashlib").sha256(args.cache_manifest.read_bytes()).hexdigest():
+        raise CampaignContractError("launch cache manifest is not the exact human-approved cache authority")
     limits = ResourceLimits(
         max_workers=args.workers, max_jobs_in_flight=args.workers,
         max_rss_bytes=10 * 1024**3, max_output_bytes=24 * 1024**3,
