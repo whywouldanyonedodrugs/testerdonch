@@ -430,7 +430,7 @@ def representative_production_benchmark(
     )
     full_root = output_root / "stratified-full"
     started = time.monotonic()
-    full = LazySupervisor(full_root, limits).run(iter(
+    full = LazySupervisor(full_root, limits, heartbeat=lambda _payload: True).run(iter(
         (f"benchmark:{family}:{fold}:{row['executable_attempt_id']}", task(family, fold, row, frame))
         for family, fold, row, frame in job_specs
     ))
@@ -448,7 +448,7 @@ def representative_production_benchmark(
             max_output_bytes=1024**3, minimum_free_disk_bytes=8 * 1024**3, heartbeat_seconds=1800,
         )
         start = time.monotonic()
-        state = LazySupervisor(root, worker_limits).run(iter(
+        state = LazySupervisor(root, worker_limits, heartbeat=lambda _payload: True).run(iter(
             (f"scale:{family}:{fold}:{row['executable_attempt_id']}", task(family, fold, row, frame))
             for family, fold, row, frame in scaling_specs
         ))
