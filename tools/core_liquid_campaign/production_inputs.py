@@ -245,6 +245,63 @@ def _returns(daily: Sequence[DailyBar], lookback: int) -> list[float]:
     return [log_return(daily[index - lookback].close, daily[index].close) for index in range(lookback, len(daily))]
 
 
+def _a2_proximity_feature_arrays(
+    bars: Sequence[SignalBar],
+    daily: Sequence[DailyBar],
+) -> tuple[Any, dict[str, Any]]:
+    """Compute the exact A2 prior-level proximity values once per physical bar."""
+    import numpy as np
+
+    ordered_bars = tuple(sorted(bars, key=lambda row: row.open_ts))
+    ordered_daily = tuple(sorted(daily, key=lambda row: row.close_ts))
+    times = np.asarray([int(row.open_ts.timestamp() * 1000) for row in ordered_bars], dtype="<i8")
+    closes = np.asarray([row.close for row in ordered_bars], dtype="<f8")
+    if len(times) != len(np.unique(times)) or (len(times) > 1 and np.any(np.diff(times) <= 0)):
+        raise ProductionInputError("A2 physical bars are duplicated or unsorted")
+    arrays = {
+        a2_context.proximity_population_key(lookback, atr_window, side): np.full(len(times), np.nan, dtype="<f8")
+        for lookback in (20, 60, 120, 250)
+        for atr_window in (10, 20, 40, 60)
+        for side in (-1, 1)
+    }
+    for index, last_daily in enumerate(ordered_daily):
+        day_ms = int(last_daily.close_ts.timestamp() * 1000)
+        begin = int(np.searchsorted(times, day_ms, side="left"))
+        end = int(np.searchsorted(times, day_ms + 86_400_000, side="left"))
+        if begin == end:
+            continue
+        for lookback in (20, 60, 120, 250):
+            if index + 1 < lookback:
+                continue
+            prior = ordered_daily[index - lookback + 1:index + 1]
+            if prior[-1].close_ts - prior[0].close_ts != timedelta(days=lookback - 1):
+                continue
+            levels = {1: max(row.high for row in prior), -1: min(row.low for row in prior)}
+            for atr_window in (10, 20, 40, 60):
+                if index + 1 < atr_window + 1:
+                    continue
+                atr_rows = ordered_daily[index - atr_window:index + 1]
+                if atr_rows[-1].close_ts - atr_rows[0].close_ts != timedelta(days=atr_window):
+                    continue
+                try:
+                    atr = wilder_atr(
+                        [row.high for row in atr_rows],
+                        [row.low for row in atr_rows],
+                        [row.close for row in atr_rows],
+                        atr_window,
+                    )
+                except EngineInputError:
+                    continue
+                for side in (-1, 1):
+                    level = levels[side]
+                    arrays[a2_context.proximity_population_key(lookback, atr_window, side)][begin:end] = (
+                        (closes[begin:end] - level) / atr
+                        if side == 1 else
+                        (level - closes[begin:end]) / atr
+                    )
+    return times, arrays
+
+
 def _funding_rows(path: Path, symbol: str) -> tuple[tuple[datetime, str, float], ...]:
     rows = []
     with zipfile.ZipFile(path) as archive:
@@ -273,6 +330,7 @@ def _thresholds(
     store: ExactPopulationStore | None = None,
     skip_a1: bool = False,
     skip_a3: bool = False,
+    a2_proximity_arrays: tuple[Any, Mapping[str, Any]] | None = None,
 ) -> tuple[dict[str, ThresholdPopulation], list[dict[str, Any]]]:
     symbols = tuple(sorted(bars_by_symbol))
     if target not in bars_by_symbol or target not in daily_by_symbol:
@@ -361,7 +419,20 @@ def _thresholds(
                 add(a1_compression.contraction_population_key(base_name, baseline_name, scope), scoped_contractions[baseline_name], scope, population_symbols)
             add(a1_compression.smoothness_population_key(base_name, scope), scoped_smoothness, scope, population_symbols)
 
-    for lookback in (20, 60, 120, 250):
+    if a2_proximity_arrays is not None:
+        import numpy as np
+
+        a2_times, a2_arrays = a2_proximity_arrays
+        start_ms = int(training_start.timestamp() * 1000); end_ms = int(training_end.timestamp() * 1000)
+        time_mask = (a2_times >= start_ms) & (a2_times + 300_000 < end_ms)
+        for lookback in (20, 60, 120, 250):
+            for atr_window in (10, 20, 40, 60):
+                for side in (-1, 1):
+                    name = a2_context.proximity_population_key(lookback, atr_window, side)
+                    raw = a2_arrays[name]
+                    add(name, np.asarray(raw[time_mask & np.isfinite(raw)], dtype="<f8"))
+
+    for lookback in (() if a2_proximity_arrays is not None and skip_a3 else (20, 60, 120, 250)):
         for atr_window in (10, 20, 40, 60):
             for side in (-1, 1):
                 values = []
@@ -606,6 +677,10 @@ class ProductionFamilyInputBuilder:
             symbol: _funding_rows(roles["rankable_funding_package"], symbol)
             for symbol in selected_symbols
         }
+        a2_proximity_by_symbol = {
+            symbol: _a2_proximity_feature_arrays(full_bars[symbol], daily[symbol])
+            for symbol in selected_symbols
+        }
         cache_root = self.output_root / "semantic_cache"
         population_store = ExactPopulationStore(cache_root)
         a1_table_build = A1PopulationTableCompiler(cache_root, parts, pit_rows).build()
@@ -668,6 +743,7 @@ class ProductionFamilyInputBuilder:
                         store=population_store,
                         skip_a1=True,
                         skip_a3=True,
+                        a2_proximity_arrays=a2_proximity_by_symbol[symbol],
                     )
                     a1_populations: dict[str, ThresholdPopulation] = {}
                     for window in ("6h", "12h", "1d", "3d", "7d"):

@@ -22,7 +22,7 @@ from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame, a4_frame, f
 from tools.core_liquid_campaign.terminal import TerminalContractError, independent_terminal_recomputation, terminal_package, verify_terminal_inventory
 from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceLimits
 from tools.core_liquid_campaign.production_readiness_gate import _a1_state_gate
-from tools.core_liquid_campaign.production_inputs import _thresholds
+from tools.core_liquid_campaign.production_inputs import _a2_proximity_feature_arrays, _thresholds
 from tools.core_liquid_campaign.family_engines import a1_compression
 from tools.core_liquid_campaign.production_population_tables import A1PopulationTableAuthority, _a3_symbol_events, _feature_arrays
 
@@ -364,6 +364,27 @@ class Stage24KnownDefectTests(unittest.TestCase):
         gapped_times[1:] += 300_000
         gapped = _a3_symbol_events(gapped_times, closes, daily, pit)
         self.assertTrue(all(not rows for rows in gapped.values()))
+
+    def test_vectorized_a2_proximity_matches_exact_level_and_wilder_atr(self) -> None:
+        from tools.core_liquid_campaign.family_engines import a2_context
+        from tools.core_liquid_campaign.family_engines.common import wilder_atr
+
+        frame = a3_frame()
+        times, arrays = _a2_proximity_feature_arrays(frame.five_minute_bars, frame.daily_bars)
+        name = a2_context.proximity_population_key(20, 10, 1)
+        finite = [index for index, value in enumerate(arrays[name]) if __import__("math").isfinite(float(value))]
+        self.assertTrue(finite)
+        index = finite[-1]
+        day = datetime.fromtimestamp(int(times[index]) / 1000, tz=timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+        daily_index = next(i for i, row in enumerate(frame.daily_bars) if row.close_ts == day)
+        prior = frame.daily_bars[daily_index - 19:daily_index + 1]
+        atr_rows = frame.daily_bars[daily_index - 10:daily_index + 1]
+        atr = wilder_atr(
+            [row.high for row in atr_rows], [row.low for row in atr_rows], [row.close for row in atr_rows], 10,
+        )
+        level = max(row.high for row in prior)
+        expected = (frame.five_minute_bars[index].close - level) / atr
+        self.assertAlmostEqual(expected, float(arrays[name][index]), places=14)
 
     def test_a1_population_authority_resolves_global_and_signed_views(self) -> None:
         import numpy as np
