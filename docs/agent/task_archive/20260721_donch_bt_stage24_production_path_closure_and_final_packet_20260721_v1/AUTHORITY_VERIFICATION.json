@@ -1,0 +1,48 @@
+{
+  "schema": "stage24_authority_verification_v1",
+  "task": {
+    "source_path": "/root/.codex/attachments/631b7b9c-9ca0-435d-a456-2cf1c64062c8/pasted-text.txt",
+    "bytes": 22650,
+    "sha256": "9e546e9376408f97bc3bc2ef2862c06e746864eacbd9a5a70f0e71680eeeccdf"
+  },
+  "repository": {
+    "original_root": "/opt/testerdonch",
+    "main": "56059c1a2e86c91c32087bd4e4da9257b632fbd9",
+    "origin_main": "56059c1a2e86c91c32087bd4e4da9257b632fbd9",
+    "isolated_worktree": "/opt/testerdonch-stage22-20260720",
+    "branch": "agent/stage23-remediate-stage22-v04-20260721",
+    "starting_commit": "32ae1153ba572d0669dedc8ee10784db65b0967a",
+    "reviewed_implementation_checkpoint": "d3dbff9f979398f2bfb37dc9c4c858d4032cf4a2",
+    "status": "pass"
+  },
+  "dirty_original_checkout": {
+    "path": "/opt/testerdonch/code",
+    "handling": "preserved_unrelated_dirty_original_checkout",
+    "working_tree_sha256": "d24aad2612fb79bb0893e13b9cac2592539ac9c783ad95c3b00fafc64bb37b1b",
+    "bytes": 32732320,
+    "mode": "0755",
+    "status": "pass"
+  },
+  "continuity": {
+    "sequence": 6,
+    "pointer_sha256": "35f5f755822e347a1549e928dcb422f048d7a35de63111af7caefc1e64b2fc3f",
+    "snapshot_physical_sha256": "e60aa93d5b79d2d82b47782a096f83c4e6f80abb329da84041c029f70fe81bd1",
+    "validation": "pass"
+  },
+  "prior_evidence": {
+    "stage22_handoff_zip_sha256": "bdcdec481d5c0705981a8140a2000340c1dc33c98ee69f087c5da077b8e29124",
+    "stage22_review_sha256": "7e97143f89c07fed180aa9e3e5d492ab779ccfc58187d3a71b0a27c4ec45b958",
+    "stage23_evidence_manifest_sha256": "540d669ade885aee70af41d0f357b3bf477cf7977a920aec7b2788c613106c42",
+    "stage23_review_sha256": "ae531e76fadcd69faa28f42b6d4fd9945e7c6d23d606d9b50090efa372a2670b",
+    "status": "pass"
+  },
+  "frozen_counts": {
+    "registered_rows": 11968,
+    "unique_economic_executions": 11963,
+    "controls": 800
+  },
+  "economic_outcomes_authorized": false,
+  "protected_outcomes_authorized": false,
+  "capitalcom_payload_access": false,
+  "status": "pass"
+}
