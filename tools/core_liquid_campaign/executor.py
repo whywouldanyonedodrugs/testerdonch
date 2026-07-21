@@ -121,6 +121,15 @@ class ExecutionAuthorization:
             path = raw_path if raw_path.is_absolute() else self.repository_root / raw_path
             if not path.is_file() or path.stat().st_size != int(record.get("bytes", -1)) or sha256_file(path) != record.get("sha256"):
                 raise AuthorizationError(f"execution-input source authority drift: {record.get('role')}")
+        supplemental = input_authority.get("kda02b_authority_records", ())
+        if supplemental:
+            if input_authority.get("kda02b_authority_inventory_sha256") != canonical_hash(supplemental):
+                raise AuthorizationError("KDA02B supplemental authority inventory differs")
+            for record in supplemental:
+                raw_path = Path(str(record.get("path", "")))
+                path = raw_path if raw_path.is_absolute() else self.repository_root / raw_path
+                if not path.is_file() or path.stat().st_size != int(record.get("bytes", -1)) or sha256_file(path) != record.get("sha256"):
+                    raise AuthorizationError(f"KDA02B execution-input source authority drift: {record.get('role')}")
         return manifest
 
 
@@ -187,6 +196,16 @@ class CacheAuthority:
         expected_source_inventory = canonical_hash(expected.get("source_records", ()))
         if cache.get("source_record_inventory_sha256") != expected_source_inventory:
             raise AuthorizationError("cache source-record inventory differs from the approved authority")
+        supplemental = expected.get("kda02b_authority_records", ())
+        if supplemental:
+            expected_kda_inventory = canonical_hash(supplemental)
+            if expected.get("kda02b_authority_inventory_sha256") != expected_kda_inventory or cache.get("kda02b_authority_inventory_sha256") != expected_kda_inventory:
+                raise AuthorizationError("cache KDA02B authority inventory differs from the approved authority")
+            for source in supplemental:
+                raw_path = Path(str(source.get("path", "")))
+                path = raw_path if raw_path.is_absolute() else Path.cwd() / raw_path
+                if not path.is_file() or path.stat().st_size != int(source.get("bytes", -1)) or sha256_file(path) != source.get("sha256"):
+                    raise AuthorizationError(f"cache KDA02B source authority drift: {source.get('role')}")
         records = cache.get("artifacts")
         if not isinstance(records, list) or not records:
             raise AuthorizationError("cache manifest has no physical artifacts")

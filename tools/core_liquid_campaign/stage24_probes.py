@@ -358,6 +358,13 @@ def representative_production_benchmark(
         "2024Q1", "2024Q2", "2024Q3", "2024Q4", "2025Q1", "2025Q2", "2025Q3", "2025Q4",
     }:
         raise RuntimeError("representative benchmark lacks one cache artifact per outer fold")
+    kda_paths = {
+        (str(record["kda02b_stage20_cell_id"]), str(record["campaign_partition"]["outer_fold_id"])): str(record["path"])
+        for record in cache_manifest["artifacts"]
+        if record["campaign_partition"]["phase"] == "kda02b_adjudication"
+    }
+    if len(kda_paths) != 171:
+        raise RuntimeError("representative benchmark lacks the exact 19-cell by nine-fold KDA02B cache")
     campaign_manifest = {"execution_input_authority": dict(execution_input_authority)}
     cache = CacheAuthority(cache_manifest_path, cache_manifest_path.parent)
     cache.preload_frames(campaign_manifest)
@@ -387,21 +394,19 @@ def representative_production_benchmark(
         raise RuntimeError("representative benchmark has fewer than thirty addresses in a family stratum")
     job_specs = [
         (family, fold, row, outer_paths[fold])
-        for family, rows in family_rows.items()
+        for family, rows in family_rows.items() if family != "KDA02B_SURVIVOR_ADJUDICATION_V1"
         for fold in sorted(outer_paths)
         for row in rows
     ]
+    job_specs.extend(
+        ("KDA02B_SURVIVOR_ADJUDICATION_V1", fold, row, kda_paths[(str(row["config"]["stage20_cell_id"]), fold)])
+        for row in family_rows["KDA02B_SURVIVOR_ADJUDICATION_V1"]
+        for fold in sorted({item[1] for item in kda_paths})
+    )
 
     def task(family: str, fold: str, row: Mapping[str, Any], artifact_path: str):
         def run() -> dict[str, Any]:
             provider = ShadowPayoffProvider("stage24-representative-production-benchmark-v1")
-            if family == "KDA02B_SURVIVOR_ADJUDICATION_V1":
-                return {
-                    "status": "unavailable_data", "registered_attempt_id": row["executable_attempt_id"],
-                    "family": family, "outer_fold_id": fold, "observation_count": 0,
-                    "result_sha256": canonical_hash({"status": "unavailable_data", "authority_reason": "typed_kda_decision_fields_absent"}),
-                    "shadow_attestation": provider.attestation(),
-                }
             _, frames = cache.load_frames(campaign_manifest, [artifact_path])
             frame = frames[0]
             kwargs: dict[str, Any] = {}
@@ -414,6 +419,13 @@ def representative_production_benchmark(
                         "overlay_counterpart_id": row["overlay_counterpart_id"],
                     },
                     "parent_frames": (frame,),
+                }
+            if family == "KDA02B_SURVIVOR_ADJUDICATION_V1" and row["config"]["adjudication_variant"] == "generic_structure_control":
+                kwargs["control_directives"] = {
+                    frame.content_sha256(): {
+                        "allocator": "matched_pseudo_event_allocator_v2",
+                        "matched_decision_ts": frame.decision_ts,
+                    }
                 }
             try:
                 result = dispatch_registered_attempt(row, (frame,), registry_by_id=registry, payoff_provider=provider, **kwargs)
@@ -428,6 +440,8 @@ def representative_production_benchmark(
                 })
                 observations = len(result.get("observations", ()))
             except EngineInputError as exc:
+                if family == "KDA02B_SURVIVOR_ADJUDICATION_V1":
+                    raise RuntimeError("KDA02B representative real shadow dispatch failed") from exc
                 status = "unavailable_data"; observations = 0
                 digest = canonical_hash({"status": status, "reason": str(exc)})
             return {
@@ -501,6 +515,8 @@ def representative_production_benchmark(
         "stratified_units": len(job_specs),
         "units_by_family_fold": 30,
         "outer_folds": len(outer_paths),
+        "kda02b_outer_folds": 9,
+        "kda02b_real_dispatch_units": sum(family == "KDA02B_SURVIVOR_ADJUDICATION_V1" for family, _, _, _ in job_specs),
         "worker_side_cache_decoding": True,
         "parent_decoded_frames_before_fork": 0,
         "full_sample_seconds": full_seconds,

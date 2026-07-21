@@ -43,6 +43,14 @@ KDA02B_SOURCE_ROLES = frozenset({
     "stage20_kda02b_event_tape_manifest", "stage20_kda02b_fold_local_thresholds",
     "stage20_kda02b_mechanical_cell_skips", "stage20_kda02b_attempt_registry",
 })
+KDA02B_FEATURE_SOURCE_ROLES = frozenset({
+    "stage7c_analytics_data_manifest",
+    "stage8a_feature_cache_manifest",
+    "stage8a_shared_feature_schema",
+    "stage8a_semantic_contract",
+    "stage8a_validation_summary",
+    "stage14_kda02b_retention_boundary",
+})
 
 
 class ProductionCacheError(RuntimeError):
@@ -139,6 +147,21 @@ class ProductionCacheCompiler:
         required = BASE_SOURCE_ROLES | KDA02B_SOURCE_ROLES
         if set(roles) != required:
             raise ProductionCacheError("execution authority source-role inventory is incomplete or broadened")
+        supplemental = authority.get("kda02b_authority_records", ())
+        if supplemental:
+            supplemental_roles: dict[str, Path] = {}
+            for source in supplemental:
+                path = _absolute(self.repository_root, source["path"])
+                if not path.is_file() or path.stat().st_size != int(source["bytes"]) or sha256_file(path) != source["sha256"]:
+                    raise ProductionCacheError(f"physical KDA02B source authority mismatch: {source.get('role')}")
+                role = str(source["role"])
+                supplemental_roles[role] = path
+                self.accessed.append(_record(path, role=role))
+            if set(supplemental_roles) != KDA02B_FEATURE_SOURCE_ROLES:
+                raise ProductionCacheError("KDA02B feature authority inventory is incomplete or broadened")
+            if authority.get("kda02b_authority_inventory_sha256") != canonical_hash(list(supplemental)):
+                raise ProductionCacheError("KDA02B feature authority inventory hash differs")
+            roles.update(supplemental_roles)
         return authority, roles
 
     def _kda02b(self, roles: Mapping[str, Path]) -> dict[str, Any]:

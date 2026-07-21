@@ -119,7 +119,7 @@ def _raw_feature_history(frame: FamilyInput) -> tuple[Mapping[str, Any], ...]:
 
 
 def _is_valid(source: Mapping[str, Any]) -> bool:
-    return all(source.get(key) is True for key in ("known_lifecycle_mask", "trade_coverage", "mark_coverage", "analytics_coverage"))
+    return all(source.get(key) is True for key in ("eligible", "known_lifecycle_mask", "trade_coverage", "mark_coverage", "analytics_coverage"))
 
 
 def onset_indices(history: tuple[Mapping[str, Any], ...], axes: Mapping[str, str], thresholds: Mapping[str, Any], variant: str) -> list[int]:

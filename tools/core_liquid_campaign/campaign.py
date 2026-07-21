@@ -611,8 +611,17 @@ class CampaignOrchestrator:
                 })
             return
         for row in rows:
+            cell_id = str(row["config"]["stage20_cell_id"])
+            cell_artifacts = sorted(
+                str(record["path"])
+                for record in cache["artifacts"]
+                if self._partition(record).get("phase") == "kda02b_adjudication"
+                and record.get("kda02b_stage20_cell_id") == cell_id
+            )
+            if len(cell_artifacts) != 9:
+                raise CampaignContractError(f"KDA02B exact nine-fold cache binding is incomplete: {cell_id}")
             job_id = f"kda02b:{row['executable_attempt_id']}"
-            yield job_id, self._execution_job(row, artifacts, registry, job_id, materialize=True)
+            yield job_id, self._execution_job(row, cell_artifacts, registry, job_id, materialize=True)
 
     def _refinement_jobs(self, refinements: Sequence[Mapping[str, Any]], registry: Mapping[str, Mapping[str, Any]], cache: Mapping[str, Any]) -> Iterable[tuple[str, Callable[[], Any]]]:
         for outer in OUTER_FOLDS:

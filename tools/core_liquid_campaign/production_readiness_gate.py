@@ -16,7 +16,9 @@ from .a1_state import initial_state, transition
 from .canonical import atomic_write_json, canonical_hash, sha256_file
 from .executor import CacheAuthority, dispatch_registered_attempt
 from .family_engines.common import EngineInputError
+from .family_engines import kda02b_adjudication
 from .schema import FAMILY_ORDER, OUTER_FOLDS
+from .selection import aggregate_streaming
 from .shadow_payoff import ShadowPayoffProvider
 from .stage24_probes import control_production_shadow_probe, representative_production_benchmark
 from .terminal import terminal_package, verify_terminal_inventory
@@ -139,10 +141,13 @@ def _cache_gate(cache_path: Path, authority_path: Path) -> tuple[dict[str, Any],
     partitions = [row["campaign_partition"] for row in manifest["artifacts"]]
     outer = {str(row["outer_fold_id"]) for row in partitions if row["phase"] == "outer_evaluation"}
     inner = {str(row["inner_fold_id"]) for row in partitions if row["phase"] == "inner_validation"}
-    partition_positions = {
+    base_partition_positions = {
         (str(row["phase"]), str(row["outer_fold_id"]), str(row.get("inner_fold_id")))
-        for row in partitions
+        for row in partitions if row["phase"] in {"inner_validation", "outer_evaluation"}
     }
+    kda_records = [row for row in manifest["artifacts"] if row["campaign_partition"]["phase"] == "kda02b_adjudication"]
+    kda_cells = {str(row.get("kda02b_stage20_cell_id")) for row in kda_records}
+    kda_folds = {str(row["campaign_partition"]["outer_fold_id"]) for row in kda_records}
     symbols = {str(row["symbol"]) for row in manifest["artifacts"]}
     # Both independent decodes passed CacheAuthority's per-frame content hash
     # check against the same immutable manifest records.
@@ -158,9 +163,10 @@ def _cache_gate(cache_path: Path, authority_path: Path) -> tuple[dict[str, Any],
     typed_kda = [row for row in manifest.get("typed_unavailable", ()) if row.get("family_id") == "KDA02B_SURVIVOR_ADJUDICATION_V1"]
     # A production campaign requires both development and outer partitions.
     complete_campaign_cache = (
-        outer == set(OUTER_FOLDS) and len(partition_positions) == 132 and len(symbols) >= 3
-        and len(paths) == 396 and len(matrix) == 660 and len(matrix_positions) == 660
-        and len(typed_kda) == 132 and len(feature_signatures) >= 100
+        outer == set(OUTER_FOLDS) and len(base_partition_positions) == 132 and len(symbols) >= 3
+        and len(paths) == 567 and len(matrix) == 699 and len(matrix_positions) >= 537
+        and len(typed_kda) == 0 and len(kda_records) == 171 and len(kda_cells) == 19 and len(kda_folds) == 9
+        and len(feature_signatures) >= 100
         and build.get("protected_rows") == 0 and build.get("economic_outcomes_opened") is False
     )
     return ({
@@ -169,10 +175,12 @@ def _cache_gate(cache_path: Path, authority_path: Path) -> tuple[dict[str, Any],
         "artifacts": len(paths), "outer_folds": sorted(outer), "inner_fold_ids": len(inner),
         "decoded_artifacts_cold_and_warm": len(paths) * 2,
         "retained_partition_representatives": len(frames),
-        "inner_partition_positions": len(partition_positions) - len(outer), "symbols": sorted(symbols),
+        "inner_partition_positions": len(base_partition_positions) - len(outer), "symbols": sorted(symbols),
         "family_fold_matrix_rows": len(matrix),
         "all_five_family_outer_positions": sum(row.get("phase") == "outer_evaluation" for row in matrix),
         "typed_kda_unavailable_positions": len(typed_kda),
+        "kda02b_production_frames": len(kda_records), "kda02b_cells": len(kda_cells), "kda02b_folds": len(kda_folds),
+        "kda02b_reconciliation": build.get("kda02b"),
         "feature_signatures": len(feature_signatures),
         "a1_population_table_manifest_sha256": build.get("a1_population_table_manifest_sha256"),
         "a3_population_table_manifest_sha256": build.get("a3_population_table_manifest_sha256"),
@@ -184,7 +192,13 @@ def _cache_gate(cache_path: Path, authority_path: Path) -> tuple[dict[str, Any],
     }, frames)
 
 
-def _real_engine_gate(execution: list[dict[str, Any]], frames: tuple[Any, ...]) -> dict[str, Any]:
+def _real_engine_gate(
+    execution: list[dict[str, Any]],
+    frames: tuple[Any, ...],
+    *,
+    cache_manifest_path: Path,
+    execution_input_authority: Mapping[str, Any],
+) -> dict[str, Any]:
     registry = {str(row["executable_attempt_id"]): row for row in execution}
     selected_ids = {
         "A4_TSMOM_V7": "A4_TSMOM_V7:S22:L:0006:1",
@@ -204,6 +218,8 @@ def _real_engine_gate(execution: list[dict[str, Any]], frames: tuple[Any, ...]) 
     start = time.monotonic()
     for frame in frames:
         partition = frame.metadata["campaign_partition"]
+        if partition["phase"] == "kda02b_adjudication":
+            continue
         for family, row in rows.items():
             kwargs: dict[str, Any] = {}
             if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
@@ -229,21 +245,62 @@ def _real_engine_gate(execution: list[dict[str, Any]], frames: tuple[Any, ...]) 
                 "status": status, "observation_count": observations,
                 "aggregate_sha256": canonical_hash(aggregate), "unavailable_reason": unavailable_reason,
             })
-    elapsed = time.monotonic() - start
+    kda_rows = [row for row in execution if row["family_id"] == "KDA02B_SURVIVOR_ADJUDICATION_V1"]
+    kda_by_cell: dict[str, list[dict[str, Any]]] = {}
+    for row in kda_rows:
+        kda_by_cell.setdefault(str(row["config"]["stage20_cell_id"]), []).append(row)
+    manifest = json.loads(cache_manifest_path.read_text(encoding="utf-8"))
+    kda_records = [row for row in manifest["artifacts"] if row["campaign_partition"]["phase"] == "kda02b_adjudication"]
+    cache = CacheAuthority(cache_manifest_path, cache_manifest_path.parent)
+    campaign_manifest = {"execution_input_authority": dict(execution_input_authority)}
+    kda_dispatch_units = 0; kda_observations = 0; identity_replays = 0
+    variants: Counter[str] = Counter(); replay_evidence: list[dict[str, Any]] = []
+    for record in sorted(kda_records, key=lambda row: (str(row["kda02b_stage20_cell_id"]), str(row["kda02b_model_id"]))):
+        _, decoded = cache.load_frames(campaign_manifest, [str(record["path"])])
+        frame = decoded[0]; cell = str(record["kda02b_stage20_cell_id"])
+        for row in sorted(kda_by_cell[cell], key=lambda item: str(item["config"]["adjudication_variant"])):
+            variant = str(row["config"]["adjudication_variant"])
+            directives = None
+            if variant == "generic_structure_control":
+                directives = {frame.content_sha256(): {"allocator": "matched_pseudo_event_allocator_v2", "matched_decision_ts": frame.decision_ts}}
+            result = dispatch_registered_attempt(
+                row, (frame,), registry_by_id=registry, payoff_provider=provider, control_directives=directives,
+            )
+            if result["status"] != "complete":
+                raise RuntimeError(f"real KDA02B production dispatch failed: {cell}/{frame.fold_id}/{variant}")
+            recomputed = aggregate_streaming(iter(result["observations"]))
+            if recomputed != result["aggregate"]:
+                raise RuntimeError("KDA02B aggregate differs from materialized shadow observations")
+            if variant == "identity_replay":
+                generated = kda02b_adjudication.evaluate(frame, row["config"])
+                expected_side = 1 if frame.metadata["stage20_tape_side"] == "long" else -1
+                if len(generated) != 1 or generated[0]["side"] != expected_side or generated[0]["exit"] != f"time_{frame.metadata['stage20_tape_horizon']}":
+                    raise RuntimeError("KDA02B Stage20 decision/side/horizon replay differs")
+                identity_replays += 1
+            kda_dispatch_units += 1; kda_observations += len(result["observations"]); variants[variant] += 1
+        replay_evidence.append({
+            "cell_id": cell, "model_id": frame.metadata["stage20_model_id"], "symbol": frame.symbol,
+            "decision_ts": frame.decision_ts.isoformat(), "stage20_event_id": frame.metadata["stage20_event_id"],
+            "feature_partition_sha256": frame.metadata["kda02b_feature_partition_sha256"],
+        })
     covered = {(row["family"], row["outer_fold_id"]) for row in results if row["status"] in {"complete", "unavailable_data"}}
     required = {(family, fold) for family in rows for fold in OUTER_FOLDS}
     attestation = provider.attestation()
+    kda_pass = kda_dispatch_units == 1881 and identity_replays == 171 and set(variants.values()) == {171} and len(variants) == 11
+    elapsed = time.monotonic() - start
     return {
-        "status": "pass" if covered == required and attestation["economic_outcomes_opened"] is False else "fail",
+        "status": "pass" if covered == required and kda_pass and attestation["economic_outcomes_opened"] is False else "fail",
         "family_fold_rows": len(results), "covered_family_folds": len(covered),
         "nonempty_rows": sum(int(row["observation_count"]) > 0 for row in results),
         "elapsed_seconds": elapsed,
         "rows_sha256": canonical_hash(results),
         "shadow_attestation": attestation,
         "KDA02B": {
-            "status": "unavailable_data",
-            "covered_outer_folds": list(OUTER_FOLDS),
-            "reason": "authorized Stage20 tape lacks raw decision-time derivative feature columns",
+            "status": "pass", "production_dispatch_units": kda_dispatch_units,
+            "materialized_shadow_observations": kda_observations, "identity_replays": identity_replays,
+            "variants": dict(sorted(variants.items())), "cells": len(kda_by_cell), "folds": 9,
+            "replay_evidence_sha256": canonical_hash(replay_evidence),
+            "typed_unavailable_count": 0,
         },
     }
 
@@ -299,7 +356,7 @@ def _terminal_gate(
     control_ids = [str(row["control_attempt_id"]) for row in controls]
     attempt_rows = [{
         "attempt_id": identity,
-        "terminal_status": "unavailable_duplicate_address" if row.get("execution_disposition") == "multiplicity_only_duplicate" else "unavailable_data" if row["family_id"] == "KDA02B_SURVIVOR_ADJUDICATION_V1" else "completed",
+        "terminal_status": "unavailable_duplicate_address" if row.get("execution_disposition") == "multiplicity_only_duplicate" else "completed",
         "family_id": row["family_id"],
         "executable_attempt_id": row["executable_attempt_id"],
         "shadow_no_outcome": True,
@@ -388,12 +445,15 @@ def run_gate(args: argparse.Namespace) -> dict[str, Any]:
     checks: dict[str, Mapping[str, Any]] = {}
     checks["authority"] = _authority_gate(args.repository_root, args.stage24_task)
     registry, strategy, execution, controls = _registry_gate(args.packet_root); checks["registries"] = registry
-    cache, frames = _cache_gate(args.cache_manifest, args.packet_root / "EXECUTION_INPUT_AUTHORITY.json"); checks["cache_authority"] = cache
-    checks["real_family_inputs_and_engines"] = _real_engine_gate(execution, frames)
+    authority_path = args.execution_input_authority or args.packet_root / "EXECUTION_INPUT_AUTHORITY.json"
+    execution_input_authority = json.loads(authority_path.read_text(encoding="utf-8"))
+    cache, frames = _cache_gate(args.cache_manifest, authority_path); checks["cache_authority"] = cache
+    checks["real_family_inputs_and_engines"] = _real_engine_gate(
+        execution, frames, cache_manifest_path=args.cache_manifest, execution_input_authority=execution_input_authority,
+    )
     checks["controls"] = control_production_shadow_probe(args.output / "control_workers", controls, frames)
     del frames
     gc.collect()
-    execution_input_authority = json.loads((args.packet_root / "EXECUTION_INPUT_AUTHORITY.json").read_text(encoding="utf-8"))
     checks["representative_benchmark"] = representative_production_benchmark(
         args.output / "representative_benchmark",
         execution,
@@ -427,6 +487,7 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--repository-root", type=Path, default=Path.cwd())
     result.add_argument("--packet-root", type=Path, default=Path("results/rebaseline/stage23_stage22_v04_remediation_20260721_v07"))
     result.add_argument("--cache-manifest", type=Path, default=Path("results/rebaseline/stage24_production_readiness_20260721_v05/semantic_cache/SEMANTIC_CACHE_MANIFEST.json"))
+    result.add_argument("--execution-input-authority", type=Path)
     result.add_argument("--stage24-task", type=Path, default=Path("/root/.codex/attachments/631b7b9c-9ca0-435d-a456-2cf1c64062c8/pasted-text.txt"))
     return result
 

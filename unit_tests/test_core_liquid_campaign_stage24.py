@@ -14,18 +14,20 @@ from tools.core_liquid_campaign.a1_state import initial_state, transition
 from tools.core_liquid_campaign.family_engines.common import EngineInputError, weak_percentile, weak_percentile_prevalidated_sorted
 from tools.core_liquid_campaign.campaign import CampaignOrchestrator
 from tools.core_liquid_campaign.controls import CONTROL_IDS, derive_control_inputs, execute_control
-from tools.core_liquid_campaign.executor import CacheAuthority, dispatch_registered_attempt
+from tools.core_liquid_campaign.executor import AuthorizationError, CacheAuthority, dispatch_registered_attempt
 from tools.core_liquid_campaign.engine_types import DailyBar, ExactPopulationTableView, ExactPopulationView
 from tools.core_liquid_campaign.schema import CAMPAIGN_ID, baseline_config, economic_address, normalize_config
 from tools.core_liquid_campaign.shadow_payoff import ShadowPayoffProvider
 from tools.core_liquid_campaign.shadow_service import _write_shadow_bound_stop
-from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame, a4_frame, frame_for_family, with_source_authority
+from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame, a4_frame, frame_for_family, kda_frame, with_source_authority
 from tools.core_liquid_campaign.terminal import TerminalContractError, independent_terminal_recomputation, terminal_package, verify_terminal_inventory
 from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceLimits
 from tools.core_liquid_campaign.runtime import detached_shadow_service_spec
 from tools.core_liquid_campaign.production_readiness_gate import _a1_state_gate, _bounded_cold_warm_replay
 from tools.core_liquid_campaign.production_inputs import _a2_proximity_feature_arrays, _thresholds
 from tools.core_liquid_campaign.family_engines import a1_compression
+from tools.core_liquid_campaign.family_engines import kda02b_adjudication
+from tools.core_liquid_campaign.kda02b_production import KDA_REQUIRED_FIELDS_AND_UNITS
 from tools.core_liquid_campaign.production_population_tables import A1PopulationTableAuthority, _a3_symbol_events, _feature_arrays
 
 
@@ -349,6 +351,54 @@ class Stage24KnownDefectTests(unittest.TestCase):
             result = jobs[0][1]()
             self.assertEqual(("unavailable_data", "explicit_empty_unavailable_observation"), (result["status"], result["materialization"]))
             self.assertEqual("a" * 64, result["authority_sha256"])
+
+    def test_kda02b_eligibility_is_a_mandatory_validity_field(self) -> None:
+        config = normalize_config("KDA02B_SURVIVOR_ADJUDICATION_V1", baseline_config("KDA02B_SURVIVOR_ADJUDICATION_V1"))
+        frame = kda_frame(config)
+        self.assertEqual(1, len(kda02b_adjudication.evaluate(frame, config)))
+        history = tuple(
+            {**row, "eligible": False} if index == len(frame.metadata["kda02b_feature_history"]) - 1 else row
+            for index, row in enumerate(frame.metadata["kda02b_feature_history"])
+        )
+        ineligible = replace(frame, metadata={**frame.metadata, "kda02b_feature_history": history})
+        self.assertEqual([], kda02b_adjudication.evaluate(ineligible, config))
+
+    def test_kda02b_required_unit_contract_is_explicit_and_basis_is_not_consumed(self) -> None:
+        self.assertEqual("decimal_log_return; engine_multiplies_by_10000_to_bps", KDA_REQUIRED_FIELDS_AND_UNITS["trade_return_1h"])
+        self.assertEqual("unsigned_base_unit_contract_quantity", KDA_REQUIRED_FIELDS_AND_UNITS["liquidation_base_units_1h"])
+        self.assertIn("not_consumed", KDA_REQUIRED_FIELDS_AND_UNITS["basis_bps"])
+
+    def test_cache_authority_fails_closed_when_supplemental_kda_source_drifts(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw); cache_root = root / "cache"
+            source = root / "source.json"; supplemental = root / "kda-schema.json"
+            atomic_write_json(source, {"fixture": True}); atomic_write_json(supplemental, {"schema": "bound"})
+            source_record = {"role": "fixture", "path": str(source), "bytes": source.stat().st_size, "sha256": sha256_file(source)}
+            kda_record = {"role": "stage8a_shared_feature_schema", "path": str(supplemental), "bytes": supplemental.stat().st_size, "sha256": sha256_file(supplemental)}
+            authority = {
+                "platform": "kraken_native_linear_pf", "rankable_interval": "[2023-01-01T00:00:00Z,2026-01-01T00:00:00Z)",
+                "source_manifest_sha256": source_record["sha256"], "pit_universe_sha256": "b" * 64,
+                "funding_manifest_sha256": "c" * 64, "cache_contract_sha256": "d" * 64,
+                "fold_graph_sha256": "e" * 64, "rankable_funding_package_sha256": "f" * 64,
+                "source_records": [source_record], "cache_manifest_contract": {"schema": "stage22_semantic_cache_manifest_v1"},
+                "kda02b_authority_records": [kda_record], "kda02b_authority_inventory_sha256": canonical_hash([kda_record]),
+            }
+            frame = a4_frame(); population = next(iter(frame.threshold_populations.values()))
+            partition = {
+                "phase": "outer_evaluation", "outer_fold_id": "2025Q2", "inner_fold_id": None,
+                "training_start": population.training_start, "training_end_exclusive": population.training_end_exclusive,
+                "evaluation_start": frame.metadata["evaluation_start"], "evaluation_end_exclusive": frame.metadata["evaluation_end_exclusive"],
+            }
+            frame = with_source_authority(replace(frame, metadata={**frame.metadata, "campaign_partition": partition}), authority)
+            writer = SemanticCacheWriter(cache_root, authority, authority_root=root)
+            record = writer.add(frame); manifest_path = writer.finalize()
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["kda02b_authority_inventory_sha256"] = authority["kda02b_authority_inventory_sha256"]
+            atomic_write_json(manifest_path, manifest)
+            CacheAuthority(manifest_path, cache_root).load_frames({"execution_input_authority": authority}, [record["path"]])
+            atomic_write_json(supplemental, {"schema": "drifted"})
+            with self.assertRaises(AuthorizationError):
+                CacheAuthority(manifest_path, cache_root).load_frames({"execution_input_authority": authority}, [record["path"]])
 
     def test_early_inner_fold_persists_long_a4_features_as_unavailable(self) -> None:
         frame = a4_frame()
