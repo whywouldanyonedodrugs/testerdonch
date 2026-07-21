@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from bisect import bisect_right
 from datetime import datetime, timezone
 from typing import Iterable, Sequence
 
@@ -110,6 +111,13 @@ def weak_percentile(value: float, population: Sequence[float]) -> float:
     return sum(item <= value for item in finite) / len(finite)
 
 
+def weak_percentile_prevalidated_sorted(value: float, population: Sequence[float]) -> float:
+    """Exact weak percentile for a caller-validated finite sorted population."""
+    if not population:
+        raise EngineInputError("prevalidated threshold population is empty")
+    return bisect_right(population, float(value)) / len(population)
+
+
 def average_rank_percentiles(values: Sequence[float]) -> list[float]:
     if len(values) < 2 or any(not math.isfinite(float(value)) for value in values):
         raise EngineInputError("cross-sectional ranking requires at least two finite values")
@@ -171,6 +179,15 @@ def wilder_atr(highs: Sequence[float], lows: Sequence[float], closes: Sequence[f
 
 def percentile_from_population(value: float, population: Sequence[float], threshold_name: str | None = None) -> tuple[float, bool]:
     percentile = weak_percentile(value, population)
+    if threshold_name is None or threshold_name == "none":
+        return percentile, True
+    if not threshold_name.startswith("q"):
+        raise EngineInputError(f"unknown quantile threshold: {threshold_name}")
+    return percentile, percentile >= int(threshold_name[1:]) / 100.0
+
+
+def percentile_from_prevalidated_sorted(value: float, population: Sequence[float], threshold_name: str | None = None) -> tuple[float, bool]:
+    percentile = weak_percentile_prevalidated_sorted(value, population)
     if threshold_name is None or threshold_name == "none":
         return percentile, True
     if not threshold_name.startswith("q"):

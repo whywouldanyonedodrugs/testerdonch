@@ -6,7 +6,7 @@ from typing import Any, Mapping, Sequence
 
 from ..canonical import canonical_hash
 from ..engine_types import FamilyInput, SignalBar, require_contiguous_5m, require_contiguous_daily
-from .common import EngineInputError, log_return, path_smoothness, percentile_from_population, require_utc, sample_standard_deviation, wilder_atr
+from .common import EngineInputError, log_return, path_smoothness, percentile_from_population, percentile_from_prevalidated_sorted, require_utc, sample_standard_deviation, wilder_atr
 
 
 ENGINE_ID = "a1_compression_engine_v1"
@@ -102,6 +102,14 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
     """Run the complete A1 episode state machine from completed five-minute bars."""
     frame.validate()
     frame.require_pit_top_n(int(config["PIT_liquidity_top_n"]))
+    persisted_state = frame.metadata.get("a1_persistent_state")
+    if frame.metadata.get("production_input") is True:
+        from ..a1_state import A1PersistentState
+
+        if not isinstance(persisted_state, Mapping):
+            raise EngineInputError("production A1 frame lacks its persisted state")
+        persisted_state = A1PersistentState(**persisted_state)
+        persisted_state.validate()
     bars, rebuilt_after_gap = _decision_contiguous_segment(frame)
     require_contiguous_5m(bars)
     impulse_n = _bar_count(str(config["impulse_window"]))
@@ -134,13 +142,24 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
     else:
         sides = (1, -1) if config["direction"] == "symmetric" else (1 if config["direction"] == "long" else -1,)
     threshold = int(str(config["impulse_rank_min"])[1:]) / 100.0
+    prepared_populations: dict[str, Sequence[float]] = {}
+
+    def prepared_population(name: str) -> Sequence[float]:
+        if name not in prepared_populations:
+            prepared_populations[name] = tuple(sorted(float(value) for value in _population(frame, name)))
+        return prepared_populations[name]
+
     armed = {side: not rebuilt_after_gap for side in sides}
     owning_side: int | None = None
     if rebuilt_after_gap:
-        recorded_owner = frame.metadata.get("a1_pre_gap_owning_side")
+        recorded_owner = (
+            persisted_state.owner
+            if persisted_state is not None and hasattr(persisted_state, "owner")
+            else frame.metadata.get("a1_pre_gap_owning_side")
+        )
         if recorded_owner not in (*sides, None):
             raise EngineInputError("A1 pre-gap owning side is absent or invalid")
-        if "a1_pre_gap_owning_side" not in frame.metadata:
+        if "a1_pre_gap_owning_side" not in frame.metadata and persisted_state is None:
             raise EngineInputError("A1 gap rebuild lacks the persisted owning-side state")
         owning_side = None if recorded_owner is None else int(recorded_owner)
     history_restore_index: int | None = None
@@ -161,7 +180,7 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
             impulse = [bar.close for bar in bars[index - impulse_n:index + 1]]
             score = side * log_return(impulse[0], impulse[-1])
             population_name = impulse_population_key(str(config["impulse_window"]), str(config["impulse_rank_scope"]), side)
-            percentile, passes = percentile_from_population(score, _population(frame, population_name), str(config["impulse_rank_min"]))
+            percentile, passes = percentile_from_prevalidated_sorted(score, prepared_population(population_name), str(config["impulse_rank_min"]))
             percentiles[side] = percentile
             scores[side] = score
             previous = previous_percentile[side]
@@ -212,16 +231,16 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
         )
         contraction_ok = True
         if config["contraction_rank_max"] != "none" and control_id not in {"A1_CONTRACTION_REMOVED", "A1_PRICE_ONLY_IMPULSE"}:
-            contraction_percentile, _ = percentile_from_population(
+            contraction_percentile, _ = percentile_from_prevalidated_sorted(
                 computed["contraction_ratio"],
-                _population(frame, contraction_population_key(str(config["base_duration"]), str(config["contraction_baseline"]), str(config["shape_rank_scope"]))),
+                prepared_population(contraction_population_key(str(config["base_duration"]), str(config["contraction_baseline"]), str(config["shape_rank_scope"]))),
             )
             contraction_ok = contraction_percentile <= int(str(config["contraction_rank_max"])[1:]) / 100.0
         smoothness_ok = True
         if config["smoothness_rank_min"] != "none" and control_id not in {"A1_SMOOTHNESS_REMOVED", "A1_PRICE_ONLY_IMPULSE"}:
-            _, smoothness_ok = percentile_from_population(
+            _, smoothness_ok = percentile_from_prevalidated_sorted(
                 computed["base_smoothness"],
-                _population(frame, smoothness_population_key(str(config["base_duration"]), str(config["shape_rank_scope"]))),
+                prepared_population(smoothness_population_key(str(config["base_duration"]), str(config["shape_rank_scope"]))),
                 str(config["smoothness_rank_min"]),
             )
         if not contraction_ok or not smoothness_ok:
@@ -276,6 +295,7 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
             "impulse_score": impulse_score,
             "features": computed,
             "context_multiplier": context_multiplier,
+            "a1_state_generation": getattr(persisted_state, "state_generation", None),
         })
         index = entry_index
     return episodes

@@ -492,9 +492,14 @@ class RuntimeAuthorityAndReviewTests(unittest.TestCase):
             frame = with_source_authority(a1_frame(), authority)
             manifest_path = build_semantic_cache(root / "cache", authority, [frame], authority_root=root, synthetic_only=True)
             campaign = {"execution_input_authority": authority}
-            cache, decoded = CacheAuthority(manifest_path, root / "cache").load_frames(campaign, [json.loads(manifest_path.read_text())["artifacts"][0]["path"]])
+            cache_authority = CacheAuthority(manifest_path, root / "cache")
+            cache, decoded = cache_authority.load_frames(campaign, [json.loads(manifest_path.read_text())["artifacts"][0]["path"]])
             self.assertEqual(decoded[0].content_sha256(), frame.content_sha256())
+            _, warm = cache_authority.load_frames(campaign, [cache["artifacts"][0]["path"]])
+            self.assertIs(decoded[0], warm[0])
             artifact = root / "cache" / cache["artifacts"][0]["path"]; artifact.write_bytes(b"tampered")
+            with self.assertRaises(AuthorizationError):
+                cache_authority.load_frames(campaign, [cache["artifacts"][0]["path"]])
             with self.assertRaises(AuthorizationError): CacheAuthority(manifest_path, root / "cache").load_frames(campaign, [cache["artifacts"][0]["path"]])
 
     def test_execution_authority_is_file_and_commit_bound(self) -> None:
@@ -504,7 +509,7 @@ class RuntimeAuthorityAndReviewTests(unittest.TestCase):
             for relative in (
                 "tools/build_stage22_core_liquid_campaign.py", "tools/build_stage23_final_packet.py",
                 "tools/run_stage22_core_liquid_campaign.py", "unit_tests/test_core_liquid_campaign.py",
-                "unit_tests/test_core_liquid_campaign_stage23.py",
+                "unit_tests/test_core_liquid_campaign_stage23.py", "unit_tests/test_core_liquid_campaign_stage24.py",
             ):
                 path = root / relative; path.parent.mkdir(parents=True, exist_ok=True); path.write_text("# fixture\n", encoding="utf-8")
             source = root / "SOURCE.json"; atomic_write_json(source, {"authority": True})

@@ -131,6 +131,8 @@ def terminal_package(
             raise TerminalContractError("completion contains an incomplete or mechanically failed terminal identity")
         if not routes or any(not row.get("route") for row in routes):
             raise TerminalContractError("completion lacks a frozen terminal route")
+        if not forensics:
+            raise TerminalContractError("completion lacks required forensic records")
     output_root.mkdir(parents=True, exist_ok=True)
     atomic_write_json(output_root / "ATTEMPT_TERMINAL_ROWS.json", {"rows": list(attempt_rows)})
     atomic_write_json(output_root / "CONTROL_TERMINAL_ROWS.json", {"rows": list(control_rows)})
@@ -152,9 +154,39 @@ def terminal_package(
     files = []
     for path in sorted(output_root.glob("*.json")):
         files.append({"path": path.name, "bytes": path.stat().st_size, "sha256": sha256_file(path)})
-    inventory = {"schema": "stage23_terminal_artifact_inventory_v1", "files": files, "inventory_sha256": canonical_hash(files)}
+    inventory = {
+        "schema": "stage24_terminal_artifact_inventory_v2",
+        "files": files,
+        "excluded_self_reference": ["TERMINAL_ARTIFACT_INVENTORY.json"],
+        "inventory_sha256": canonical_hash(files),
+    }
     atomic_write_json(output_root / "TERMINAL_ARTIFACT_INVENTORY.json", inventory)
     return payload
+
+
+def verify_terminal_inventory(output_root: Path) -> dict[str, Any]:
+    """Independently rehash the immutable terminal directory after its last write."""
+    inventory_path = output_root / "TERMINAL_ARTIFACT_INVENTORY.json"
+    if not inventory_path.is_file():
+        raise TerminalContractError("terminal artifact inventory is absent")
+    inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
+    files = inventory.get("files")
+    if not isinstance(files, list) or inventory.get("inventory_sha256") != canonical_hash(files):
+        raise TerminalContractError("terminal artifact inventory content hash differs")
+    expected = {str(record["path"]): record for record in files}
+    observed = {path.name for path in output_root.glob("*.json") if path.name != inventory_path.name}
+    if observed != set(expected):
+        raise TerminalContractError("terminal directory differs from its frozen inventory")
+    for name, record in expected.items():
+        path = output_root / name
+        if path.stat().st_size != int(record["bytes"]) or sha256_file(path) != record["sha256"]:
+            raise TerminalContractError(f"terminal artifact bytes changed after freeze: {name}")
+    return {
+        "status": "pass",
+        "inventory_sha256": inventory["inventory_sha256"],
+        "inventory_physical_sha256": sha256_file(inventory_path),
+        "verified_files": len(files),
+    }
 
 
 def _terminal_status(value: object) -> str:
@@ -237,8 +269,10 @@ def campaign_terminal_records(
         "A2_PRIOR_HIGH_RS_CONTEXT_V1": "A2_CONTEXT_PERMUTED_MAIN_NULL", "A3_STARTER_RETEST_V3": "A3_RETEST_TIME_PERMUTED_MAIN_NULL",
     }
     route_component_ids = {
-        "A4_TSMOM_V7": {"A4_GENERIC_SIGNED_RETURN"}, "A1_COMPRESSION_V2": {"A1_PRICE_ONLY_IMPULSE"},
-        "A2_PRIOR_HIGH_RS_CONTEXT_V1": {"A2_PARENT_ONLY"}, "A3_STARTER_RETEST_V3": {"A3_STARTER_ONLY"},
+        "A4_TSMOM_V7": {"A4_GENERIC_SIGNED_RETURN", "A4_VOL_SCALING_REMOVED", "A4_PATH_COMPONENT_REMOVED", "A4_CONTEXT_REMOVED"},
+        "A1_COMPRESSION_V2": {"A1_PRICE_ONLY_IMPULSE", "A1_CONTRACTION_REMOVED", "A1_SMOOTHNESS_REMOVED", "A1_CONTEXT_REMOVED"},
+        "A2_PRIOR_HIGH_RS_CONTEXT_V1": {"A2_PARENT_ONLY", "A2_PRIOR_HIGH_REMOVED", "A2_RS_REMOVED", "A2_EXTERNAL_CONTEXT_REMOVED"},
+        "A3_STARTER_RETEST_V3": {"A3_STARTER_ONLY", "A3_MATCHED_PSEUDO_EVENT", "A3_CONFIRMATION_REMOVED", "A3_CONTEXT_REMOVED"},
     }
     routes = []
     for family in sorted(set(fold_values) | set(control_gates)):
@@ -371,10 +405,32 @@ def campaign_terminal_records(
                 "sample_limited": int(aggregate.get("event_count", 0)) < 30,
             },
         })
+    for cell, variants in sorted(kda_by_cell.items()):
+        for variant, (registered, payload) in sorted(variants.items()):
+            if payload.get("status") != "complete" or not isinstance(payload.get("aggregate"), Mapping):
+                continue
+            selected = [row for row in payload.get("observations", ()) if isinstance(row, Mapping)]
+            summary = forensic_summary(selected)
+            forensics.append({
+                "family": "KDA02B_SURVIVOR_ADJUDICATION_V1",
+                "stage20_cell_id": cell,
+                "adjudication_variant": variant,
+                "canonical_economic_address_sha256": registered["canonical_economic_address_sha256"],
+                **summary,
+                "funding_zero_and_alignment": {
+                    name: payload.get("aggregate", {}).get("component_metrics", {}).get(name)
+                    for name in ("funding_zero_net_bps", "funding_start_alignment_net_bps", "funding_end_alignment_net_bps")
+                },
+                "tags": {
+                    "concentrated": summary["concentrated"],
+                    "severely_concentrated": summary["severely_concentrated"],
+                    "sample_limited": summary["event_count"] < 30,
+                },
+            })
     return {
         "attempt_rows": attempt_rows, "control_rows": control_rows, "routes": routes,
         "forensics": forensics, "control_gate_inventory": {family: dict(values) for family, values in control_gates.items()},
     }
 
 
-__all__ = ["TERMINAL_STATUSES", "TerminalContractError", "campaign_terminal_records", "forensic_summary", "reconcile_identities", "route_record", "terminal_package"]
+__all__ = ["TERMINAL_STATUSES", "TerminalContractError", "campaign_terminal_records", "forensic_summary", "reconcile_identities", "route_record", "terminal_package", "verify_terminal_inventory"]

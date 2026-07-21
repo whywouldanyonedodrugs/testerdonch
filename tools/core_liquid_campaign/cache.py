@@ -1,18 +1,38 @@
 from __future__ import annotations
 
 import json
+import gzip
 from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
-from .canonical import atomic_write_json, canonical_hash, sha256_file
-from .engine_types import ContextInputs, DailyBar, FamilyInput, FundingInput, SignalBar, ThresholdPopulation
+from .canonical import atomic_write_bytes, atomic_write_json, canonical_hash, canonical_json_bytes, sha256_file
+from .engine_types import ContextInputs, DailyBar, FamilyInput, FundingInput, SignalBar, ThresholdPopulation, _mark_validated_frame
 from .family_engines.common import EngineInputError, require_utc
 
 
 class CacheBuildError(RuntimeError):
     pass
+
+
+def _read_payload(path: Path, encoding: str) -> Mapping[str, Any]:
+    if encoding == "canonical_json":
+        raw = path.read_bytes()
+    elif encoding == "canonical_json_gzip_mtime0":
+        try:
+            raw = gzip.decompress(path.read_bytes())
+        except (gzip.BadGzipFile, EOFError, OSError) as exc:
+            raise CacheBuildError("compressed semantic-cache frame is invalid") from exc
+    else:
+        raise CacheBuildError(f"unsupported semantic-cache frame encoding: {encoding}")
+    try:
+        payload = json.loads(raw)
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise CacheBuildError("semantic-cache frame JSON is invalid") from exc
+    if not isinstance(payload, Mapping):
+        raise CacheBuildError("semantic-cache frame is not a JSON object")
+    return payload
 
 
 def _datetime(value: object) -> datetime:
@@ -134,66 +154,117 @@ def build_semantic_cache(
     synthetic_only: bool = False,
 ) -> Path:
     """Persist canonical frame payloads after physical source-authority verification."""
-    bindings = _authority_bindings(execution_input_authority)
-    records_by_role = {}
-    for record in execution_input_authority.get("source_records", ()):
-        path = authority_root / str(record["path"])
-        if not path.is_file() or path.stat().st_size != int(record["bytes"]) or sha256_file(path) != record["sha256"]:
-            raise CacheBuildError(f"source authority mismatch: {record.get('role')}")
-        records_by_role[str(record["role"])] = record
-    if not records_by_role:
-        raise CacheBuildError("cache construction has no verified source authorities")
-    source_composite = canonical_hash(execution_input_authority["source_records"])
-    artifact_root = cache_root / "frames"
-    artifacts = []
-    for frame in sorted(frames, key=lambda item: (item.fold_id, item.symbol, item.decision_ts.isoformat(), item.content_sha256())):
+    writer = SemanticCacheWriter(
+        cache_root,
+        execution_input_authority,
+        authority_root=authority_root,
+        synthetic_only=synthetic_only,
+    )
+    for frame in frames:
+        writer.add(frame)
+    return writer.finalize()
+
+
+class SemanticCacheWriter:
+    """Streaming canonical cache writer; retains records, never full frames."""
+
+    def __init__(
+        self,
+        cache_root: Path,
+        execution_input_authority: Mapping[str, Any],
+        *,
+        authority_root: Path,
+        synthetic_only: bool = False,
+    ) -> None:
+        self.cache_root = cache_root
+        self.execution_input_authority = execution_input_authority
+        self.synthetic_only = bool(synthetic_only)
+        self.bindings = _authority_bindings(execution_input_authority)
+        records_by_role = {}
+        for record in execution_input_authority.get("source_records", ()):
+            raw = Path(str(record["path"]))
+            path = raw if raw.is_absolute() else authority_root / raw
+            if not path.is_file() or path.stat().st_size != int(record["bytes"]) or sha256_file(path) != record["sha256"]:
+                raise CacheBuildError(f"source authority mismatch: {record.get('role')}")
+            records_by_role[str(record["role"])] = record
+        if not records_by_role:
+            raise CacheBuildError("cache construction has no verified source authorities")
+        self.source_composite = canonical_hash(execution_input_authority["source_records"])
+        self.artifacts: list[dict[str, Any]] = []
+        self.paths: set[str] = set()
+
+    def add(self, frame: FamilyInput) -> dict[str, Any]:
         frame.validate()
         partition = _campaign_partition(frame)
         provenance = frame.metadata.get("source_authority")
         expected_provenance = {
-            **bindings,
-            "source_record_inventory_sha256": source_composite,
-            "rankable_funding_package_sha256": execution_input_authority.get("rankable_funding_package_sha256"),
+            **self.bindings,
+            "source_record_inventory_sha256": self.source_composite,
+            "rankable_funding_package_sha256": self.execution_input_authority.get("rankable_funding_package_sha256"),
         }
         if provenance != expected_provenance:
             raise CacheBuildError("frame was not derived under the exact execution-input authority")
         payload = frame.content_payload()
         content_hash = canonical_hash(payload)
-        relative = Path("frames") / f"{content_hash}.json"
-        path = cache_root / relative
-        atomic_write_json(path, payload)
-        decoded = decode_family_input(json.loads(path.read_text(encoding="utf-8")))
+        relative = Path("frames") / f"{content_hash}.json.gz"
+        if relative.as_posix() in self.paths:
+            raise CacheBuildError("semantic cache contains a duplicate frame content identity")
+        path = self.cache_root / relative
+        atomic_write_bytes(path, gzip.compress(canonical_json_bytes(payload), compresslevel=6, mtime=0))
+        decoded = decode_family_input(_read_payload(path, "canonical_json_gzip_mtime0"))
         if decoded.content_sha256() != content_hash:
             raise CacheBuildError("cache encode/decode replay mismatch")
-        artifacts.append({
+        record = {
             "path": relative.as_posix(), "bytes": path.stat().st_size, "sha256": sha256_file(path),
+            "encoding": "canonical_json_gzip_mtime0",
             "frame_content_sha256": content_hash, "fold_id": frame.fold_id, "symbol": frame.symbol,
             "decision_ts": require_utc(frame.decision_ts).isoformat(),
             "campaign_partition": _content_partition(partition),
-        })
-    if not artifacts:
-        raise CacheBuildError("semantic cache cannot be empty")
-    manifest = {
-        "schema": execution_input_authority["cache_manifest_contract"]["schema"],
-        "platform": execution_input_authority["platform"],
-        "rankable_interval": execution_input_authority["rankable_interval"],
-        **bindings,
-        "rankable_funding_package_sha256": execution_input_authority.get("rankable_funding_package_sha256"),
-        "source_record_inventory_sha256": source_composite,
-        "artifacts": artifacts,
-        "artifact_inventory_sha256": canonical_hash(artifacts),
-        "construction": "canonical decoded FamilyInput payload from exact physically verified authorities",
-        "synthetic_only": bool(synthetic_only),
-    }
-    manifest_path = cache_root / "SEMANTIC_CACHE_MANIFEST.json"
-    atomic_write_json(manifest_path, manifest)
-    return manifest_path
+        }
+        self.paths.add(relative.as_posix())
+        self.artifacts.append(record)
+        return record
 
+    def finalize(self) -> Path:
+        artifacts = sorted(
+            self.artifacts,
+            key=lambda record: (
+                str(record["fold_id"]),
+                str(record["symbol"]),
+                str(record["decision_ts"]),
+                str(record["frame_content_sha256"]),
+            ),
+        )
+        if not artifacts:
+            raise CacheBuildError("semantic cache cannot be empty")
+        manifest = {
+            "schema": self.execution_input_authority["cache_manifest_contract"]["schema"],
+            "platform": self.execution_input_authority["platform"],
+            "rankable_interval": self.execution_input_authority["rankable_interval"],
+            **self.bindings,
+            "rankable_funding_package_sha256": self.execution_input_authority.get("rankable_funding_package_sha256"),
+            "source_record_inventory_sha256": self.source_composite,
+            "artifacts": artifacts,
+            "artifact_inventory_sha256": canonical_hash(artifacts),
+            "construction": "canonical decoded FamilyInput payload from exact physically verified authorities",
+            "synthetic_only": self.synthetic_only,
+        }
+        manifest_path = self.cache_root / "SEMANTIC_CACHE_MANIFEST.json"
+        atomic_write_json(manifest_path, manifest)
+        return manifest_path
 
-def decoded_frame_with_locator(path: Path, relative: str, bindings: Mapping[str, str]) -> FamilyInput:
-    payload = json.loads(path.read_text(encoding="utf-8"))
+def decoded_frame_with_locator(
+    path: Path,
+    relative: str,
+    bindings: Mapping[str, str],
+    *,
+    encoding: str = "canonical_json",
+) -> FamilyInput:
+    payload = _read_payload(path, encoding)
     frame = decode_family_input(payload)
-    return replace(frame, metadata={**frame.metadata, "cache_artifact_path": relative, "cache_bindings": dict(bindings)})
+    located = replace(frame, metadata={**frame.metadata, "cache_artifact_path": relative, "cache_bindings": dict(bindings)})
+    _mark_validated_frame(located)
+    return located
 
 
 def _content_partition(partition: Mapping[str, Any]) -> dict[str, Any]:
@@ -203,4 +274,4 @@ def _content_partition(partition: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
-__all__ = ["CacheBuildError", "build_semantic_cache", "decode_family_input", "decoded_frame_with_locator"]
+__all__ = ["CacheBuildError", "SemanticCacheWriter", "build_semantic_cache", "decode_family_input", "decoded_frame_with_locator"]

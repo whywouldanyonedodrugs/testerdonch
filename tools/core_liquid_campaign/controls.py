@@ -311,6 +311,22 @@ def derive_control_inputs(
                 selected_frames.append(frame)
         return selected_frames, directives, unavailable
 
+    deterministic_controls = {
+        "A4_GENERIC_SIGNED_RETURN", "A4_VOL_SCALING_REMOVED",
+        "A4_PATH_COMPONENT_REMOVED", "A4_CONTEXT_REMOVED",
+        "A1_PRICE_ONLY_IMPULSE", "A1_CONTRACTION_REMOVED",
+        "A1_SMOOTHNESS_REMOVED", "A1_CONTEXT_REMOVED",
+        "A2_PARENT_ONLY", "A2_PRIOR_HIGH_REMOVED", "A2_RS_REMOVED",
+        "A2_EXTERNAL_CONTEXT_REMOVED", "A3_STARTER_ONLY",
+        "A3_CONFIRMATION_REMOVED", "A3_CONTEXT_REMOVED",
+    }
+    if control_id in deterministic_controls:
+        # These controls alter the registered engine configuration/branch, not
+        # the input population.  They must traverse every exact parent frame;
+        # returning an empty list silently converted all deterministic
+        # ablations into empty evidence.
+        return list(frames), {}, []
+
     grouped: dict[tuple[Any, ...], list[tuple[Any, FamilyInput, Any]]] = {}
     for observation in observations:
         frame = frame_index.get((observation.symbol, observation.decision_ts.isoformat()))
@@ -324,7 +340,7 @@ def derive_control_inputs(
             value = "NO_ADD" if add_index is None else int(add_index) - int(starter_index)
             group = (observation.symbol, f"{observation.decision_ts.year}Q{(observation.decision_ts.month - 1) // 3 + 1}", ledger["engine_event"]["side"])
         else:
-            continue
+            raise ValueError(f"control input derivation is not implemented: {control_id}")
         grouped.setdefault(group, []).append((observation, frame, value))
     generator = np.random.Generator(np.random.PCG64(seed))
     selected_frames: list[FamilyInput] = []
@@ -353,6 +369,7 @@ def execute_control(
     registry_by_id: Mapping[str, Mapping[str, Any]],
     parent_binding: Mapping[str, Any] | None = None,
     parent_frames: Sequence[FamilyInput] | None = None,
+    payoff_provider: Any | None = None,
 ) -> dict[str, Any]:
     if control_row.get("family") != parent_row.get("family_id"):
         raise ValueError("control family differs from parent")
@@ -365,7 +382,14 @@ def execute_control(
             "duplicate_of_control_attempt_id": control_row.get("duplicate_of_control_attempt_id"),
         }
     from .executor import dispatch_registered_attempt
-    parent_result = dispatch_registered_attempt(parent_row, frames, registry_by_id=registry_by_id, parent_binding=parent_binding, parent_frames=parent_frames)
+    parent_result = dispatch_registered_attempt(
+        parent_row,
+        frames,
+        registry_by_id=registry_by_id,
+        parent_binding=parent_binding,
+        parent_frames=parent_frames,
+        payoff_provider=payoff_provider,
+    )
     transformed, directives, unavailable = derive_control_inputs(control_row, parent_row, parent_result, frames)
     if not transformed and unavailable and all(row.get("status") == "unavailable_duplicate_address" for row in unavailable):
         return {
@@ -383,6 +407,7 @@ def execute_control(
         parent_frames=parent_frames,
         control_id=str(control_row["control_id"]),
         control_directives=directives,
+        payoff_provider=payoff_provider,
     )
     result["control_attempt_id"] = control_row["control_attempt_id"]
     result["control_economic_address_sha256"] = control_row["economic_address_sha256"]

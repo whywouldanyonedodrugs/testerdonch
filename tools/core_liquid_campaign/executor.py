@@ -3,10 +3,10 @@ from __future__ import annotations
 import json
 import math
 import subprocess
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Callable, Mapping, Sequence
 
 from .accounting import aggregate_parent_legs, simulate_leg
 from .cache import decoded_frame_with_locator
@@ -22,6 +22,12 @@ class AuthorizationError(PermissionError):
     pass
 
 
+PayoffProvider = Callable[
+    [FamilyInput, str, str, Mapping[str, Any], Mapping[str, Any]],
+    tuple[EventObservation | None, dict[str, Any]],
+]
+
+
 def _is_sha256(value: object) -> bool:
     return isinstance(value, str) and len(value) == 64 and all(character in "0123456789abcdef" for character in value)
 
@@ -33,7 +39,14 @@ def _is_git_commit(value: object) -> bool:
 def _launch_tree_paths(repository_root: Path) -> list[str]:
     package = repository_root / "tools/core_liquid_campaign"
     paths = [path.relative_to(repository_root).as_posix() for path in package.rglob("*.py") if path.is_file()]
-    paths.extend(("tools/build_stage22_core_liquid_campaign.py", "tools/build_stage23_final_packet.py", "tools/run_stage22_core_liquid_campaign.py", "unit_tests/test_core_liquid_campaign.py", "unit_tests/test_core_liquid_campaign_stage23.py"))
+    paths.extend((
+        "tools/build_stage22_core_liquid_campaign.py",
+        "tools/build_stage23_final_packet.py",
+        "tools/run_stage22_core_liquid_campaign.py",
+        "unit_tests/test_core_liquid_campaign.py",
+        "unit_tests/test_core_liquid_campaign_stage23.py",
+        "unit_tests/test_core_liquid_campaign_stage24.py",
+    ))
     return sorted(set(paths))
 
 
@@ -108,18 +121,42 @@ class ExecutionAuthorization:
         return manifest
 
 
-@dataclass(frozen=True)
+@dataclass
 class CacheAuthority:
     """Physical cache manifest plus its exact source/universe/funding bindings."""
 
     manifest_path: Path
     cache_root: Path
+    _cache_manifest: dict[str, Any] | None = field(default=None, init=False, repr=False)
+    _records_by_path: dict[str, Mapping[str, Any]] = field(default_factory=dict, init=False, repr=False)
+    _decoded_frames: dict[str, FamilyInput] = field(default_factory=dict, init=False, repr=False)
+    _fingerprints: dict[str, tuple[int, int, int, int]] = field(default_factory=dict, init=False, repr=False)
+    _expected_authority_sha256: str | None = field(default=None, init=False, repr=False)
+
+    @staticmethod
+    def _fingerprint(path: Path) -> tuple[int, int, int, int]:
+        stat = path.stat()
+        return (int(stat.st_dev), int(stat.st_ino), int(stat.st_size), int(stat.st_mtime_ns))
+
+    def _require_unchanged_preloaded_bytes(self) -> None:
+        for relative, expected in self._fingerprints.items():
+            path = self.manifest_path if relative == "__manifest__" else self.cache_root / relative
+            if not path.is_file() or self._fingerprint(path) != expected:
+                raise AuthorizationError(f"preloaded cache bytes changed after hash verification: {relative}")
 
     def load_frames(self, campaign_manifest: Mapping[str, Any], artifact_paths: Sequence[str]) -> tuple[dict[str, Any], tuple[FamilyInput, ...]]:
         expected = campaign_manifest.get("execution_input_authority", {})
-        if not self.manifest_path.is_file():
-            raise AuthorizationError("physical cache manifest is absent")
-        cache = json.loads(self.manifest_path.read_text(encoding="utf-8"))
+        expected_authority_sha256 = canonical_hash(expected)
+        if self._cache_manifest is not None:
+            if expected_authority_sha256 != self._expected_authority_sha256:
+                raise AuthorizationError("caller authority differs from the preloaded cache authority")
+            self._require_unchanged_preloaded_bytes()
+            cache = self._cache_manifest
+            by_path = self._records_by_path
+        else:
+            if not self.manifest_path.is_file():
+                raise AuthorizationError("physical cache manifest is absent")
+            cache = json.loads(self.manifest_path.read_text(encoding="utf-8"))
         if cache.get("schema") != expected.get("cache_manifest_contract", {}).get("schema"):
             raise AuthorizationError("cache manifest schema differs from the approved contract")
         if cache.get("platform") != KRAKEN_PLATFORM or cache.get("rankable_interval") != "[2023-01-01T00:00:00Z,2026-01-01T00:00:00Z)":
@@ -139,17 +176,24 @@ class CacheAuthority:
             raise AuthorizationError("cache manifest has no physical artifacts")
         if cache.get("artifact_inventory_sha256") != canonical_hash(records):
             raise AuthorizationError("cache artifact inventory hash mismatch")
-        by_path: dict[str, Mapping[str, Any]] = {}
-        for record in records:
-            relative = Path(record["path"])
-            if relative.is_absolute() or ".." in relative.parts:
-                raise AuthorizationError("unsafe cache artifact path")
-            path = self.cache_root / relative
-            if str(relative) in by_path or not _is_sha256(record.get("sha256")) or not _is_sha256(record.get("frame_content_sha256")):
-                raise AuthorizationError("duplicate or incomplete cache artifact record")
-            if not path.is_file() or path.stat().st_size != record.get("bytes") or sha256_file(path) != record.get("sha256"):
-                raise AuthorizationError(f"cache artifact mismatch: {relative}")
-            by_path[str(relative)] = record
+        if self._cache_manifest is None:
+            by_path = {}
+            fingerprints = {"__manifest__": self._fingerprint(self.manifest_path)}
+            for record in records:
+                relative = Path(record["path"])
+                if relative.is_absolute() or ".." in relative.parts:
+                    raise AuthorizationError("unsafe cache artifact path")
+                path = self.cache_root / relative
+                if str(relative) in by_path or not _is_sha256(record.get("sha256")) or not _is_sha256(record.get("frame_content_sha256")):
+                    raise AuthorizationError("duplicate or incomplete cache artifact record")
+                if not path.is_file() or path.stat().st_size != record.get("bytes") or sha256_file(path) != record.get("sha256"):
+                    raise AuthorizationError(f"cache artifact mismatch: {relative}")
+                by_path[str(relative)] = record
+                fingerprints[str(relative)] = self._fingerprint(path)
+            self._cache_manifest = dict(cache)
+            self._records_by_path = by_path
+            self._fingerprints = fingerprints
+            self._expected_authority_sha256 = expected_authority_sha256
         if not artifact_paths or len(set(artifact_paths)) != len(artifact_paths):
             raise AuthorizationError("cache artifact request is empty or duplicated")
         frames = []
@@ -158,9 +202,20 @@ class CacheAuthority:
             record = by_path.get(str(relative))
             if record is None:
                 raise AuthorizationError(f"unregistered semantic-cache artifact: {relative}")
-            frame = decoded_frame_with_locator(self.cache_root / str(relative), str(relative), bindings)
-            if frame.content_sha256() != record["frame_content_sha256"]:
-                raise AuthorizationError("decoded cache payload differs from its bound frame content hash")
+            frame = self._decoded_frames.get(str(relative))
+            newly_decoded = frame is None
+            if frame is None:
+                encoding = str(record.get("encoding", "canonical_json"))
+                if encoding not in {"canonical_json", "canonical_json_gzip_mtime0"}:
+                    raise AuthorizationError("cache artifact has an unsupported encoding")
+                frame = decoded_frame_with_locator(
+                    self.cache_root / str(relative),
+                    str(relative),
+                    bindings,
+                    encoding=encoding,
+                )
+                if frame.content_sha256() != record["frame_content_sha256"]:
+                    raise AuthorizationError("decoded cache payload differs from its bound frame content hash")
             partition = frame.metadata.get("campaign_partition")
             if not isinstance(partition, Mapping):
                 raise AuthorizationError("decoded cache frame lacks its exact fold partition")
@@ -176,8 +231,19 @@ class CacheAuthority:
                 "rankable_funding_package_sha256": cache.get("rankable_funding_package_sha256"),
             }:
                 raise AuthorizationError("decoded frame provenance differs from the verified cache authority")
+            if newly_decoded:
+                self._decoded_frames[str(relative)] = frame
             frames.append(frame)
         return cache, tuple(frames)
+
+    def preload_frames(self, campaign_manifest: Mapping[str, Any]) -> tuple[dict[str, Any], tuple[FamilyInput, ...]]:
+        """Verify and decode the full cache once in the supervisor before fork."""
+        if self._cache_manifest is None:
+            raw = json.loads(self.manifest_path.read_text(encoding="utf-8"))
+            paths = [str(record["path"]) for record in raw.get("artifacts", ())]
+        else:
+            paths = sorted(self._records_by_path)
+        return self.load_frames(campaign_manifest, paths)
 
 
 def validate_registered_attempt(row: Mapping[str, Any]) -> None:
@@ -479,6 +545,7 @@ def dispatch_registered_attempt(
     parent_frames: Sequence[FamilyInput] | None = None,
     control_id: str | None = None,
     control_directives: Mapping[str, Mapping[str, Any]] | None = None,
+    payoff_provider: PayoffProvider | None = None,
 ) -> dict[str, Any]:
     """Code-owned path from raw/cache frames through engine, accounting and aggregate."""
     validate_registered_attempt(row)
@@ -499,7 +566,12 @@ def dispatch_registered_attempt(
             raise AuthorizationError("A2 exact parent is absent or from the wrong family")
         if parent_binding.get("parent_only_counterpart_id") != row.get("parent_only_counterpart_id") or parent_binding.get("overlay_counterpart_id") != row.get("overlay_counterpart_id"):
             raise AuthorizationError("A2 atomic counterpart binding mismatch")
-        parent_result = dispatch_registered_attempt(parent, parent_frames, registry_by_id=registry_by_id)
+        parent_result = dispatch_registered_attempt(
+            parent,
+            parent_frames,
+            registry_by_id=registry_by_id,
+            payoff_provider=payoff_provider,
+        )
         parent_observations = {item.event_id: item for item in parent_result["observations"]}
         a2_parent_observations = dict(parent_observations)
         parent_ledger = {item["event_id"]: item for item in parent_result["ledger"] if item.get("status") == "complete"}
@@ -542,7 +614,17 @@ def dispatch_registered_attempt(
                 event["signal_reversal_close_ts"] = () if reversal is None else (reversal,)
             generated_work = ordered_work
         for frame, event in generated_work:
-            observation, materialized = _simulate_event(frame, family, config, event)
+            materializer = _simulate_event if payoff_provider is None else payoff_provider
+            if payoff_provider is None:
+                observation, materialized = materializer(frame, family, config, event)
+            else:
+                observation, materialized = materializer(
+                    frame,
+                    str(row["executable_attempt_id"]),
+                    family,
+                    config,
+                    event,
+                )
             materialized["engine_event"] = {
                 key: (require_utc(value).isoformat() if isinstance(value, datetime) else value)
                 for key, value in event.items()
@@ -615,6 +697,7 @@ def execute_registered_attempt(
     parent_artifact_paths: Sequence[str] | None = None,
     control_id: str | None = None,
     control_directives: Mapping[str, Mapping[str, Any]] | None = None,
+    payoff_provider: PayoffProvider | None = None,
 ) -> dict[str, Any]:
     manifest = authorization.require()
     cache, frames = cache_authority.load_frames(manifest, artifact_paths)
@@ -624,7 +707,16 @@ def execute_registered_attempt(
         parent_cache, parent_frames = cache_authority.load_frames(manifest, parent_artifact_paths)
         if canonical_hash(parent_cache) != canonical_hash(cache):
             raise AuthorizationError("parent and overlay cache authorities differ")
-    result = dispatch_registered_attempt(row, frames, registry_by_id=registry_by_id, parent_binding=parent_binding, parent_frames=parent_frames, control_id=control_id, control_directives=control_directives)
+    result = dispatch_registered_attempt(
+        row,
+        frames,
+        registry_by_id=registry_by_id,
+        parent_binding=parent_binding,
+        parent_frames=parent_frames,
+        control_id=control_id,
+        control_directives=control_directives,
+        payoff_provider=payoff_provider,
+    )
     result["cache_manifest_sha256"] = sha256_file(cache_authority.manifest_path)
     result["cache_content_identity_sha256"] = canonical_hash(cache)
     result["external_approval_sha256"] = sha256_file(authorization.external_approval_path)
@@ -665,6 +757,7 @@ __all__ = [
     "AuthorizationError",
     "CacheAuthority",
     "ExecutionAuthorization",
+    "PayoffProvider",
     "dispatch_registered_attempt",
     "execute_registered_attempt",
     "execute_cached_synthetic_attempt",

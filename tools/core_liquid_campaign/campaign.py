@@ -10,7 +10,7 @@ from typing import Any, Callable, Iterable, Mapping, Sequence
 
 from .canonical import atomic_write_json, canonical_hash, sha256_file
 from .controls import execute_control, matched_pseudo_event_directives, maximum_holding_for_parent, reconcile_control_duplicates
-from .executor import CacheAuthority, ExecutionAuthorization, execute_cached_synthetic_attempt, execute_registered_attempt
+from .executor import CacheAuthority, ExecutionAuthorization, PayoffProvider, execute_cached_synthetic_attempt, execute_registered_attempt
 from .family_engines.common import require_utc
 from .runtime import LazySupervisor, ResourceLimits
 from .schema import CAMPAIGN_ID, FAMILY_ORDER, OUTER_FOLDS, complexity, economic_address, family_schemas, normalize_config
@@ -27,7 +27,7 @@ from .selection import (
     select_beam,
     stable_neighborhoods,
 )
-from .terminal import campaign_terminal_records, terminal_package
+from .terminal import campaign_terminal_records, terminal_package, verify_terminal_inventory
 
 
 STAGE_GRAPH = (
@@ -82,9 +82,11 @@ class CampaignOrchestrator:
         authorization: ExecutionAuthorization,
         heartbeat: Callable[[Mapping[str, Any]], bool],
         limits: ResourceLimits,
+        payoff_provider: PayoffProvider | None = None,
     ) -> None:
         self.packet_root = packet_root; self.run_root = run_root; self.repository_root = repository_root
         self.cache_authority = cache_authority; self.authorization = authorization; self.heartbeat = heartbeat; self.limits = limits
+        self.payoff_provider = payoff_provider
         self.stage_state = run_root / "CAMPAIGN_STAGE_STATE.json"
 
     def _authority(self) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], dict[str, dict[str, Any]], dict[str, Any]]:
@@ -105,7 +107,7 @@ class CampaignOrchestrator:
         if len(registry) != len(execution):
             raise CampaignContractError("duplicate executable attempt ID at launch")
         cache = json.loads(self.cache_authority.manifest_path.read_text(encoding="utf-8"))
-        self.cache_authority.load_frames(manifest, [cache["artifacts"][0]["path"]])
+        self.cache_authority.preload_frames(manifest)
         return manifest, execution, controls, registry, cache
 
     @staticmethod
@@ -169,7 +171,7 @@ class CampaignOrchestrator:
                 identity = next((candidate for candidate in registry.values() if candidate["family_id"] == row["family_id"] and candidate["config"]["stage20_cell_id"] == row["config"]["stage20_cell_id"] and candidate["config"]["adjudication_variant"] == "identity_replay"), None)
                 if identity is None:
                     raise CampaignContractError("KDA02B generic control has no exact identity parent")
-                identity_result = execute_registered_attempt(identity, cache_authority=self.cache_authority, authorization=self.authorization, artifact_paths=artifact_paths, registry_by_id=registry)
+                identity_result = execute_registered_attempt(identity, cache_authority=self.cache_authority, authorization=self.authorization, artifact_paths=artifact_paths, registry_by_id=registry, payoff_provider=self.payoff_provider)
                 manifest = self.authorization.require(); _, frames = self.cache_authority.load_frames(manifest, artifact_paths)
                 sides = {ledger["event_id"]: int(ledger["engine_event"]["side"]) for ledger in identity_result["ledger"] if ledger.get("status") == "complete"}
                 selected, directives, unavailable = matched_pseudo_event_directives(
@@ -181,7 +183,7 @@ class CampaignOrchestrator:
                 path_by_hash = {frame.content_sha256(): path for frame, path in zip(frames, artifact_paths)}
                 selected_paths = [path_by_hash[frame.content_sha256()] for frame in selected]
                 if selected_paths:
-                    result = execute_registered_attempt(row, cache_authority=self.cache_authority, authorization=self.authorization, artifact_paths=selected_paths, registry_by_id=registry, control_directives=directives)
+                    result = execute_registered_attempt(row, cache_authority=self.cache_authority, authorization=self.authorization, artifact_paths=selected_paths, registry_by_id=registry, control_directives=directives, payoff_provider=self.payoff_provider)
                 else:
                     result = {"status": "unavailable_no_matched_pseudo_event", "campaign_id": manifest["campaign_id"], "executable_attempt_id": row["executable_attempt_id"], "canonical_economic_address_sha256": row["canonical_economic_address_sha256"], "observations": [], "ledger": [], "aggregate": {}}
                 result["allocation_unavailable"] = unavailable
@@ -189,6 +191,7 @@ class CampaignOrchestrator:
                 result = execute_registered_attempt(
                     row, cache_authority=self.cache_authority, authorization=self.authorization, artifact_paths=artifact_paths,
                     registry_by_id=registry, parent_binding=parent_binding, parent_artifact_paths=parent_artifact_paths,
+                    payoff_provider=self.payoff_provider,
                 )
             if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1" and result.get("status") == "complete":
                 manifest = self.authorization.require(); _, frames = self.cache_authority.load_frames(manifest, artifact_paths)
@@ -201,6 +204,7 @@ class CampaignOrchestrator:
                 result["development_main_null"] = execute_control(
                     null_control, row, frames, registry_by_id=registry, parent_binding=parent_binding,
                     parent_frames=frames if parent_artifact_paths is not None else None,
+                    payoff_provider=self.payoff_provider,
                 )
             if not materialize:
                 observations = list(result.pop("observations", ()))
@@ -284,12 +288,21 @@ class CampaignOrchestrator:
                     if row["family_id"] != family or (attempt_id, outer) not in grouped:
                         continue
                     parts = grouped[(attempt_id, outer)]
-                    values = [part["aggregate"]["base_net_bps"] if int(part["observation_count"]) else None for part in sorted(parts, key=lambda part: part["inner"])]
-                    stress_values = [part["aggregate"]["stress_net_bps"] for part in parts if int(part["observation_count"])]
+                    available_parts = [
+                        part for part in parts
+                        if part.get("status") == "complete"
+                        and isinstance(part.get("aggregate"), Mapping)
+                        and "observation_count" in part
+                    ]
+                    values = [
+                        part["aggregate"].get("base_net_bps") if int(part.get("observation_count", 0)) else None
+                        for part in sorted(parts, key=lambda part: part["inner"])
+                    ]
+                    stress_values = [part["aggregate"].get("stress_net_bps") for part in available_parts if int(part.get("observation_count", 0)) and part["aggregate"].get("stress_net_bps") is not None]
                     summary = inner_fold_summary(values)
                     finite = [value for value in values if value is not None]
-                    day_values = [float(value) for part in parts for value in part["day_base_net_bps"].values()]
-                    event_ids = [event_id for part in parts for event_id in part["event_ids"]]
+                    day_values = [float(value) for part in available_parts for value in part.get("day_base_net_bps", {}).values()]
+                    event_ids = [event_id for part in available_parts for event_id in part.get("event_ids", ())]
                     paired = [part.get("paired_parent", {}) for part in parts]
                     paired_days = [float(value) for item in paired for value in item.get("paired_uplift_by_utc_day", {}).values()]
                     main_nulls = [part.get("development_main_null", {}).get("paired_control", {}) for part in parts]
@@ -300,9 +313,9 @@ class CampaignOrchestrator:
                         **row, "base_net_bps": median(finite) if finite else -math.inf,
                         "stress_net_bps": median(stress_values) if stress_values else -math.inf,
                         "inner_nonempty_fraction": summary["nonempty_fraction"], "p20_inner_fold": summary["p20_with_negative_infinity"],
-                        "accepted_trades": sum(int(part["observation_count"]) for part in parts), "market_days": sum(len(part["day_base_net_bps"]) for part in parts),
-                        "threshold_coverage": min((part["aggregate"].get("threshold_coverage") or 0.0 for part in parts), default=0.0),
-                        "opportunity_frequency": median([part["aggregate"].get("opportunity_frequency_per_30d") or 0.0 for part in parts]),
+                        "accepted_trades": sum(int(part.get("observation_count", 0)) for part in available_parts), "market_days": sum(len(part.get("day_base_net_bps", {})) for part in available_parts),
+                        "threshold_coverage": min((part["aggregate"].get("threshold_coverage") or 0.0 for part in available_parts), default=0.0),
+                        "opportunity_frequency": median([part["aggregate"].get("opportunity_frequency_per_30d") or 0.0 for part in available_parts]) if available_parts else 0.0,
                         "median_inner_fold": summary["median_with_negative_infinity"],
                         "day_cluster_bootstrap_q05": day_cluster_bootstrap_q05(day_values, registered_bootstrap_seed(row["canonical_economic_address_sha256"], outer)) if day_values else -math.inf,
                         "complexity": complexity(family, row["config"]), "event_ids": event_ids,
@@ -518,26 +531,25 @@ class CampaignOrchestrator:
             routes=terminal["routes"], forensics=terminal["forensics"], all_workers_stopped=all_workers_stopped,
             job_reconciliation=job_reconciliation,
         )
+        terminal_inventory_verification = verify_terminal_inventory(self.run_root / "terminal")
         reconciliation = {
             "registered_configuration_rows": len(strategy_rows), "execution_registry_rows": len(execution),
             "conditional_refinement_rows": len(refinements), "control_registry_rows": len(controls),
             "kda02b_adjudication_jobs": len(kda_payloads), "beam_rows": len(beams),
             "outer_jobs": len(outer_payloads), "completed_stage_count": len(state["completed_stages"]) + 1,
-            "terminal_package": terminal_result, "control_gate_inventory": terminal["control_gate_inventory"],
+            "terminal_package": terminal_result, "terminal_inventory_verification": terminal_inventory_verification,
+            "control_gate_inventory": terminal["control_gate_inventory"],
         }
         atomic_write_json(self.run_root / "TERMINAL_RECONCILIATION.json", {"schema": "stage23_terminal_reconciliation_v2", **reconciliation, "status": "pass"})
-        terminal_package_path = self.run_root / "terminal/TERMINAL_PACKAGE.json"
+        state.update({"completed_stages": [*state["completed_stages"], "terminal_reconciliation"], "status": "complete"}); atomic_write_json(self.stage_state, state)
         inventory_rows = []
-        excluded = {"CAMPAIGN_ARTIFACT_INVENTORY.json", "terminal/TERMINAL_PACKAGE.json"}
+        excluded = {"CAMPAIGN_ARTIFACT_INVENTORY.json"}
         for path in sorted(self.run_root.rglob("*")):
             relative = path.relative_to(self.run_root).as_posix()
             if path.is_file() and relative not in excluded:
                 inventory_rows.append({"path": relative, "bytes": path.stat().st_size, "sha256": sha256_file(path)})
         campaign_inventory = {"schema": "stage23_complete_campaign_artifact_inventory_v1", "files": inventory_rows, "excluded_to_avoid_self_reference": sorted(excluded), "inventory_sha256": canonical_hash(inventory_rows)}
         atomic_write_json(self.run_root / "CAMPAIGN_ARTIFACT_INVENTORY.json", campaign_inventory)
-        persisted_terminal = json.loads(terminal_package_path.read_text(encoding="utf-8")); persisted_terminal["campaign_artifact_inventory_sha256"] = sha256_file(self.run_root / "CAMPAIGN_ARTIFACT_INVENTORY.json")
-        atomic_write_json(terminal_package_path, persisted_terminal)
-        state.update({"completed_stages": [*state["completed_stages"], "terminal_reconciliation"], "status": "complete"}); atomic_write_json(self.stage_state, state)
         return state
 
     def _a2_inner_jobs(self, execution: Sequence[Mapping[str, Any]], registry: Mapping[str, Mapping[str, Any]], cache: Mapping[str, Any], bindings: Mapping[str, Mapping[str, Any]]) -> Iterable[tuple[str, Callable[[], Any]]]:
@@ -557,6 +569,9 @@ class CampaignOrchestrator:
                             "registered_attempt_id": row["executable_attempt_id"],
                             "registered_job_id": job_id,
                             "parent_slot": binding.get("parent_slot"),
+                            "aggregate": {}, "observation_count": 0,
+                            "day_base_net_bps": {}, "event_ids": [],
+                            "materialization": "explicit_empty_unavailable_observation",
                         })
                         continue
                     yield job_id, self._execution_job(row, artifacts, registry, job_id, parent_binding=binding, parent_artifact_paths=artifacts)
@@ -594,6 +609,16 @@ class CampaignOrchestrator:
 
     def _materialization_jobs(self, execution: Sequence[Mapping[str, Any]], registry: Mapping[str, Mapping[str, Any]], cache: Mapping[str, Any], addresses: Sequence[str], bindings: Mapping[str, Mapping[str, Any]]) -> Iterable[tuple[str, Callable[[], Any]]]:
         by_address = {row["canonical_economic_address_sha256"]: row for row in execution}
+        aggregate_source: dict[tuple[str, str, str], Mapping[str, Any]] = {}
+        for stage_name in ("inner_development", "conditional_refinement", "a2_inner_development"):
+            stage_root = self.run_root / stage_name
+            if not stage_root.exists():
+                continue
+            for payload in self._completed_payloads(stage_root):
+                job = str(payload.get("registered_job_id", ""))
+                pieces = job.split(":", 3)
+                if len(pieces) == 4 and pieces[0] == "inner" and isinstance(payload.get("aggregate"), Mapping):
+                    aggregate_source[(pieces[1], pieces[2], str(payload.get("registered_attempt_id")))] = payload
         for address in sorted(set(addresses)):
             row = by_address.get(address)
             if row is None:
@@ -603,7 +628,19 @@ class CampaignOrchestrator:
                 for inner in inner_ids:
                     artifacts = self._artifacts(cache, phase="inner_validation", outer_fold_id=outer, inner_fold_id=inner)
                     job_id = f"materialize:{outer}:{inner}:{row['executable_attempt_id']}"
-                    yield job_id, self._execution_job(row, artifacts, registry, job_id, parent_binding=bindings.get(row["executable_attempt_id"]), parent_artifact_paths=artifacts if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1" else None, materialize=True)
+                    source = aggregate_source.get((outer, inner, str(row["executable_attempt_id"])))
+                    if source is None:
+                        raise CampaignContractError("materialization has no exact aggregate-only source")
+                    task = self._execution_job(row, artifacts, registry, job_id, parent_binding=bindings.get(row["executable_attempt_id"]), parent_artifact_paths=artifacts if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1" else None, materialize=True)
+                    def verified(task=task, source=source):
+                        result = task()
+                        left = canonical_hash(source.get("aggregate", {}))
+                        right = canonical_hash(result.get("aggregate", {}))
+                        if left != right:
+                            raise CampaignContractError("aggregate/materialized recomputation mismatch")
+                        result.update({"aggregate_materialized_equal": True, "aggregate_only_sha256": left, "materialized_aggregate_sha256": right})
+                        return result
+                    yield job_id, verified
 
     def _control_jobs(self, execution: Sequence[Mapping[str, Any]], controls: Sequence[Mapping[str, Any]], registry: Mapping[str, Mapping[str, Any]], cache: Mapping[str, Any], beams: Sequence[Mapping[str, Any]], bindings: Mapping[str, Mapping[str, Any]]) -> Iterable[tuple[str, Callable[[], Any]]]:
         by_id = {row["executable_attempt_id"]: row for row in execution}; beam_by_slot = {row["parent_slot"]: row for row in beams}
@@ -635,7 +672,7 @@ class CampaignOrchestrator:
                         "registered_attempt_id": parent["executable_attempt_id"],
                     }
                 manifest = self.authorization.require(); _, frames = self.cache_authority.load_frames(manifest, artifacts)
-                result = execute_control(control, parent, frames, registry_by_id=registry, parent_binding=bindings.get(parent["executable_attempt_id"]), parent_frames=frames if parent["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1" else None)
+                result = execute_control(control, parent, frames, registry_by_id=registry, parent_binding=bindings.get(parent["executable_attempt_id"]), parent_frames=frames if parent["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1" else None, payoff_provider=self.payoff_provider)
                 return {
                     **_jsonable(result), "registered_job_id": job_id,
                     "registered_attempt_id": parent["executable_attempt_id"],

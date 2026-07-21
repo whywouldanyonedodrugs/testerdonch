@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import weakref
 from dataclasses import asdict, dataclass, field, is_dataclass
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal, InvalidOperation
@@ -13,6 +14,17 @@ from .family_engines.common import EngineInputError, require_utc
 KRAKEN_PLATFORM = "kraken_native_linear_pf"
 RANKABLE_START = datetime(2023, 1, 1, tzinfo=timezone.utc)
 PROTECTED_START = datetime(2026, 1, 1, tzinfo=timezone.utc)
+_VALIDATED_FRAMES: dict[int, weakref.ReferenceType["FamilyInput"]] = {}
+
+
+def _mark_validated_frame(frame: "FamilyInput") -> None:
+    """Mark only an already decoded-and-validated cache object in this process."""
+    identity = id(frame)
+    _VALIDATED_FRAMES[identity] = weakref.ref(
+        frame,
+        lambda reference, identity=identity: _VALIDATED_FRAMES.pop(identity, None)
+        if _VALIDATED_FRAMES.get(identity) is reference else None,
+    )
 
 
 def _content_value(value: Any) -> Any:
@@ -236,6 +248,9 @@ class FamilyInput:
     metadata: Mapping[str, Any] = field(default_factory=dict)
 
     def validate(self) -> None:
+        validated = _VALIDATED_FRAMES.get(id(self))
+        if validated is not None and validated() is self:
+            return
         decision = require_utc(self.decision_ts)
         if self.platform != KRAKEN_PLATFORM:
             raise EngineInputError("only the Kraken native linear PF adapter is permitted")

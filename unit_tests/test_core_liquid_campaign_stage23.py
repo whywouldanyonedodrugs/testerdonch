@@ -198,11 +198,11 @@ class TerminalTests(unittest.TestCase):
             root = Path(raw)
             with self.assertRaises(TerminalContractError):
                 terminal_package(root, attempt_ids=["a"], control_ids=[], attempt_rows=[{"attempt_id": "a", "terminal_status": "completed"}], control_rows=[], routes=[], forensics=[], all_workers_stopped=False)
-            payload = terminal_package(root, attempt_ids=["a"], control_ids=["c"], attempt_rows=[{"attempt_id": "a", "terminal_status": "completed"}], control_rows=[{"control_attempt_id": "c", "terminal_status": "unavailable_no_parent"}], routes=[{"family": "fixture", "route": "translation_rejected"}], forensics=[], all_workers_stopped=True, job_reconciliation=self.JOBS)
+            payload = terminal_package(root, attempt_ids=["a"], control_ids=["c"], attempt_rows=[{"attempt_id": "a", "terminal_status": "completed"}], control_rows=[{"control_attempt_id": "c", "terminal_status": "unavailable_no_parent"}], routes=[{"family": "fixture", "route": "translation_rejected"}], forensics=[{"family": "fixture", "status": "complete"}], all_workers_stopped=True, job_reconciliation=self.JOBS)
             self.assertEqual(payload["status"], "completed")
             self.assertEqual(json.loads((root / "TERMINAL_PACKAGE.json").read_text())["artifact_inventory_sha256"], payload["artifact_inventory_sha256"])
             with self.assertRaises(TerminalContractError):
-                terminal_package(root / "failed", attempt_ids=["a"], control_ids=[], attempt_rows=[{"attempt_id": "a", "terminal_status": "mechanical_failure"}], control_rows=[], routes=[{"family": "fixture", "route": "translation_rejected"}], forensics=[], all_workers_stopped=True, job_reconciliation=self.JOBS)
+                terminal_package(root / "failed", attempt_ids=["a"], control_ids=[], attempt_rows=[{"attempt_id": "a", "terminal_status": "mechanical_failure"}], control_rows=[], routes=[{"family": "fixture", "route": "translation_rejected"}], forensics=[{"family": "fixture"}], all_workers_stopped=True, job_reconciliation=self.JOBS)
 
     def test_bound_stop_package_is_resumable(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
