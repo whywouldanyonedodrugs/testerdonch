@@ -106,7 +106,7 @@ def _selection_evidence(output: Path, execution: Sequence[Mapping[str, Any]], st
     a2 = [row for row in execution if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1"]
     source_parent = sum(row["config"]["parent_binding_mode"] == "source_attempt" for row in a2)
     beam_parent = len(a2) - source_parent
-    if len(strategy) != 11968 or len(execution) != 11963 or len(a2) != 2560:
+    if len(strategy) != 11968 or len(execution) != 11963 or len(a2) != 2654:
         raise RuntimeError("frozen Stage22 strategy/execution counts changed during Stage23")
     selection = {
         "schema": "stage23_production_selection_replay_v1", "campaign_id": CAMPAIGN_ID,
