@@ -5,7 +5,7 @@ from datetime import timedelta
 from typing import Any, Mapping
 
 from ..canonical import canonical_hash
-from ..engine_types import FamilyInput, require_contiguous_5m
+from ..engine_types import FamilyInput, require_contiguous_5m, require_contiguous_daily
 from .common import EngineInputError, percentile_from_population, require_utc, wilder_atr
 
 
@@ -122,6 +122,7 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
     daily = tuple(bar for bar in frame.daily_bars if require_utc(bar.close_ts) < require_utc(frame.decision_ts))
     if len(daily) < max(lookback, int(config["ATR_window_days"] or 20) + 1):
         raise EngineInputError("A3 daily history is incomplete")
+    require_contiguous_daily(daily[-max(lookback, int(config["ATR_window_days"] or 20) + 1):])
     level = max(bar.high for bar in daily[-lookback:]) if side == 1 else min(bar.low for bar in daily[-lookback:])
     atr_window = int(config["ATR_window_days"] or 20)
     atr_daily = daily[-(atr_window + 1):]

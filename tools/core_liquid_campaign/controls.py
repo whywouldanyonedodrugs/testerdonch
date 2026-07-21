@@ -10,7 +10,7 @@ from .canonical import canonical_hash, canonical_json_bytes
 from .engine_types import FamilyInput
 from .family_engines import a4_tsmom, kda02b_adjudication
 from .family_engines.common import require_utc
-from .schema import CAMPAIGN_ID, OUTER_FOLDS
+from .schema import CAMPAIGN_ID, OUTER_FOLDS, normalize_config
 
 
 CONTROL_IDS: dict[str, tuple[str, ...]] = {
@@ -22,7 +22,14 @@ CONTROL_IDS: dict[str, tuple[str, ...]] = {
 
 
 def effective_seed(payload: Mapping[str, Any]) -> int:
-    return int.from_bytes(hashlib.sha256(canonical_json_bytes(dict(payload))).digest()[:8], "big", signed=False)
+    required = (
+        "campaign_id", "control_id", "family", "fold", "parent_slot",
+        "replicate_index", "transformation_allocator_version",
+    )
+    if set(payload) != set(required):
+        raise ValueError("control seed fields are missing or broadened")
+    ordered = [payload[field] for field in required]
+    return int.from_bytes(hashlib.sha256(canonical_json_bytes(ordered)).digest()[:8], "big", signed=False)
 
 
 def compile_controls(source_rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
@@ -116,11 +123,79 @@ def _liquidity_decile(frame: FamilyInput) -> int:
     return int(deciles[frame.symbol])
 
 
-def _pcg_permute(values: Sequence[Any], seed_payload: Mapping[str, Any]) -> list[Any]:
+def _pcg_permute(values: Sequence[Any], generator: np.random.Generator) -> list[Any]:
     if not values:
         return []
-    order = np.random.Generator(np.random.PCG64(effective_seed(seed_payload))).permutation(len(values))
+    order = generator.permutation(len(values))
     return [values[int(index)] for index in order]
+
+
+def control_semantic_signature(control_row: Mapping[str, Any], parent_row: Mapping[str, Any]) -> str:
+    """Canonical pre-outcome identity of the transformed economic control."""
+    control_id = str(control_row["control_id"])
+    family = str(parent_row["family_id"])
+    config = dict(parent_row["config"])
+    stochastic: str | None = None
+    changes: dict[str, Any] = {}
+    if control_id in {"A1_MATCHED_PSEUDO_EVENT_MAIN_NULL", "A3_MATCHED_PSEUDO_EVENT", "A4_SIGN_PERMUTED_MAIN_NULL", "A2_CONTEXT_PERMUTED_MAIN_NULL", "A3_RETEST_TIME_PERMUTED_MAIN_NULL"}:
+        stochastic = control_id
+    elif control_id == "A4_GENERIC_SIGNED_RETURN":
+        changes = {"signal_estimator": "signed_return", "annualized_vol_target": "none", "path_smoothness_quantile_min": "none", "context_overlay": "none"}
+    elif control_id == "A4_VOL_SCALING_REMOVED": changes = {"annualized_vol_target": "none"}
+    elif control_id == "A4_PATH_COMPONENT_REMOVED":
+        changes = {"path_smoothness_quantile_min": "none"}; stochastic = "remove_ensemble_path_component" if config.get("signal_estimator") == "equal_weight_ensemble" else None
+    elif control_id == "A4_CONTEXT_REMOVED": changes = {"context_overlay": "none"}
+    elif control_id == "A1_PRICE_ONLY_IMPULSE": changes = {"contraction_rank_max": "none", "smoothness_rank_min": "none", "context_overlay": "none"}
+    elif control_id == "A1_CONTRACTION_REMOVED": changes = {"contraction_rank_max": "none"}
+    elif control_id == "A1_SMOOTHNESS_REMOVED": changes = {"smoothness_rank_min": "none"}
+    elif control_id == "A1_CONTEXT_REMOVED": changes = {"context_overlay": "none"}
+    elif control_id == "A2_PARENT_ONLY": changes = {"overlay_action": "parent_only"}
+    elif control_id == "A2_PRIOR_HIGH_REMOVED": changes = {"proximity_rank": "none", "reclaim_state": "none"}
+    elif control_id == "A2_RS_REMOVED": changes = {"RS_rank": "none"}
+    elif control_id == "A2_EXTERNAL_CONTEXT_REMOVED": changes = {"BTC_ETH_context": "none", "breadth_dispersion": "none"}
+    elif control_id == "A3_STARTER_ONLY": changes = {"add_fraction": 0.0}
+    elif control_id == "A3_CONFIRMATION_REMOVED": changes = {"confirmation": "one_close"}
+    elif control_id == "A3_CONTEXT_REMOVED": changes = {"context_overlay": "none"}
+    else:
+        raise ValueError(f"unknown control semantic transformation: {control_id}")
+    config.update(changes)
+    normalized = normalize_config(family, config)
+    return canonical_hash({"family": family, "config": normalized, "stochastic_transformation": stochastic})
+
+
+def reconcile_control_duplicates(control_rows: Sequence[Mapping[str, Any]], parents_by_slot: Mapping[str, Mapping[str, Any]]) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    seen_by_parent: dict[str, dict[str, str]] = {}
+    for source in sorted(control_rows, key=lambda row: str(row["control_attempt_id"])):
+        row = dict(source); parent = parents_by_slot.get(str(row["parent_slot"]))
+        if parent is None:
+            rows.append({**row, "execution_status": "unavailable_no_parent", "resolved_parent_executable_attempt_id": None, "duplicate_of_control_attempt_id": None})
+            continue
+        expected_seed_fields = {
+            "campaign_id": CAMPAIGN_ID, "family": row["family"], "fold": row["fold"], "parent_slot": row["parent_slot"],
+            "control_id": row["control_id"], "replicate_index": row["replicate_index"],
+            "transformation_allocator_version": row["transformation_allocator_version"],
+        }
+        if int(row["effective_seed"]) != effective_seed(expected_seed_fields):
+            raise ValueError("registered control effective seed does not match its exact bound fields")
+        signature = control_semantic_signature(row, parent)
+        parent_key = str(parent["executable_attempt_id"])
+        parent_signature = canonical_hash({"family": parent["family_id"], "config": normalize_config(str(parent["family_id"]), parent["config"]), "stochastic_transformation": None})
+        duplicate_of: str | None = None
+        if signature == parent_signature:
+            duplicate_of = "exact_parent"
+        elif signature in seen_by_parent.setdefault(parent_key, {}):
+            duplicate_of = seen_by_parent[parent_key][signature]
+        if duplicate_of is None:
+            seen_by_parent[parent_key][signature] = str(row["control_attempt_id"])
+        rows.append({
+            **row,
+            "execution_status": "execute_once" if duplicate_of is None else "unavailable_duplicate_address",
+            "resolved_parent_executable_attempt_id": parent_key,
+            "resolved_control_semantic_sha256": signature,
+            "duplicate_of_control_attempt_id": duplicate_of,
+        })
+    return rows
 
 
 def maximum_holding_for_parent(parent_row: Mapping[str, Any]) -> timedelta:
@@ -184,7 +259,7 @@ def matched_pseudo_event_directives(
             candidates.append(frame)
         if not candidates:
             unavailable.append({"parent_event_id": parent.event_id, "status": "unavailable_no_matched_pseudo_event", "stratum": list(stratum)}); continue
-        chosen = min(candidates, key=lambda frame: (canonical_hash({"seed": seed, "symbol": frame.symbol, "month": month, "side": side, "hour_of_week": stratum[2], "liquidity_decile": stratum[3], "decision_ts": frame.decision_ts.isoformat()}), frame.decision_ts))
+        chosen = min(candidates, key=lambda frame: (canonical_hash({"seed": seed, "control_address": control_address, "control_id": control_id, "parent_event_id": parent.event_id, "symbol": frame.symbol, "month": month, "side": side, "hour_of_week": stratum[2], "liquidity_decile": stratum[3], "decision_ts": frame.decision_ts.isoformat()}), frame.decision_ts))
         allocated_decisions.add(chosen.decision_ts.isoformat())
         selected.append(chosen)
         directives[chosen.content_sha256()] = {"allocator": "matched_pseudo_event_allocator_v2", "parent_event_id": parent.event_id, "side": side, "matched_decision_ts": chosen.decision_ts}
@@ -203,7 +278,7 @@ def derive_control_inputs(
     directives: dict[str, Mapping[str, Any]] = {}
     if control_id in {"A1_MATCHED_PSEUDO_EVENT_MAIN_NULL", "A3_MATCHED_PSEUDO_EVENT"}:
         parent_sides = {event_id: int(row.get("engine_event", {}).get("side", 0)) for event_id, row in ledger_by_event.items()}
-        selected, directives, unavailable = matched_pseudo_event_directives(observations, frames, parent_sides=parent_sides, control_id=control_id, seed=20260721, control_address=str(control_row["economic_address_sha256"]), maximum_holding=maximum_holding_for_parent(parent_row))
+        selected, directives, unavailable = matched_pseudo_event_directives(observations, frames, parent_sides=parent_sides, control_id=control_id, seed=seed, control_address=str(control_row["economic_address_sha256"]), maximum_holding=maximum_holding_for_parent(parent_row))
         for frame in selected:
             directive = dict(directives[frame.content_sha256()])
             parent_ledger = ledger_by_event.get(str(directive["parent_event_id"]))
@@ -215,16 +290,26 @@ def derive_control_inputs(
             directives[frame.content_sha256()] = {**directive, "side": side}
         return selected, directives, unavailable
     if control_id == "A4_SIGN_PERMUTED_MAIN_NULL":
+        generator = np.random.Generator(np.random.PCG64(seed))
         grouped_frames: dict[tuple[str, int], list[FamilyInput]] = {}
+        selected_frames: list[FamilyInput] = []
+        unavailable: list[dict[str, Any]] = []
         for frame in frames:
             grouped_frames.setdefault((frame.symbol, frame.decision_ts.year), []).append(frame)
         for group, group_frames in sorted(grouped_frames.items()):
             ordered_frames = sorted(group_frames, key=lambda frame: frame.decision_ts)
             signs = [a4_tsmom.scalar_estimator_sign(frame, parent_row["config"]) for frame in ordered_frames]
-            values = _pcg_permute(signs, {"base_seed": 20260721, "control_id": control_id, "symbol": group[0], "year": group[1]})
+            if len(ordered_frames) < 2:
+                unavailable.append({"group": list(group), "status": "unavailable_duplicate_address", "reason": "permutation_group_size_below_two"})
+                continue
+            values = _pcg_permute(signs, generator)
+            if values == signs:
+                unavailable.append({"group": list(group), "status": "unavailable_duplicate_address", "reason": "realized_permutation_equals_parent_vector"})
+                continue
             for frame, sign in zip(ordered_frames, values):
                 directives[frame.content_sha256()] = {"signal_sign": sign, "allocator": "registered_PCG64_complete_sign_vector_v1"}
-        return list(frames), directives, []
+                selected_frames.append(frame)
+        return selected_frames, directives, unavailable
 
     grouped: dict[tuple[Any, ...], list[tuple[Any, FamilyInput, Any]]] = {}
     for observation in observations:
@@ -241,13 +326,23 @@ def derive_control_inputs(
         else:
             continue
         grouped.setdefault(group, []).append((observation, frame, value))
+    generator = np.random.Generator(np.random.PCG64(seed))
+    selected_frames: list[FamilyInput] = []
+    unavailable: list[dict[str, Any]] = []
     for group, rows in sorted(grouped.items(), key=lambda item: tuple(str(value) for value in item[0])):
         ordered = sorted(rows, key=lambda row: row[0].event_id)
-        values = _pcg_permute([row[2] for row in ordered], {"base_seed": 20260721, "control_id": control_id, "group": list(group)})
+        if len(ordered) < 2:
+            unavailable.append({"group": list(group), "status": "unavailable_duplicate_address", "reason": "permutation_group_size_below_two"})
+            continue
+        values = _pcg_permute([row[2] for row in ordered], generator)
+        if values == [row[2] for row in ordered]:
+            unavailable.append({"group": list(group), "status": "unavailable_duplicate_address", "reason": "realized_permutation_equals_parent_vector"})
+            continue
         for (observation, frame, _), value in zip(ordered, values):
             field = "signal_sign" if control_id.startswith("A4_") else "context_vector" if control_id.startswith("A2_") else "add_lag_bars"
             directives[frame.content_sha256()] = {field: value, "parent_event_id": observation.event_id, "allocator": "registered_PCG64_without_replacement_v2"}
-    return list(frames), directives, []
+            selected_frames.append(frame)
+    return selected_frames, directives, unavailable
 
 
 def execute_control(
@@ -261,9 +356,25 @@ def execute_control(
 ) -> dict[str, Any]:
     if control_row.get("family") != parent_row.get("family_id"):
         raise ValueError("control family differs from parent")
+    if control_row.get("execution_status") in {"unavailable_no_parent", "unavailable_duplicate_address"}:
+        return {
+            "status": control_row["execution_status"],
+            "control_attempt_id": control_row["control_attempt_id"],
+            "control_economic_address_sha256": control_row["economic_address_sha256"],
+            "resolved_parent_executable_attempt_id": control_row.get("resolved_parent_executable_attempt_id"),
+            "duplicate_of_control_attempt_id": control_row.get("duplicate_of_control_attempt_id"),
+        }
     from .executor import dispatch_registered_attempt
     parent_result = dispatch_registered_attempt(parent_row, frames, registry_by_id=registry_by_id, parent_binding=parent_binding, parent_frames=parent_frames)
     transformed, directives, unavailable = derive_control_inputs(control_row, parent_row, parent_result, frames)
+    if not transformed and unavailable and all(row.get("status") == "unavailable_duplicate_address" for row in unavailable):
+        return {
+            "status": "unavailable_duplicate_address", "control_attempt_id": control_row["control_attempt_id"],
+            "control_economic_address_sha256": control_row["economic_address_sha256"],
+            "resolved_parent_executable_attempt_id": parent_row["executable_attempt_id"],
+            "duplicate_of_control_attempt_id": None, "allocation_unavailable": unavailable,
+            "observations": [], "ledger": [], "aggregate": {},
+        }
     result = dispatch_registered_attempt(
         parent_row,
         transformed,
@@ -276,8 +387,31 @@ def execute_control(
     result["control_attempt_id"] = control_row["control_attempt_id"]
     result["control_economic_address_sha256"] = control_row["economic_address_sha256"]
     result["allocation_unavailable"] = unavailable
+    result["parent_aggregate"] = parent_result["aggregate"]
     result["exact_parent_result_sha256"] = canonical_hash(_hashable({"observations": [item.event_id for item in parent_result["observations"]], "ledger": parent_result["ledger"]}))
+    parent_observations = sorted(parent_result["observations"], key=lambda item: item.event_id)
+    parent_by_id = {item.event_id: item for item in parent_observations}
+    directive_by_symbol_decision = {
+        (frame.symbol, frame.decision_ts): directives.get(frame.content_sha256(), {}) for frame in transformed
+    }
+    paired_days: dict[str, list[float]] = {}
+    paired_ids: list[str] = []
+    for transformed_observation in result["observations"]:
+        directive = directive_by_symbol_decision.get((transformed_observation.symbol, transformed_observation.decision_ts), {})
+        parent_id = str(directive.get("parent_event_id", transformed_observation.event_id))
+        parent = parent_by_id.get(parent_id)
+        if parent is None:
+            continue
+        paired_ids.append(parent_id)
+        paired_days.setdefault(parent.market_day, []).append(float(parent.base_net_bps) - float(transformed_observation.base_net_bps))
+    result["paired_control"] = {
+        "parent_event_count": len(parent_observations), "control_event_count": len(result["observations"]),
+        "paired_count": len(set(paired_ids)),
+        "coverage": len(set(paired_ids)) / len(parent_observations) if parent_observations else 0.0,
+        "parent_minus_control_by_utc_day": {day: sum(values) / len(values) for day, values in sorted(paired_days.items())},
+        "pairing_order": "exact parent_event_id carried by the registered allocator; unchanged-event controls pair by identical event ID",
+    }
     return result
 
 
-__all__ = ["CONTROL_IDS", "compile_controls", "coverage_rows", "derive_control_inputs", "effective_seed", "execute_control", "matched_pseudo_event_directives", "maximum_holding_for_parent"]
+__all__ = ["CONTROL_IDS", "compile_controls", "control_semantic_signature", "coverage_rows", "derive_control_inputs", "effective_seed", "execute_control", "matched_pseudo_event_directives", "maximum_holding_for_parent", "reconcile_control_duplicates"]

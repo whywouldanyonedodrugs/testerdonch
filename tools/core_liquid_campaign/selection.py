@@ -15,6 +15,20 @@ from .schema import gower_distance
 
 
 INNER_FOLD_EMPTY = -math.inf
+PRIMARY_BEAM_ROLES = frozenset({"legacy_screening_eligible", "main_broad_screening", "mechanism_anchor_or_ablation"})
+
+
+def selection_role_eligible(row: Mapping[str, Any]) -> bool:
+    role = row.get("selection_role")
+    return bool(
+        role is None
+        or role in PRIMARY_BEAM_ROLES
+        or (
+            row.get("family_id") == "A2_PRIOR_HIGH_RS_CONTEXT_V1"
+            and role in {"conditional_parent_overlay_template", "legacy_exact_parent_overlay_anchor"}
+        )
+        or row.get("context_corroborated") is True
+    ) and not (role == "source_prior_anchor_not_main_beam" and row.get("context_corroborated") is not True)
 
 
 @dataclass(frozen=True)
@@ -354,7 +368,9 @@ def paired_control_pass(uplifts_by_day: Sequence[float], coverage: float, seed: 
     return {"mean_paired_uplift": mean, "bootstrap_q05": q05, "coverage": coverage, "pass": coverage >= 0.70 and mean > 0 and q05 > 0}
 
 
-def adjudicate_route(family_id: str, common_gate: bool, main_null: bool, component_passes: Mapping[str, bool], *, base_positive: bool, stress_positive: bool, delay_positive: bool, sample_sufficient: bool, add_fraction: float | None = None) -> str:
+def adjudicate_route(family_id: str, common_gate: bool, main_null: bool, component_passes: Mapping[str, bool], *, base_positive: bool, stress_positive: bool, delay_positive: bool, sample_sufficient: bool, add_fraction: float | None = None, sample_limited_eligible: bool = False) -> str:
+    if base_positive and not sample_sufficient and (common_gate or sample_limited_eligible):
+        return "sample_limited_context_candidate" if family_id == "A2_PRIOR_HIGH_RS_CONTEXT_V1" else "sample_limited_candidate"
     if not common_gate or not base_positive:
         if family_id == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
             return "overlay_rejected"
@@ -363,8 +379,6 @@ def adjudicate_route(family_id: str, common_gate: bool, main_null: bool, compone
         return "translation_rejected"
     if base_positive and (not stress_positive or not delay_positive):
         return "execution_sensitive_candidate"
-    if base_positive and not sample_sufficient:
-        return "sample_limited_context_candidate" if family_id == "A2_PRIOR_HIGH_RS_CONTEXT_V1" else "sample_limited_candidate"
     components_ok = all(component_passes.values())
     if family_id == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
         return "context_uplift_candidate" if common_gate and main_null and components_ok else "overlay_rejected"
@@ -379,25 +393,36 @@ def adjudicate_route(family_id: str, common_gate: bool, main_null: bool, compone
 
 def beam_order_key(row: Mapping[str, Any]) -> tuple[Any, ...]:
     return (
-        -int(row["plateau_support_count"]),
-        -float(row["day_cluster_bootstrap_q05"]),
-        -float(row["p20_inner_fold"]),
-        -float(row["stress_net_bps"]),
-        -float(row["opportunity_frequency"]),
-        float(row["complexity"]),
+        -int(row.get("plateau_support_count", 0)),
+        -float(row.get("day_cluster_bootstrap_q05", -math.inf)),
+        -float(row.get("p20_inner_fold", -math.inf)),
+        -float(row.get("stress_net_bps", -math.inf)),
+        -float(row.get("opportunity_frequency", 0.0)),
+        float(row.get("complexity", math.inf)),
         str(row["canonical_economic_address_sha256"]),
     )
 
 
 def select_beam(rows: Sequence[Mapping[str, Any]], width: int = 5) -> list[Mapping[str, Any]]:
+    eligible = [row for row in rows if selection_role_eligible(row)]
     eligible = [
-        row for row in rows
+        row for row in eligible
         if row.get("stable_region")
         and int(row.get("accepted_trades", 0)) >= 30
         and int(row.get("market_days", 0)) >= 20
         and math.isfinite(float(row.get("base_net_bps", math.nan)))
         and float(row["base_net_bps"]) > 0
         and float(row.get("threshold_coverage", 0.0)) >= 0.70
+        and (
+            row.get("family_id") != "A2_PRIOR_HIGH_RS_CONTEXT_V1"
+            or (
+                float(row.get("paired_uplift_mean", -math.inf)) > 0
+                and float(row.get("paired_uplift_bootstrap_q05", -math.inf)) > 0
+                and float(row.get("paired_coverage", 0.0)) >= 0.70
+                and row.get("parent_event_identity_match") is True
+                and row.get("a2_main_null_pass") is True
+            )
+        )
     ]
     return sorted(eligible, key=beam_order_key)[:width]
 
@@ -428,35 +453,54 @@ def family_outer_vector(fold_values: Mapping[str, Sequence[float]], fold_order: 
     return [median(fold_values[fold]) if fold in fold_values and fold_values[fold] else -math.inf for fold in fold_order]
 
 
-def materialization_policy(rows: Sequence[Mapping[str, Any]], failed_audit_per_stratum: int = 1, seed: int = 20260722) -> list[str]:
-    """Freeze ledgers plus a deterministic failed sample stratified by family/fold/failure.
-
-    The audit sample is selected without outcome magnitude: one or more rows
-    with the smallest seeded address hash in every observed failed stratum.
-    """
-    if failed_audit_per_stratum < 0:
-        raise ValueError("failed-audit sample count cannot be negative")
+def materialization_policy(rows: Sequence[Mapping[str, Any]], seed: int = 20260722) -> list[str]:
+    """Frozen non-selection-changing Stage-23 ledger materialization policy."""
     selected: set[str] = set()
-    failed: dict[tuple[str, str, str], list[str]] = {}
+    near_misses: dict[tuple[str, str], list[Mapping[str, Any]]] = {}
+    failed_by_family: dict[str, list[Mapping[str, Any]]] = {}
     for row in rows:
         address = str(row["canonical_economic_address_sha256"])
-        if row.get("beam_survivor") or row.get("mechanism_anchor") or row.get("main_component_null"):
+        if row.get("beam_survivor") or row.get("mechanism_anchor") or row.get("main_component_null") or row.get("required_by_control_or_forensic"):
             selected.add(address)
-        if row.get("near_miss") and row.get("near_miss_rule") == "one_failed_nonintegrity_gate_within_10pct":
-            selected.add(address)
-        if not row.get("passed"):
-            stratum = (
-                str(row.get("family_id", row.get("family", "unknown_family"))),
+        family = str(row.get("family_id", row.get("family", "unknown_family")))
+        fold = str(row.get("outer_fold_id", row.get("fold_id", row.get("fold", "unknown_fold"))))
+        if row.get("near_miss") and row.get("failed_eligibility_gate_count", 1) == 1:
+            near_misses.setdefault((family, fold), []).append(row)
+        if not row.get("passed") and row.get("integrity_valid", True):
+            failed_by_family.setdefault(family, []).append(row)
+    for _, candidates in sorted(near_misses.items()):
+        selected.update(str(row["canonical_economic_address_sha256"]) for row in sorted(candidates, key=beam_order_key)[:2])
+    for family, candidates in sorted(failed_by_family.items()):
+        remaining = [row for row in candidates if str(row["canonical_economic_address_sha256"]) not in selected]
+        target = min(100, max(10, math.ceil(len(remaining) * 0.01))) if remaining else 0
+        strata: dict[tuple[str, str], list[Mapping[str, Any]]] = {}
+        for row in remaining:
+            key = (
                 str(row.get("outer_fold_id", row.get("fold_id", row.get("fold", "unknown_fold")))),
-                str(row.get("failure_class", row.get("status", "unspecified_failure"))),
+                str(row.get("failure_class", row.get("primary_failure_reason", row.get("status", "unspecified_failure")))),
             )
-            failed.setdefault(stratum, []).append(address)
-    for stratum, addresses in sorted(failed.items()):
-        ordered = sorted(
-            set(addresses),
-            key=lambda address: (canonical_hash({"seed": seed, "stratum": list(stratum), "address": address}), address),
-        )
-        selected.update(ordered[:failed_audit_per_stratum])
+            strata.setdefault(key, []).append(row)
+        ordered_strata = sorted(strata)
+        picked: list[str] = []
+        while len(picked) < target and ordered_strata:
+            progressed = False
+            for stratum in ordered_strata:
+                candidates_in_stratum = sorted(
+                    strata[stratum],
+                    key=lambda row: (
+                        canonical_hash({"seed": seed, "family": family, "stratum": list(stratum), "address": row["canonical_economic_address_sha256"]}),
+                        str(row["canonical_economic_address_sha256"]),
+                    ),
+                )
+                already = set(picked)
+                candidate = next((str(row["canonical_economic_address_sha256"]) for row in candidates_in_stratum if str(row["canonical_economic_address_sha256"]) not in already), None)
+                if candidate is not None:
+                    picked.append(candidate); progressed = True
+                    if len(picked) == target:
+                        break
+            if not progressed:
+                break
+        selected.update(picked)
     return sorted(selected)
 
 
@@ -466,5 +510,5 @@ def safe_pruning_policy() -> dict[str, Any]:
         "stage_boundary": ["no_eligible_plateau_under_frozen_rule", "component_null_exact_economic_equality", "family_specific_integrity_failure"],
         "prohibited": ["early_unprofitability", "first_fold_loss", "symbol_loss", "month_loss", "stochastic_successive_halving"],
         "independent_family_continuation": True,
-        "failed_materialization_audit": "one seeded address per family x fold x failure_class stratum; seed=20260722; no outcome magnitude input",
+        "failed_materialization_audit": "one percent of remaining integrity-valid failures, min 10/max 100 per family, hash-stratified by fold and primary failure reason; seed=20260722; no outcome magnitude input",
     }

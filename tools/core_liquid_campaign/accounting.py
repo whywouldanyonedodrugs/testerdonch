@@ -210,6 +210,8 @@ def simulate_leg(
     for index in range(entry_index, len(bars) - 1):
         bar = bars[index]
         next_bar = bars[index + 1]
+        if require_utc(next_bar.open_ts) - require_utc(bar.open_ts) != timedelta(minutes=5):
+            return LegResult("unavailable_temporal_gap", entry_ts, None, entry_price, None, side, "temporal_gap", None, None, None, None, None, None, None)
         best_close = max(best_close, bar.close) if side == 1 else min(best_close, bar.close)
         triggers: set[str] = set()
         if structural_level is not None and side * (bar.close - structural_level) < 0:

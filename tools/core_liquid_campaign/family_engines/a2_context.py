@@ -5,7 +5,7 @@ from statistics import median
 from typing import Any, Mapping, Sequence
 
 from ..canonical import canonical_hash
-from ..engine_types import DailyBar, FamilyInput
+from ..engine_types import DailyBar, FamilyInput, require_contiguous_daily
 from .common import EngineInputError, average_rank_percentiles, component_threshold, log_return, require_utc, sample_standard_deviation, weak_percentile, wilder_atr
 
 
@@ -74,7 +74,9 @@ def counterpart_ids(config_hash: str, parent_identity: str) -> tuple[str, str]:
 def _return(bars: Sequence[DailyBar], days: int) -> float:
     if len(bars) < days + 1:
         raise EngineInputError("context daily return history is incomplete")
-    return log_return(bars[-days - 1].close, bars[-1].close)
+    selected = bars[-days - 1:]
+    require_contiguous_daily(selected)
+    return log_return(selected[0].close, selected[-1].close)
 
 
 def _timeseries_percentile(value: float, history: Sequence[float]) -> float:
@@ -94,14 +96,18 @@ def _btc_eth_component(frame: FamilyInput, config: Mapping[str, Any], side: int)
             values.append(component if side == 1 else 1.0 - component)
         elif mode == "volatility":
             window = int(config["BTC_ETH_volatility_lookback_days"])
-            returns = [log_return(left.close, right.close) for left, right in zip(bars[-(window + 1):], bars[-window:])]
+            selected = bars[-(window + 1):]
+            require_contiguous_daily(selected)
+            returns = [log_return(left.close, right.close) for left, right in zip(selected, selected[1:])]
             volatility = sample_standard_deviation(returns) * math.sqrt(365.0)
             values.append(1.0 - _timeseries_percentile(volatility, frame.threshold_populations[f"A2_{asset}_volatility_{window}"].values))
         elif mode == "drawdown":
             window = int(config["BTC_ETH_drawdown_lookback_days"])
             if len(bars) < window:
                 raise EngineInputError("BTC/ETH drawdown history is incomplete")
-            drawdown = 1.0 - bars[-1].close / max(bar.close for bar in bars[-window:])
+            selected = bars[-window:]
+            require_contiguous_daily(selected)
+            drawdown = 1.0 - selected[-1].close / max(bar.close for bar in selected)
             percentile = _timeseries_percentile(drawdown, frame.threshold_populations[f"A2_{asset}_drawdown_{window}"].values)
             values.append(1.0 - percentile if side == 1 else percentile)
         else:
@@ -124,6 +130,8 @@ def raw_component_percentiles(frame: FamilyInput, config: Mapping[str, Any], sid
         atr_window = int(config["ATR_window_days_for_proximity"])
         if len(symbol_daily) < max(lookback, atr_window + 1):
             raise EngineInputError("A2 prior-level history is incomplete")
+        required_daily = symbol_daily[-max(lookback, atr_window + 1):]
+        require_contiguous_daily(required_daily)
         level = max(bar.high for bar in symbol_daily[-lookback:]) if side == 1 else min(bar.low for bar in symbol_daily[-lookback:])
         atr_bars = symbol_daily[-(atr_window + 1):]
         atr = wilder_atr([bar.high for bar in atr_bars], [bar.low for bar in atr_bars], [bar.close for bar in atr_bars], atr_window)

@@ -9,21 +9,25 @@ from statistics import median
 from typing import Any, Callable, Iterable, Mapping, Sequence
 
 from .canonical import atomic_write_json, canonical_hash, sha256_file
-from .controls import execute_control, matched_pseudo_event_directives, maximum_holding_for_parent
+from .controls import execute_control, matched_pseudo_event_directives, maximum_holding_for_parent, reconcile_control_duplicates
 from .executor import CacheAuthority, ExecutionAuthorization, execute_cached_synthetic_attempt, execute_registered_attempt
 from .family_engines.common import require_utc
 from .runtime import LazySupervisor, ResourceLimits
 from .schema import CAMPAIGN_ID, FAMILY_ORDER, OUTER_FOLDS, complexity, economic_address, family_schemas, normalize_config
 from .selection import (
     allocate_refinements,
+    beam_order_key,
     day_cluster_bootstrap_q05,
+    deduplicate_event_overlap,
     inner_fold_summary,
     materialization_policy,
     registered_bootstrap_seed,
     resolve_region_overlap,
+    selection_role_eligible,
     select_beam,
     stable_neighborhoods,
 )
+from .terminal import campaign_terminal_records, terminal_package
 
 
 STAGE_GRAPH = (
@@ -124,12 +128,29 @@ class CampaignOrchestrator:
             selected.append(str(record["path"]))
         return sorted(selected)
 
-    def _run_jobs(self, stage: str, jobs: Iterable[tuple[str, Callable[[], Any]]]) -> dict[str, Any]:
+    def _run_jobs(self, stage: str, jobs: Iterable[tuple[str, Callable[[], Any]]], *, require_health_release: bool = False) -> dict[str, Any]:
         root = self.run_root / stage
-        validator = lambda job_id, result: isinstance(result, Mapping) and result.get("registered_job_id") == job_id and result.get("registered_attempt_id") is not None
-        state = LazySupervisor(root, self.limits, heartbeat=self.heartbeat, real_unit_validator=validator).run(jobs)
+        bindings = {
+            "manifest_sha256": sha256_file(self.authorization.manifest_path),
+            "approval_request_sha256": sha256_file(self.authorization.approval_request_path),
+            "external_approval_sha256": sha256_file(self.authorization.external_approval_path),
+            "cache_manifest_sha256": sha256_file(self.cache_authority.manifest_path),
+        }
+        def validator(job_id: str, result: Any) -> bool:
+            if not isinstance(result, Mapping) or result.get("registered_job_id") != job_id or result.get("registered_attempt_id") is None or result.get("status") != "complete" or not isinstance(result.get("aggregate"), Mapping):
+                return False
+            if result.get("cache_manifest_sha256") != bindings["cache_manifest_sha256"] or result.get("external_approval_sha256") != bindings["external_approval_sha256"]:
+                return False
+            campaign_state = json.loads(self.stage_state.read_text(encoding="utf-8"))
+            if campaign_state.get("campaign_id") != CAMPAIGN_ID or campaign_state.get("status") != "running":
+                return False
+            self.authorization.require()
+            return True
+        state = LazySupervisor(root, self.limits, heartbeat=self.heartbeat, real_unit_validator=validator, identity_bindings=bindings).run(jobs, require_health_release=require_health_release)
         if state["status"] != "complete" or state.get("failed"):
             raise CampaignContractError(f"stage bound stop: {stage}/{state['status']}")
+        if require_health_release and state.get("health_release") is not True:
+            raise CampaignContractError(f"stage completed before required health release: {stage}")
         return state
 
     def _execution_job(
@@ -168,6 +189,18 @@ class CampaignOrchestrator:
                 result = execute_registered_attempt(
                     row, cache_authority=self.cache_authority, authorization=self.authorization, artifact_paths=artifact_paths,
                     registry_by_id=registry, parent_binding=parent_binding, parent_artifact_paths=parent_artifact_paths,
+                )
+            if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1" and result.get("status") == "complete":
+                manifest = self.authorization.require(); _, frames = self.cache_authority.load_frames(manifest, artifact_paths)
+                null_control = {
+                    "family": row["family_id"], "control_id": "A2_CONTEXT_PERMUTED_MAIN_NULL",
+                    "effective_seed": 20260721, "economic_address_sha256": canonical_hash({"development_main_null": row["canonical_economic_address_sha256"]}),
+                    "control_attempt_id": canonical_hash({"development_main_null_attempt": row["executable_attempt_id"]}),
+                    "execution_status": "execute_once", "resolved_parent_executable_attempt_id": row["executable_attempt_id"],
+                }
+                result["development_main_null"] = execute_control(
+                    null_control, row, frames, registry_by_id=registry, parent_binding=parent_binding,
+                    parent_frames=frames if parent_artifact_paths is not None else None,
                 )
             if not materialize:
                 observations = list(result.pop("observations", ()))
@@ -228,6 +261,18 @@ class CampaignOrchestrator:
         for payload in payloads:
             _, outer, inner, _ = payload["registered_job_id"].split(":", 3)
             grouped.setdefault((payload["registered_attempt_id"], outer), []).append({"inner": inner, **payload})
+        corroborated_parents: dict[str, set[str]] = {fold: set() for fold in OUTER_FOLDS}
+        for (attempt_id, outer), parts in grouped.items():
+            row = rows_by_id.get(attempt_id)
+            if row is None or row["family_id"] != "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+                continue
+            paired = [part.get("paired_parent", {}) for part in parts]
+            day_values = [float(value) for item in paired for value in item.get("paired_uplift_by_utc_day", {}).values()]
+            coverage = min((float(item.get("paired_coverage", 0.0)) for item in paired), default=0.0)
+            identity_match = bool(paired) and all(item.get("parent_event_identity_match") is True for item in paired)
+            q05 = day_cluster_bootstrap_q05(day_values, registered_bootstrap_seed(row["canonical_economic_address_sha256"], outer)) if day_values else -math.inf
+            if identity_match and coverage >= 0.70 and day_values and sum(day_values) / len(day_values) > 0 and q05 > 0:
+                corroborated_parents[outer].update(str(item["parent_executable_attempt_id"]) for item in paired if item.get("parent_executable_attempt_id"))
         beams: list[dict[str, Any]] = []
         audit_surface: list[dict[str, Any]] = []
         for outer in OUTER_FOLDS:
@@ -245,7 +290,13 @@ class CampaignOrchestrator:
                     finite = [value for value in values if value is not None]
                     day_values = [float(value) for part in parts for value in part["day_base_net_bps"].values()]
                     event_ids = [event_id for part in parts for event_id in part["event_ids"]]
-                    candidates.append({
+                    paired = [part.get("paired_parent", {}) for part in parts]
+                    paired_days = [float(value) for item in paired for value in item.get("paired_uplift_by_utc_day", {}).values()]
+                    main_nulls = [part.get("development_main_null", {}).get("paired_control", {}) for part in parts]
+                    main_null_days = [float(value) for item in main_nulls for value in item.get("parent_minus_control_by_utc_day", {}).values()]
+                    main_null_coverage = min((float(item.get("coverage", 0.0)) for item in main_nulls), default=0.0)
+                    main_null_q05 = day_cluster_bootstrap_q05(main_null_days, registered_bootstrap_seed(row["canonical_economic_address_sha256"], f"{outer}:A2_MAIN_NULL")) if main_null_days else -math.inf
+                    candidate = {
                         **row, "base_net_bps": median(finite) if finite else -math.inf,
                         "stress_net_bps": median(stress_values) if stress_values else -math.inf,
                         "inner_nonempty_fraction": summary["nonempty_fraction"], "p20_inner_fold": summary["p20_with_negative_infinity"],
@@ -255,16 +306,31 @@ class CampaignOrchestrator:
                         "median_inner_fold": summary["median_with_negative_infinity"],
                         "day_cluster_bootstrap_q05": day_cluster_bootstrap_q05(day_values, registered_bootstrap_seed(row["canonical_economic_address_sha256"], outer)) if day_values else -math.inf,
                         "complexity": complexity(family, row["config"]), "event_ids": event_ids,
-                    })
+                        "context_corroborated": attempt_id in corroborated_parents[outer],
+                    }
+                    if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+                        candidate.update({
+                            "paired_uplift_mean": sum(paired_days) / len(paired_days) if paired_days else -math.inf,
+                            "paired_uplift_bootstrap_q05": day_cluster_bootstrap_q05(paired_days, registered_bootstrap_seed(row["canonical_economic_address_sha256"], outer)) if paired_days else -math.inf,
+                            "paired_coverage": min((float(item.get("paired_coverage", 0.0)) for item in paired), default=0.0),
+                            "parent_event_identity_match": bool(paired) and all(item.get("parent_event_identity_match") is True for item in paired),
+                            "a2_main_null_mean": sum(main_null_days) / len(main_null_days) if main_null_days else -math.inf,
+                            "a2_main_null_bootstrap_q05": main_null_q05,
+                            "a2_main_null_coverage": main_null_coverage,
+                            "a2_main_null_pass": bool(main_null_days) and main_null_coverage >= 0.70 and sum(main_null_days) / len(main_null_days) > 0 and main_null_q05 > 0,
+                        })
+                    candidates.append(candidate)
                 if not candidates:
                     continue
-                regions, _ = resolve_region_overlap(stable_neighborhoods(family, candidates))
+                plateau_candidates = [candidate for candidate in candidates if selection_role_eligible(candidate)]
+                regions, _ = resolve_region_overlap(stable_neighborhoods(family, plateau_candidates))
                 supported = {address for region in regions for address in region["member_ids"]}
                 support = {address: region["support"] for region in regions for address in region["member_ids"]}
                 for candidate in candidates:
                     candidate["stable_region"] = candidate["canonical_economic_address_sha256"] in supported
                     candidate["plateau_support_count"] = support.get(candidate["canonical_economic_address_sha256"], 0)
-                selected_rows = select_beam(candidates)
+                deduplicated_rows, event_overlap_rejections = deduplicate_event_overlap(select_beam(candidates, width=len(candidates)))
+                selected_rows = deduplicated_rows[:5]
                 selected_addresses = {row["canonical_economic_address_sha256"] for row in selected_rows}
                 for candidate in candidates:
                     checks = {
@@ -273,7 +339,13 @@ class CampaignOrchestrator:
                         "market_days": int(candidate["market_days"]) >= 20,
                         "base_positive": math.isfinite(float(candidate["base_net_bps"])) and float(candidate["base_net_bps"]) > 0,
                         "threshold_coverage": float(candidate["threshold_coverage"]) >= 0.70,
+                        "selection_role": selection_role_eligible(candidate),
                     }
+                    if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+                        checks.update({
+                            "paired_uplift": float(candidate.get("paired_uplift_mean", -math.inf)) > 0 and float(candidate.get("paired_uplift_bootstrap_q05", -math.inf)) > 0 and float(candidate.get("paired_coverage", 0.0)) >= 0.70 and candidate.get("parent_event_identity_match") is True,
+                            "main_null": candidate.get("a2_main_null_pass") is True,
+                        })
                     failed_checks = [name for name, passed in checks.items() if not passed]
                     within_ten_percent = {
                         "accepted_trades": int(candidate["accepted_trades"]) >= 27,
@@ -288,11 +360,15 @@ class CampaignOrchestrator:
                         "passed": all(checks.values()), "near_miss": near_miss,
                         "near_miss_rule": "one_failed_nonintegrity_gate_within_10pct" if near_miss else None,
                         "failure_class": "pass" if all(checks.values()) else failed_checks[0],
-                        "mechanism_anchor": str(candidate.get("lane", "")).endswith("anchor"),
-                        "main_component_null": False,
+                        "failed_eligibility_gate_count": len(failed_checks),
+                        "integrity_valid": True,
+                        "mechanism_anchor": candidate.get("selection_role") == "mechanism_anchor_or_ablation",
+                        "main_component_null": candidate.get("selection_role") in {"main_component_null", "fixed_adjudication"} or candidate.get("config", {}).get("adjudication_variant") != "identity_replay" and candidate.get("family_id") == "KDA02B_SURVIVOR_ADJUDICATION_V1",
+                        "required_by_control_or_forensic": candidate["canonical_economic_address_sha256"] in selected_addresses,
+                        "event_overlap_status": next((item for item in event_overlap_rejections if item["canonical_economic_address_sha256"] == candidate["canonical_economic_address_sha256"]), None),
                     })
                 for rank, selected in enumerate(selected_rows, 1):
-                    beams.append({"outer_fold_id": outer, "family_id": family, "beam_rank": rank, "parent_slot": f"{family}:{outer}:beam:{rank:02d}", "executable_attempt_id": selected["executable_attempt_id"], "canonical_economic_address_sha256": selected["canonical_economic_address_sha256"], "selection_key": list(select_beam([selected])[0].get("selection_key", ())) if False else None})
+                    beams.append({"outer_fold_id": outer, "family_id": family, "beam_rank": rank, "parent_slot": f"{family}:{outer}:beam:{rank:02d}", "executable_attempt_id": selected["executable_attempt_id"], "canonical_economic_address_sha256": selected["canonical_economic_address_sha256"], "selection_key": list(beam_order_key(selected))})
         atomic_write_json(self.run_root / output_name, {"schema": "stage22_frozen_beam_registry_v1", "rows": beams, "status": "frozen_before_dependent_outcomes"})
         if output_name == "FROZEN_BEAM_REGISTRY.json":
             atomic_write_json(self.run_root / "DEVELOPMENT_SELECTION_SURFACE.json", {"schema": "stage22_development_selection_surface_v1", "rows": audit_surface, "status": "frozen"})
@@ -325,6 +401,7 @@ class CampaignOrchestrator:
 
     def _a2_bindings(self, execution: Sequence[Mapping[str, Any]], beams: Sequence[Mapping[str, Any]]) -> dict[str, Mapping[str, Any]]:
         slot = {row["parent_slot"]: row for row in beams}
+        by_id = {row["executable_attempt_id"]: row for row in execution}
         bindings = {}
         for row in execution:
             if row["family_id"] != "A2_PRIOR_HIGH_RS_CONTEXT_V1":
@@ -332,22 +409,45 @@ class CampaignOrchestrator:
             if row["config"]["parent_binding_mode"] == "source_attempt":
                 parent_id = row["resolved_parent_executable_attempt_id"]
             else:
-                parent = slot.get(row["parent_binding_template_id"])
+                requested_slot = f"{row['config']['parent_family']}:{row['config']['parent_fold_id']}:beam:{int(row['config']['parent_beam_rank']):02d}"
+                if canonical_hash({"mode": "beam_slot", "parent_slot": requested_slot}) != row["parent_binding_template_id"]:
+                    raise CampaignContractError("A2 parent slot template hash does not match its typed fields")
+                parent = slot.get(requested_slot)
                 if parent is None:
+                    bindings[row["executable_attempt_id"]] = {
+                        "status": "unavailable_no_parent",
+                        "parent_binding_template_id": row["parent_binding_template_id"],
+                        "parent_executable_attempt_id": None,
+                        "parent_only_counterpart_id": row["parent_only_counterpart_id"],
+                        "overlay_counterpart_id": row["overlay_counterpart_id"],
+                    }
                     continue
                 parent_id = parent["executable_attempt_id"]
-            bindings[row["executable_attempt_id"]] = {
+            parent_row = by_id.get(parent_id)
+            if parent_row is None or parent_row.get("family_id") != row["config"]["parent_family"]:
+                raise CampaignContractError("A2 resolved parent is absent or has the wrong family")
+            component_fields = ("proximity_rank", "RS_rank", "reclaim_state", "BTC_ETH_context", "breadth_dispersion")
+            binding = {
+                "status": "bound",
                 "parent_binding_template_id": row["parent_binding_template_id"], "parent_executable_attempt_id": parent_id,
                 "parent_only_counterpart_id": row["parent_only_counterpart_id"], "overlay_counterpart_id": row["overlay_counterpart_id"],
+                "parent_family": parent_row["family_id"],
+                "parent_fold_id": row["config"].get("parent_fold_id"),
+                "parent_beam_rank": row["config"].get("parent_beam_rank"),
+                "parent_side": parent_row["config"].get("direction"),
+                "component_set": {name: row["config"].get(name) for name in component_fields},
+                "exposure_action": row["config"].get("overlay_action"),
             }
-        atomic_write_json(self.run_root / "A2_RESOLVED_PARENT_BINDINGS.json", {"schema": "stage22_a2_resolved_parent_bindings_v1", "rows": [{"a2_executable_attempt_id": key, **value} for key, value in sorted(bindings.items())], "missing_parent": "unavailable_no_parent", "status": "frozen_before_A2_outcomes"})
+            binding["binding_sha256"] = canonical_hash({"a2_executable_attempt_id": row["executable_attempt_id"], **binding})
+            bindings[row["executable_attempt_id"]] = binding
+        atomic_write_json(self.run_root / "A2_RESOLVED_PARENT_BINDINGS.json", {"schema": "stage23_a2_resolved_parent_bindings_v2", "rows": [{"a2_executable_attempt_id": key, **value} for key, value in sorted(bindings.items())], "missing_parent": "unavailable_no_parent", "status": "frozen_before_A2_outcomes", "resolution_sha256": canonical_hash([{"a2_executable_attempt_id": key, **value} for key, value in sorted(bindings.items())])})
         return bindings
 
     def run(self) -> dict[str, Any]:
         manifest, execution, controls, registry, cache = self._authority()
         state = {"schema": "stage22_campaign_stage_state_v1", "campaign_id": manifest["campaign_id"], "stage_graph": list(STAGE_GRAPH), "completed_stages": ["cache_validation"], "status": "running"}
         atomic_write_json(self.stage_state, state)
-        self._run_jobs("inner_development", self._inner_jobs(execution, registry, cache)); state["completed_stages"].append("inner_development"); atomic_write_json(self.stage_state, state)
+        self._run_jobs("inner_development", self._inner_jobs(execution, registry, cache), require_health_release=True); state["completed_stages"].append("inner_development"); atomic_write_json(self.stage_state, state)
         self._run_jobs("kda02b_adjudication", self._kda_jobs(execution, registry, cache)); state["completed_stages"].append("kda02b_adjudication"); atomic_write_json(self.stage_state, state)
         centers = self._freeze_beams(execution, output_name="FROZEN_REFINEMENT_CENTER_REGISTRY.json")
         refinement_records = self._freeze_refinements(execution, centers)
@@ -378,8 +478,65 @@ class CampaignOrchestrator:
         self._run_jobs("conditional_materialization", self._materialization_jobs(combined_execution, combined_registry, cache, materialized, bindings))
         state["completed_stages"].append("conditional_materialization")
         kda_payloads = self._completed_payloads(self.run_root / "kda02b_adjudication")
-        reconciliation = {"execution_registry_rows": len(execution), "conditional_refinement_rows": len(refinements), "control_registry_rows": len(controls), "kda02b_adjudication_jobs": len(kda_payloads), "beam_rows": len(beams), "outer_jobs": len(outer_payloads), "completed_stage_count": len(state["completed_stages"]) + 1}
-        atomic_write_json(self.run_root / "TERMINAL_RECONCILIATION.json", {"schema": "stage22_terminal_reconciliation_v1", **reconciliation, "status": "pass"})
+        control_payloads = self._completed_payloads(self.run_root / "conditional_controls")
+        stage_payloads = []
+        for stage_name in ("inner_development", "kda02b_adjudication", "conditional_refinement", "a2_inner_development", "outer_evaluation", "conditional_materialization"):
+            stage_payloads.extend(self._completed_payloads(self.run_root / stage_name))
+        strategy_rows = _read_jsonl(self.packet_root / "FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl")
+        terminal = campaign_terminal_records(
+            strategy_rows=strategy_rows, execution_rows=combined_execution, control_registry=controls,
+            stage_payloads=stage_payloads, outer_payloads=outer_payloads, control_payloads=control_payloads,
+            fold_order=OUTER_FOLDS,
+        )
+        expected_jobs = {
+            "inner_development": {job for job, _ in self._inner_jobs(execution, registry, cache)},
+            "kda02b_adjudication": {job for job, _ in self._kda_jobs(execution, registry, cache)},
+            "conditional_refinement": {job for job, _ in self._refinement_jobs(refinements, combined_registry, cache)},
+            "a2_inner_development": {job for job, _ in self._a2_inner_jobs(combined_execution, combined_registry, cache, bindings)},
+            "outer_evaluation": {job for job, _ in self._outer_jobs(combined_execution, combined_registry, cache, beams, bindings)},
+            "conditional_controls": {job for job, _ in self._control_jobs(combined_execution, controls, combined_registry, cache, beams, bindings)},
+            "conditional_materialization": {job for job, _ in self._materialization_jobs(combined_execution, combined_registry, cache, materialized, bindings)},
+        }
+        job_rows = []
+        all_workers_stopped = True
+        for stage_name, expected in expected_jobs.items():
+            stage_root = self.run_root / stage_name
+            observed = set()
+            for marker_path in sorted((stage_root / "markers").glob("*.json")):
+                marker = json.loads(marker_path.read_text(encoding="utf-8")); observed.add(str(marker["job_id"]))
+            supervisor = json.loads((stage_root / "SUPERVISOR_STATE.json").read_text(encoding="utf-8"))
+            stopped = supervisor.get("all_workers_stopped") is True and not supervisor.get("worker_pids") and int(supervisor.get("in_flight_count", 0)) == 0
+            all_workers_stopped = all_workers_stopped and stopped
+            job_rows.append({"stage": stage_name, "expected": len(expected), "observed": len(observed), "missing": sorted(expected - observed), "extra": sorted(observed - expected), "all_workers_stopped": stopped, "supervisor_generation": supervisor.get("generation"), "pass": expected == observed and stopped})
+        job_reconciliation = {"schema": "stage23_stage_job_reconciliation_v1", "stages": job_rows, "pass": all(row["pass"] for row in job_rows)}
+        atomic_write_json(self.run_root / "STAGE_JOB_RECONCILIATION.json", job_reconciliation)
+        expected_attempt_ids = [canonical_hash({"registered_registry_index": index, "registered_row": row}) for index, row in enumerate(strategy_rows)]
+        expected_control_ids = [str(row["control_attempt_id"]) for row in controls]
+        terminal_result = terminal_package(
+            self.run_root / "terminal", attempt_ids=expected_attempt_ids, control_ids=expected_control_ids,
+            attempt_rows=terminal["attempt_rows"], control_rows=terminal["control_rows"],
+            routes=terminal["routes"], forensics=terminal["forensics"], all_workers_stopped=all_workers_stopped,
+            job_reconciliation=job_reconciliation,
+        )
+        reconciliation = {
+            "registered_configuration_rows": len(strategy_rows), "execution_registry_rows": len(execution),
+            "conditional_refinement_rows": len(refinements), "control_registry_rows": len(controls),
+            "kda02b_adjudication_jobs": len(kda_payloads), "beam_rows": len(beams),
+            "outer_jobs": len(outer_payloads), "completed_stage_count": len(state["completed_stages"]) + 1,
+            "terminal_package": terminal_result, "control_gate_inventory": terminal["control_gate_inventory"],
+        }
+        atomic_write_json(self.run_root / "TERMINAL_RECONCILIATION.json", {"schema": "stage23_terminal_reconciliation_v2", **reconciliation, "status": "pass"})
+        terminal_package_path = self.run_root / "terminal/TERMINAL_PACKAGE.json"
+        inventory_rows = []
+        excluded = {"CAMPAIGN_ARTIFACT_INVENTORY.json", "terminal/TERMINAL_PACKAGE.json"}
+        for path in sorted(self.run_root.rglob("*")):
+            relative = path.relative_to(self.run_root).as_posix()
+            if path.is_file() and relative not in excluded:
+                inventory_rows.append({"path": relative, "bytes": path.stat().st_size, "sha256": sha256_file(path)})
+        campaign_inventory = {"schema": "stage23_complete_campaign_artifact_inventory_v1", "files": inventory_rows, "excluded_to_avoid_self_reference": sorted(excluded), "inventory_sha256": canonical_hash(inventory_rows)}
+        atomic_write_json(self.run_root / "CAMPAIGN_ARTIFACT_INVENTORY.json", campaign_inventory)
+        persisted_terminal = json.loads(terminal_package_path.read_text(encoding="utf-8")); persisted_terminal["campaign_artifact_inventory_sha256"] = sha256_file(self.run_root / "CAMPAIGN_ARTIFACT_INVENTORY.json")
+        atomic_write_json(terminal_package_path, persisted_terminal)
         state.update({"completed_stages": [*state["completed_stages"], "terminal_reconciliation"], "status": "complete"}); atomic_write_json(self.stage_state, state)
         return state
 
@@ -394,6 +551,14 @@ class CampaignOrchestrator:
                     if row["config"].get("parent_binding_mode") == "beam_slot" and row["config"].get("parent_fold_id") != outer:
                         continue
                     job_id = f"inner:{outer}:{inner}:{row['executable_attempt_id']}"
+                    if binding.get("status") != "bound":
+                        yield job_id, (lambda row=row, job_id=job_id, binding=binding: {
+                            "status": "unavailable_no_parent",
+                            "registered_attempt_id": row["executable_attempt_id"],
+                            "registered_job_id": job_id,
+                            "parent_slot": binding.get("parent_slot"),
+                        })
+                        continue
                     yield job_id, self._execution_job(row, artifacts, registry, job_id, parent_binding=binding, parent_artifact_paths=artifacts)
 
     def _kda_jobs(self, execution: Sequence[Mapping[str, Any]], registry: Mapping[str, Mapping[str, Any]], cache: Mapping[str, Any]) -> Iterable[tuple[str, Callable[[], Any]]]:
@@ -442,16 +607,42 @@ class CampaignOrchestrator:
 
     def _control_jobs(self, execution: Sequence[Mapping[str, Any]], controls: Sequence[Mapping[str, Any]], registry: Mapping[str, Mapping[str, Any]], cache: Mapping[str, Any], beams: Sequence[Mapping[str, Any]], bindings: Mapping[str, Mapping[str, Any]]) -> Iterable[tuple[str, Callable[[], Any]]]:
         by_id = {row["executable_attempt_id"]: row for row in execution}; beam_by_slot = {row["parent_slot"]: row for row in beams}
-        for control in sorted(controls, key=lambda row: row["control_attempt_id"]):
+        parents_by_slot = {slot: by_id[beam["executable_attempt_id"]] for slot, beam in beam_by_slot.items()}
+        resolved_controls = reconcile_control_duplicates(controls, parents_by_slot)
+        atomic_write_json(self.run_root / "FINAL_CONTROL_EXECUTION_REGISTRY.json", {"schema": "stage23_final_control_execution_registry_v1", "rows": resolved_controls, "registry_sha256": canonical_hash(resolved_controls), "status": "frozen_before_control_outcomes"})
+        for control in resolved_controls:
             beam = beam_by_slot.get(control["parent_slot"])
             if beam is None:
+                job_id = f"control:{control['control_attempt_id']}"
+                yield job_id, (lambda control=control, job_id=job_id: {
+                    "status": "unavailable_no_parent", "control_attempt_id": control["control_attempt_id"],
+                    "control_id": control["control_id"], "family_id": control["family"],
+                    "outer_fold_id": control["fold"], "effective_seed": control["effective_seed"],
+                    "parent_slot": control["parent_slot"], "registered_job_id": job_id,
+                    "registered_attempt_id": control["control_attempt_id"],
+                })
                 continue
             parent = by_id[beam["executable_attempt_id"]]; artifacts = self._artifacts(cache, phase="outer_evaluation", outer_fold_id=control["fold"])
             job_id = f"control:{control['control_attempt_id']}"
             def task(control=control, parent=parent, artifacts=artifacts, job_id=job_id):
+                if control["execution_status"] == "unavailable_duplicate_address":
+                    return {
+                        "status": "unavailable_duplicate_address", "control_attempt_id": control["control_attempt_id"],
+                        "duplicate_of_control_attempt_id": control["duplicate_of_control_attempt_id"],
+                        "control_id": control["control_id"], "family_id": control["family"],
+                        "outer_fold_id": control["fold"], "effective_seed": control["effective_seed"],
+                        "parent_slot": control["parent_slot"], "registered_job_id": job_id,
+                        "registered_attempt_id": parent["executable_attempt_id"],
+                    }
                 manifest = self.authorization.require(); _, frames = self.cache_authority.load_frames(manifest, artifacts)
                 result = execute_control(control, parent, frames, registry_by_id=registry, parent_binding=bindings.get(parent["executable_attempt_id"]), parent_frames=frames if parent["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1" else None)
-                return {**_jsonable(result), "registered_job_id": job_id, "registered_attempt_id": parent["executable_attempt_id"]}
+                return {
+                    **_jsonable(result), "registered_job_id": job_id,
+                    "registered_attempt_id": parent["executable_attempt_id"],
+                    "control_attempt_id": control["control_attempt_id"], "control_id": control["control_id"],
+                    "family_id": control["family"], "outer_fold_id": control["fold"],
+                    "effective_seed": control["effective_seed"], "parent_slot": control["parent_slot"],
+                }
             yield job_id, task
 
 

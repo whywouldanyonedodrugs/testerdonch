@@ -4,7 +4,7 @@ import json
 import math
 import subprocess
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -33,7 +33,7 @@ def _is_git_commit(value: object) -> bool:
 def _launch_tree_paths(repository_root: Path) -> list[str]:
     package = repository_root / "tools/core_liquid_campaign"
     paths = [path.relative_to(repository_root).as_posix() for path in package.rglob("*.py") if path.is_file()]
-    paths.extend(("tools/build_stage22_core_liquid_campaign.py", "tools/run_stage22_core_liquid_campaign.py", "unit_tests/test_core_liquid_campaign.py"))
+    paths.extend(("tools/build_stage22_core_liquid_campaign.py", "tools/build_stage23_final_packet.py", "tools/run_stage22_core_liquid_campaign.py", "unit_tests/test_core_liquid_campaign.py", "unit_tests/test_core_liquid_campaign_stage23.py"))
     return sorted(set(paths))
 
 
@@ -239,6 +239,12 @@ def _simulate_event(frame: FamilyInput, family: str, config: Mapping[str, Any], 
     base_gap_rate = float(frame.metadata.get("base_gap_allowance_bps_per_hour", 0.0))
     stress_gap_rate = float(frame.metadata.get("stress_gap_allowance_bps_per_hour", base_gap_rate))
     base_exposure = float(event.get("exposure", 1.0)) * context_multiplier
+    def delayed_index(index: int) -> int | None:
+        target = require_utc(bars[index].open_ts) + timedelta(minutes=15)
+        selected = next((candidate for candidate in range(index + 1, len(bars)) if require_utc(bars[candidate].open_ts) >= target), None)
+        if selected is None or require_utc(bars[selected].open_ts) - target > timedelta(minutes=10):
+            return None
+        return selected
     if family == "A3_STARTER_RETEST_V3":
         starter_fraction = float(event["starter_fraction"])
         starter = simulate_leg(
@@ -345,9 +351,58 @@ def _simulate_event(frame: FamilyInput, family: str, config: Mapping[str, Any], 
                 exposure=context_multiplier, gap_allowance_bps_per_hour=stress_gap_rate,
             )
         stress_parent = aggregate_parent_legs(stress_starter, starter_fraction, stress_add, add_fraction)
+        delayed_starter_index = delayed_index(entry_index)
+        delayed_starter = None if delayed_starter_index is None else simulate_leg(
+            bars, entry_index=delayed_starter_index, side=int(event["side"]), exit_name=exit_name, atr=event.get("atr"),
+            fixed_target_r=fixed_target, structural_level=event.get("level") if exit_name == "breakout_failure" else None,
+            signal_reversal_close_ts=None, funding=funding, cost_bps=cost, funding_alignment=alignment,
+            evaluation_start=require_utc(frame.metadata["evaluation_start"]), evaluation_end_exclusive=require_utc(frame.metadata["evaluation_end_exclusive"]),
+            exposure=context_multiplier, gap_allowance_bps_per_hour=base_gap_rate,
+        )
+        delayed_add = None
+        if add is not None and retest is not None and retest.add_entry_index is not None:
+            delayed_add_index = delayed_index(retest.add_entry_index)
+            if delayed_add_index is not None:
+                delayed_add = simulate_leg(
+                    bars, entry_index=delayed_add_index, side=int(event["side"]), exit_name=exit_name, atr=event.get("atr"), fixed_target_r=fixed_target,
+                    structural_level=event.get("level") if exit_name == "breakout_failure" else None, signal_reversal_close_ts=None,
+                    funding=funding, cost_bps=cost, funding_alignment=alignment,
+                    evaluation_start=require_utc(frame.metadata["evaluation_start"]), evaluation_end_exclusive=require_utc(frame.metadata["evaluation_end_exclusive"]),
+                    exposure=context_multiplier, gap_allowance_bps_per_hour=base_gap_rate,
+                )
+        delayed_parent = aggregate_parent_legs(delayed_starter, starter_fraction, delayed_add, add_fraction) if delayed_starter is not None and delayed_starter.status == "complete" else None
+        def funding_parent(funding_rows: Sequence[Any], funding_alignment: str) -> dict[str, Any] | None:
+            variant_starter = simulate_leg(
+                bars, entry_index=entry_index, side=int(event["side"]), exit_name=exit_name, atr=event.get("atr"),
+                fixed_target_r=fixed_target, structural_level=event.get("level") if exit_name == "breakout_failure" else None,
+                signal_reversal_close_ts=None, funding=funding_rows, cost_bps=cost, funding_alignment=funding_alignment,
+                evaluation_start=require_utc(frame.metadata["evaluation_start"]), evaluation_end_exclusive=require_utc(frame.metadata["evaluation_end_exclusive"]),
+                exposure=context_multiplier, gap_allowance_bps_per_hour=base_gap_rate,
+            )
+            if variant_starter.status != "complete":
+                return None
+            variant_add = None
+            if add is not None and retest is not None and retest.add_entry_index is not None:
+                variant_add = simulate_leg(
+                    bars, entry_index=retest.add_entry_index, side=int(event["side"]), exit_name=exit_name, atr=event.get("atr"),
+                    fixed_target_r=fixed_target, structural_level=event.get("level") if exit_name == "breakout_failure" else None,
+                    signal_reversal_close_ts=None, funding=funding_rows, cost_bps=cost, funding_alignment=funding_alignment,
+                    evaluation_start=require_utc(frame.metadata["evaluation_start"]), evaluation_end_exclusive=require_utc(frame.metadata["evaluation_end_exclusive"]),
+                    exposure=context_multiplier, gap_allowance_bps_per_hour=base_gap_rate,
+                )
+            return aggregate_parent_legs(variant_starter, starter_fraction, variant_add, add_fraction)
+        funding_zero = funding_parent((), alignment)
+        funding_start = funding_parent(frame.funding, "start_inclusive_end_exclusive")
+        funding_end = funding_parent(frame.funding, "start_exclusive_end_inclusive")
         enriched = {**event, "entry_ts": starter.entry_ts}
-        observation = _observation(frame, enriched, parent["net_bps"], stress_parent["net_bps"], parent["parent_exit_ts"], exposure=starter_fraction * context_multiplier + (add_fraction * context_multiplier if add is not None else 0.0), component_metrics=(("add_complete", 1.0 if add is not None else 0.0),))
-        return observation, {"event_id": event["event_id"], "status": "complete", "starter": starter.to_dict(), "add": add.to_dict() if add else None, "retest": retest.__dict__ if retest else None, "parent": parent, "stress_parent": stress_parent}
+        metrics = [("add_complete", 1.0 if add is not None else 0.0)]
+        if delayed_parent is not None:
+            metrics.append(("entry_delay_15m_net_bps", float(delayed_parent["net_bps"])))
+        for name, value in (("funding_zero_net_bps", funding_zero), ("funding_start_alignment_net_bps", funding_start), ("funding_end_alignment_net_bps", funding_end)):
+            if value is not None:
+                metrics.append((name, float(value["net_bps"])))
+        observation = _observation(frame, enriched, parent["net_bps"], stress_parent["net_bps"], parent["parent_exit_ts"], exposure=starter_fraction * context_multiplier + (add_fraction * context_multiplier if add is not None else 0.0), component_metrics=metrics)
+        return observation, {"event_id": event["event_id"], "status": "complete", "starter": starter.to_dict(), "add": add.to_dict() if add else None, "retest": retest.__dict__ if retest else None, "parent": parent, "stress_parent": stress_parent, "delay_parent": delayed_parent}
     base = simulate_leg(
         bars,
         entry_index=entry_index,
@@ -373,9 +428,34 @@ def _simulate_event(frame: FamilyInput, family: str, config: Mapping[str, Any], 
         cost_bps=32.0, funding_alignment=alignment, evaluation_start=require_utc(frame.metadata["evaluation_start"]),
         evaluation_end_exclusive=require_utc(frame.metadata["evaluation_end_exclusive"]), exposure=base_exposure, gap_allowance_bps_per_hour=stress_gap_rate,
     )
+    delayed = None
+    delayed_entry_index = delayed_index(entry_index)
+    if delayed_entry_index is not None:
+        delayed = simulate_leg(
+            bars, entry_index=delayed_entry_index, side=int(event["side"]), exit_name=exit_name, atr=event.get("atr"), fixed_target_r=fixed_target,
+            structural_level=event.get("structural_level"), signal_reversal_close_ts=set(event.get("signal_reversal_close_ts", ())), funding=funding,
+            cost_bps=cost, funding_alignment=alignment, evaluation_start=require_utc(frame.metadata["evaluation_start"]),
+            evaluation_end_exclusive=require_utc(frame.metadata["evaluation_end_exclusive"]), exposure=base_exposure, gap_allowance_bps_per_hour=base_gap_rate,
+        )
+    def funding_variant(funding_rows: Sequence[Any], funding_alignment: str):
+        return simulate_leg(
+            bars, entry_index=entry_index, side=int(event["side"]), exit_name=exit_name, atr=event.get("atr"), fixed_target_r=fixed_target,
+            structural_level=event.get("structural_level"), signal_reversal_close_ts=set(event.get("signal_reversal_close_ts", ())), funding=funding_rows,
+            cost_bps=cost, funding_alignment=funding_alignment, evaluation_start=require_utc(frame.metadata["evaluation_start"]),
+            evaluation_end_exclusive=require_utc(frame.metadata["evaluation_end_exclusive"]), exposure=base_exposure, gap_allowance_bps_per_hour=base_gap_rate,
+        )
+    funding_zero = funding_variant((), alignment)
+    funding_start = funding_variant(frame.funding, "start_inclusive_end_exclusive")
+    funding_end = funding_variant(frame.funding, "start_exclusive_end_inclusive")
     enriched = {**event, "entry_ts": base.entry_ts}
-    observation = _observation(frame, enriched, base.net_bps, float(stress.net_bps), base.exit_ts, exposure=base_exposure, component_metrics=(("favorable_funding_report_only", float(base.favorable_funding_bps)),))
-    return observation, {"event_id": event["event_id"], "status": "complete", "base": base.to_dict(), "stress": stress.to_dict()}
+    metrics = [("favorable_funding_report_only", float(base.favorable_funding_bps))]
+    if delayed is not None and delayed.status == "complete" and delayed.net_bps is not None:
+        metrics.append(("entry_delay_15m_net_bps", float(delayed.net_bps)))
+    for name, value in (("funding_zero_net_bps", funding_zero), ("funding_start_alignment_net_bps", funding_start), ("funding_end_alignment_net_bps", funding_end)):
+        if value.status == "complete" and value.net_bps is not None:
+            metrics.append((name, float(value.net_bps)))
+    observation = _observation(frame, enriched, base.net_bps, float(stress.net_bps), base.exit_ts, exposure=base_exposure, component_metrics=metrics)
+    return observation, {"event_id": event["event_id"], "status": "complete", "base": base.to_dict(), "stress": stress.to_dict(), "entry_delay_15m": delayed.to_dict() if delayed else None}
 
 
 def _generate_events(family: str, frame: FamilyInput, config: Mapping[str, Any], control_id: str | None, control_directive: Mapping[str, Any] | None) -> list[dict[str, Any]]:
@@ -406,6 +486,7 @@ def dispatch_registered_attempt(
     config = row["config"]
     observations: list[EventObservation] = []
     ledger: list[dict[str, Any]] = []
+    a2_parent_observations: dict[str, EventObservation] = {}
     if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
         if parent_binding is None or parent_frames is None:
             return {"status": "unavailable_no_parent", "observations": [], "ledger": [], "aggregate": aggregate_streaming(())}
@@ -420,6 +501,7 @@ def dispatch_registered_attempt(
             raise AuthorizationError("A2 atomic counterpart binding mismatch")
         parent_result = dispatch_registered_attempt(parent, parent_frames, registry_by_id=registry_by_id)
         parent_observations = {item.event_id: item for item in parent_result["observations"]}
+        a2_parent_observations = dict(parent_observations)
         parent_ledger = {item["event_id"]: item for item in parent_result["ledger"] if item.get("status") == "complete"}
         frame_by_symbol_and_decision = {(frame.symbol, require_utc(frame.decision_ts)): frame for frame in frames}
         for event_id, parent_observation in sorted(parent_observations.items()):
@@ -436,9 +518,14 @@ def dispatch_registered_attempt(
             directive = None if control_directives is None else control_directives.get(frame.content_sha256())
             overlay = a2_context.evaluate_overlay(frame, config, base_event, control_id=control_id, control_directive=directive)
             multiplier = float(overlay["context_multiplier"])
+            inherited_components = tuple(
+                (name, float(value) * multiplier)
+                for name, value in parent_observation.component_metrics
+                if name in {"entry_delay_15m_net_bps", "funding_zero_net_bps", "funding_start_alignment_net_bps", "funding_end_alignment_net_bps"}
+            )
             observation = EventObservation(
                 **{**parent_observation.__dict__, "base_net_bps": parent_observation.base_net_bps * multiplier, "stress_net_bps": parent_observation.stress_net_bps * multiplier, "holding_seconds_weighted": parent_observation.holding_seconds_weighted * multiplier,
-                   "component_metrics": tuple(overlay["context_components"])},
+                   "component_metrics": (*inherited_components, *tuple(overlay["context_components"]))},
             )
             observations.append(observation)
             ledger.append({"event_id": event_id, "status": "complete", "parent_executable_attempt_id": parent_id, "parent_only_counterpart_id": row["parent_only_counterpart_id"], "overlay_counterpart_id": row["overlay_counterpart_id"], "context_multiplier": multiplier, "context_components": overlay["context_components"], "parent_ledger_sha256": canonical_hash(source_ledger)})
@@ -483,7 +570,7 @@ def dispatch_registered_attempt(
             "stress_net_bps": item.stress_net_bps / cohort_sizes[str(item.cohort_id)],
             "holding_seconds_weighted": item.holding_seconds_weighted / cohort_sizes[str(item.cohort_id)],
         }) for item in accepted]
-    return {
+    result = {
         "status": "complete",
         "campaign_id": CAMPAIGN_ID,
         "executable_attempt_id": row["executable_attempt_id"],
@@ -492,6 +579,29 @@ def dispatch_registered_attempt(
         "ledger": ledger,
         "aggregate": aggregate_streaming(iter(accepted)),
     }
+    if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+        accepted_by_id = {item.event_id: item for item in accepted}
+        parent_ids = set(a2_parent_observations)
+        paired_ids = sorted(parent_ids & set(accepted_by_id))
+        if set(accepted_by_id) - parent_ids:
+            raise AuthorizationError("A2 overlay emitted an event absent from its exact parent")
+        day_values: dict[str, list[float]] = {}
+        for event_id in paired_ids:
+            overlay = accepted_by_id[event_id]
+            parent = a2_parent_observations[event_id]
+            if (overlay.symbol, overlay.entry_ts, overlay.exit_ts) != (parent.symbol, parent.entry_ts, parent.exit_ts):
+                raise AuthorizationError("A2 parent/counterpart event identities or exposure interval differ")
+            day_values.setdefault(overlay.market_day, []).append(overlay.base_net_bps - parent.base_net_bps)
+        result["paired_parent"] = {
+            "parent_executable_attempt_id": parent_id,
+            "parent_event_ids": sorted(parent_ids),
+            "overlay_event_ids": sorted(accepted_by_id),
+            "paired_event_ids": paired_ids,
+            "parent_event_identity_match": set(accepted_by_id) == parent_ids,
+            "paired_coverage": len(paired_ids) / len(parent_ids) if parent_ids else 0.0,
+            "paired_uplift_by_utc_day": {day: sum(values) / len(values) for day, values in sorted(day_values.items())},
+        }
+    return result
 
 
 def execute_registered_attempt(

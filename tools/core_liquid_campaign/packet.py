@@ -95,7 +95,7 @@ def sha256_file_from_records(records: Sequence[Mapping[str, Any]]) -> str:
 def _code_inventory(repository_root: Path) -> dict[str, Any]:
     package = repository_root / "tools/core_liquid_campaign"
     discovered = [path.relative_to(repository_root).as_posix() for path in package.rglob("*.py") if path.is_file()]
-    discovered.extend(("tools/build_stage22_core_liquid_campaign.py", "tools/run_stage22_core_liquid_campaign.py", "unit_tests/test_core_liquid_campaign.py"))
+    discovered.extend(("tools/build_stage22_core_liquid_campaign.py", "tools/build_stage23_final_packet.py", "tools/run_stage22_core_liquid_campaign.py", "unit_tests/test_core_liquid_campaign.py", "unit_tests/test_core_liquid_campaign_stage23.py"))
     files = []
     for relative in sorted(set(discovered)):
         path = repository_root / relative

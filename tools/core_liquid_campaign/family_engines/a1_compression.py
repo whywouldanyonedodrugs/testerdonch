@@ -5,7 +5,7 @@ from datetime import timedelta
 from typing import Any, Mapping, Sequence
 
 from ..canonical import canonical_hash
-from ..engine_types import FamilyInput, require_contiguous_5m
+from ..engine_types import FamilyInput, SignalBar, require_contiguous_5m, require_contiguous_daily
 from .common import EngineInputError, log_return, path_smoothness, percentile_from_population, require_utc, sample_standard_deviation, wilder_atr
 
 
@@ -71,11 +71,38 @@ def _population(frame: FamilyInput, name: str) -> Sequence[float]:
     return population.values
 
 
+def _decision_contiguous_segment(frame: FamilyInput) -> tuple[tuple[SignalBar, ...], bool]:
+    """Return the gap-free component containing the registered decision.
+
+    Earlier components cannot supply rolling history after a gap.  A later
+    component cannot supply an entry/exit for the decision.  The boolean marks
+    whether history was rebuilt after a preceding gap.
+    """
+    bars = frame.five_minute_bars
+    decision_index = next((index for index, bar in enumerate(bars) if require_utc(bar.close_ts) == require_utc(frame.decision_ts)), None)
+    if decision_index is None:
+        return tuple(bars), False
+    start = decision_index
+    while start > 0 and require_utc(bars[start].open_ts) - require_utc(bars[start - 1].open_ts) == timedelta(minutes=5):
+        start -= 1
+    end = decision_index + 1
+    while end < len(bars) and require_utc(bars[end].open_ts) - require_utc(bars[end - 1].open_ts) == timedelta(minutes=5):
+        end += 1
+    return tuple(bars[start:end]), start > 0
+
+
+def rearm_ready(sides: Sequence[int], owning_side: int | None, percentiles: Mapping[int, float]) -> bool:
+    """Strict q50 reset rule used by the symmetric A1 state machine."""
+    if owning_side is not None:
+        return float(percentiles.get(owning_side, math.inf)) < 0.50
+    return all(float(percentiles.get(side, math.inf)) < 0.50 for side in sides)
+
+
 def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str | None = None, control_directive: Mapping[str, Any] | None = None) -> list[dict[str, Any]]:
     """Run the complete A1 episode state machine from completed five-minute bars."""
     frame.validate()
     frame.require_pit_top_n(int(config["PIT_liquidity_top_n"]))
-    bars = frame.five_minute_bars
+    bars, rebuilt_after_gap = _decision_contiguous_segment(frame)
     require_contiguous_5m(bars)
     impulse_n = _bar_count(str(config["impulse_window"]))
     base_n = _bar_count(str(config["base_duration"]))
@@ -94,6 +121,7 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
         atr_window = int(config["ATR_window_days"] or 20)
         available_daily = [bar for bar in frame.daily_bars if require_utc(bar.close_ts) < require_utc(frame.decision_ts)]
         atr_daily = available_daily[-(atr_window + 1):]
+        require_contiguous_daily(atr_daily)
         atr = wilder_atr([bar.high for bar in atr_daily], [bar.low for bar in atr_daily], [bar.close for bar in atr_daily], atr_window) if str(config["exit"]).startswith("ATR_") else None
         return [{
             "event_id": canonical_hash({"control": control_id, "parent_event_id": control_directive["parent_event_id"], "symbol": frame.symbol, "decision_ts": require_utc(frame.decision_ts).isoformat()}),
@@ -106,27 +134,49 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
     else:
         sides = (1, -1) if config["direction"] == "symmetric" else (1 if config["direction"] == "long" else -1,)
     threshold = int(str(config["impulse_rank_min"])[1:]) / 100.0
-    armed = {side: True for side in sides}
+    armed = {side: not rebuilt_after_gap for side in sides}
+    owning_side: int | None = None
+    if rebuilt_after_gap:
+        recorded_owner = frame.metadata.get("a1_pre_gap_owning_side")
+        if recorded_owner not in (*sides, None):
+            raise EngineInputError("A1 pre-gap owning side is absent or invalid")
+        if "a1_pre_gap_owning_side" not in frame.metadata:
+            raise EngineInputError("A1 gap rebuild lacks the persisted owning-side state")
+        owning_side = None if recorded_owner is None else int(recorded_owner)
+    history_restore_index: int | None = None
     previous_percentile = {side: -math.inf for side in sides}
     episodes: list[dict[str, Any]] = []
     minimum_index = max(impulse_n, baseline_n)
     index = minimum_index
     while index + base_n + 4 < len(bars):
+        if history_restore_index is not None and index > history_restore_index:
+            for candidate_side in sides:
+                armed[candidate_side] = True
+            owning_side = None
+            history_restore_index = None
         side_candidates: list[tuple[float, int, float]] = []
+        percentiles: dict[int, float] = {}
+        scores: dict[int, float] = {}
         for side in sides:
             impulse = [bar.close for bar in bars[index - impulse_n:index + 1]]
             score = side * log_return(impulse[0], impulse[-1])
             population_name = impulse_population_key(str(config["impulse_window"]), str(config["impulse_rank_scope"]), side)
             percentile, passes = percentile_from_population(score, _population(frame, population_name), str(config["impulse_rank_min"]))
-            if not armed[side] and percentile < 0.50:
-                armed[side] = True
-                if len(sides) == 2:
-                    armed[-side] = True
+            percentiles[side] = percentile
+            scores[side] = score
+            previous = previous_percentile[side]
+            previous_percentile[side] = percentile
+            if not armed[side]:
+                continue
             pseudo_match = control_id == "A1_MATCHED_PSEUDO_EVENT_MAIN_NULL" and require_utc(bars[index].close_ts) == require_utc(frame.decision_ts)
-            crossed = pseudo_match or (armed[side] and passes and previous_percentile[side] < threshold)
+            crossed = pseudo_match or (passes and previous < threshold)
             if crossed:
                 side_candidates.append((percentile - threshold, side, score))
-            previous_percentile[side] = percentile
+        if not any(armed.values()):
+            if rearm_ready(sides, owning_side, percentiles):
+                history_restore_index = index
+            index += 1
+            continue
         if len(side_candidates) == 2 and math.isclose(side_candidates[0][0], side_candidates[1][0], rel_tol=0.0, abs_tol=0.0):
             for side in sides:
                 armed[side] = False
@@ -138,6 +188,8 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
         _, side, impulse_score = max(side_candidates, key=lambda item: item[0])
         for blocked_side in sides:
             armed[blocked_side] = False
+        owning_side = side
+        history_restore_index = None
         impulse_bars = bars[index - impulse_n:index + 1]
         extreme = max(bar.close for bar in impulse_bars) if side == 1 else min(bar.close for bar in impulse_bars)
         base_start = index + 1
@@ -208,6 +260,7 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
         atr_window = int(config["ATR_window_days"] or 20)
         available_daily = [bar for bar in frame.daily_bars if require_utc(bar.close_ts) < final_confirmation_ts]
         daily = available_daily[-(atr_window + 1):]
+        require_contiguous_daily(daily)
         atr = wilder_atr([bar.high for bar in daily], [bar.low for bar in daily], [bar.close for bar in daily], atr_window) if str(config["exit"]).startswith("ATR_") else None
         context_multiplier = 1.0
         if config["context_overlay"] != "none" and control_id not in {"A1_CONTEXT_REMOVED", "A1_PRICE_ONLY_IMPULSE", "A1_MATCHED_PSEUDO_EVENT_MAIN_NULL"}:
@@ -258,4 +311,4 @@ def contract() -> dict[str, Any]:
     }
 
 
-__all__ = ["confirmation_pass", "contract", "contraction_population_key", "evaluate", "event_id", "features", "impulse_population_key", "smoothness_population_key"]
+__all__ = ["confirmation_pass", "contract", "contraction_population_key", "evaluate", "event_id", "features", "impulse_population_key", "rearm_ready", "smoothness_population_key"]

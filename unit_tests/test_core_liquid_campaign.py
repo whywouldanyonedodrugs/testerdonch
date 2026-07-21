@@ -170,6 +170,9 @@ class EngineAccountingControlTests(unittest.TestCase):
             result = end_to_end_family_probe(family)
             self.assertEqual(result["status"], "complete", family)
             self.assertGreater(len(result["observations"]), 0, family)
+            if family != "KDA02B_SURVIVOR_ADJUDICATION_V1":
+                metrics = result["aggregate"]["component_metrics"]
+                self.assertTrue({"funding_zero_net_bps", "funding_start_alignment_net_bps", "funding_end_alignment_net_bps"} <= set(metrics), family)
         parent, overlay = a2_context.counterpart_ids("a" * 64, "parent")
         self.assertNotEqual(parent, overlay)
         self.assertEqual(a2_context.parent_slot_id("A1_COMPRESSION_V2", "2024Q1", 5), "A1_COMPRESSION_V2:2024Q1:beam:05")
@@ -488,7 +491,11 @@ class RuntimeAuthorityAndReviewTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw); subprocess.run(["git", "init", "-q", str(root)], check=True); subprocess.run(["git", "-C", str(root), "config", "user.email", "test@example.invalid"], check=True); subprocess.run(["git", "-C", str(root), "config", "user.name", "Test"], check=True)
             code = root / "tools/core_liquid_campaign/code.py"; code.parent.mkdir(parents=True); code.write_text("x=1\n", encoding="utf-8")
-            for relative in ("tools/build_stage22_core_liquid_campaign.py", "tools/run_stage22_core_liquid_campaign.py", "unit_tests/test_core_liquid_campaign.py"):
+            for relative in (
+                "tools/build_stage22_core_liquid_campaign.py", "tools/build_stage23_final_packet.py",
+                "tools/run_stage22_core_liquid_campaign.py", "unit_tests/test_core_liquid_campaign.py",
+                "unit_tests/test_core_liquid_campaign_stage23.py",
+            ):
                 path = root / relative; path.parent.mkdir(parents=True, exist_ok=True); path.write_text("# fixture\n", encoding="utf-8")
             source = root / "SOURCE.json"; atomic_write_json(source, {"authority": True})
             subprocess.run(["git", "-C", str(root), "add", "."], check=True); subprocess.run(["git", "-C", str(root), "commit", "-qm", "fixture"], check=True)

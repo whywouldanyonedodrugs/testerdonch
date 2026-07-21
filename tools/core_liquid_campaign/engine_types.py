@@ -135,7 +135,9 @@ class ThresholdPopulation:
     source_sha256: str | None = None
 
     def validate(self, *, pooled: bool = False, decision_ts: datetime | None = None) -> None:
-        finite = tuple(value for value in self.values if isinstance(value, (int, float)))
+        if any(not isinstance(value, (int, float)) or not math.isfinite(float(value)) for value in self.values):
+            raise EngineInputError("threshold population contains a nonfinite or nonnumeric value")
+        finite = tuple(float(value) for value in self.values)
         if len(finite) < 30 or len(set(finite)) < 20:
             raise EngineInputError("threshold population minimum is not met")
         if pooled and len(set(self.unique_symbols)) < 5:
@@ -197,8 +199,13 @@ class ContextInputs:
         if not isinstance(self.source_sha256, str) or len(self.source_sha256) != 64 or any(c not in "0123456789abcdef" for c in self.source_sha256):
             raise EngineInputError("context snapshot source provenance is absent")
         for bars in (self.btc_daily, self.eth_daily, self.symbol_daily):
+            previous_close: datetime | None = None
             for bar in bars:
                 bar.validate(decision)
+                close = require_utc(bar.close_ts)
+                if previous_close is not None and close <= previous_close:
+                    raise EngineInputError("context daily bars are not strictly sorted")
+                previous_close = close
         for mapping in (self.cross_section_returns, *self.cross_section_returns_by_lookback.values()):
             if any(not isinstance(value, (int, float)) for value in mapping.values()):
                 raise EngineInputError("context cross-section contains a nonnumeric value")
@@ -244,8 +251,13 @@ class FamilyInput:
             if previous is not None and require_utc(bar.open_ts) <= previous:
                 raise EngineInputError("five-minute bars are not strictly sorted")
             previous = require_utc(bar.open_ts)
+        previous_daily: datetime | None = None
         for bar in self.daily_bars:
             bar.validate(decision)
+            close_ts = require_utc(bar.close_ts)
+            if previous_daily is not None and close_ts <= previous_daily:
+                raise EngineInputError("daily bars are not strictly sorted")
+            previous_daily = close_ts
         for payment in self.funding:
             payment.validate()
             if not (RANKABLE_START <= require_utc(payment.row_timestamp) < PROTECTED_START):
@@ -270,17 +282,30 @@ class FamilyInput:
         top_n_sets = snapshot.get("top_n_symbols")
         if not isinstance(eligible, (tuple, list)) or len(set(eligible)) != len(eligible) or not isinstance(ranks, Mapping) or set(ranks) != set(eligible) or self.symbol not in ranks:
             raise EngineInputError("symbol is absent from point-in-time liquidity ranks")
-        if sorted(int(value) for value in ranks.values()) != list(range(1, len(eligible) + 1)):
-            raise EngineInputError("point-in-time liquidity ranks are not a complete deterministic ordering")
+        numeric_ranks = {str(symbol): float(value) for symbol, value in ranks.items()}
+        if any(not math.isfinite(value) or value < 1 or value > len(eligible) for value in numeric_ranks.values()):
+            raise EngineInputError("point-in-time liquidity ranks are outside the eligible population")
+        by_notional: dict[float, list[str]] = {}
         if not isinstance(notionals, Mapping) or set(notionals) != set(eligible) or any(not isinstance(value, (int, float)) or not math.isfinite(float(value)) or float(value) <= 0 for value in notionals.values()):
             raise EngineInputError("point-in-time lagged quote-notional population is incomplete")
+        for symbol, value in notionals.items():
+            by_notional.setdefault(float(value), []).append(str(symbol))
+        position = 1
+        expected_ranks: dict[str, float] = {}
+        for value in sorted(by_notional, reverse=True):
+            members = by_notional[value]
+            average_rank = (position + position + len(members) - 1) / 2.0
+            expected_ranks.update({symbol: average_rank for symbol in members})
+            position += len(members)
+        if any(abs(numeric_ranks[symbol] - expected_ranks[symbol]) > 1e-12 for symbol in expected_ranks):
+            raise EngineInputError("point-in-time liquidity ranks differ from average-rank ties")
         if not isinstance(top_n_sets, Mapping) or str(top_n) not in top_n_sets:
             raise EngineInputError("registered PIT top-N roster was not compiled")
-        expected_roster = tuple(symbol for symbol, _ in sorted(ranks.items(), key=lambda item: (int(item[1]), str(item[0])))[:top_n])
+        expected_roster = tuple(symbol for symbol, rank in sorted(numeric_ranks.items(), key=lambda item: (item[1], item[0])) if rank <= top_n)
         if tuple(top_n_sets[str(top_n)]) != expected_roster:
             raise EngineInputError("registered PIT top-N roster differs from the bound rank ordering")
-        rank = ranks[self.symbol]
-        if not isinstance(rank, int) or rank < 1 or rank > top_n or self.symbol not in expected_roster:
+        rank = numeric_ranks[self.symbol]
+        if rank > top_n or self.symbol not in expected_roster:
             raise EngineInputError("symbol is outside the registered PIT liquidity top-N")
 
     def content_payload(self) -> dict[str, Any]:
@@ -320,6 +345,12 @@ def require_contiguous_5m(bars: Sequence[SignalBar]) -> None:
             raise EngineInputError("required five-minute history is not contiguous")
 
 
+def require_contiguous_daily(bars: Sequence[DailyBar]) -> None:
+    for left, right in zip(bars, bars[1:]):
+        if require_utc(right.close_ts) - require_utc(left.close_ts) != timedelta(days=1):
+            raise EngineInputError("required completed-daily history is not contiguous")
+
+
 __all__ = [
     "ContextInputs",
     "DailyBar",
@@ -331,4 +362,5 @@ __all__ = [
     "SignalBar",
     "ThresholdPopulation",
     "require_contiguous_5m",
+    "require_contiguous_daily",
 ]

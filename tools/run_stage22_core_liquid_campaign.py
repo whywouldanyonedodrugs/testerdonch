@@ -11,7 +11,7 @@ from typing import Any, Mapping
 
 from tools.core_liquid_campaign.campaign import CampaignContractError, CampaignOrchestrator
 from tools.core_liquid_campaign.executor import CacheAuthority, ExecutionAuthorization
-from tools.core_liquid_campaign.runtime import ResourceLimits, detached_service_spec
+from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceLimits, detached_service_spec, launch_detached_supervisor
 
 
 class TelegramTransport:
@@ -46,7 +46,7 @@ class TelegramTransport:
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(description="Run the exact hash-bound Stage 22 campaign under the persistent supervisor")
     sub = result.add_subparsers(dest="command", required=True)
-    for name in ("run", "service-spec"):
+    for name in ("run", "service-spec", "install-service"):
         command = sub.add_parser(name)
         command.add_argument("--manifest", type=Path, required=True)
         command.add_argument("--approval-request", type=Path, required=True)
@@ -55,16 +55,38 @@ def parser() -> argparse.ArgumentParser:
         command.add_argument("--run-root", type=Path, required=True)
         command.add_argument("--repository-root", type=Path, default=Path.cwd())
         command.add_argument("--workers", type=int, default=4)
+    canary = sub.add_parser("detached-canary")
+    canary.add_argument("--run-root", type=Path, required=True)
     return result
 
 
 def main() -> int:
     args = parser().parse_args()
+    if args.command == "detached-canary":
+        marker = args.run_root / "DETACHED_CANARY_COMPLETE"
+        def work() -> Mapping[str, Any]:
+            import time
+            time.sleep(1)
+            return {"registered_attempt_id": "detached-canary", "aggregate": {}, "status": "complete"}
+        state = LazySupervisor(
+            args.run_root, ResourceLimits(max_workers=1, max_jobs_in_flight=1, minimum_free_disk_bytes=1, minimum_free_disk_fraction=0),
+            real_unit_validator=lambda job, result: result.get("registered_attempt_id") == job,
+        ).run(iter([("detached-canary", work)]))
+        marker.write_text(json.dumps({"status": state["status"], "supervisor_pid": state["supervisor_pid"]}, sort_keys=True), encoding="utf-8")
+        return 0
     authorization = ExecutionAuthorization(args.manifest, args.approval_request, args.external_approval, args.repository_root)
     manifest = authorization.require()
-    limits = ResourceLimits(max_workers=args.workers, max_jobs_in_flight=args.workers)
-    if args.command == "service-spec":
+    limits = ResourceLimits(
+        max_workers=args.workers, max_jobs_in_flight=args.workers,
+        max_rss_bytes=10 * 1024**3, max_output_bytes=24 * 1024**3,
+        minimum_free_disk_bytes=8 * 1024**3, heartbeat_seconds=1800,
+        graceful_stop_seconds=300, wall_time_seconds=None,
+    )
+    if args.command in {"service-spec", "install-service"}:
         result = detached_service_spec(args.repository_root, args.run_root, __import__("hashlib").sha256(args.manifest.read_bytes()).hexdigest(), args.workers, manifest=args.manifest, approval_request=args.approval_request, external_approval=args.external_approval, cache_manifest=args.cache_manifest)
+        if args.command == "install-service":
+            installed = launch_detached_supervisor(result, Path.home() / ".config/systemd/user")
+            print(json.dumps(installed, sort_keys=True)); return 0
         print(json.dumps(result, sort_keys=True)); return 0
     telegram = TelegramTransport()
     if telegram.preflight() is not True:

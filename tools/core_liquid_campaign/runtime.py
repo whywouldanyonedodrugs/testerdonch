@@ -4,7 +4,10 @@ import errno
 import json
 import multiprocessing as mp
 import os
+import signal
 import shutil
+import subprocess
+import threading
 import time
 from collections import deque
 from dataclasses import asdict, dataclass
@@ -12,6 +15,7 @@ from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping, Sequence
 
 from .canonical import atomic_write_json, canonical_hash, sha256_file
+from .family_engines.common import EngineInputError
 
 
 class ResourceGateError(RuntimeError):
@@ -214,9 +218,35 @@ def resource_preflight(output_root: Path, limits: ResourceLimits, *, rss_sampler
     return {"rss_bytes": rss, "output_bytes": output, "free_disk_bytes": usage.free, "required_free_disk_bytes": required_free}
 
 
-def _process_target(send: Any, task: Callable[[], Any]) -> None:
+def _process_target(send: Any, task: Callable[[], Any], result_path: Path, job_id: str) -> None:
+    """Execute one job and persist its potentially large result before IPC.
+
+    The pipe carries only a small acknowledgement.  This removes the classic
+    child-send/parent-wait deadlock for production-sized ledgers.
+    """
+    # Forked workers must not inherit the supervisor's graceful-stop handler:
+    # terminate() must end the worker so it cannot commit after a bound stop.
+    signal.signal(signal.SIGTERM, signal.SIG_DFL)
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
     try:
-        send.send(("ok", task()))
+        result = task()
+        atomic_write_json(result_path, {"job_id": job_id, "result": result})
+        send.send(("committed", sha256_file(result_path), result_path.stat().st_size))
+    except EngineInputError as exc:
+        result = {
+            "status": "unavailable_data",
+            "error_type": type(exc).__name__,
+            "reason": str(exc),
+            "registered_job_id": job_id,
+            "registered_attempt_id": job_id.rsplit(":", 1)[-1],
+            "aggregate": {},
+            "observation_count": 0,
+            "event_ids": [],
+            "day_base_net_bps": {},
+            "materialization": "explicit_empty_unavailable_observation",
+        }
+        atomic_write_json(result_path, {"job_id": job_id, "result": result})
+        send.send(("unavailable", sha256_file(result_path), result_path.stat().st_size))
     except BaseException as exc:
         try:
             send.send(("error", type(exc).__name__, str(exc)))
@@ -232,6 +262,7 @@ class _Worker:
     task: Callable[[], Any]
     process: Any
     receiver: Any
+    result_path: Path
 
 
 class LazySupervisor:
@@ -246,18 +277,21 @@ class LazySupervisor:
         real_unit_validator: Callable[[str, Any], bool] | None = None,
         rss_sampler: Callable[[], int] = process_tree_rss,
         monotonic: Callable[[], float] = time.monotonic,
+        identity_bindings: Mapping[str, Any] | None = None,
     ) -> None:
         self.run_root = run_root; self.limits = limits
         self.heartbeat = heartbeat
         self.real_unit_validator = real_unit_validator or (lambda _job_id, _result: False)
         self.rss_sampler = rss_sampler; self.monotonic = monotonic
+        self.identity_bindings = dict(identity_bindings or {})
         self.state_path = run_root / "SUPERVISOR_STATE.json"
         self.marker_root = run_root / "markers"; self.artifact_root = run_root / "artifacts"
+        self.staging_root = run_root / "staging"
         self._ctx = mp.get_context("fork")
 
     def _load_state(self) -> dict[str, Any]:
         if not self.state_path.exists():
-            return {"schema": "stage22_supervisor_state_v3", "completed": {}, "failed": {}, "attempts": {}, "generation": 0, "status": "new", "heartbeat_count": 0, "heartbeat_success_count": 0, "first_real_unit_reconciled": False, "health_release": False, "consecutive_supervisor_restarts": 0}
+            return {"schema": "stage23_supervisor_state_v4", "completed": {}, "failed": {}, "attempts": {}, "generation": 0, "status": "new", "heartbeat_count": 0, "heartbeat_success_count": 0, "first_real_unit_reconciled": False, "health_release": False, "consecutive_supervisor_restarts": 0}
         return json.loads(self.state_path.read_text(encoding="utf-8"))
 
     def _save(self, state: Mapping[str, Any]) -> None:
@@ -270,9 +304,12 @@ class LazySupervisor:
         stem = canonical_hash({"job_id": job_id})
         return self.artifact_root / f"{stem}.json", self.marker_root / f"{stem}.json"
 
-    def _commit_result(self, job_id: str, result: Any, real_unit: bool) -> dict[str, Any]:
+    def _commit_staged_result(self, job_id: str, staged: Path, expected_sha256: str, real_unit: bool) -> dict[str, Any]:
         artifact, marker = self._paths(job_id)
-        atomic_write_json(artifact, {"job_id": job_id, "result": result})
+        if not staged.is_file() or sha256_file(staged) != expected_sha256:
+            raise ResourceGateError("worker result acknowledgement does not match staged bytes")
+        artifact.parent.mkdir(parents=True, exist_ok=True)
+        os.replace(staged, artifact)
         record = {"job_id": job_id, "artifact": artifact.relative_to(self.run_root).as_posix(), "artifact_sha256": sha256_file(artifact), "status": "complete", "reconciled_real_registered_unit": bool(real_unit)}
         atomic_write_json(marker, record)
         return record
@@ -291,9 +328,12 @@ class LazySupervisor:
 
     def _start(self, job_id: str, task: Callable[[], Any]) -> _Worker:
         receiver, sender = self._ctx.Pipe(duplex=False)
-        process = self._ctx.Process(target=_process_target, args=(sender, task), name=f"stage22-{canonical_hash(job_id)[:10]}")
+        self.staging_root.mkdir(parents=True, exist_ok=True)
+        result_path = self.staging_root / f"{canonical_hash({'job_id': job_id})}.json"
+        result_path.unlink(missing_ok=True)
+        process = self._ctx.Process(target=_process_target, args=(sender, task, result_path, job_id), name=f"stage23-{canonical_hash(job_id)[:10]}")
         process.start(); sender.close()
-        return _Worker(job_id, task, process, receiver)
+        return _Worker(job_id, task, process, receiver, result_path)
 
     def _stop_workers(self, workers: Mapping[str, _Worker]) -> None:
         deadline = time.monotonic() + self.limits.graceful_stop_seconds
@@ -316,21 +356,35 @@ class LazySupervisor:
         self._save(state)
         return state
 
-    def run(self, jobs: Iterable[tuple[str, Callable[[], Any]]], *, stop_after_completions: int | None = None) -> dict[str, Any]:
+    def run(self, jobs: Iterable[tuple[str, Callable[[], Any]]], *, stop_after_completions: int | None = None, require_health_release: bool = False) -> dict[str, Any]:
         self.limits.validate()
         iterator = iter(jobs)
         exhausted = False
         seen: set[str] = set()
         completed = self._reconcile_all()
         state = self._load_state(); failed = dict(state.get("failed", {})); attempts = {str(key): int(value) for key, value in state.get("attempts", {}).items()}
+        recorded_bindings = state.get("identity_bindings")
+        if recorded_bindings is not None and recorded_bindings != self.identity_bindings:
+            raise ResourceGateError("resume identity bindings do not match the persisted generation")
         pending: deque[tuple[str, Callable[[], Any]]] = deque(); retry_ready: dict[str, tuple[float, Callable[[], Any]]] = {}
         workers: dict[str, _Worker] = {}
         now = self.monotonic(); last_progress = now; last_heartbeat = now
-        state.update({"status": "running", "limits": asdict(self.limits), "completed": completed, "failed": failed, "attempts": attempts, "all_workers_stopped": False})
+        stop_signal: list[int | None] = [None]
+        prior_handlers: dict[int, Any] = {}
+        if threading.current_thread() is threading.main_thread():
+            for signum in (signal.SIGTERM, signal.SIGINT):
+                prior_handlers[signum] = signal.getsignal(signum)
+                signal.signal(signum, lambda received, _frame: stop_signal.__setitem__(0, received))
+        state.update({"status": "running", "limits": asdict(self.limits), "completed": completed, "failed": failed, "attempts": attempts, "all_workers_stopped": False, "service_identity": os.environ.get("SYSTEMD_UNIT") or os.environ.get("TMUX") or "foreground_canary", "launcher_pid": os.getppid(), "supervisor_pid": os.getpid(), "run_root": str(self.run_root), "identity_bindings": self.identity_bindings})
         self._save(state)
         try:
             while workers or pending or retry_ready or not exhausted:
-                resource_preflight(self.run_root, self.limits, rss_sampler=self.rss_sampler)
+                if stop_signal[0] is not None:
+                    state["exact_stop_signal"] = int(stop_signal[0])
+                    return self._bound_stop(workers, state, "global_resumable_bound_stop_signal")
+                resource = resource_preflight(self.run_root, self.limits, rss_sampler=self.rss_sampler)
+                state["peak_process_tree_rss_bytes"] = max(int(state.get("peak_process_tree_rss_bytes", 0)), int(resource["rss_bytes"]))
+                state["peak_output_bytes"] = max(int(state.get("peak_output_bytes", 0)), int(resource["output_bytes"]))
                 now = self.monotonic()
                 for job_id in sorted([key for key, (ready, _) in retry_ready.items() if ready <= now]):
                     _, task = retry_ready.pop(job_id); pending.append((job_id, task))
@@ -348,17 +402,25 @@ class LazySupervisor:
                     resource_preflight(self.run_root, self.limits, rss_sampler=self.rss_sampler)
                     job_id, task = pending.popleft(); attempts[job_id] = attempts.get(job_id, 0) + 1
                     workers[job_id] = self._start(job_id, task)
+                state.update({"queue_count": len(pending) + len(retry_ready), "in_flight_count": len(workers), "completed_count": len(completed), "worker_pids": sorted(worker.process.pid for worker in workers.values()), "resource_snapshot": resource})
                 progressed = False
                 for job_id in sorted(list(workers)):
                     worker = workers[job_id]
-                    if worker.process.is_alive():
+                    # Drain the tiny acknowledgement while the worker is live;
+                    # the large payload is already fsynced/renamed in staging.
+                    if not worker.receiver.poll() and worker.process.is_alive():
                         continue
-                    worker.process.join(); message = worker.receiver.recv() if worker.receiver.poll() else ("error", "WorkerProcessExit", f"exitcode={worker.process.exitcode}")
+                    message = worker.receiver.recv() if worker.receiver.poll() else ("error", "WorkerProcessExit", f"exitcode={worker.process.exitcode}")
+                    worker.process.join()
                     worker.receiver.close(); del workers[job_id]
-                    if message[0] == "ok":
-                        result = message[1]
+                    if message[0] in {"committed", "unavailable"}:
+                        envelope = json.loads(worker.result_path.read_text(encoding="utf-8"))
+                        if envelope.get("job_id") != job_id:
+                            raise ResourceGateError("worker staged a result for a different job")
+                        result = envelope["result"]
                         real_unit = bool(self.real_unit_validator(job_id, result))
-                        completed[job_id] = self._commit_result(job_id, result, real_unit); failed.pop(job_id, None)
+                        completed[job_id] = self._commit_staged_result(job_id, worker.result_path, str(message[1]), real_unit); failed.pop(job_id, None)
+                        state["last_committed_marker"] = completed[job_id]
                     elif attempts[job_id] <= len(self.limits.retry_delays_seconds):
                         retry_ready[job_id] = (self.monotonic() + self.limits.retry_delays_seconds[attempts[job_id] - 1], worker.task)
                     else:
@@ -372,12 +434,16 @@ class LazySupervisor:
                 if now - last_heartbeat >= self.limits.heartbeat_seconds:
                     if self.heartbeat is None:
                         raise ResourceGateError("scheduled heartbeat transport is not configured")
-                    payload = {"completed": len(completed), "failed": len(failed), "in_flight": len(workers), "generation": state.get("generation")}
+                    payload = {"health": "running", "stage_state": state.get("status"), "completed": len(completed), "failed": len(failed), "in_flight": len(workers), "generation": state.get("generation")}
                     delivered = self.heartbeat(payload)
                     state["heartbeat_count"] = int(state.get("heartbeat_count", 0)) + 1
                     if delivered is True:
                         state["heartbeat_success_count"] = int(state.get("heartbeat_success_count", 0)) + 1
+                        state["last_successful_heartbeat_monotonic"] = now
                     last_heartbeat = now; self._save(state)
+                successful_heartbeat = state.get("last_successful_heartbeat_monotonic")
+                if successful_heartbeat is not None and now - float(successful_heartbeat) > 3900:
+                    return self._bound_stop(workers, state, "global_resumable_bound_stop_heartbeat_stale")
                 state["first_real_unit_reconciled"] = any(record.get("reconciled_real_registered_unit") is True for record in completed.values())
                 state["health_release"] = state["first_real_unit_reconciled"] and int(state.get("heartbeat_success_count", 0)) >= 1
                 if now - last_progress > self.limits.no_progress_seconds and (pending or retry_ready or workers or not exhausted):
@@ -389,7 +455,23 @@ class LazySupervisor:
             unknown_markers = set(completed) - seen
             if unknown_markers:
                 raise ResourceGateError("reconciled marker belongs to a job absent from the complete lazy registry")
-            state.update({"completed": completed, "failed": failed, "attempts": attempts, "status": "complete" if not failed else "complete_with_family_job_exhaustion", "all_workers_stopped": True})
+            while require_health_release and not (any(record.get("reconciled_real_registered_unit") is True for record in completed.values()) and int(state.get("heartbeat_success_count", 0)) >= 1):
+                if self.heartbeat is None:
+                    raise ResourceGateError("health release requires scheduled heartbeat transport")
+                now = self.monotonic()
+                if now - last_heartbeat >= self.limits.heartbeat_seconds:
+                    payload = {"health": "awaiting_release", "stage_state": "work_complete", "completed": len(completed), "failed": len(failed), "in_flight": 0, "generation": state.get("generation")}
+                    delivered = self.heartbeat(payload)
+                    state["heartbeat_count"] = int(state.get("heartbeat_count", 0)) + 1
+                    if delivered is True:
+                        state["heartbeat_success_count"] = int(state.get("heartbeat_success_count", 0)) + 1
+                        state["last_successful_heartbeat_monotonic"] = now
+                    last_heartbeat = now; self._save(state)
+                if not any(record.get("reconciled_real_registered_unit") is True for record in completed.values()):
+                    raise ResourceGateError("health release requires one reconciled real registered unit")
+                if int(state.get("heartbeat_success_count", 0)) < 1:
+                    time.sleep(min(self.limits.monitor_interval_seconds, 0.05))
+            state.update({"completed": completed, "failed": failed, "attempts": attempts, "status": "complete" if not failed else "complete_with_family_job_exhaustion", "all_workers_stopped": True, "queue_count": 0, "in_flight_count": 0, "completed_count": len(completed), "retry_counts": attempts, "supervisor_pid": os.getpid(), "worker_pids": []})
             state["first_real_unit_reconciled"] = any(record.get("reconciled_real_registered_unit") is True for record in completed.values())
             state["health_release"] = state["first_real_unit_reconciled"] and int(state.get("heartbeat_success_count", 0)) >= 1
             self._save(state)
@@ -397,6 +479,9 @@ class LazySupervisor:
         except Exception:
             self._bound_stop(workers, state, "resource_or_common_failure_bound_stop")
             raise
+        finally:
+            for signum, handler in prior_handlers.items():
+                signal.signal(signum, handler)
 
 
 def detached_service_spec(repository_root: Path, run_root: Path, manifest_sha256: str, workers: int, *, manifest: Path, approval_request: Path, external_approval: Path, cache_manifest: Path) -> dict[str, Any]:
@@ -404,12 +489,54 @@ def detached_service_spec(repository_root: Path, run_root: Path, manifest_sha256
         raise ResourceGateError("invalid detached service binding")
     service_id = f"qlmg-stage22-{manifest_sha256[:12]}"
     command = [
-        "python3", "-m", "tools.run_stage22_core_liquid_campaign", "run",
+        str(repository_root / ".venv/bin/python"), "-m", "tools.run_stage22_core_liquid_campaign", "run",
         "--manifest", str(manifest), "--approval-request", str(approval_request),
         "--external-approval", str(external_approval), "--cache-manifest", str(cache_manifest),
         "--run-root", str(run_root), "--workers", str(workers),
     ]
-    return {"service_id": service_id, "working_directory": str(repository_root), "run_root": str(run_root), "workers": workers, "restart": "on-failure", "restart_limit": 3, "independent_of_chat": True, "exec_start": command, "environment": {"PYTHONPATH": None, "invocation": "repository-root python3 -m tools.run_stage22_core_liquid_campaign"}}
+    unit = "\n".join([
+        "[Unit]", "Description=QLMG Stage 23 reviewed campaign", "After=network-online.target",
+        "StartLimitIntervalSec=3600", "StartLimitBurst=3",
+        "[Service]", "Type=simple", f"WorkingDirectory={repository_root}",
+        "ExecStart=" + " ".join(command), "Restart=on-failure", "RestartSec=60",
+        "KillMode=control-group", "TimeoutStopSec=300", "NoNewPrivileges=true",
+        "[Install]", "WantedBy=default.target", "",
+    ])
+    return {"service_id": service_id, "working_directory": str(repository_root), "run_root": str(run_root), "workers": workers, "restart": "on-failure", "restart_limit": 3, "independent_of_chat": True, "exec_start": command, "systemd_user_unit": unit, "environment": {"PYTHONPATH": None, "invocation": "reviewed worktree .venv/bin/python -m tools.run_stage22_core_liquid_campaign"}}
+
+
+def install_detached_service(spec: Mapping[str, Any], unit_root: Path) -> Path:
+    """Install and start an exact reviewed systemd-user service."""
+    service_id = str(spec["service_id"])
+    if not service_id.startswith("qlmg-stage22-") or any(character not in "abcdefghijklmnopqrstuvwxyz0123456789-" for character in service_id):
+        raise ResourceGateError("unsafe detached service identity")
+    unit_root.mkdir(parents=True, exist_ok=True)
+    unit_path = unit_root / f"{service_id}.service"
+    unit_path.write_text(str(spec["systemd_user_unit"]), encoding="utf-8")
+    subprocess.run(["systemctl", "--user", "daemon-reload"], check=True)
+    subprocess.run(["systemctl", "--user", "enable", "--now", unit_path.name], check=True)
+    active = subprocess.run(["systemctl", "--user", "is-active", unit_path.name], check=False, capture_output=True, text=True)
+    if active.stdout.strip() != "active":
+        raise ResourceGateError("detached systemd-user service did not become active")
+    return unit_path
+
+
+def launch_detached_supervisor(spec: Mapping[str, Any], unit_root: Path) -> dict[str, Any]:
+    """Start the reviewed command independently through systemd or tmux."""
+    systemd_available = shutil.which("systemctl") is not None and subprocess.run(
+        ["systemctl", "--user", "show-environment"], check=False, capture_output=True,
+    ).returncode == 0
+    if systemd_available:
+        unit = install_detached_service(spec, unit_root)
+        return {"mechanism": "systemd_user", "service_identity": unit.name, "active": True, "independent_of_chat": True}
+    if shutil.which("tmux") is None:
+        raise ResourceGateError("neither systemd --user nor tmux is available for detached supervision")
+    service_id = str(spec["service_id"])
+    subprocess.run(["tmux", "new-session", "-d", "-s", service_id, *[str(value) for value in spec["exec_start"]]], check=True)
+    active = subprocess.run(["tmux", "has-session", "-t", service_id], check=False).returncode == 0
+    if not active:
+        raise ResourceGateError("detached tmux supervisor did not remain active")
+    return {"mechanism": "tmux", "service_identity": service_id, "active": True, "independent_of_chat": True}
 
 
 def synthetic_recovery_canary(root: Path) -> dict[str, Any]:
@@ -418,14 +545,14 @@ def synthetic_recovery_canary(root: Path) -> dict[str, Any]:
         def __call__(self) -> float:
             self.value += 1000.0
             return self.value
-    clock = Clock(); heartbeats: list[Mapping[str, Any]] = []
+    clock = Clock(); heartbeats: list[Mapping[str, Any]] = []; large = "x" * (2 * 1024 * 1024)
     retry_flag = root / "retry.flag"
     def flaky() -> int:
         if not retry_flag.exists():
             retry_flag.write_text("first worker exited\n", encoding="utf-8")
             raise RuntimeError("synthetic worker death")
-        return 7
-    jobs = [("stable-1", lambda: {"registered_attempt_id": "stable-1", "value": 1}), ("flaky", flaky), ("stable-2", lambda: {"registered_attempt_id": "stable-2", "value": 2})]
+        return {"registered_attempt_id": "flaky", "value": large}
+    jobs = [("stable-1", lambda: {"registered_attempt_id": "stable-1", "value": large}), ("flaky", flaky), ("stable-2", lambda: {"registered_attempt_id": "stable-2", "value": large})]
     limits = ResourceLimits(max_workers=2, max_jobs_in_flight=2, max_output_bytes=1024**3, minimum_free_disk_bytes=1, minimum_free_disk_fraction=0.0, heartbeat_seconds=1, monitor_interval_seconds=0.001)
     heartbeat = lambda payload: (heartbeats.append(payload) or True)
     validator = lambda job_id, result: isinstance(result, Mapping) and result.get("registered_attempt_id") == job_id
@@ -453,8 +580,9 @@ def synthetic_recovery_canary(root: Path) -> dict[str, Any]:
         "worker_death_retried": retry_flag.exists(), "heartbeat_delivered": bool(heartbeats), "health_release": bool(replay.get("health_release")),
         "continuous_resource_excursion_stopped": excursion_stopped, "all_stopped_before_bound_stop": no_late_write,
         "resource_excursion_idempotently_resumed": excursion_resumed["status"] == "complete", "idempotent": resumed["completed"] == replay["completed"],
+        "large_result_bytes": len(large),
         "pass": first["status"] == "graceful_bound_stop" and resumed["status"] == "complete" and replay["status"] == "complete" and len(replay["completed"]) == 3 and len(markers) == 3 and len(artifacts) == 3 and retry_flag.exists() and bool(heartbeats) and bool(replay.get("health_release")) and excursion_stopped and no_late_write and excursion_resumed["status"] == "complete",
     }
 
 
-__all__ = ["LazySupervisor", "ResourceGateError", "ResourceLimits", "detached_service_spec", "directory_size", "physical_memory_bytes", "process_tree_rss", "resource_preflight", "synthetic_recovery_canary"]
+__all__ = ["LazySupervisor", "ResourceGateError", "ResourceLimits", "detached_service_spec", "directory_size", "install_detached_service", "launch_detached_supervisor", "physical_memory_bytes", "process_tree_rss", "resource_preflight", "synthetic_recovery_canary"]

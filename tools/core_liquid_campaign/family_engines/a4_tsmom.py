@@ -5,7 +5,7 @@ from statistics import median
 from typing import Any, Mapping, Sequence
 
 from ..canonical import canonical_hash
-from ..engine_types import FamilyInput
+from ..engine_types import FamilyInput, require_contiguous_5m, require_contiguous_daily
 from .common import (
     EngineInputError,
     ema,
@@ -136,6 +136,8 @@ def _estimator_state(frame: FamilyInput, config: Mapping[str, Any], control_id: 
     required_5m = max(lookback * 288 + 289, vol_window * 288 + 1)
     if len(completed) < required_5m:
         raise EngineInputError("A4 completed five-minute history is incomplete")
+    required_completed = completed[-required_5m:]
+    require_contiguous_5m(required_completed)
     closes = [bar.close for bar in completed]
     highs = [bar.high for bar in completed]
     lows = [bar.low for bar in completed]
@@ -147,6 +149,7 @@ def _estimator_state(frame: FamilyInput, config: Mapping[str, Any], control_id: 
     available_daily = [bar for bar in frame.daily_bars if require_utc(bar.close_ts) < decision]
     if len(available_daily) < max(lookback, 21):
         raise EngineInputError("A4 prior daily range/ATR history is incomplete")
+    require_contiguous_daily(available_daily[-max(lookback, 21):])
     prior = available_daily[-lookback:]
     atr_bars = available_daily[-21:]
     atr20 = wilder_atr([bar.high for bar in atr_bars], [bar.low for bar in atr_bars], [bar.close for bar in atr_bars], 20)
@@ -257,6 +260,7 @@ def evaluate(
         raise EngineInputError("A4 entry open exceeds ten-minute lookup")
     atr_window = int(config["ATR_window_days_for_ATR_exits"] or 20)
     exit_atr_bars = available_daily[-(atr_window + 1):]
+    require_contiguous_daily(exit_atr_bars)
     exit_atr = wilder_atr([bar.high for bar in exit_atr_bars], [bar.low for bar in exit_atr_bars], [bar.close for bar in exit_atr_bars], atr_window)
     return [{
         "event_id": event_id(frame.symbol, decision.isoformat(), canonical_hash(config), side),
