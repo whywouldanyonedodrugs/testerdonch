@@ -18,7 +18,8 @@ class TelegramTransport:
     """Minimal secret-safe transport; tokens never enter artifacts or output."""
 
     def __init__(self) -> None:
-        token = os.environ.get("TELEGRAM_BOT_TOKEN"); chat_id = os.environ.get("TELEGRAM_CHAT_ID")
+        token = os.environ.get("TELEGRAM_BOT_TOKEN") or os.environ.get("DONCH_TG_BOT_TOKEN")
+        chat_id = os.environ.get("TELEGRAM_CHAT_ID") or os.environ.get("DONCH_TG_CHAT_ID")
         if not token or not chat_id:
             raise CampaignContractError("secure Telegram environment is not configured")
         self._token = token; self._chat_id = chat_id
@@ -34,7 +35,7 @@ class TelegramTransport:
 
     def preflight(self) -> bool:
         self._request("getMe", {})
-        self._request("sendMessage", {"chat_id": self._chat_id, "text": "Stage 22 secure preflight passed; no economic outcome is included."})
+        self._request("sendMessage", {"chat_id": self._chat_id, "text": "Stage 24 secure shadow preflight passed; no economic outcome or partial ranking is included."})
         return True
 
     def heartbeat(self, payload: Mapping[str, Any]) -> bool:
@@ -55,6 +56,7 @@ def parser() -> argparse.ArgumentParser:
         command.add_argument("--run-root", type=Path, required=True)
         command.add_argument("--repository-root", type=Path, default=Path.cwd())
         command.add_argument("--workers", type=int, default=4)
+        command.add_argument("--telegram-env-file", type=Path, default=Path("/opt/testerdonch/.telegram.env"))
     canary = sub.add_parser("detached-canary")
     canary.add_argument("--run-root", type=Path, required=True)
     return result
@@ -83,7 +85,7 @@ def main() -> int:
         graceful_stop_seconds=300, wall_time_seconds=None,
     )
     if args.command in {"service-spec", "install-service"}:
-        result = detached_service_spec(args.repository_root, args.run_root, __import__("hashlib").sha256(args.manifest.read_bytes()).hexdigest(), args.workers, manifest=args.manifest, approval_request=args.approval_request, external_approval=args.external_approval, cache_manifest=args.cache_manifest)
+        result = detached_service_spec(args.repository_root, args.run_root, __import__("hashlib").sha256(args.manifest.read_bytes()).hexdigest(), args.workers, manifest=args.manifest, approval_request=args.approval_request, external_approval=args.external_approval, cache_manifest=args.cache_manifest, telegram_env_file=args.telegram_env_file)
         if args.command == "install-service":
             installed = launch_detached_supervisor(result, Path.home() / ".config/systemd/user")
             print(json.dumps(installed, sort_keys=True)); return 0

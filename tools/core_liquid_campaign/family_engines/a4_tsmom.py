@@ -121,6 +121,15 @@ def _mad_scaled(value: float, population: Sequence[float]) -> float:
     return (winsorized - center) / mad
 
 
+def _population(frame: FamilyInput, name: str):
+    try:
+        population = frame.threshold_populations[name]
+    except KeyError as exc:
+        raise EngineInputError(f"missing threshold population: {name}") from exc
+    population.validate(decision_ts=frame.decision_ts)
+    return population
+
+
 def _estimator_state(frame: FamilyInput, config: Mapping[str, Any], control_id: str | None = None) -> dict[str, Any] | None:
     """Compute the pre-return A4 estimator state for one registered decision."""
     frame.validate()
@@ -170,8 +179,7 @@ def _estimator_state(frame: FamilyInput, config: Mapping[str, Any], control_id: 
         names = ("signed_return", "ema_slope") if control_id == "A4_PATH_COMPONENT_REMOVED" else tuple(raw_components)
         ensemble = []
         for name in names:
-            population = frame.threshold_populations[ensemble_population_key(name, lookback, str(config["volatility_estimator"]))]
-            population.validate(decision_ts=decision)
+            population = _population(frame, ensemble_population_key(name, lookback, str(config["volatility_estimator"])))
             ensemble.append(_mad_scaled(raw_components[name], population.values))
     scalar_input = ema_closes if estimator_config["signal_estimator"] == "ema_slope" else return_closes
     scalar = signal_scalar(
@@ -238,8 +246,7 @@ def evaluate(
     if config["path_smoothness_quantile_min"] != "none" and control_id != "A4_PATH_COMPONENT_REMOVED" and not generic_signed:
         expected = lookback * 288
         smoothness = path_smoothness(closes[-(expected + 1):])
-        population = frame.threshold_populations[smoothness_population_key(lookback)]
-        population.validate(decision_ts=decision)
+        population = _population(frame, smoothness_population_key(lookback))
         _, passes = percentile_from_population(smoothness, population.values, str(config["path_smoothness_quantile_min"]))
         if not passes:
             return []

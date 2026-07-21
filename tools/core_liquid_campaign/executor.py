@@ -607,8 +607,16 @@ def dispatch_registered_attempt(
             frame.validate()
             directive = None if control_directives is None else control_directives.get(frame.content_sha256())
             generated_work.extend((frame, event) for event in _generate_events(family, frame, config, control_id, directive))
+        generated_work = sorted(
+            generated_work,
+            key=lambda item: (
+                item[0].symbol,
+                require_utc(item[1]["decision_ts"]),
+                str(item[1].get("event_id", "")),
+            ),
+        )
         if family == "A4_TSMOM_V7" and config.get("exit") == "signal_reversal":
-            ordered_work = sorted(generated_work, key=lambda item: (item[0].symbol, require_utc(item[1]["decision_ts"])))
+            ordered_work = generated_work
             for index, (frame, event) in enumerate(ordered_work):
                 reversal = next((require_utc(later[1]["decision_ts"]) for later in ordered_work[index + 1:] if later[0].symbol == frame.symbol and int(later[1]["side"]) == -int(event["side"])), None)
                 event["signal_reversal_close_ts"] = () if reversal is None else (reversal,)

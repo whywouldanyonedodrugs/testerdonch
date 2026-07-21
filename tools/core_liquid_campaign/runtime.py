@@ -6,6 +6,7 @@ import multiprocessing as mp
 import os
 import signal
 import shutil
+import shlex
 import subprocess
 import threading
 import time
@@ -484,31 +485,78 @@ class LazySupervisor:
                 signal.signal(signum, handler)
 
 
-def detached_service_spec(repository_root: Path, run_root: Path, manifest_sha256: str, workers: int, *, manifest: Path, approval_request: Path, external_approval: Path, cache_manifest: Path) -> dict[str, Any]:
+def detached_service_spec(repository_root: Path, run_root: Path, manifest_sha256: str, workers: int, *, manifest: Path, approval_request: Path, external_approval: Path, cache_manifest: Path, telegram_env_file: Path = Path("/opt/testerdonch/.telegram.env")) -> dict[str, Any]:
     if workers > 4 or not all(character in "0123456789abcdef" for character in manifest_sha256) or len(manifest_sha256) != 64:
         raise ResourceGateError("invalid detached service binding")
     service_id = f"qlmg-stage22-{manifest_sha256[:12]}"
+    if not telegram_env_file.is_file():
+        raise ResourceGateError("Telegram environment file is absent")
+    secret_stat = telegram_env_file.stat()
+    if secret_stat.st_uid != os.getuid() or secret_stat.st_mode & 0o077:
+        raise ResourceGateError("Telegram environment file owner/mode is unsafe")
     command = [
         str(repository_root / ".venv/bin/python"), "-m", "tools.run_stage22_core_liquid_campaign", "run",
         "--manifest", str(manifest), "--approval-request", str(approval_request),
         "--external-approval", str(external_approval), "--cache-manifest", str(cache_manifest),
-        "--run-root", str(run_root), "--workers", str(workers),
+        "--run-root", str(run_root), "--repository-root", str(repository_root), "--workers", str(workers),
     ]
     unit = "\n".join([
         "[Unit]", "Description=QLMG Stage 23 reviewed campaign", "After=network-online.target",
         "StartLimitIntervalSec=3600", "StartLimitBurst=3",
         "[Service]", "Type=simple", f"WorkingDirectory={repository_root}",
-        "ExecStart=" + " ".join(command), "Restart=on-failure", "RestartSec=60",
+        f"EnvironmentFile={telegram_env_file}",
+        "ExecStart=" + shlex.join(command), "Restart=on-failure", "RestartSec=60",
         "KillMode=control-group", "TimeoutStopSec=300", "NoNewPrivileges=true",
         "[Install]", "WantedBy=default.target", "",
     ])
-    return {"service_id": service_id, "working_directory": str(repository_root), "run_root": str(run_root), "workers": workers, "restart": "on-failure", "restart_limit": 3, "independent_of_chat": True, "exec_start": command, "systemd_user_unit": unit, "environment": {"PYTHONPATH": None, "invocation": "reviewed worktree .venv/bin/python -m tools.run_stage22_core_liquid_campaign"}}
+    return {"service_id": service_id, "working_directory": str(repository_root), "run_root": str(run_root), "workers": workers, "restart": "on-failure", "restart_limit": 3, "independent_of_chat": True, "exec_start": command, "systemd_user_unit": unit, "telegram_environment": {"path": str(telegram_env_file), "owner_uid": secret_stat.st_uid, "mode": oct(secret_stat.st_mode & 0o777), "contents_recorded": False}, "environment": {"PYTHONPATH": None, "invocation": "reviewed worktree .venv/bin/python -m tools.run_stage22_core_liquid_campaign"}}
+
+
+def detached_shadow_service_spec(repository_root: Path, run_root: Path, spec_path: Path, spec_sha256: str, *, telegram_env_file: Path = Path("/opt/testerdonch/.telegram.env")) -> dict[str, Any]:
+    if len(spec_sha256) != 64 or any(character not in "0123456789abcdef" for character in spec_sha256):
+        raise ResourceGateError("invalid shadow service specification hash")
+    if not spec_path.is_file() or sha256_file(spec_path) != spec_sha256:
+        raise ResourceGateError("shadow service specification bytes differ")
+    if not telegram_env_file.is_file():
+        raise ResourceGateError("Telegram environment file is absent")
+    secret_stat = telegram_env_file.stat()
+    if secret_stat.st_uid != os.getuid() or secret_stat.st_mode & 0o077:
+        raise ResourceGateError("Telegram environment file owner/mode is unsafe")
+    service_id = f"qlmg-stage24-shadow-{spec_sha256[:12]}"
+    command = [
+        str(repository_root / ".venv/bin/python"),
+        "-m",
+        "tools.core_liquid_campaign.shadow_service",
+        "--spec",
+        str(spec_path),
+    ]
+    unit = "\n".join([
+        "[Unit]", "Description=QLMG Stage 24 reviewed production shadow", "After=network-online.target",
+        "StartLimitIntervalSec=3600", "StartLimitBurst=3",
+        "[Service]", "Type=simple", f"WorkingDirectory={repository_root}",
+        f"EnvironmentFile={telegram_env_file}", "ExecStart=" + shlex.join(command),
+        "Restart=on-failure", "RestartSec=60", "KillMode=control-group", "TimeoutStopSec=300",
+        "NoNewPrivileges=true", "[Install]", "WantedBy=default.target", "",
+    ])
+    return {
+        "service_id": service_id,
+        "working_directory": str(repository_root),
+        "run_root": str(run_root),
+        "workers": 1,
+        "restart": "on-failure",
+        "restart_limit": 3,
+        "independent_of_chat": True,
+        "exec_start": command,
+        "systemd_user_unit": unit,
+        "telegram_environment": {"path": str(telegram_env_file), "owner_uid": secret_stat.st_uid, "mode": oct(secret_stat.st_mode & 0o777), "contents_recorded": False},
+        "environment": {"PYTHONPATH": None, "invocation": "reviewed worktree .venv/bin/python -m tools.core_liquid_campaign.shadow_service"},
+    }
 
 
 def install_detached_service(spec: Mapping[str, Any], unit_root: Path) -> Path:
     """Install and start an exact reviewed systemd-user service."""
     service_id = str(spec["service_id"])
-    if not service_id.startswith("qlmg-stage22-") or any(character not in "abcdefghijklmnopqrstuvwxyz0123456789-" for character in service_id):
+    if not service_id.startswith(("qlmg-stage22-", "qlmg-stage24-shadow-")) or any(character not in "abcdefghijklmnopqrstuvwxyz0123456789-" for character in service_id):
         raise ResourceGateError("unsafe detached service identity")
     unit_root.mkdir(parents=True, exist_ok=True)
     unit_path = unit_root / f"{service_id}.service"
@@ -532,11 +580,26 @@ def launch_detached_supervisor(spec: Mapping[str, Any], unit_root: Path) -> dict
     if shutil.which("tmux") is None:
         raise ResourceGateError("neither systemd --user nor tmux is available for detached supervision")
     service_id = str(spec["service_id"])
-    subprocess.run(["tmux", "new-session", "-d", "-s", service_id, *[str(value) for value in spec["exec_start"]]], check=True)
-    active = subprocess.run(["tmux", "has-session", "-t", service_id], check=False).returncode == 0
+    environment = os.environ.copy()
+    env_path = Path(str(spec.get("telegram_environment", {}).get("path", "")))
+    if not env_path.is_file():
+        raise ResourceGateError("Telegram environment is absent for tmux fallback")
+    for raw in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        if "=" not in line:
+            raise ResourceGateError("Telegram environment file has an invalid declaration")
+        key, value = line.split("=", 1)
+        if key not in {"TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "DONCH_TG_BOT_TOKEN", "DONCH_TG_CHAT_ID"}:
+            raise ResourceGateError("Telegram environment file contains an undeclared key")
+        environment[key] = value.strip().strip("\"'")
+    socket_name = f"{service_id}-socket"
+    subprocess.run(["tmux", "-L", socket_name, "new-session", "-d", "-s", service_id, *[str(value) for value in spec["exec_start"]]], check=True, env=environment)
+    active = subprocess.run(["tmux", "-L", socket_name, "has-session", "-t", service_id], check=False, env=environment).returncode == 0
     if not active:
         raise ResourceGateError("detached tmux supervisor did not remain active")
-    return {"mechanism": "tmux", "service_identity": service_id, "active": True, "independent_of_chat": True}
+    return {"mechanism": "tmux", "service_identity": service_id, "tmux_socket": socket_name, "active": True, "independent_of_chat": True}
 
 
 def synthetic_recovery_canary(root: Path) -> dict[str, Any]:
@@ -593,4 +656,4 @@ def synthetic_recovery_canary(root: Path) -> dict[str, Any]:
     }
 
 
-__all__ = ["LazySupervisor", "ResourceGateError", "ResourceLimits", "detached_service_spec", "directory_size", "install_detached_service", "launch_detached_supervisor", "physical_memory_bytes", "process_tree_rss", "resource_preflight", "synthetic_recovery_canary"]
+__all__ = ["LazySupervisor", "ResourceGateError", "ResourceLimits", "detached_service_spec", "detached_shadow_service_spec", "directory_size", "install_detached_service", "launch_detached_supervisor", "physical_memory_bytes", "process_tree_rss", "resource_preflight", "synthetic_recovery_canary"]

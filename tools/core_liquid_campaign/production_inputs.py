@@ -70,9 +70,9 @@ def _valid_daily(bars: Sequence[SignalBar]) -> tuple[DailyBar, ...]:
     rows = []
     for day, members in sorted(grouped.items()):
         members = sorted(members, key=lambda item: item.open_ts)
-        if len(members) != 288 or members[0].open_ts != day or members[-1].open_ts != day + timedelta(hours=23, minutes=55):
+        if len(members) < 274 or members[0].open_ts != day or members[-1].open_ts != day + timedelta(hours=23, minutes=55):
             continue
-        if any(right.open_ts - left.open_ts != timedelta(minutes=5) for left, right in zip(members, members[1:])):
+        if any(right.open_ts - left.open_ts > timedelta(minutes=20) for left, right in zip(members, members[1:])):
             continue
         close_ts = day + timedelta(days=1)
         rows.append(DailyBar(
@@ -174,11 +174,13 @@ def _thresholds(
     bars_by_symbol: Mapping[str, Sequence[SignalBar]],
     daily_by_symbol: Mapping[str, Sequence[DailyBar]],
     *,
+    target: str,
     training_start: datetime,
     training_end: datetime,
 ) -> tuple[dict[str, ThresholdPopulation], list[dict[str, Any]]]:
     symbols = tuple(sorted(bars_by_symbol))
-    target = "PF_XBTUSD"
+    if target not in bars_by_symbol or target not in daily_by_symbol:
+        raise ProductionInputError(f"threshold target is absent: {target}")
     target_bars = tuple(bar for bar in bars_by_symbol[target] if training_start <= bar.open_ts and bar.close_ts < training_end)
     target_daily = tuple(bar for bar in daily_by_symbol[target] if training_start < bar.close_ts < training_end)
     result: dict[str, ThresholdPopulation] = {}
@@ -430,7 +432,7 @@ class ProductionFamilyInputBuilder:
         matrix: list[dict[str, Any]] = []
         feature_audit: list[dict[str, Any]] = []
         available_feature_signatures: set[str] = set()
-        threshold_cache: dict[tuple[datetime, datetime], tuple[dict[str, ThresholdPopulation], list[dict[str, Any]]]] = {}
+        threshold_cache: dict[tuple[datetime, datetime, str], tuple[dict[str, ThresholdPopulation], list[dict[str, Any]]]] = {}
         partitions: list[dict[str, Any]] = []
         for outer in fold_graph["outer_folds"]:
             evaluation_start = _utc(outer["outer_evaluation_start"]); evaluation_end = _utc(outer["outer_evaluation_end_exclusive"])
@@ -446,23 +448,27 @@ class ProductionFamilyInputBuilder:
             decision = partition_with_decision["decision"]
             training_start = partition["training_start"]; training_end = partition["training_end_exclusive"]
             snapshot = _snapshot(pit_rows, decision)
-            threshold_key = (training_start, training_end)
-            if threshold_key not in threshold_cache:
-                threshold_cache[threshold_key] = _thresholds(full_bars, daily, training_start=training_start, training_end=training_end)
-            populations, unavailable = threshold_cache[threshold_key]
-            available_feature_signatures.update(populations)
-            feature_audit.extend({
-                "phase": partition["phase"],
-                "outer_fold_id": partition["outer_fold_id"],
-                "inner_fold_id": partition["inner_fold_id"],
-                **item,
-            } for item in unavailable)
             history_start = decision - timedelta(days=181)
-            probe_bars = tuple(bar for bar in full_bars["PF_XBTUSD"] if history_start <= bar.open_ts <= decision)
-            if not probe_bars or probe_bars[-1].open_ts != decision:
-                raise ProductionInputError("real entry schedule open is absent")
             frame_hashes: dict[str, str] = {}
             for symbol in selected_symbols:
+                threshold_key = (training_start, training_end, symbol)
+                if threshold_key not in threshold_cache:
+                    threshold_cache[threshold_key] = _thresholds(
+                        full_bars,
+                        daily,
+                        target=symbol,
+                        training_start=training_start,
+                        training_end=training_end,
+                    )
+                populations, unavailable = threshold_cache[threshold_key]
+                available_feature_signatures.update(populations)
+                feature_audit.extend({
+                    "phase": partition["phase"],
+                    "outer_fold_id": partition["outer_fold_id"],
+                    "inner_fold_id": partition["inner_fold_id"],
+                    "symbol": symbol,
+                    **item,
+                } for item in unavailable)
                 symbol_probe_bars = tuple(
                     bar for bar in full_bars[symbol]
                     if history_start <= bar.open_ts <= decision

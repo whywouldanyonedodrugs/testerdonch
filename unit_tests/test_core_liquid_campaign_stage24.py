@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -10,15 +11,48 @@ from tools.core_liquid_campaign.canonical import atomic_write_json, canonical_ha
 from tools.core_liquid_campaign.a1_state import initial_state, transition
 from tools.core_liquid_campaign.family_engines.common import EngineInputError, weak_percentile, weak_percentile_prevalidated_sorted
 from tools.core_liquid_campaign.campaign import CampaignOrchestrator
-from tools.core_liquid_campaign.controls import CONTROL_IDS, derive_control_inputs
+from tools.core_liquid_campaign.controls import CONTROL_IDS, derive_control_inputs, execute_control
 from tools.core_liquid_campaign.executor import dispatch_registered_attempt
-from tools.core_liquid_campaign.schema import CAMPAIGN_ID, baseline_config, economic_address
+from tools.core_liquid_campaign.schema import CAMPAIGN_ID, baseline_config, economic_address, normalize_config
 from tools.core_liquid_campaign.shadow_payoff import ShadowPayoffProvider
-from tools.core_liquid_campaign.synthetic import a4_frame, frame_for_family
+from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame, a4_frame, frame_for_family
 from tools.core_liquid_campaign.terminal import TerminalContractError, terminal_package, verify_terminal_inventory
 
 
 class Stage24KnownDefectTests(unittest.TestCase):
+    @staticmethod
+    def _attempt(family: str, attempt_id: str) -> dict[str, object]:
+        config = normalize_config(family, baseline_config(family))
+        return {
+            "campaign_id": CAMPAIGN_ID,
+            "family_id": family,
+            "config": config,
+            "execution_disposition": "execute_once",
+            "executable_attempt_id": attempt_id,
+            "canonical_economic_address_sha256": economic_address(family, config)[1],
+            "duplicate_of_executable_attempt_id": None,
+        }
+
+    @staticmethod
+    def _control_result_signature(result: dict[str, object]) -> str:
+        def serializable(value: object) -> object:
+            if isinstance(value, datetime):
+                return value.isoformat()
+            if isinstance(value, dict):
+                return {str(key): serializable(item) for key, item in value.items()}
+            if isinstance(value, (list, tuple)):
+                return [serializable(item) for item in value]
+            return value
+
+        observations = result.get("observations", ())
+        return canonical_hash(serializable({
+            "status": result.get("status"),
+            "event_ids": sorted(item.event_id for item in observations),
+            "ledger": result.get("ledger", ()),
+            "aggregate": result.get("aggregate", {}),
+            "allocation_unavailable": result.get("allocation_unavailable", ()),
+        }))
+
     def test_prevalidated_percentile_is_exactly_equivalent(self) -> None:
         population = tuple(float(index % 37) for index in range(100))
         ordered = tuple(sorted(population))
@@ -114,6 +148,83 @@ class Stage24KnownDefectTests(unittest.TestCase):
                 self.assertEqual(transformed, frames, control_id)
                 self.assertEqual(directives, {}, control_id)
                 self.assertEqual(unavailable, [], control_id)
+
+    def test_all_twenty_controls_execute_nonempty_and_replay_invariant(self) -> None:
+        utc = timezone.utc
+        anchors = (datetime(2025, 6, 1, tzinfo=utc), datetime(2025, 6, 15, tzinfo=utc))
+        fixtures: dict[str, tuple[dict[str, object], list[object], dict[str, dict[str, object]], dict[str, object] | None]] = {}
+        a4 = self._attempt("A4_TSMOM_V7", "parent-a4")
+        fixtures["A4_TSMOM_V7"] = (
+            a4,
+            [a4_frame(a4["config"], signal_sign=1, anchor=anchors[0]), a4_frame(a4["config"], signal_sign=-1, anchor=anchors[1])],
+            {"parent-a4": a4},
+            None,
+        )
+        a1 = self._attempt("A1_COMPRESSION_V2", "parent-a1")
+        fixtures["A1_COMPRESSION_V2"] = (
+            a1,
+            [a1_frame(a1["config"], anchor=anchors[0]), a1_frame(a1["config"], anchor=anchors[1])],
+            {"parent-a1": a1},
+            None,
+        )
+        a3 = self._attempt("A3_STARTER_RETEST_V3", "parent-a3")
+        fixtures["A3_STARTER_RETEST_V3"] = (
+            a3,
+            [a3_frame(a3["config"], anchor=anchors[0]), a3_frame(a3["config"], anchor=anchors[1])],
+            {"parent-a3": a3},
+            None,
+        )
+        a2_parent = self._attempt("A1_COMPRESSION_V2", "a2-parent")
+        a2_config = normalize_config("A2_PRIOR_HIGH_RS_CONTEXT_V1", baseline_config("A2_PRIOR_HIGH_RS_CONTEXT_V1"))
+        template = canonical_hash({"mode": "beam_slot", "parent_slot": "A1_COMPRESSION_V2:2024Q1:beam:01"})
+        a2 = {
+            "campaign_id": CAMPAIGN_ID, "family_id": "A2_PRIOR_HIGH_RS_CONTEXT_V1",
+            "config": a2_config, "execution_disposition": "execute_if_parent_available",
+            "executable_attempt_id": "parent-a2", "canonical_economic_address_sha256": economic_address("A2_PRIOR_HIGH_RS_CONTEXT_V1", a2_config)[1],
+            "duplicate_of_executable_attempt_id": None, "parent_binding_template_id": template,
+            "parent_only_counterpart_id": "parent-only", "overlay_counterpart_id": "overlay",
+        }
+        first = a1_frame(a2_parent["config"], anchor=anchors[0])
+        second = a1_frame(a2_parent["config"], anchor=anchors[1])
+        by_lookback = {key: dict(value) for key, value in second.context.cross_section_returns_by_lookback.items()}
+        by_lookback[20][second.symbol] = -0.08
+        second_context = replace(
+            second.context,
+            cross_section_returns=dict(by_lookback[20]),
+            cross_section_returns_by_lookback=by_lookback,
+            source_sha256=canonical_hash({"stage24_control_fixture": "second_context"}),
+        )
+        second = replace(second, context=second_context)
+        binding = {
+            "parent_binding_template_id": template, "parent_executable_attempt_id": "a2-parent",
+            "parent_only_counterpart_id": "parent-only", "overlay_counterpart_id": "overlay",
+        }
+        fixtures["A2_PRIOR_HIGH_RS_CONTEXT_V1"] = (a2, [first, second], {"parent-a2": a2, "a2-parent": a2_parent}, binding)
+
+        executed = []
+        for family, control_ids in CONTROL_IDS.items():
+            parent, frames, registry, binding = fixtures[family]
+            for control_id in control_ids:
+                seed = 3 if control_id in {"A4_SIGN_PERMUTED_MAIN_NULL", "A2_CONTEXT_PERMUTED_MAIN_NULL", "A3_RETEST_TIME_PERMUTED_MAIN_NULL"} else 1
+                control = {
+                    "family": family, "control_id": control_id, "effective_seed": seed,
+                    "economic_address_sha256": canonical_hash({"control": control_id}),
+                    "control_attempt_id": f"stage24-{control_id}", "execution_status": "execute_once",
+                }
+                kwargs = {
+                    "registry_by_id": registry,
+                    "payoff_provider": ShadowPayoffProvider("stage24-all-controls"),
+                }
+                if binding is not None:
+                    kwargs.update({"parent_binding": binding, "parent_frames": frames})
+                forward = execute_control(control, parent, frames, **kwargs)
+                reverse = execute_control(control, parent, list(reversed(frames)), **kwargs)
+                self.assertEqual("complete", forward["status"], control_id)
+                self.assertGreater(len(forward["observations"]), 0, control_id)
+                self.assertEqual(self._control_result_signature(forward), self._control_result_signature(reverse), control_id)
+                executed.append(control_id)
+        self.assertEqual(20, len(executed))
+        self.assertEqual(20, len(set(executed)))
 
     def test_missing_a2_parent_is_an_explicit_empty_fold_not_a_crash(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
