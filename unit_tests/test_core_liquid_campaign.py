@@ -532,7 +532,7 @@ class RuntimeAuthorityAndReviewTests(unittest.TestCase):
             root = Path(raw); subprocess.run(["git", "init", "-q", str(root)], check=True); subprocess.run(["git", "-C", str(root), "config", "user.email", "test@example.invalid"], check=True); subprocess.run(["git", "-C", str(root), "config", "user.name", "Test"], check=True)
             code = root / "tools/core_liquid_campaign/code.py"; code.parent.mkdir(parents=True); code.write_text("x=1\n", encoding="utf-8")
             for relative in (
-                "tools/build_stage22_core_liquid_campaign.py", "tools/build_stage23_final_packet.py",
+                "tools/build_stage22_core_liquid_campaign.py", "tools/build_stage23_final_packet.py", "tools/build_stage24_final_packet.py",
                 "tools/run_stage22_core_liquid_campaign.py", "unit_tests/test_core_liquid_campaign.py",
                 "unit_tests/test_core_liquid_campaign_stage23.py", "unit_tests/test_core_liquid_campaign_stage24.py",
             ):
