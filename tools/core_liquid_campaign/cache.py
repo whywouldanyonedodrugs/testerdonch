@@ -334,16 +334,18 @@ class SemanticCacheWriter:
                 if relative_path.is_absolute() or ".." in relative_path.parts:
                     raise CacheBuildError("external threshold component path is unsafe")
                 physical = self.cache_root / relative_path
-                if not physical.is_file() or sha256_file(physical) != expected_hash:
-                    raise CacheBuildError("external threshold component bytes differ")
                 component = {
-                    "path": relative_path.as_posix(), "bytes": physical.stat().st_size,
+                    "path": relative_path.as_posix(), "bytes": physical.stat().st_size if physical.is_file() else -1,
                     "sha256": expected_hash, "encoding": encoding,
                     "shared_content_sha256": canonical_hash({"path": relative_path.as_posix(), "sha256": expected_hash, "encoding": encoding}),
                 }
                 previous = self.components.get(relative_path.as_posix())
-                if previous is not None and previous != component:
-                    raise CacheBuildError("external threshold component identity conflicts")
+                if previous is not None:
+                    if previous != component:
+                        raise CacheBuildError("external threshold component identity conflicts")
+                    continue
+                if not physical.is_file() or sha256_file(physical) != expected_hash:
+                    raise CacheBuildError("external threshold component bytes differ")
                 self.components[relative_path.as_posix()] = component
         payload = frame.content_payload()
         content_hash = canonical_hash(payload)

@@ -109,7 +109,7 @@ def _valid_daily(bars: Sequence[SignalBar]) -> tuple[DailyBar, ...]:
         members = sorted(members, key=lambda item: item.open_ts)
         if len(members) < 274 or members[0].open_ts != day or members[-1].open_ts != day + timedelta(hours=23, minutes=55):
             continue
-        if any(right.open_ts - left.open_ts > timedelta(minutes=20) for left, right in zip(members, members[1:])):
+        if any(right.open_ts - left.open_ts > timedelta(minutes=15) for left, right in zip(members, members[1:])):
             continue
         close_ts = day + timedelta(days=1)
         rows.append(DailyBar(
@@ -148,6 +148,56 @@ def _load_trade_bars(parts: Sequence[SourcePart], start: datetime, end: datetime
         open_ts = datetime.fromtimestamp(timestamp / 1000, tz=UTC); close_ts = open_ts + timedelta(minutes=5)
         output.append(SignalBar(open_ts, close_ts, open_price, high, low, close, close_ts, close_ts, True, True, close * volume))
     return tuple(output)
+
+
+def _load_daily_bars(parts: Sequence[SourcePart], start: datetime, end: datetime) -> tuple[DailyBar, ...]:
+    """Load valid daily OHLC directly, without retaining millions of bar objects."""
+    import numpy as np
+    import pyarrow.parquet as pq
+
+    start_ms = int(start.timestamp() * 1000); end_ms = int(end.timestamp() * 1000)
+    chunks: list[tuple[Any, ...]] = []
+    previous_time: int | None = None; previous_values: tuple[float, ...] | None = None
+    for part in parts:
+        if part.dataset != "historical_trade_candles_5m":
+            continue
+        parquet = pq.ParquetFile(part.path)
+        if set(parquet.schema_arrow.names) != ALLOWED_CANDLE_COLUMNS:
+            continue
+        table = pq.read_table(part.path, columns=["time", "open", "high", "low", "close"], filters=[("time", ">=", start_ms), ("time", "<", end_ms)])
+        if not len(table):
+            continue
+        arrays = [table[name].combine_chunks().to_numpy(zero_copy_only=False) for name in ("time", "open", "high", "low", "close")]
+        times = arrays[0].astype("<i8", copy=False); values = [array.astype("<f8", copy=False) for array in arrays[1:]]
+        offset = 0
+        current_first = tuple(float(array[0]) for array in values)
+        if previous_time is not None and int(times[0]) == previous_time:
+            if current_first != previous_values:
+                raise ProductionInputError("overlapping trade parts disagree")
+            offset = 1
+        elif previous_time is not None and int(times[0]) < previous_time:
+            raise ProductionInputError("trade parts overlap beyond their shared boundary")
+        chunks.append((times[offset:], *(array[offset:] for array in values)))
+        previous_time = int(times[-1]); previous_values = tuple(float(array[-1]) for array in values)
+    if not chunks:
+        return ()
+    columns = [np.concatenate([chunk[index] for chunk in chunks]) for index in range(5)]
+    times, opens, highs, lows, closes = columns
+    days = times // 86_400_000
+    unique_days, begins, counts = np.unique(days, return_index=True, return_counts=True)
+    result = []
+    for day, begin, count in zip(unique_days, begins, counts):
+        begin = int(begin); count = int(count); stop = begin + count
+        selected_times = times[begin:stop]
+        day_open_ms = int(day) * 86_400_000
+        if count < 274 or int(selected_times[0]) != day_open_ms or int(selected_times[-1]) != day_open_ms + 86_100_000 or (len(selected_times) > 1 and int(np.diff(selected_times).max()) > 900_000):
+            continue
+        close_ts = datetime.fromtimestamp((day_open_ms + 86_400_000) / 1000, tz=UTC)
+        result.append(DailyBar(
+            close_ts, float(opens[begin]), float(np.max(highs[begin:stop])), float(np.min(lows[begin:stop])),
+            float(closes[stop - 1]), close_ts, close_ts, True,
+        ))
+    return tuple(result)
 
 
 def _snapshot(rows: Sequence[Mapping[str, Any]], decision: datetime) -> dict[str, Any]:
@@ -439,26 +489,41 @@ def _context(
     training_start: datetime,
     training_end: datetime,
     funding_relative: Sequence[tuple[datetime, float]],
+    pit_rows_by_day: Mapping[int, Sequence[Mapping[str, Any]]],
 ) -> ContextInputs:
     histories = {symbol: tuple(row for row in rows if row.close_ts < decision) for symbol, rows in daily_by_symbol.items()}
+    current_eligible = set(str(symbol) for symbol in pit_snapshot["eligible_symbols"])
     lookbacks = (5, 10, 20, 60, 120, 250)
     by_lookback: dict[int, dict[str, float]] = {}
     for lookback in lookbacks:
         by_lookback[lookback] = {
             symbol: log_return(rows[-lookback - 1].close, rows[-1].close)
-            for symbol, rows in histories.items() if len(rows) >= lookback + 1
+            for symbol, rows in histories.items()
+            if symbol in current_eligible and len(rows) >= lookback + 1
+            and rows[-1].close_ts - rows[-lookback - 1].close_ts == timedelta(days=lookback)
         }
     breadth_history: dict[int, tuple[float, ...]] = {}
     dispersion_history: dict[int, tuple[float, ...]] = {}
-    training_daily = {symbol: tuple(row for row in rows if training_start < row.close_ts < training_end) for symbol, rows in daily_by_symbol.items()}
+    daily_maps = {symbol: {row.close_ts: row for row in rows} for symbol, rows in daily_by_symbol.items()}
     for lookback in (5, 20, 60):
         breadth = []; dispersion = []
-        maximum = max((len(rows) for rows in training_daily.values()), default=0)
-        for index in range(lookback, maximum):
-            values = [log_return(rows[index - lookback].close, rows[index].close) for rows in training_daily.values() if len(rows) > index]
+        for day_ms, membership_rows in sorted(pit_rows_by_day.items()):
+            day = datetime.fromtimestamp(day_ms / 1000, tz=UTC)
+            if not (training_start <= day < training_end):
+                continue
+            values = []
+            for membership in membership_rows:
+                symbol = str(membership["symbol"])
+                end_row = daily_maps.get(symbol, {}).get(day)
+                start_row = daily_maps.get(symbol, {}).get(day - timedelta(days=lookback))
+                if end_row is not None and start_row is not None:
+                    values.append(log_return(start_row.close, end_row.close))
             if len(values) >= 5:
-                breadth.append(sum(value > 0 for value in values) / len(values))
-                center = median(values); dispersion.append(median(abs(value - center) for value in values))
+                repeats = next((int(row["decision_count_5m"]) for row in membership_rows if row["symbol"] == "PF_XBTUSD"), 0)
+                breadth_value = sum(value > 0 for value in values) / len(values)
+                center = median(values); dispersion_value = median(abs(value - center) for value in values)
+                breadth.extend([breadth_value] * repeats)
+                dispersion.extend([dispersion_value] * repeats)
         breadth_history[lookback] = tuple(breadth)
         dispersion_history[lookback] = tuple(dispersion)
     deciles = pit_snapshot["lagged_liquidity_deciles"]
@@ -515,6 +580,9 @@ class ProductionFamilyInputBuilder:
         if sha256_file(self.fold_graph_path) != authority["fold_graph_sha256"] or len(fold_graph.get("outer_folds", ())) != 8:
             raise ProductionInputError("fold graph authority mismatch")
         pit_rows = [json.loads(line) for line in (verifier.output_root / pit["artifact"]["path"]).read_text(encoding="utf-8").splitlines() if line]
+        pit_rows_by_day: dict[int, list[dict[str, Any]]] = defaultdict(list)
+        for row in pit_rows:
+            pit_rows_by_day[int(row["day_open_ms"])].append(row)
         context_symbols = ("PF_XBTUSD", "PF_ETHUSD", "PF_SOLUSD", "PF_XRPUSD", "PF_DOGEUSD", "PF_ADAUSD", "PF_LINKUSD", "PF_AVAXUSD")
         selected_symbols = ("PF_XBTUSD", "PF_ADAUSD", "PF_AVAXUSD")
         full_bars = {
@@ -524,7 +592,7 @@ class ProductionFamilyInputBuilder:
         daily = {symbol: _valid_daily(rows) for symbol, rows in full_bars.items()}
         for symbol in symbols:
             if symbol not in daily:
-                daily[symbol] = _valid_daily(_load_trade_bars(parts[symbol], datetime(2023, 1, 1, tzinfo=UTC), datetime(2026, 1, 1, tzinfo=UTC)))
+                daily[symbol] = _load_daily_bars(parts[symbol], datetime(2023, 1, 1, tzinfo=UTC), datetime(2026, 1, 1, tzinfo=UTC))
         exact_funding_by_symbol = {
             symbol: _funding_rows(roles["rankable_funding_package"], symbol)
             for symbol in selected_symbols
@@ -636,6 +704,7 @@ class ProductionFamilyInputBuilder:
                     training_start,
                     training_end,
                     tuple((timestamp, relative * 10000.0) for timestamp, _, relative in exact_funding),
+                    pit_rows_by_day,
                 )
                 metadata = {
                     "production_input": True,

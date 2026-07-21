@@ -24,7 +24,7 @@ from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceLimits
 from tools.core_liquid_campaign.production_readiness_gate import _a1_state_gate
 from tools.core_liquid_campaign.production_inputs import _thresholds
 from tools.core_liquid_campaign.family_engines import a1_compression
-from tools.core_liquid_campaign.production_population_tables import _feature_arrays
+from tools.core_liquid_campaign.production_population_tables import A1PopulationTableAuthority, _feature_arrays
 
 
 class Stage24KnownDefectTests(unittest.TestCase):
@@ -332,6 +332,51 @@ class Stage24KnownDefectTests(unittest.TestCase):
         gapped = _feature_arrays(gapped_times, closes)
         self.assertTrue(np.isnan(gapped["A1_impulse:window=6h"][300]))
         self.assertTrue(np.isnan(gapped["A1_contraction:base=2h:baseline=adjacent_equal_duration"][270]))
+
+    def test_a1_population_authority_resolves_global_and_signed_views(self) -> None:
+        import numpy as np
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw); table_root = root / "population_tables/a1"; table_root.mkdir(parents=True)
+            day0 = 1_672_531_200_000
+            values = np.asarray([float(index + 1) for index in range(120)], dtype="<f8")
+            timestamps = np.asarray([day0 + 86_400_000] * 60 + [day0 + 2 * 86_400_000] * 60, dtype="<i8")
+            symbols = np.asarray([1 + index % 5 for index in range(120)], dtype="<u2")
+            deciles = np.asarray([1] * 120, dtype="u1")
+            paths = {}
+            for name, array in (("values", values), ("timestamps", timestamps), ("symbols", symbols), ("deciles", deciles)):
+                path = table_root / f"{name}.npy"; np.save(path, array, allow_pickle=False); paths[name] = path
+            counts = np.zeros((3, 16), dtype="<i4"); counts[1:, 0] = 60; counts[1:, 1] = 60
+            for code in range(1, 6): counts[1:, 10 + code] = 12
+            count_path = table_root / "counts.npy"; np.save(count_path, counts, allow_pickle=False)
+            def record(path: Path) -> dict[str, object]:
+                return {"path": path.relative_to(root).as_posix(), "bytes": path.stat().st_size, "sha256": sha256_file(path), "rows": 120}
+            feature = {**record(paths["values"]), "daily_counts_path": count_path.relative_to(root).as_posix(), "daily_counts_bytes": count_path.stat().st_size, "daily_counts_sha256": sha256_file(count_path)}
+            manifest = {
+                "schema": "stage24_a1_exact_pit_population_table_v1", "protected_rows": 0,
+                "rows": 120, "symbol_codes": {f"S{code}": code for code in range(1, 6)},
+                "common": {name: record(paths[name]) for name in ("timestamps", "symbols", "deciles")},
+                "features": {"A1_impulse:window=6h": feature},
+                "daily_count_rankable_start_day_ms": day0, "daily_count_columns": {
+                    "global": 0, "liquidity_deciles": {str(value): value for value in range(1, 11)},
+                    "symbols": {f"S{code}": 10 + code for code in range(1, 6)},
+                },
+            }
+            manifest_path = table_root / "A1_POPULATION_TABLE_MANIFEST.json"; atomic_write_json(manifest_path, manifest)
+            authority = A1PopulationTableAuthority(root, manifest_path)
+            start = datetime(2023, 1, 1, tzinfo=timezone.utc); end = datetime(2023, 1, 4, tzinfo=timezone.utc)
+            positive = authority.population(
+                "A1_impulse:window=6h:scope=global_side:side=1", target_symbol="S1", target_decile=1,
+                training_start=start, training_end=end,
+            )
+            negative = authority.population(
+                "A1_impulse:window=6h:scope=global_side:side=-1", target_symbol="S1", target_decile=1,
+                training_start=start, training_end=end,
+            )
+            positive.validate(pooled=True, decision_ts=end)
+            negative.validate(pooled=True, decision_ts=end)
+            self.assertEqual(120, len(positive.values)); self.assertEqual(120, len(negative.values))
+            self.assertEqual(-120.0, negative.values[0]); self.assertEqual(1.0, positive.values[0])
 
     def test_shadow_provider_uses_actual_accounting_without_real_post_entry_data(self) -> None:
         config = baseline_config("A4_TSMOM_V7")
