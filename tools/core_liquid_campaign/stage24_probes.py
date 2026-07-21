@@ -13,7 +13,7 @@ from .controls import CONTROL_IDS, effective_seed, execute_control, reconcile_co
 from .runtime import LazySupervisor, ResourceLimits
 from .schema import CAMPAIGN_ID, baseline_config, economic_address, normalize_config
 from .shadow_payoff import ShadowPayoffProvider
-from .executor import dispatch_registered_attempt, validate_registered_attempt
+from .executor import CacheAuthority, dispatch_registered_attempt, validate_registered_attempt
 from .family_engines.common import EngineInputError
 from .selection import aggregate_streaming
 from .synthetic import a1_frame, a3_frame, a4_frame
@@ -335,7 +335,9 @@ def control_production_shadow_probe(
 def representative_production_benchmark(
     output_root: Path,
     execution: Sequence[Mapping[str, Any]],
-    frames: Sequence[Any],
+    *,
+    cache_manifest_path: Path,
+    execution_input_authority: Mapping[str, Any],
 ) -> dict[str, Any]:
     """Run a deterministic, outcome-firewalled production dispatcher sample."""
     registry = {str(row["executable_attempt_id"]): row for row in execution}
@@ -343,11 +345,25 @@ def representative_production_benchmark(
     for row in execution:
         validate_registered_attempt(row)
     compile_seconds = time.monotonic() - compile_started
-    outer_frames: dict[str, Any] = {}
-    for frame in sorted(frames, key=lambda item: (item.metadata["campaign_partition"]["outer_fold_id"], item.symbol, item.decision_ts)):
-        partition = frame.metadata["campaign_partition"]
-        if partition["phase"] == "outer_evaluation" and partition["outer_fold_id"] not in outer_frames:
-            outer_frames[str(partition["outer_fold_id"])] = frame
+    cache_manifest = json.loads(cache_manifest_path.read_text(encoding="utf-8"))
+    outer_paths: dict[str, str] = {}
+    for record in sorted(
+        cache_manifest["artifacts"],
+        key=lambda item: (item["campaign_partition"]["outer_fold_id"], item["symbol"], item["path"]),
+    ):
+        partition = record["campaign_partition"]
+        if partition["phase"] == "outer_evaluation" and partition["outer_fold_id"] not in outer_paths:
+            outer_paths[str(partition["outer_fold_id"])] = str(record["path"])
+    if set(outer_paths) != {
+        "2024Q1", "2024Q2", "2024Q3", "2024Q4", "2025Q1", "2025Q2", "2025Q3", "2025Q4",
+    }:
+        raise RuntimeError("representative benchmark lacks one cache artifact per outer fold")
+    campaign_manifest = {"execution_input_authority": dict(execution_input_authority)}
+    cache = CacheAuthority(cache_manifest_path, cache_manifest_path.parent)
+    cache.preload_frames(campaign_manifest)
+    if cache._decoded_frames:
+        raise RuntimeError("benchmark parent retained decoded frames before worker fork")
+    cache_manifest_sha256 = sha256_file(cache_manifest_path)
 
     def stratified(rows: Sequence[Mapping[str, Any]], count: int = 30) -> list[Mapping[str, Any]]:
         ordered = sorted(rows, key=lambda row: str(row["canonical_economic_address_sha256"]))
@@ -370,13 +386,13 @@ def representative_production_benchmark(
     if any(len(rows) < 30 for rows in family_rows.values()):
         raise RuntimeError("representative benchmark has fewer than thirty addresses in a family stratum")
     job_specs = [
-        (family, fold, row, outer_frames[fold])
+        (family, fold, row, outer_paths[fold])
         for family, rows in family_rows.items()
-        for fold in sorted(outer_frames)
+        for fold in sorted(outer_paths)
         for row in rows
     ]
 
-    def task(family: str, fold: str, row: Mapping[str, Any], frame: Any):
+    def task(family: str, fold: str, row: Mapping[str, Any], artifact_path: str):
         def run() -> dict[str, Any]:
             provider = ShadowPayoffProvider("stage24-representative-production-benchmark-v1")
             if family == "KDA02B_SURVIVOR_ADJUDICATION_V1":
@@ -386,6 +402,8 @@ def representative_production_benchmark(
                     "result_sha256": canonical_hash({"status": "unavailable_data", "authority_reason": "typed_kda_decision_fields_absent"}),
                     "shadow_attestation": provider.attestation(),
                 }
+            _, frames = cache.load_frames(campaign_manifest, [artifact_path])
+            frame = frames[0]
             kwargs: dict[str, Any] = {}
             if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
                 kwargs = {
@@ -419,6 +437,8 @@ def representative_production_benchmark(
                 "outer_fold_id": fold,
                 "observation_count": observations,
                 "result_sha256": digest,
+                "cache_manifest_sha256": cache_manifest_sha256,
+                "cache_artifact_path": artifact_path,
                 "shadow_attestation": provider.attestation(),
             }
         return run
@@ -429,10 +449,15 @@ def representative_production_benchmark(
         minimum_free_disk_bytes=8 * 1024**3, heartbeat_seconds=1800,
     )
     full_root = output_root / "stratified-full"
+    identity_bindings = {
+        "cache_manifest_sha256": cache_manifest_sha256,
+        "execution_registry_sha256": canonical_hash(list(execution)),
+        "benchmark_provider": "stage24-representative-production-benchmark-v1",
+    }
     started = time.monotonic()
-    full = LazySupervisor(full_root, limits, heartbeat=lambda _payload: True).run(iter(
-        (f"benchmark:{family}:{fold}:{row['executable_attempt_id']}", task(family, fold, row, frame))
-        for family, fold, row, frame in job_specs
+    full = LazySupervisor(full_root, limits, heartbeat=lambda _payload: True, identity_bindings=identity_bindings).run(iter(
+        (f"benchmark:{family}:{fold}:{row['executable_attempt_id']}", task(family, fold, row, artifact_path))
+        for family, fold, row, artifact_path in job_specs
     ))
     full_seconds = time.monotonic() - started
     if full["status"] != "complete" or int(full["completed_count"]) != len(job_specs):
@@ -448,9 +473,9 @@ def representative_production_benchmark(
             max_output_bytes=1024**3, minimum_free_disk_bytes=8 * 1024**3, heartbeat_seconds=1800,
         )
         start = time.monotonic()
-        state = LazySupervisor(root, worker_limits, heartbeat=lambda _payload: True).run(iter(
-            (f"scale:{family}:{fold}:{row['executable_attempt_id']}", task(family, fold, row, frame))
-            for family, fold, row, frame in scaling_specs
+        state = LazySupervisor(root, worker_limits, heartbeat=lambda _payload: True, identity_bindings=identity_bindings).run(iter(
+            (f"scale:{family}:{fold}:{row['executable_attempt_id']}", task(family, fold, row, artifact_path))
+            for family, fold, row, artifact_path in scaling_specs
         ))
         elapsed = time.monotonic() - start
         records = {}
@@ -475,7 +500,9 @@ def representative_production_benchmark(
         "full_registry_compiled_rows": len(execution),
         "stratified_units": len(job_specs),
         "units_by_family_fold": 30,
-        "outer_folds": len(outer_frames),
+        "outer_folds": len(outer_paths),
+        "worker_side_cache_decoding": True,
+        "parent_decoded_frames_before_fork": 0,
         "full_sample_seconds": full_seconds,
         "full_sample_peak_process_tree_rss_bytes": full.get("peak_process_tree_rss_bytes"),
         "full_sample_peak_output_bytes": full.get("peak_output_bytes"),
