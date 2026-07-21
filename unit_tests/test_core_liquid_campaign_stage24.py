@@ -20,6 +20,7 @@ from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame, a4_frame, f
 from tools.core_liquid_campaign.terminal import TerminalContractError, terminal_package, verify_terminal_inventory
 from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceLimits
 from tools.core_liquid_campaign.production_readiness_gate import _a1_state_gate
+from tools.core_liquid_campaign.production_inputs import _thresholds
 
 
 class Stage24KnownDefectTests(unittest.TestCase):
@@ -139,6 +140,21 @@ class Stage24KnownDefectTests(unittest.TestCase):
             result = jobs[0][1]()
             self.assertEqual(("unavailable_data", "explicit_empty_unavailable_observation"), (result["status"], result["materialization"]))
             self.assertEqual("a" * 64, result["authority_sha256"])
+
+    def test_early_inner_fold_persists_long_a4_features_as_unavailable(self) -> None:
+        frame = a4_frame()
+        bars = frame.five_minute_bars
+        daily = frame.daily_bars
+        populations, unavailable = _thresholds(
+            {"PF_XBTUSD": bars, "PF_ETHUSD": bars},
+            {"PF_XBTUSD": daily, "PF_ETHUSD": daily},
+            target="PF_XBTUSD",
+            training_start=bars[0].open_ts,
+            training_end=frame.decision_ts,
+        )
+        name = "A4_ensemble:ema_slope:lookback=180:volatility=close_to_close"
+        self.assertNotIn(name, populations)
+        self.assertIn(name, {row["feature_signature"] for row in unavailable})
 
     def test_shadow_provider_uses_actual_accounting_without_real_post_entry_data(self) -> None:
         config = baseline_config("A4_TSMOM_V7")

@@ -288,6 +288,11 @@ def _thresholds(
             if path > 0:
                 smoothness.append(abs(closes[index] - closes[index - count]) / path)
         add(a4_tsmom.smoothness_population_key(lookback), smoothness)
+        if len(closes) <= max(count + 288, 21 * 288):
+            for estimator in ("close_to_close", "Parkinson"):
+                for component in ("signed_return", "ema_slope", "breakout_distance_rank"):
+                    add(a4_tsmom.ensemble_population_key(component, lookback, estimator), ())
+            continue
         import numpy as np
 
         close_array = np.asarray(closes, dtype=np.float64)

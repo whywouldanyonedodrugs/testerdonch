@@ -216,10 +216,10 @@ def run_gate(args: argparse.Namespace) -> dict[str, Any]:
     args.output.mkdir(parents=True, exist_ok=True)
     checks: dict[str, Mapping[str, Any]] = {}
     checks["authority"] = _authority_gate(args.repository_root, args.stage24_task)
-    registry, execution, _controls = _registry_gate(args.packet_root); checks["registries"] = registry
+    registry, execution, controls = _registry_gate(args.packet_root); checks["registries"] = registry
     cache, frames = _cache_gate(args.cache_manifest, args.packet_root / "EXECUTION_INPUT_AUTHORITY.json"); checks["cache_authority"] = cache
     checks["real_family_inputs_and_engines"] = _real_engine_gate(execution, frames)
-    checks["controls"] = control_production_shadow_probe(args.output / "control_workers")
+    checks["controls"] = control_production_shadow_probe(args.output / "control_workers", controls)
     checks["a1_state"] = _a1_state_gate()
     checks["shadow_service"] = _service_evidence_gate(args.repository_root)
     checks["terminal"] = _terminal_gate(args.output)

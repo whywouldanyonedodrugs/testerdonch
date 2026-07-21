@@ -128,7 +128,13 @@ def _result_record(control_id: str, result: Mapping[str, Any]) -> dict[str, Any]
     }
 
 
-def execute_control_fixture(family: str, control_id: str, *, reverse: bool = False) -> dict[str, Any]:
+def execute_control_fixture(
+    family: str,
+    control_id: str,
+    *,
+    reverse: bool = False,
+    registered_control: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
     fixture = _fixtures()[family]
     frames = list(fixture["frames"])
     if reverse:
@@ -138,14 +144,30 @@ def execute_control_fixture(family: str, control_id: str, *, reverse: bool = Fal
         "A2_CONTEXT_PERMUTED_MAIN_NULL",
         "A3_RETEST_TIME_PERMUTED_MAIN_NULL",
     } else 1
-    control = {
-        "family": family,
-        "control_id": control_id,
-        "effective_seed": seed,
-        "economic_address_sha256": canonical_hash({"stage24_control": control_id}),
-        "control_attempt_id": f"stage24-{control_id}",
-        "execution_status": "execute_once",
-    }
+    if registered_control is None:
+        control = {
+            "family": family,
+            "control_id": control_id,
+            "effective_seed": seed,
+            "economic_address_sha256": canonical_hash({"stage24_control": control_id}),
+            "control_attempt_id": f"stage24-{control_id}",
+            "execution_status": "execute_once",
+        }
+    else:
+        if registered_control.get("family") != family or registered_control.get("control_id") != control_id:
+            raise RuntimeError("registered control fixture identity differs")
+        identity = {
+            "campaign_id": CAMPAIGN_ID,
+            "family": registered_control["family"],
+            "fold": registered_control["fold"],
+            "parent_slot": registered_control["parent_slot"],
+            "control_id": registered_control["control_id"],
+            "replicate_index": registered_control["replicate_index"],
+            "transformation_allocator_version": registered_control["transformation_allocator_version"],
+        }
+        if int(registered_control["effective_seed"]) != effective_seed(identity):
+            raise RuntimeError("registered control fixture seed differs")
+        control = {**dict(registered_control), "execution_status": "execute_once"}
     kwargs: dict[str, Any] = {
         "registry_by_id": fixture["registry"],
         "payoff_provider": ShadowPayoffProvider("stage24-all-controls"),
@@ -168,10 +190,32 @@ def _read_supervisor_results(root: Path) -> dict[str, Mapping[str, Any]]:
     return result
 
 
-def control_production_shadow_probe(output_root: Path) -> dict[str, Any]:
+def control_production_shadow_probe(
+    output_root: Path,
+    registered_controls: Sequence[Mapping[str, Any]] | None = None,
+) -> dict[str, Any]:
     identities = [(family, control_id) for family, ids in CONTROL_IDS.items() for control_id in ids]
-    sequential = {control_id: execute_control_fixture(family, control_id) for family, control_id in identities}
-    reverse = {control_id: execute_control_fixture(family, control_id, reverse=True) for family, control_id in identities}
+    physical_by_class: dict[tuple[str, str], Mapping[str, Any]] = {}
+    if registered_controls is not None:
+        if len(registered_controls) != 800 or len({str(row["control_attempt_id"]) for row in registered_controls}) != 800:
+            raise RuntimeError("physical control registry is not the frozen 800-row multiplicity")
+        candidates_by_class: dict[tuple[str, str], list[Mapping[str, Any]]] = {}
+        for row in sorted(registered_controls, key=lambda item: str(item["control_attempt_id"])):
+            candidates_by_class.setdefault((str(row["family"]), str(row["control_id"])), []).append(row)
+        if set(candidates_by_class) != set(identities):
+            raise RuntimeError("physical control registry does not cover all 20 control classes")
+        for family, control_id in identities:
+            for candidate in candidates_by_class[(family, control_id)]:
+                probe = execute_control_fixture(family, control_id, registered_control=candidate)
+                if probe["status"] == "complete" and int(probe["observation_count"]) > 0:
+                    physical_by_class[(family, control_id)] = candidate
+                    break
+            if (family, control_id) not in physical_by_class:
+                raise RuntimeError(f"no physical control address produced the required nonempty fixture: {control_id}")
+    def bound(family: str, control_id: str) -> Mapping[str, Any] | None:
+        return physical_by_class.get((family, control_id))
+    sequential = {control_id: execute_control_fixture(family, control_id, registered_control=bound(family, control_id)) for family, control_id in identities}
+    reverse = {control_id: execute_control_fixture(family, control_id, reverse=True, registered_control=bound(family, control_id)) for family, control_id in identities}
     if any(row["status"] != "complete" or int(row["observation_count"]) <= 0 for row in sequential.values()):
         raise RuntimeError("one or more control classes lacks a nonempty applicable fixture")
     if sequential != reverse:
@@ -181,7 +225,7 @@ def control_production_shadow_probe(output_root: Path) -> dict[str, Any]:
     for workers in (1, min(4, __import__("os").cpu_count() or 1)):
         root = output_root / f"workers-{workers}"
         jobs = [
-            (control_id, lambda family=family, control_id=control_id: execute_control_fixture(family, control_id))
+            (control_id, lambda family=family, control_id=control_id: execute_control_fixture(family, control_id, registered_control=bound(family, control_id)))
             for family, control_id in identities
         ]
         limits = ResourceLimits(
@@ -202,6 +246,16 @@ def control_production_shadow_probe(output_root: Path) -> dict[str, Any]:
         worker_hashes[str(workers)] = canonical_hash(records)
     if len(set(worker_hashes.values())) != 1:
         raise RuntimeError("control transformed hashes differ by worker count")
+    chunk_orders = {
+        str(size): canonical_hash({
+            control_id: execute_control_fixture(family, control_id, registered_control=bound(family, control_id))
+            for offset in range(0, len(identities), size)
+            for family, control_id in identities[offset:offset + size]
+        })
+        for size in (1, 3, 7, 20)
+    }
+    if len(set(chunk_orders.values())) != 1:
+        raise RuntimeError("control transformed hashes differ by chunk size")
 
     fixture = _fixtures()["A4_TSMOM_V7"]
     singleton_control = {
@@ -243,6 +297,9 @@ def control_production_shadow_probe(output_root: Path) -> dict[str, Any]:
         "nonempty_applicable_transformed_fixtures": sum(int(row["observation_count"]) > 0 for row in sequential.values()),
         "sequential_transformed_inventory_sha256": canonical_hash(sequential),
         "worker_transformed_inventory_sha256": worker_hashes,
+        "chunk_size_transformed_inventory_sha256": chunk_orders,
+        "physical_control_registry_rows": 0 if registered_controls is None else len(registered_controls),
+        "physical_control_registry_bound": registered_controls is not None,
         "reversed_input_order": "pass",
         "restart_reuse": "pass",
         "singleton_case": singleton_result["status"],
