@@ -375,6 +375,12 @@ class LazySupervisor:
         pending: deque[tuple[str, Callable[[], Any]]] = deque(); retry_ready: dict[str, tuple[float, Callable[[], Any]]] = {}
         workers: dict[str, _Worker] = {}
         now = self.monotonic(); last_progress = now; last_heartbeat = now
+        # A persisted monotonic timestamp belongs to the prior supervisor
+        # generation.  It remains useful as history, but liveness for this
+        # generation starts now; otherwise a clean restart after 3900 seconds
+        # stops immediately before its first scheduled heartbeat can occur.
+        heartbeat_liveness_started = now
+        current_generation_successful_heartbeat: float | None = None
         stop_signal: list[int | None] = [None]
         prior_handlers: dict[int, Any] = {}
         if threading.current_thread() is threading.main_thread():
@@ -457,9 +463,14 @@ class LazySupervisor:
                     if delivered is True:
                         state["heartbeat_success_count"] = int(state.get("heartbeat_success_count", 0)) + 1
                         state["last_successful_heartbeat_monotonic"] = now
+                        current_generation_successful_heartbeat = now
                     last_heartbeat = now; self._save(state)
-                successful_heartbeat = state.get("last_successful_heartbeat_monotonic")
-                if successful_heartbeat is not None and now - float(successful_heartbeat) > 3900:
+                current_generation_heartbeat = (
+                    current_generation_successful_heartbeat
+                    if current_generation_successful_heartbeat is not None
+                    else heartbeat_liveness_started
+                )
+                if now - current_generation_heartbeat > 3900:
                     return self._bound_stop(workers, state, "global_resumable_bound_stop_heartbeat_stale")
                 state["first_real_unit_reconciled"] = any(record.get("reconciled_real_registered_unit") is True for record in completed.values())
                 state["health_release"] = state["first_real_unit_reconciled"] and int(state.get("heartbeat_success_count", 0)) >= 1
@@ -493,6 +504,7 @@ class LazySupervisor:
                     if delivered is True:
                         state["heartbeat_success_count"] = int(state.get("heartbeat_success_count", 0)) + 1
                         state["last_successful_heartbeat_monotonic"] = now
+                        current_generation_successful_heartbeat = now
                     last_heartbeat = now; self._save(state)
                 if not any(record.get("reconciled_real_registered_unit") is True for record in completed.values()):
                     raise ResourceGateError("health release requires one reconciled real registered unit")

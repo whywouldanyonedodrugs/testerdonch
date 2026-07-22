@@ -884,6 +884,36 @@ class Stage24KnownDefectTests(unittest.TestCase):
             self.assertTrue(state["all_workers_stopped"])
             self.assertFalse(late.exists())
 
+    def test_restart_does_not_treat_prior_generation_heartbeat_as_currently_stale(self) -> None:
+        class Clock:
+            value = 10000.0
+
+            def __call__(self) -> float:
+                self.value += 1.0
+                return self.value
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            atomic_write_json(root / "SUPERVISOR_STATE.json", {
+                "schema": "stage23_supervisor_state_v4", "completed": {}, "failed": {}, "attempts": {},
+                "generation": 4, "status": "global_resumable_bound_stop_heartbeat_stale",
+                "heartbeat_count": 1, "heartbeat_success_count": 1,
+                "last_successful_heartbeat_monotonic": 1.0,
+                "first_real_unit_reconciled": False, "health_release": False,
+                "consecutive_supervisor_restarts": 0, "identity_bindings": {},
+            })
+            limits = ResourceLimits(
+                max_workers=1, max_jobs_in_flight=1, max_output_bytes=32 * 1024**2,
+                minimum_free_disk_bytes=1, minimum_free_disk_fraction=0.0,
+                heartbeat_seconds=1800, monitor_interval_seconds=0.001,
+            )
+            state = LazySupervisor(root, limits, heartbeat=lambda _payload: True, monotonic=Clock()).run(
+                iter([("resumed", lambda: {"registered_attempt_id": "resumed", "status": "complete", "aggregate": {}})])
+            )
+            self.assertEqual("complete", state["status"])
+            self.assertEqual(1, state["completed_count"])
+            self.assertTrue(state["all_workers_stopped"])
+
     def test_abrupt_worker_pipe_eof_requeues_and_recovers_once(self) -> None:
         import os
 

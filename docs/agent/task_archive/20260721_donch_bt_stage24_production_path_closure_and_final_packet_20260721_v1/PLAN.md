@@ -90,3 +90,8 @@ publish the final launch-approval packet without launching economics.
   final commit binding, authority audit and secure Telegram preflight. The
   missing bound-stop Telegram message was traced to an absent notification call
   in the real shadow exception path and repaired with a focused passing test.
+- 2026-07-22: The first reviewed resume entered the new KDA02B batch and then
+  stopped safely because the new supervisor generation treated the prior
+  generation's persisted monotonic heartbeat time as current liveness. The
+  restart-local heartbeat baseline was repaired without changing the 30-minute
+  schedule or 3,900-second stale bound; focused restart/stale-stop tests pass.
