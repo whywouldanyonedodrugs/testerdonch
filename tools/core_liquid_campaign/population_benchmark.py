@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import resource
 import time
 from collections import Counter, defaultdict
 from dataclasses import replace
@@ -82,6 +83,7 @@ def _partition_task(
     source_sizes: Mapping[str, int],
 ) -> Callable[[], Mapping[str, Any]]:
     def run() -> Mapping[str, Any]:
+        io_start = resource.getrusage(resource.RUSAGE_SELF)
         phase, outer, inner = partition_key
         provider = ShadowPayoffProvider("stage24-full-population-benchmark-v1")
         frame_seconds = 0.0; engine_seconds = 0.0
@@ -153,6 +155,7 @@ def _partition_task(
         if attestation["economic_outcomes_opened"] is not False or attestation["real_post_entry_rows_opened"] != 0:
             raise PopulationBenchmarkError("benchmark synthetic-payoff firewall differs")
         expected = 4 * len(next(iter(strata.values()))) * 3
+        io_end = resource.getrusage(resource.RUSAGE_SELF)
         return {
             "status": "complete", "registered_attempt_id": f"population-partition:{phase}:{outer}:{inner}",
             "partition": {"phase": phase, "outer_fold_id": outer, "inner_fold_id": inner},
@@ -163,6 +166,8 @@ def _partition_task(
             "materialized_equal_units": materialized_equal, "frame_construction_seconds": frame_seconds,
             "engine_aggregate_seconds": engine_seconds, "symbols": sorted(symbols),
             "feature_signatures": sorted(signatures), "rows_sha256": canonical_hash(result_rows),
+            "filesystem_input_bytes": max(0, int(io_end.ru_inblock - io_start.ru_inblock)) * 512,
+            "filesystem_output_bytes": max(0, int(io_end.ru_oublock - io_start.ru_oublock)) * 512,
             "shadow_attestation": attestation,
         }
     return run
@@ -176,6 +181,7 @@ def _kda_task(
     adapter: KDA02BLazyFamilyInputAdapter,
 ) -> Callable[[], Mapping[str, Any]]:
     def run() -> Mapping[str, Any]:
+        io_start = resource.getrusage(resource.RUSAGE_SELF)
         provider = ShadowPayoffProvider("stage24-full-population-benchmark-kda-v1")
         records = {}
         typed_unavailable_seen = 0
@@ -214,6 +220,7 @@ def _kda_task(
                     }),
                 })
         scheduled = sum(len(rows) for rows in rows_by_cell.values())
+        io_end = resource.getrusage(resource.RUSAGE_SELF)
         return {
             "status": "complete", "registered_attempt_id": f"kda02b-fold:{outer_fold_id}",
             "cells": len(rows_by_cell), "outer_fold_id": outer_fold_id,
@@ -221,6 +228,8 @@ def _kda_task(
             "typed_unavailable_units": 0, "typed_unavailable_index_rows_seen_before_sample_completion": typed_unavailable_seen,
             "materialized_equal_units": materialized_equal,
             "rows_sha256": canonical_hash(result_rows), "shadow_attestation": provider.attestation(),
+            "filesystem_input_bytes": max(0, int(io_end.ru_inblock - io_start.ru_inblock)) * 512,
+            "filesystem_output_bytes": max(0, int(io_end.ru_oublock - io_start.ru_oublock)) * 512,
         }
     return run
 
@@ -329,6 +338,40 @@ def run_population_benchmark(
             raise PopulationBenchmarkError("a family/fold production stratum has fewer than thirty completed units")
     if any(value != 1 for value in strata_counts.values()):
         raise PopulationBenchmarkError("benchmark partition inventory is duplicated")
+    scaling: dict[str, Any] = {}; scaling_hashes: dict[str, str] = {}
+    scaling_partitions = _partitions(schedule)[:4]
+    for worker_count in range(1, workers + 1):
+        scaling_root = output_root / f"scaling-{worker_count}"
+        scaling_limits = ResourceLimits(
+            max_workers=worker_count, max_jobs_in_flight=worker_count,
+            max_rss_bytes=10 * 1024**3, max_output_bytes=1024**3,
+            minimum_free_disk_bytes=8 * 1024**3, heartbeat_seconds=1800,
+        )
+        scaling_started = time.monotonic()
+        scaling_state = LazySupervisor(
+            scaling_root, scaling_limits, heartbeat=lambda _payload: True, identity_bindings=identity,
+        ).run(iter(
+            (
+                f"partition:{phase}:{outer}:{inner}",
+                _partition_task(
+                    partition_key=partition_key, strata=strata, registry=registry,
+                    schedule=schedule, adapter=adapter, source_sizes=source_sizes,
+                ),
+            )
+            for partition_key in scaling_partitions
+            for phase, outer, inner in (partition_key,)
+        ))
+        scaling_results = _marker_results(scaling_root)
+        scaling_hashes[str(worker_count)] = canonical_hash(scaling_results)
+        scaling[str(worker_count)] = {
+            "seconds": time.monotonic() - scaling_started,
+            "jobs": len(scaling_results),
+            "dispatch_units": sum(int(row["scheduled_units"]) for row in scaling_results),
+            "peak_process_tree_rss_bytes": scaling_state.get("peak_process_tree_rss_bytes"),
+            "output_bytes": directory_size(scaling_root),
+        }
+    if len(set(scaling_hashes.values())) != 1:
+        raise PopulationBenchmarkError("population benchmark results differ by worker count")
     output_bytes = directory_size(full_root)
     report = {
         "schema": "stage24_full_population_representative_benchmark_v2", "status": "pass",
@@ -343,11 +386,14 @@ def run_population_benchmark(
         "full_seconds": full_seconds, "restart_reuse_seconds": restart_seconds,
         "restart_reused_markers": len(results), "peak_process_tree_rss_bytes": full.get("peak_process_tree_rss_bytes"),
         "output_bytes": output_bytes, "output_bytes_per_dispatch_unit": output_bytes / max(1, scheduled),
+        "measured_filesystem_input_bytes": sum(int(row.get("filesystem_input_bytes", 0)) for row in results),
+        "measured_worker_filesystem_output_bytes": sum(int(row.get("filesystem_output_bytes", 0)) for row in results),
         "frame_construction_seconds": sum(float(row.get("frame_construction_seconds", 0.0)) for row in results),
         "engine_aggregate_seconds": sum(float(row.get("engine_aggregate_seconds", 0.0)) for row in results),
         "conservative_projected_seconds_2x": full_seconds * 2.0,
         "projection_basis": "complete opportunity census plus real lazy FamilyInput/engine/accounting strata; two-times measured wall time",
         "workers": workers, "bounded_jobs_in_flight": workers,
+        "worker_scaling": scaling, "worker_scaling_result_sha256": scaling_hashes,
         "economic_outcomes_opened": False, "real_post_entry_rows_opened": 0,
         "protected_rows_opened": 0, "capitalcom_payload_opened": False,
     }

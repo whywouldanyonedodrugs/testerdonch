@@ -14,6 +14,7 @@ from typing import Any, Callable, Mapping
 
 from .a1_state import initial_state, transition
 from .canonical import atomic_write_json, canonical_hash, sha256_file
+from .campaign import CampaignOrchestrator
 from .executor import CacheAuthority, dispatch_registered_attempt
 from .family_engines.common import EngineInputError
 from .family_engines import kda02b_adjudication
@@ -24,8 +25,8 @@ from .launch_population_authority import validate_launch_population_authority
 from .kda02b_population_index import validate_kda02b_lazy_population_index
 from .selection import aggregate_streaming
 from .shadow_payoff import ShadowPayoffProvider
-from .stage24_probes import control_production_shadow_probe, representative_production_benchmark
-from .terminal import terminal_package, verify_terminal_inventory
+from .stage24_probes import control_production_shadow_probe
+from .terminal import verify_terminal_inventory
 from .validators import aggregate_materialized_probe
 
 
@@ -185,7 +186,7 @@ def _cache_gate(cache_path: Path, authority_path: Path) -> tuple[dict[str, Any],
     feature_signatures = set(str(value) for value in build.get("feature_signatures_available", ()))
     typed_kda = [row for row in manifest.get("typed_unavailable", ()) if row.get("family_id") == "KDA02B_SURVIVOR_ADJUDICATION_V1"]
     # A production campaign requires both development and outer partitions.
-    complete_campaign_cache = (
+    complete_benchmark_probe = (
         outer == set(OUTER_FOLDS) and len(base_partition_positions) == 132 and len(symbols) >= 3
         and len(paths) == 567 and len(matrix) == 699 and len(matrix_positions) >= 537
         and len(typed_kda) == 0 and len(kda_records) == 171 and len(kda_cells) == 19 and len(kda_folds) == 9
@@ -193,7 +194,8 @@ def _cache_gate(cache_path: Path, authority_path: Path) -> tuple[dict[str, Any],
         and build.get("protected_rows") == 0 and build.get("economic_outcomes_opened") is False
     )
     return ({
-        "status": "pass" if complete_campaign_cache and protected == 0 and value_equal else "fail",
+        "status": "pass" if complete_benchmark_probe and protected == 0 and value_equal else "fail",
+        "classification": "benchmark_probe_only", "launch_input_authority": False,
         "cache_manifest_sha256": sha256_file(cache_path),
         "artifacts": len(paths), "outer_folds": sorted(outer), "inner_fold_ids": len(inner),
         "decoded_artifacts_cold_and_warm": len(paths) * 2,
@@ -210,8 +212,8 @@ def _cache_gate(cache_path: Path, authority_path: Path) -> tuple[dict[str, Any],
         "protected_rows": protected,
         "cold_seconds": cold, "warm_seconds": warm,
         "warm_value_equivalent": value_equal,
-        "complete_campaign_cache": complete_campaign_cache,
-        "blocking_reason": None if complete_campaign_cache else "cache lacks full inner-development and small/median/large-symbol production partitions",
+        "complete_benchmark_probe_cache": complete_benchmark_probe,
+        "blocking_reason": None if complete_benchmark_probe else "reviewed benchmark-probe cache inventory differs",
     }, frames)
 
 
@@ -343,17 +345,67 @@ def _a1_state_gate() -> dict[str, Any]:
     return {"status": "pass" if passed else "fail", "final_state": payload, "state_generation": payload["state_generation"]}
 
 
-def _selection_gate(execution: list[dict[str, Any]], benchmark: Mapping[str, Any]) -> dict[str, Any]:
+def _actual_service_control_gate(service_root: Path) -> dict[str, Any]:
+    campaign_root = service_root / "run/campaign"
+    registered = _jsonl(service_root / "packet/FINAL_CONTROL_REGISTRY.jsonl")
+    resolved = json.loads((campaign_root / "FINAL_CONTROL_EXECUTION_REGISTRY.json").read_text(encoding="utf-8"))
+    payloads = CampaignOrchestrator._completed_payloads(campaign_root / "conditional_controls")
+    registered_ids = {str(row["control_attempt_id"]) for row in registered}
+    payload_ids = {str(row.get("control_attempt_id")) for row in payloads}
+    classes = {str(row["control_id"]) for row in registered}
+    production_path = all(
+        row.get("benchmark_probe_frames_used") == 0
+        and row.get("input_path") in {
+            "LaunchPopulationSchedule->LazyProductionFamilyInputAdapter",
+            "launch_population_duplicate_reconciliation",
+            "launch_population_unavailable_no_parent",
+        }
+        for row in payloads
+    )
+    passed = (
+        len(registered) == 20 and len(classes) == 20 and registered_ids == payload_ids
+        and len(resolved.get("rows", ())) == 20 and production_path
+    )
+    return {
+        "status": "pass" if passed else "fail", "actual_service_control_rows": len(payloads),
+        "actual_service_control_classes": len(classes), "identity_reconciliation": registered_ids == payload_ids,
+        "actual_launch_population_path": production_path,
+        "completed": sum(row.get("status") == "complete" for row in payloads),
+        "unavailable_no_parent": sum(row.get("status") == "unavailable_no_parent" for row in payloads),
+        "unavailable_duplicate_address": sum(row.get("status") == "unavailable_duplicate_address" for row in payloads),
+        "control_execution_registry_sha256": sha256_file(campaign_root / "FINAL_CONTROL_EXECUTION_REGISTRY.json"),
+    }
+
+
+def _selection_gate(execution: list[dict[str, Any]], benchmark: Mapping[str, Any], service_root: Path) -> dict[str, Any]:
     a2 = [row for row in execution if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1"]
     atomic_bindings = all(
         row.get("parent_binding_template_id") and row.get("parent_only_counterpart_id") and row.get("overlay_counterpart_id")
         for row in a2
     )
     probe = aggregate_materialized_probe()
+    campaign_root = service_root / "run/campaign"
+    refinement = json.loads((campaign_root / "CONDITIONAL_REFINEMENT_REGISTRY.json").read_text(encoding="utf-8"))
+    bindings = json.loads((campaign_root / "A2_RESOLVED_PARENT_BINDINGS.json").read_text(encoding="utf-8"))
+    materialization = json.loads((campaign_root / "MATERIALIZATION_REGISTRY.json").read_text(encoding="utf-8"))
+    materialized_payloads = CampaignOrchestrator._completed_payloads(campaign_root / "conditional_materialization")
+    actual_equal = bool(materialized_payloads) and all(row.get("aggregate_materialized_equal") is True for row in materialized_payloads)
+    service_execution = _jsonl(service_root / "packet/FINAL_EXECUTION_REGISTRY.jsonl")
+    service_ids = {str(row["executable_attempt_id"]) for row in service_execution}
+    beam_files = ("FROZEN_REFINEMENT_CENTER_REGISTRY.json", "FROZEN_PARENT_BEAM_REGISTRY.json", "FROZEN_BEAM_REGISTRY.json")
+    beams = [
+        row for name in beam_files
+        for row in json.loads((campaign_root / name).read_text(encoding="utf-8")).get("rows", ())
+    ]
+    registered_only = all(str(row["executable_attempt_id"]) in service_ids for row in beams)
+    binding_rows = list(bindings.get("rows", ()))
     passed = (
         len(execution) == 11963 and len(a2) == 2654 and atomic_bindings
         and probe.get("pass") is True and benchmark.get("status") == "pass"
         and int(benchmark.get("scheduled_dispatch_units", 0)) >= 17_721
+        and refinement.get("adaptive_refinement") == "disabled" and refinement.get("row_count") == 0
+        and registered_only and binding_rows and actual_equal
+        and materialization.get("status") == "frozen"
     )
     return {
         "status": "pass" if passed else "fail",
@@ -362,6 +414,14 @@ def _selection_gate(execution: list[dict[str, Any]], benchmark: Mapping[str, Any
         "a2_missing_parent": "typed_unavailable_no_parent_no_reassignment",
         "empty_inner_folds": "explicit_negative_infinity_preserved",
         "materialization_frozen_before_shadow_values": True,
+        "runtime_adaptive_refinement": refinement.get("adaptive_refinement"),
+        "runtime_refinement_rows": refinement.get("row_count"),
+        "actual_service_beam_rows": len(beams), "all_beams_in_frozen_registry": registered_only,
+        "actual_service_A2_binding_rows": len(binding_rows),
+        "actual_service_A2_unavailable_no_parent": sum(row.get("status") == "unavailable_no_parent" for row in binding_rows),
+        "actual_materialized_payloads": len(materialized_payloads),
+        "actual_aggregate_materialized_equality": actual_equal,
+        "materialization_registry_sha256": sha256_file(campaign_root / "MATERIALIZATION_REGISTRY.json"),
         "aggregate_materialized_probe": probe,
         "representative_actual_dispatch_units": benchmark.get("scheduled_dispatch_units"),
         "restart_reuse": "hash_reconciled_markers",
@@ -369,61 +429,37 @@ def _selection_gate(execution: list[dict[str, Any]], benchmark: Mapping[str, Any
 
 
 def _terminal_gate(
-    output_root: Path,
-    strategy: list[dict[str, Any]],
-    controls: list[dict[str, Any]],
+    current_service_root: Path,
+    bound_stop_service_root: Path,
 ) -> dict[str, Any]:
-    complete_root = output_root / "terminal_complete"
-    bound_root = output_root / "terminal_bound_stop"
-    attempt_ids = [canonical_hash({"registered_registry_index": index, "registered_row": row}) for index, row in enumerate(strategy)]
-    control_ids = [str(row["control_attempt_id"]) for row in controls]
-    attempt_rows = [{
-        "attempt_id": identity,
-        "terminal_status": "unavailable_duplicate_address" if row.get("execution_disposition") == "multiplicity_only_duplicate" else "completed",
-        "family_id": row["family_id"],
-        "executable_attempt_id": row["executable_attempt_id"],
-        "shadow_no_outcome": True,
-    } for identity, row in zip(attempt_ids, strategy)]
-    control_rows = [{
-        "control_attempt_id": identity,
-        "terminal_status": "completed",
-        "family_id": row["family"],
-        "control_id": row["control_id"],
-        "shadow_no_outcome": True,
-    } for identity, row in zip(control_ids, controls)]
-    families = sorted({str(row["family_id"]) for row in strategy})
-    routes = [{"family": family, "route": "shadow_path_verified_no_economic_claim"} for family in families]
-    forensic_classes = (
-        "component_controls", "leave_one_symbol", "leave_one_month", "parameter_neighborhood",
-        "execution_sensitivity", "funding_sensitivity", "concentration", "multiplicity",
-    )
-    forensics = [{
-        "family": family,
-        "forensic_class": forensic_class,
-        "status": "production_path_exercised_without_economic_values",
-        "economic_outcomes_opened": False,
-    } for family in families for forensic_class in forensic_classes]
-    terminal_package(
-        complete_root, attempt_ids=attempt_ids, control_ids=control_ids,
-        attempt_rows=attempt_rows, control_rows=control_rows,
-        routes=routes, forensics=forensics, all_workers_stopped=True,
-        job_reconciliation={"pass": True, "expected": len(attempt_ids) + len(control_ids), "observed": len(attempt_rows) + len(control_rows)},
-    )
+    complete_root = current_service_root / "run/campaign/terminal"
     complete = verify_terminal_inventory(complete_root)
-    partial_attempts = attempt_rows[: len(attempt_rows) // 2]
-    partial_controls = control_rows[: len(control_rows) // 2]
-    terminal_package(
-        bound_root, attempt_ids=attempt_ids, control_ids=control_ids,
-        attempt_rows=partial_attempts, control_rows=partial_controls,
-        routes=[], forensics=[], all_workers_stopped=True, bound_stop=True,
-    )
+    package = json.loads((complete_root / "TERMINAL_PACKAGE.json").read_text(encoding="utf-8"))
+    independent = json.loads((complete_root / "INDEPENDENT_RECOMPUTATION.json").read_text(encoding="utf-8"))
+    bound_candidates = sorted((bound_stop_service_root / "run/terminal_bound_stops").glob("generation-*"))
+    if not bound_candidates:
+        raise RuntimeError("actual detached service bound-stop terminal is absent")
+    bound_root = bound_candidates[-1]
     bound = verify_terminal_inventory(bound_root)
+    bound_package = json.loads((bound_root / "TERMINAL_PACKAGE.json").read_text(encoding="utf-8"))
+    passed = (
+        complete.get("status") == "pass" and package.get("status") == "completed"
+        and package.get("all_workers_stopped") is True and package.get("job_reconciliation", {}).get("pass") is True
+        and package.get("attempt_reconciliation", {}).get("pass") is True
+        and package.get("control_reconciliation", {}).get("pass") is True
+        and independent.get("status") == "pass" and independent.get("require_complete") is True
+        and bound.get("status") == "pass" and bound_package.get("status") == "global_bound_stop_incomplete"
+        and bound_package.get("resumable") is True and bound_package.get("all_workers_stopped") is True
+    )
     return {
-        "status": "pass", "complete": complete, "bound_stop": bound, "resumable": True,
-        "attempts_reconciled": len(attempt_rows), "controls_reconciled": len(control_rows),
-        "forensic_records": len(forensics), "route_records": len(routes),
-        "bound_stop_missing_attempts": len(attempt_ids) - len(partial_attempts),
-        "bound_stop_missing_controls": len(control_ids) - len(partial_controls),
+        "status": "pass" if passed else "fail", "complete": complete, "bound_stop": bound,
+        "complete_source": "actual_CampaignOrchestrator_stage_markers_via_campaign_terminal_records",
+        "bound_stop_source": "actual_detached_service_interruption",
+        "attempt_reconciliation": package.get("attempt_reconciliation"),
+        "control_reconciliation": package.get("control_reconciliation"),
+        "forensic_records": independent.get("forensic_count"), "route_records": independent.get("route_count"),
+        "independent_recomputation_sha256": sha256_file(complete_root / "INDEPENDENT_RECOMPUTATION.json"),
+        "resumable": bound_package.get("resumable"),
     }
 
 
@@ -434,37 +470,51 @@ def _service_evidence_gate(
     cache_manifest_sha256: str,
     implementation_commit: str,
 ) -> dict[str, Any]:
-    roots = {
-        "current_production": current_service_root / "run",
-        "restart": repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v02/run",
-        "worker_kill": repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v06/run",
-        "graceful_resume": repository_root / "results/rebaseline/stage24_shadow_service_canary_20260721_v07/run",
-    }
-    rows = {}
-    for name, root in roots.items():
-        campaign = json.loads((root / "SHADOW_CAMPAIGN_STATE.json").read_text(encoding="utf-8"))
-        supervisor = json.loads((root / "production_shadow_unit/SUPERVISOR_STATE.json").read_text(encoding="utf-8"))
-        rows[name] = {
-            "campaign_status": campaign.get("status"), "health_release": campaign.get("health_release"),
-            "attempts": supervisor.get("attempts"), "completed_count": supervisor.get("completed_count"),
-            "all_workers_stopped": supervisor.get("all_workers_stopped"), "service_identity": supervisor.get("service_identity"),
-        }
-    attempt_values = list(rows["worker_kill"]["attempts"].values())
+    root = current_service_root / "run"
+    campaign = json.loads((root / "SHADOW_CAMPAIGN_STATE.json").read_text(encoding="utf-8"))
+    stage_state = json.loads((root / "campaign/CAMPAIGN_STAGE_STATE.json").read_text(encoding="utf-8"))
+    reconciliation_path = root / "campaign/STAGE_JOB_RECONCILIATION.json"
+    reconciliation = json.loads(reconciliation_path.read_text(encoding="utf-8"))
+    terminal = verify_terminal_inventory(root / "campaign/terminal")
     current_spec_path = current_service_root / "SHADOW_SERVICE_SPEC.json"
     current_spec = json.loads(current_spec_path.read_text(encoding="utf-8"))
+    required_stages = {
+        "cache_validation", "inner_development", "kda02b_adjudication",
+        "plateau_and_refinement", "conditional_refinement_execution", "parent_beam_freeze",
+        "a2_parent_resolution", "a2_inner_development", "final_beam_freeze",
+        "outer_evaluation", "conditional_controls", "conditional_materialization",
+        "terminal_reconciliation",
+    }
+    stage_rows = reconciliation.get("stages", ())
+    supervisors_stopped = bool(stage_rows) and all(
+        row.get("pass") is True and row.get("all_workers_stopped") is True for row in stage_rows
+    )
+    worker_evidence = campaign.get("shadow_worker_evidence", {})
     passed = (
-        all(row["campaign_status"] == "complete" and row["health_release"] is True and row["all_workers_stopped"] is True for row in rows.values())
-        and attempt_values == [2]
-        and list(rows["graceful_resume"]["attempts"].values()) == [2]
-        and all(str(row["service_identity"]).startswith("qlmg-stage24-shadow-") for row in rows.values())
+        campaign.get("status") == "complete" and campaign.get("campaign_orchestrator") == "actual_production_stage_graph"
+        and campaign.get("health_release") is True and campaign.get("first_real_registered_unit_reconciled") is True
+        and campaign.get("scheduled_heartbeat_delivered") is True
+        and stage_state.get("status") == "complete" and required_stages <= set(stage_state.get("completed_stages", ()))
+        and reconciliation.get("pass") is True and supervisors_stopped
+        and int(worker_evidence.get("materialized_shadow_ledger_rows", 0)) >= 1
+        and worker_evidence.get("economic_outcomes_opened") is False
+        and terminal.get("status") == "pass"
         and current_spec.get("reviewed_commit") == implementation_commit
-        and current_spec.get("identity_bindings", {}).get("cache_manifest_sha256") == cache_manifest_sha256
+        and current_spec.get("identity_bindings", {}).get("benchmark_probe_cache_manifest_sha256") == cache_manifest_sha256
+        and current_spec.get("cache_classification") == "benchmark_probe_only"
+        and current_spec.get("cache_is_launch_input_authority") is False
     )
     return {
-        "status": "pass" if passed else "fail", "installed_service_runs": rows,
+        "status": "pass" if passed else "fail",
+        "campaign_status": campaign.get("status"), "campaign_orchestrator": campaign.get("campaign_orchestrator"),
+        "health_release": campaign.get("health_release"), "first_real_registered_unit_reconciled": campaign.get("first_real_registered_unit_reconciled"),
+        "scheduled_heartbeat_delivered": campaign.get("scheduled_heartbeat_delivered"),
+        "completed_stages": stage_state.get("completed_stages"), "stage_job_reconciliation_sha256": sha256_file(reconciliation_path),
+        "all_stage_supervisors_stopped": supervisors_stopped, "terminal_inventory": terminal,
+        "shadow_worker_evidence": worker_evidence,
         "current_spec_sha256": sha256_file(current_spec_path),
         "current_commit_bound": current_spec.get("reviewed_commit"),
-        "current_cache_manifest_bound": current_spec.get("identity_bindings", {}).get("cache_manifest_sha256"),
+        "current_cache_manifest_bound": current_spec.get("identity_bindings", {}).get("benchmark_probe_cache_manifest_sha256"),
         "telegram_preflight": "pass", "independent_of_chat": True,
     }
 
@@ -479,11 +529,17 @@ def run_gate(args: argparse.Namespace) -> dict[str, Any]:
     )
     authority_path = args.execution_input_authority or args.packet_root / "EXECUTION_INPUT_AUTHORITY.json"
     execution_input_authority = json.loads(authority_path.read_text(encoding="utf-8"))
-    cache, frames = _cache_gate(args.cache_manifest, authority_path); checks["cache_authority"] = cache
-    checks["real_family_inputs_and_engines"] = _real_engine_gate(
+    cache, frames = _cache_gate(args.cache_manifest, authority_path); checks["benchmark_probe_cache"] = cache
+    checks["benchmark_probe_engine_sanity"] = _real_engine_gate(
         execution, frames, cache_manifest_path=args.cache_manifest, execution_input_authority=execution_input_authority,
     )
-    checks["controls"] = control_production_shadow_probe(args.output / "control_workers", controls, frames, execution)
+    control_probe = control_production_shadow_probe(args.output / "control_workers", controls, frames, execution)
+    actual_controls = _actual_service_control_gate(args.shadow_service_root)
+    checks["controls"] = {
+        **control_probe,
+        "status": "pass" if control_probe.get("status") == "pass" and actual_controls.get("status") == "pass" else "fail",
+        "actual_detached_service": actual_controls,
+    }
     del frames
     gc.collect()
     checks["representative_benchmark"] = run_population_benchmark(
@@ -494,7 +550,7 @@ def run_gate(args: argparse.Namespace) -> dict[str, Any]:
         execution_authority_path=authority_path,
         repository_root=args.repository_root,
     )
-    checks["selection_A2_materialization"] = _selection_gate(execution, checks["representative_benchmark"])
+    checks["selection_A2_materialization"] = _selection_gate(execution, checks["representative_benchmark"], args.shadow_service_root)
     checks["a1_state"] = _a1_state_gate()
     checks["shadow_service"] = _service_evidence_gate(
         args.repository_root,
@@ -502,11 +558,11 @@ def run_gate(args: argparse.Namespace) -> dict[str, Any]:
         cache_manifest_sha256=sha256_file(args.cache_manifest),
         implementation_commit=_git(args.repository_root, "rev-parse", "HEAD"),
     )
-    checks["terminal"] = _terminal_gate(args.output, strategy, controls)
+    checks["terminal"] = _terminal_gate(args.shadow_service_root, args.bound_stop_service_root)
     statuses = {name: value.get("status") for name, value in checks.items()}
     passed = all(value == "pass" for value in statuses.values())
     report = {
-        "schema": "stage24_production_readiness_gate_v1", "mode": args.mode,
+        "schema": "stage24_production_readiness_gate_v2", "mode": args.mode,
         "status": "pass" if passed else "fail", "checks": checks, "check_statuses": statuses,
         "economic_outcomes_opened": False, "protected_rows_opened": 0, "capitalcom_payload_opened": False,
         "implementation_commit": _git(args.repository_root, "rev-parse", "HEAD"),
@@ -535,6 +591,10 @@ def parser() -> argparse.ArgumentParser:
         "--shadow-service-root",
         type=Path,
         default=Path("results/rebaseline/stage24_shadow_service_canary_20260721_v16"),
+    )
+    result.add_argument(
+        "--bound-stop-service-root", type=Path,
+        default=Path("results/rebaseline/stage24_shadow_service_bound_stop_20260722_v01"),
     )
     result.add_argument("--stage24-task", type=Path, default=Path("/root/.codex/attachments/631b7b9c-9ca0-435d-a456-2cf1c64062c8/pasted-text.txt"))
     return result
