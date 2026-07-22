@@ -57,13 +57,29 @@ def benchmark_strata(execution: Sequence[Mapping[str, Any]], *, per_family_fold:
     registry = {str(row["executable_attempt_id"]): row for row in execution}
     result: dict[str, tuple[Mapping[str, Any], ...]] = {}
     for family in DIRECT_FAMILIES:
-        result[family] = _stratified_rows([row for row in execution if row["family_id"] == family], per_family_fold)
-    result["A2_PRIOR_HIGH_RS_CONTEXT_V1"] = _stratified_rows([
+        routes: dict[tuple[int, str], list[Mapping[str, Any]]] = defaultdict(list)
+        for row in execution:
+            if row["family_id"] == family:
+                routes[(int(row["config"]["PIT_liquidity_top_n"]), str(row["config"].get("rebalance", "5m")))].append(row)
+        route_rows = max(
+            routes.values(),
+            key=lambda rows: (len({str(row["config"].get("exit")) for row in rows}), len(rows)),
+        )
+        result[family] = _stratified_rows(route_rows, per_family_fold)
+    a2_candidates = [
         row for row in execution
         if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1"
         and row["config"].get("parent_binding_mode") == "source_attempt"
         and str(row.get("resolved_parent_executable_attempt_id")) in registry
-    ], per_family_fold)
+    ]
+    a2_by_parent: dict[str, list[Mapping[str, Any]]] = defaultdict(list)
+    for row in a2_candidates:
+        a2_by_parent[str(row["resolved_parent_executable_attempt_id"])].append(row)
+    parent_rows = max(
+        a2_by_parent.values(),
+        key=lambda rows: (len({str(row["config"]["overlay_action"]) for row in rows}), len(rows)),
+    )
+    result["A2_PRIOR_HIGH_RS_CONTEXT_V1"] = _stratified_rows(parent_rows, per_family_fold)
     if any(len(rows) != per_family_fold for rows in result.values()):
         raise PopulationBenchmarkError("a family has fewer than the required ten configuration-only strata")
     return result
@@ -91,37 +107,37 @@ def _partition_task(
         completed_by_family: Counter[str] = Counter(); unavailable_by_family: Counter[str] = Counter()
         signatures: set[str] = set(); symbols: set[str] = set(); result_rows = []
         for family in (*DIRECT_FAMILIES, "A2_PRIOR_HIGH_RS_CONTEXT_V1"):
-            for row in strata[family]:
-                parent = None
-                parent_binding = None
-                if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
-                    parent = registry[str(row["resolved_parent_executable_attempt_id"])]
-                    parent_binding = {
-                        "parent_binding_template_id": row["parent_binding_template_id"],
-                        "parent_executable_attempt_id": row["resolved_parent_executable_attempt_id"],
-                        "parent_only_counterpart_id": row["parent_only_counterpart_id"],
-                        "overlay_counterpart_id": row["overlay_counterpart_id"],
-                    }
-                locators = schedule.representative_locators(
-                    row, phase=phase, outer_fold_id=outer, inner_fold_id=inner,
-                    symbol_size_bytes=source_sizes, parent_attempt=parent,
-                )
-                for locator in locators:
-                    started = time.monotonic()
-                    frame = adapter.frame(locator)
-                    parent_frame = None
-                    if parent is not None:
-                        parent_frame = adapter.frame(replace(
-                            locator,
-                            family_id=str(parent["family_id"]),
-                            executable_attempt_id=str(parent["executable_attempt_id"]),
-                            canonical_economic_address_sha256=str(parent["canonical_economic_address_sha256"]),
-                        ))
-                    frame_seconds += time.monotonic() - started
-                    frame.validate(); signatures.update(str(key) for key in frame.threshold_populations); symbols.add(frame.symbol)
+            family_rows = tuple(strata[family]); prototype = family_rows[0]
+            parent = None
+            if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+                parent = registry[str(prototype["resolved_parent_executable_attempt_id"])]
+                if any(str(row["resolved_parent_executable_attempt_id"]) != str(parent["executable_attempt_id"]) for row in family_rows):
+                    raise PopulationBenchmarkError("A2 benchmark stratum does not share one exact parent route")
+            locators = schedule.representative_locators(
+                prototype, phase=phase, outer_fold_id=outer, inner_fold_id=inner,
+                symbol_size_bytes=source_sizes, parent_attempt=parent,
+            )
+            for locator in locators:
+                started = time.monotonic()
+                frame = adapter.frame(locator)
+                parent_frame = None
+                if parent is not None:
+                    parent_frame = adapter.frame(replace(
+                        locator, family_id=str(parent["family_id"]),
+                        executable_attempt_id=str(parent["executable_attempt_id"]),
+                        canonical_economic_address_sha256=str(parent["canonical_economic_address_sha256"]),
+                    ))
+                frame_seconds += time.monotonic() - started
+                frame.validate(); signatures.update(str(key) for key in frame.threshold_populations); symbols.add(frame.symbol)
+                for row in family_rows:
                     kwargs: dict[str, Any] = {}
                     if parent is not None:
-                        kwargs = {"parent_binding": parent_binding, "parent_frames": (parent_frame,)}
+                        kwargs = {"parent_binding": {
+                            "parent_binding_template_id": row["parent_binding_template_id"],
+                            "parent_executable_attempt_id": row["resolved_parent_executable_attempt_id"],
+                            "parent_only_counterpart_id": row["parent_only_counterpart_id"],
+                            "overlay_counterpart_id": row["overlay_counterpart_id"],
+                        }, "parent_frames": (parent_frame,)}
                     started = time.monotonic()
                     try:
                         result = dispatch_registered_attempt(

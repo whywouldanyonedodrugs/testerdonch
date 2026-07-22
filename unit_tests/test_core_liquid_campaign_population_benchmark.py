@@ -20,6 +20,12 @@ class PopulationBenchmarkTests(unittest.TestCase):
         second_ids = {family: [row["executable_attempt_id"] for row in rows] for family, rows in second.items()}
         self.assertEqual(first_ids, second_ids)
         self.assertTrue(all(len(rows) == 10 for rows in first.values()))
+        for family in ("A4_TSMOM_V7", "A1_COMPRESSION_V2", "A3_STARTER_RETEST_V3"):
+            self.assertEqual(1, len({
+                (row["config"]["PIT_liquidity_top_n"], row["config"].get("rebalance", "5m"))
+                for row in first[family]
+            }))
+        self.assertEqual(1, len({row["resolved_parent_executable_attempt_id"] for row in first["A2_PRIOR_HIGH_RS_CONTEXT_V1"]}))
 
     def test_exit_and_overlay_classes_are_covered(self) -> None:
         rows = benchmark_strata(self.execution)
