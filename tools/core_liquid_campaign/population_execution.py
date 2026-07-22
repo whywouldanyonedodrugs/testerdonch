@@ -139,6 +139,8 @@ class LaunchPopulationSchedule:
                 yield FamilyDecisionLocator(
                     output_family, phase, outer_fold_id, inner_fold_id,
                     str(row["symbol"]), day + timedelta(minutes=5 * offset),
+                    str(attempt["executable_attempt_id"]),
+                    str(attempt["canonical_economic_address_sha256"]),
                 )
 
 

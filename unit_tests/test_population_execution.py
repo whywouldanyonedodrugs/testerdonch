@@ -33,13 +33,15 @@ class PopulationExecutionTests(unittest.TestCase):
             path = self._authority(Path(raw))
             with patch("tools.core_liquid_campaign.population_execution.validate_launch_population_authority"):
                 schedule = LaunchPopulationSchedule(path, sha256_file(path))
-            a1 = {"family_id": "A1_COMPRESSION_V2", "config": {"PIT_liquidity_top_n": 10}}
-            a4 = {"family_id": "A4_TSMOM_V7", "config": {"PIT_liquidity_top_n": 10, "rebalance": "8h"}}
+            a1 = {"family_id": "A1_COMPRESSION_V2", "config": {"PIT_liquidity_top_n": 10}, "executable_attempt_id": "a1", "canonical_economic_address_sha256": "1" * 64}
+            a4 = {"family_id": "A4_TSMOM_V7", "config": {"PIT_liquidity_top_n": 10, "rebalance": "8h"}, "executable_attempt_id": "a4", "canonical_economic_address_sha256": "2" * 64}
             self.assertEqual(577, schedule.count(a1, phase="outer_evaluation", outer_fold_id="2024Q1", inner_fold_id=None))
             self.assertEqual(7, schedule.count(a4, phase="outer_evaluation", outer_fold_id="2024Q1", inner_fold_id=None))
             locators = list(schedule.iter_locators(a4, phase="outer_evaluation", outer_fold_id="2024Q1", inner_fold_id=None))
             self.assertEqual(7, len(locators))
             self.assertEqual(("PF_XBTUSD", 0), (locators[0].symbol, locators[0].decision_ts.hour))
+            self.assertEqual("a4", locators[0].executable_attempt_id)
+            self.assertEqual("2" * 64, locators[0].canonical_economic_address_sha256)
 
     def test_a2_requires_exact_parent(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
