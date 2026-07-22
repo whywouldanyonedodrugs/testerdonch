@@ -33,6 +33,10 @@ from .terminal import campaign_terminal_records, terminal_package, verify_termin
 from .launch_population_authority import validate_launch_population_authority
 from .kda02b_population_index import validate_kda02b_lazy_population_index
 from .kda02b_lazy_family_input import KDA02BLazyFamilyInputAdapter
+from .kda02b_denominator import (
+    reconcile_stage20_kda02b_aggregate,
+    stage20_kda02b_denominator_contract,
+)
 
 
 STAGE_GRAPH = (
@@ -608,6 +612,37 @@ class CampaignOrchestrator:
                 payloads.append(result)
         return payloads
 
+    def _require_completed_stage(self, stage_name: str) -> set[str]:
+        stage_root = self.run_root / stage_name
+        state_path = stage_root / "SUPERVISOR_STATE.json"
+        if not state_path.is_file():
+            raise CampaignContractError(f"completed {stage_name} stage has no supervisor state")
+        supervisor = json.loads(state_path.read_text(encoding="utf-8"))
+        if (
+            supervisor.get("status") != "complete"
+            or supervisor.get("all_workers_stopped") is not True
+            or supervisor.get("worker_pids")
+            or int(supervisor.get("in_flight_count", 0)) != 0
+            or supervisor.get("failed")
+        ):
+            raise CampaignContractError(f"completed {stage_name} stage is not cleanly reconciled")
+        completed = supervisor.get("completed")
+        if not isinstance(completed, Mapping):
+            raise CampaignContractError(f"completed {stage_name} stage has no completed registry")
+        reconciled = {
+            str(payload["registered_job_id"])
+            for payload in self._completed_payloads(stage_root)
+        }
+        marker_jobs = {
+            str(json.loads(path.read_text(encoding="utf-8"))["job_id"])
+            for path in sorted((stage_root / "markers").glob("*.json"))
+        }
+        if marker_jobs != set(completed) or len(marker_jobs) != int(supervisor.get("completed_count", -1)):
+            raise CampaignContractError(f"completed {stage_name} marker registry differs from supervisor state")
+        if not reconciled:
+            raise CampaignContractError(f"completed {stage_name} stage has no registered payloads")
+        return marker_jobs
+
     def _freeze_beams(self, execution: Sequence[Mapping[str, Any]], *, output_name: str = "FROZEN_BEAM_REGISTRY.json") -> list[dict[str, Any]]:
         rows_by_id = {row["executable_attempt_id"]: row for row in execution}
         payloads = self._completed_payloads(self.run_root / "inner_development")
@@ -835,9 +870,21 @@ class CampaignOrchestrator:
 
     def run(self) -> dict[str, Any]:
         manifest, execution, controls, registry, cache = self._authority()
-        state = {"schema": "stage22_campaign_stage_state_v1", "campaign_id": manifest["campaign_id"], "stage_graph": list(STAGE_GRAPH), "completed_stages": ["cache_validation"], "status": "running"}
-        atomic_write_json(self.stage_state, state)
-        self._run_jobs("inner_development", self._inner_jobs(execution, registry, cache), require_health_release=True); state["completed_stages"].append("inner_development"); atomic_write_json(self.stage_state, state)
+        carried_forward_jobs: dict[str, set[str]] = {}
+        if self.stage_state.is_file():
+            prior = json.loads(self.stage_state.read_text(encoding="utf-8"))
+        else:
+            prior = None
+        if prior is not None and prior.get("completed_stages") == ["cache_validation", "inner_development"]:
+            if prior.get("campaign_id") != manifest["campaign_id"] or prior.get("stage_graph") != list(STAGE_GRAPH):
+                raise CampaignContractError("resumable campaign stage identity differs")
+            carried_forward_jobs["inner_development"] = self._require_completed_stage("inner_development")
+            state = dict(prior); state["status"] = "running"
+            atomic_write_json(self.stage_state, state)
+        else:
+            state = {"schema": "stage22_campaign_stage_state_v1", "campaign_id": manifest["campaign_id"], "stage_graph": list(STAGE_GRAPH), "completed_stages": ["cache_validation"], "status": "running"}
+            atomic_write_json(self.stage_state, state)
+            self._run_jobs("inner_development", self._inner_jobs(execution, registry, cache), require_health_release=True); state["completed_stages"].append("inner_development"); atomic_write_json(self.stage_state, state)
         self._run_jobs("kda02b_adjudication", self._kda_jobs(execution, registry, cache)); state["completed_stages"].append("kda02b_adjudication"); atomic_write_json(self.stage_state, state)
         centers = self._freeze_beams(execution, output_name="FROZEN_REFINEMENT_CENTER_REGISTRY.json")
         refinement_records = self._freeze_refinements(execution, centers)
@@ -878,7 +925,7 @@ class CampaignOrchestrator:
             fold_order=OUTER_FOLDS,
         )
         expected_jobs = {
-            "inner_development": {job for job, _ in self._inner_jobs(execution, registry, cache)},
+            "inner_development": carried_forward_jobs.get("inner_development") or {job for job, _ in self._inner_jobs(execution, registry, cache)},
             "kda02b_adjudication": {job for job, _ in self._kda_jobs(execution, registry, cache)},
             "conditional_refinement": {job for job, _ in self._refinement_jobs(refinements, combined_registry, cache)},
             "a2_inner_development": {job for job, _ in self._a2_inner_jobs(combined_execution, combined_registry, cache, bindings)},
@@ -979,7 +1026,8 @@ class CampaignOrchestrator:
 
     def _kda_jobs(self, execution: Sequence[Mapping[str, Any]], registry: Mapping[str, Mapping[str, Any]], cache: Mapping[str, Any]) -> Iterable[tuple[str, Callable[[], Any]]]:
         rows = [row for row in execution if row["family_id"] == "KDA02B_SURVIVOR_ADJUDICATION_V1"]
-        if self.kda02b_population_adapter is not None:
+        kda02b_population_adapter = getattr(self, "kda02b_population_adapter", None)
+        if kda02b_population_adapter is not None:
             by_cell: dict[str, list[Mapping[str, Any]]] = {}
             for row in rows:
                 by_cell.setdefault(str(row["config"]["stage20_cell_id"]), []).append(row)
@@ -991,8 +1039,9 @@ class CampaignOrchestrator:
                     observations: dict[str, list[Any]] = {str(row["executable_attempt_id"]): [] for row in ordered_rows}
                     ledgers: dict[str, list[dict[str, Any]]] = {str(row["executable_attempt_id"]): [] for row in ordered_rows}
                     unavailable: list[dict[str, Any]] = []
+                    denominator_frames: list[Any] = []
                     eligible_records = 0
-                    for record in self.kda02b_population_adapter.stream(cell_id=cell_id):
+                    for record in kda02b_population_adapter.stream(cell_id=cell_id):
                         if record.status == "typed_unavailable":
                             unavailable.append({
                                 "status": "unavailable_data",
@@ -1009,6 +1058,7 @@ class CampaignOrchestrator:
                         if record.frame is None:
                             raise CampaignContractError("eligible KDA02B population record has no FamilyInput")
                         eligible_records += 1
+                        denominator_frames.append(record.frame)
                         for row in ordered_rows:
                             directives = None
                             if row["config"]["adjudication_variant"] == "generic_structure_control":
@@ -1023,20 +1073,37 @@ class CampaignOrchestrator:
                             identity = str(row["executable_attempt_id"])
                             observations[identity].extend(dispatched.get("observations", ()))
                             ledgers[identity].extend(dispatched.get("ledger", ()))
+                    denominator_contract = stage20_kda02b_denominator_contract(denominator_frames)
                     batch_results = []
                     for row in ordered_rows:
                         identity = str(row["executable_attempt_id"]); accepted = []; last_exit: dict[str, datetime] = {}
                         for item in sorted(observations[identity], key=lambda value: (value.symbol, value.entry_ts, value.event_id)):
                             if item.symbol not in last_exit or item.entry_ts >= last_exit[item.symbol]:
                                 accepted.append(item); last_exit[item.symbol] = item.exit_ts
+                        accepted_rows, aggregate, denominator_trace = reconcile_stage20_kda02b_aggregate(
+                            accepted, denominator_contract
+                        )
                         batch_results.append({
                             "status": "complete", "family_id": row["family_id"],
                             "registered_attempt_id": identity, "registered_job_id": f"kda02b:{identity}",
                             "batch_registered_job_id": job_id,
                             "canonical_economic_address_sha256": row["canonical_economic_address_sha256"],
-                            "aggregate": aggregate_streaming(iter(accepted)), "observations": accepted,
-                            "ledger": ledgers[identity], "observation_count": len(accepted),
-                            "event_ids": sorted(item.event_id for item in accepted),
+                            "aggregate": aggregate, "observations": accepted_rows,
+                            "ledger": ledgers[identity], "observation_count": len(accepted_rows),
+                            "event_ids": sorted(item.event_id for item in accepted_rows),
+                            "generated_observation_count": len(observations[identity]),
+                            "overlap_suppressed_observation_count": len(observations[identity]) - len(accepted_rows),
+                            "side_counts": {
+                                str(side): sum(
+                                    item.get("status") == "complete"
+                                    and item.get("engine_event", {}).get("side") == side
+                                    for item in ledgers[identity]
+                                )
+                                for side in (-1, 1)
+                            },
+                            "adjudication_variant": row["config"]["adjudication_variant"],
+                            "stage20_denominator_contract": denominator_contract,
+                            "denominator_reconciliation": denominator_trace,
                             "population_eligible_records": eligible_records,
                             "typed_unavailable_observation_count": len(unavailable),
                             "typed_unavailable_observations": unavailable,

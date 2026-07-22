@@ -350,6 +350,12 @@ def run_shadow_service(spec_path: Path) -> dict[str, Any]:
             "terminal_bound_stop_inventory": bound_terminal,
         })
         atomic_write_json(state_path, state)
+        telegram.bound_stop({
+            "service_identity": spec["service_identity"],
+            "status": state["status"],
+            "reason": state["reason"],
+            "resumable": True,
+        })
         return state
     if campaign_state.get("status") != "complete":
         raise ShadowAuthorizationError("real CampaignOrchestrator did not reach terminal completion")

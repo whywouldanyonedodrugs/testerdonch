@@ -9,6 +9,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from tools.core_liquid_campaign.canonical import atomic_write_json, atomic_write_jsonl, sha256_file
+from tools.core_liquid_campaign.campaign import CampaignContractError
 from tools.core_liquid_campaign.schema import CAMPAIGN_ID
 from tools.core_liquid_campaign.shadow_campaign import (
     BoundedShadowPopulationSchedule,
@@ -199,6 +200,8 @@ class Stage24RealShadowServiceTests(unittest.TestCase):
     ) -> None:
         with tempfile.TemporaryDirectory() as raw:
             root = Path(raw); packet_root = root / "packet"; packet_root.mkdir()
+            atomic_write_jsonl(packet_root / "FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl", [])
+            atomic_write_jsonl(packet_root / "FINAL_CONTROL_REGISTRY.jsonl", [])
             cache_path = root / "cache.json"; atomic_write_json(cache_path, {})
             spec = {
                 "repository_root": str(Path.cwd()), "run_root": str(root / "run"),
@@ -252,6 +255,56 @@ class Stage24RealShadowServiceTests(unittest.TestCase):
             self.assertEqual("fixture-shadow", kwargs["payoff_provider"].campaign_identity)
             self.assertEqual(0, kwargs["payoff_provider"].real_post_entry_rows_opened)
             self.assertNotIn("dispatch_registered_attempt", run_shadow_service.__code__.co_names)
+
+    @patch("tools.core_liquid_campaign.shadow_service._write_shadow_bound_stop")
+    @patch("tools.core_liquid_campaign.shadow_service.ProductionShadowCampaignOrchestrator")
+    @patch("tools.core_liquid_campaign.shadow_service.BoundedShadowKDA02BAdapter")
+    @patch("tools.core_liquid_campaign.shadow_service.KDA02BLazyFamilyInputAdapter")
+    @patch("tools.core_liquid_campaign.shadow_service.LazyProductionFamilyInputAdapter")
+    @patch("tools.core_liquid_campaign.shadow_service.BoundedShadowPopulationSchedule")
+    @patch("tools.core_liquid_campaign.shadow_service.LaunchPopulationSchedule")
+    @patch("tools.core_liquid_campaign.shadow_service.CacheAuthority")
+    @patch("tools.core_liquid_campaign.shadow_service.ShadowCampaignAuthorization")
+    @patch("tools.core_liquid_campaign.shadow_service.ShadowAuthorization")
+    def test_service_delivers_bound_stop_notification(
+        self, shadow_authorization: Mock, campaign_authorization: Mock, cache_authority: Mock,
+        launch_schedule: Mock, bounded_schedule: Mock, population_adapter: Mock,
+        kda_adapter: Mock, bounded_kda_adapter: Mock, orchestrator: Mock,
+        write_bound_stop: Mock,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw); packet_root = root / "packet"; packet_root.mkdir()
+            atomic_write_jsonl(packet_root / "FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl", [])
+            atomic_write_jsonl(packet_root / "FINAL_CONTROL_REGISTRY.jsonl", [])
+            cache_path = root / "cache.json"; atomic_write_json(cache_path, {})
+            launch = root / "launch.json"; atomic_write_json(launch, {})
+            kda = root / "kda.json"; atomic_write_json(kda, {})
+            spec = {
+                "repository_root": str(Path.cwd()), "run_root": str(root / "run"),
+                "service_identity": "fixture.service", "workers": 1, "heartbeat_seconds": 1,
+                "identity_bindings": {"fixture": True}, "synthetic_provider_version": "fixture-shadow",
+                "population_slice_policy": {}, "kda02b_slice_policy": {},
+                "shadow_campaign_packet": {
+                    "packet_root": str(packet_root), "cache_manifest": {"path": str(cache_path)},
+                    "execution_input_authority": {"path": str(cache_path)},
+                },
+            }
+            shadow_authorization.return_value.require.return_value = spec
+            campaign_authorization.return_value.require.return_value = {
+                "campaign_id": CAMPAIGN_ID,
+                "launch_population_authority": {"path": str(launch), "sha256": sha256_file(launch)},
+                "kda02b_lazy_population_authority": {"path": str(kda), "sha256": sha256_file(kda)},
+            }
+            orchestrator.return_value.run.side_effect = CampaignContractError("fixture stage failure")
+            write_bound_stop.return_value = {"status": "pass"}
+            transport = Mock(); transport.preflight.return_value = True; transport.bound_stop.return_value = True
+            with patch("tools.run_stage22_core_liquid_campaign.TelegramTransport", return_value=transport):
+                result = run_shadow_service(root / "spec.json")
+            self.assertEqual("global_resumable_bound_stop", result["status"])
+            transport.bound_stop.assert_called_once_with({
+                "service_identity": "fixture.service", "status": "global_resumable_bound_stop",
+                "reason": "fixture stage failure", "resumable": True,
+            })
 
     @staticmethod
     def _complete_campaign_fixture(root: Path) -> dict[str, object]:

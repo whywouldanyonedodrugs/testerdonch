@@ -472,6 +472,16 @@ class LazySupervisor:
             unknown_markers = set(completed) - seen
             if unknown_markers:
                 raise ResourceGateError("reconciled marker belongs to a job absent from the complete lazy registry")
+            stale_failures = {job_id: failed.pop(job_id) for job_id in sorted(set(failed) - seen)}
+            if stale_failures:
+                history = dict(state.get("superseded_failed_attempts", {}))
+                for job_id, record in stale_failures.items():
+                    history[job_id] = {
+                        **record,
+                        "superseded_reason": "absent_from_complete_reviewed_lazy_registry",
+                        "preserved_attempt_count": attempts.get(job_id),
+                    }
+                state["superseded_failed_attempts"] = history
             while require_health_release and not (any(record.get("reconciled_real_registered_unit") is True for record in completed.values()) and int(state.get("heartbeat_success_count", 0)) >= 1):
                 if self.heartbeat is None:
                     raise ResourceGateError("health release requires scheduled heartbeat transport")

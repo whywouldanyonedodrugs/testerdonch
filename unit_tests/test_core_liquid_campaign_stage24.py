@@ -918,6 +918,31 @@ class Stage24KnownDefectTests(unittest.TestCase):
             self.assertTrue(state["all_workers_stopped"])
             self.assertEqual([], state["worker_pids"])
 
+    def test_failed_jobs_absent_from_reviewed_resume_registry_are_preserved_as_superseded(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            atomic_write_json(root / "SUPERVISOR_STATE.json", {
+                "schema": "stage23_supervisor_state_v4", "completed": {},
+                "failed": {"legacy-job": {"status": "family_job_exhausted", "error": "old defect", "attempts": 4}},
+                "attempts": {"legacy-job": 4}, "generation": 1, "status": "complete_with_family_job_exhaustion",
+                "heartbeat_count": 0, "heartbeat_success_count": 0, "first_real_unit_reconciled": False,
+                "health_release": False, "consecutive_supervisor_restarts": 0,
+                "identity_bindings": {"campaign": "fixture"},
+            })
+            limits = ResourceLimits(
+                max_workers=1, max_jobs_in_flight=1, max_output_bytes=32 * 1024**2,
+                minimum_free_disk_bytes=1, minimum_free_disk_fraction=0.0,
+                heartbeat_seconds=1800, monitor_interval_seconds=0.001,
+            )
+            state = LazySupervisor(root, limits, heartbeat=lambda _payload: True, identity_bindings={"campaign": "fixture"}).run(
+                iter([("reviewed-batch", lambda: {"registered_attempt_id": "reviewed-batch", "status": "complete", "aggregate": {}})])
+            )
+            self.assertEqual("complete", state["status"])
+            self.assertEqual({}, state["failed"])
+            self.assertEqual("old defect", state["superseded_failed_attempts"]["legacy-job"]["error"])
+            self.assertEqual(4, state["superseded_failed_attempts"]["legacy-job"]["preserved_attempt_count"])
+            self.assertEqual("absent_from_complete_reviewed_lazy_registry", state["superseded_failed_attempts"]["legacy-job"]["superseded_reason"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -14,6 +14,7 @@ from .cache import SemanticCacheWriter
 from .canonical import atomic_write_json, canonical_hash, sha256_file
 from .engine_types import ContextInputs, FamilyInput, FundingInput, KRAKEN_PLATFORM, SignalBar
 from .family_engines.kda02b_adjudication import cell_contract, cell_contract_sha256
+from .kda02b_denominator import STAGE20_ELIGIBLE_SYMBOLS
 from .production_cache import (
     ALLOWED_CANDLE_COLUMNS,
     KDA02B_FEATURE_SOURCE_ROLES,
@@ -413,7 +414,7 @@ def build_kda02b_production_cache(
                 "evaluation_start": evaluation_start,
                 "evaluation_end_exclusive": evaluation_end,
                 "eligible_days": int((evaluation_end - evaluation_start).days),
-                "eligible_symbol_seconds": float((evaluation_end - evaluation_start).total_seconds() * len(eligible)),
+                "eligible_symbol_seconds": float((evaluation_end - evaluation_start).total_seconds() * STAGE20_ELIGIBLE_SYMBOLS),
                 "base_gap_allowance_bps_per_hour": 0.25,
                 "stress_gap_allowance_bps_per_hour": 0.50,
                 "stage20_cell_id": cell,

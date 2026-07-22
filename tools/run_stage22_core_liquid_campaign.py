@@ -43,6 +43,21 @@ class TelegramTransport:
         self._request("sendMessage", {"chat_id": self._chat_id, "text": "Stage 22 heartbeat " + json.dumps(allowed, sort_keys=True)})
         return True
 
+    def bound_stop(self, payload: Mapping[str, Any]) -> bool:
+        allowed = {
+            key: payload[key]
+            for key in ("service_identity", "status", "reason", "resumable")
+            if key in payload
+        }
+        self._request(
+            "sendMessage",
+            {
+                "chat_id": self._chat_id,
+                "text": "Stage 24 shadow bound stop " + json.dumps(allowed, sort_keys=True),
+            },
+        )
+        return True
+
 
 def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(description="Run the exact hash-bound Stage 22 campaign under the persistent supervisor")

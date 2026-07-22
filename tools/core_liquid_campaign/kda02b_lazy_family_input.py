@@ -11,6 +11,7 @@ from typing import Any, Iterator, Mapping, Sequence
 from .canonical import canonical_hash, sha256_file
 from .engine_types import ContextInputs, FamilyInput, FundingInput, KRAKEN_PLATFORM
 from .family_engines.kda02b_adjudication import cell_contract_sha256
+from .kda02b_denominator import STAGE20_ELIGIBLE_SYMBOLS
 from .kda02b_population_index import (
     KDA02BPopulationIndexError,
     PopulationExpectations,
@@ -333,7 +334,7 @@ class KDA02BLazyFamilyInputAdapter:
                 "evaluation_start": evaluation_start,
                 "evaluation_end_exclusive": evaluation_end,
                 "eligible_days": int((evaluation_end - evaluation_start).days),
-                "eligible_symbol_seconds": float((evaluation_end - evaluation_start).total_seconds() * self.expectations.eligible_symbols),
+                "eligible_symbol_seconds": float((evaluation_end - evaluation_start).total_seconds() * STAGE20_ELIGIBLE_SYMBOLS),
                 "base_gap_allowance_bps_per_hour": 0.25,
                 "stress_gap_allowance_bps_per_hour": 0.50,
                 "stage20_cell_id": cell,

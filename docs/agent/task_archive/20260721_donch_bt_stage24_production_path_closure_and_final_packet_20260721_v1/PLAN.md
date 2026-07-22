@@ -70,3 +70,17 @@ publish the final launch-approval packet without launching economics.
   fail report. Cache completeness failed (eight XBT-only outer artifacts, no
   inner partitions); every other implemented check passed. The review also
   established that the gate must be expanded before any PASS can be accepted.
+- 2026-07-22: Detached shadow v17 completed and reconciled all 1,984 A1-A4
+  inner-development markers, then stopped resumably at KDA02B. All 11 KDA02B
+  variants exhausted with `inconsistent aggregate denominator`; completed
+  inner markers remain untouched.
+- 2026-07-22: Minimal `KDA02B_009:identity_replay` replay located the first
+  divergence at lazy `FamilyInput` metadata: the adapter used 117 currently
+  eligible KDA symbols while immutable Stage20 `metric_row` used the full 187
+  campaign symbols. A second cross-fold boundary retained mixed 90/91/92-day
+  denominators instead of the additive nine-quarter 823-day denominator.
+- 2026-07-22: A path-local repair now validates every source-quarter
+  denominator, enforces the exact nine contiguous Stage20 folds and 187-symbol
+  base, sums their disjoint denominators, and verifies streaming/materialized
+  equality. The real minimal job and all-11-variant worker/order/restart
+  invariance validation passed without economic or protected outcome access.
