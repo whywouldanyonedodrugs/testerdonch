@@ -103,6 +103,7 @@ def _partition_task(
         phase, outer, inner = partition_key
         provider = ShadowPayoffProvider("stage24-full-population-benchmark-v1")
         frame_seconds = 0.0; engine_seconds = 0.0
+        frame_construction_calls = 0
         completed = 0; unavailable = 0; materialized_equal = 0
         completed_by_family: Counter[str] = Counter(); unavailable_by_family: Counter[str] = Counter()
         signatures: set[str] = set(); symbols: set[str] = set(); result_rows = []
@@ -120,6 +121,7 @@ def _partition_task(
             for locator in locators:
                 started = time.monotonic()
                 frame = adapter.frame(locator)
+                frame_construction_calls += 1
                 parent_frame = None
                 if parent is not None:
                     parent_frame = adapter.frame(replace(
@@ -127,6 +129,7 @@ def _partition_task(
                         executable_attempt_id=str(parent["executable_attempt_id"]),
                         canonical_economic_address_sha256=str(parent["canonical_economic_address_sha256"]),
                     ))
+                    frame_construction_calls += 1
                 frame_seconds += time.monotonic() - started
                 frame.validate(); signatures.update(str(key) for key in frame.threshold_populations); symbols.add(frame.symbol)
                 for row in family_rows:
@@ -180,6 +183,7 @@ def _partition_task(
             "completed_units_by_family": dict(sorted(completed_by_family.items())),
             "typed_unavailable_units_by_family": dict(sorted(unavailable_by_family.items())),
             "materialized_equal_units": materialized_equal, "frame_construction_seconds": frame_seconds,
+            "frame_construction_calls": frame_construction_calls,
             "engine_aggregate_seconds": engine_seconds, "symbols": sorted(symbols),
             "feature_signatures": sorted(signatures), "rows_sha256": canonical_hash(result_rows),
             "filesystem_input_bytes": max(0, int(io_end.ru_inblock - io_start.ru_inblock)) * 512,
@@ -405,6 +409,7 @@ def run_population_benchmark(
         "measured_filesystem_input_bytes": sum(int(row.get("filesystem_input_bytes", 0)) for row in results),
         "measured_worker_filesystem_output_bytes": sum(int(row.get("filesystem_output_bytes", 0)) for row in results),
         "frame_construction_seconds": sum(float(row.get("frame_construction_seconds", 0.0)) for row in results),
+        "real_FamilyInput_constructions": sum(int(row.get("frame_construction_calls", 0)) for row in results),
         "engine_aggregate_seconds": sum(float(row.get("engine_aggregate_seconds", 0.0)) for row in results),
         "conservative_projected_seconds_2x": full_seconds * 2.0,
         "projection_basis": "complete opportunity census plus real lazy FamilyInput/engine/accounting strata; two-times measured wall time",
