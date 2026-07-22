@@ -15,7 +15,6 @@ from .family_engines.common import require_utc
 from .runtime import LazySupervisor, ResourceLimits
 from .schema import CAMPAIGN_ID, FAMILY_ORDER, OUTER_FOLDS, complexity, economic_address, family_schemas, normalize_config
 from .selection import (
-    allocate_refinements,
     beam_order_key,
     day_cluster_bootstrap_q05,
     deduplicate_event_overlap,
@@ -390,30 +389,51 @@ class CampaignOrchestrator:
             atomic_write_json(self.run_root / "DEVELOPMENT_SELECTION_SURFACE.json", {"schema": "stage22_development_selection_surface_v1", "rows": audit_surface, "status": "frozen"})
         return beams
 
-    def _freeze_refinements(self, execution: Sequence[Mapping[str, Any]], beams: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
-        rows_by_address = {row["canonical_economic_address_sha256"]: row for row in execution}
-        output = []
-        existing = set(rows_by_address)
-        for family in FAMILY_ORDER:
-            if family in {"A2_PRIOR_HIGH_RS_CONTEXT_V1", "KDA02B_SURVIVOR_ADJUDICATION_V1"}:
-                continue
-            family_beams = [row for row in beams if row["family_id"] == family]
-            regions = [{"medoid": row["canonical_economic_address_sha256"], "passed": True} for row in family_beams]
-            reserved = [canonical_hash({"campaign": "stage22", "family": family, "reserved_refinement_index": index}) for index in range(64)]
-            for row in allocate_refinements(family, regions, rows_by_address, reserved, existing):
-                if row["status"] == "registered_refinement":
-                    row = {
-                        **row,
-                        "campaign_id": CAMPAIGN_ID,
-                        "family_id": family,
-                        "executable_attempt_id": row["reserved_attempt_id"],
-                        "execution_disposition": "execute_once",
-                        "duplicate_of_executable_attempt_id": None,
-                        "lane": "conditional_refinement",
-                    }
-                output.append({"family_id": family, **row})
-        atomic_write_json(self.run_root / "CONDITIONAL_REFINEMENT_REGISTRY.json", {"schema": "stage22_conditional_refinement_registry_v1", "rows": output, "registration_boundary": "written and hashed before any refinement outcome", "status": "frozen"})
-        return output
+    @staticmethod
+    def _execution_id_address_inventory(execution: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+        return [
+            {
+                "registry_index": index,
+                "executable_attempt_id": str(row["executable_attempt_id"]),
+                "canonical_economic_address_sha256": str(row["canonical_economic_address_sha256"]),
+            }
+            for index, row in enumerate(execution)
+        ]
+
+    @classmethod
+    def _bind_frozen_execution(
+        cls,
+        execution: Sequence[Mapping[str, Any]],
+        runtime_rows: Sequence[Mapping[str, Any]],
+    ) -> tuple[list[Mapping[str, Any]], dict[str, Mapping[str, Any]]]:
+        combined = [*execution, *runtime_rows]
+        if cls._execution_id_address_inventory(combined) != cls._execution_id_address_inventory(execution):
+            raise CampaignContractError("runtime execution inventory differs from the frozen Stage-21 V5 registry")
+        registry = {str(row["executable_attempt_id"]): row for row in combined}
+        if len(registry) != len(combined):
+            raise CampaignContractError("runtime execution inventory contains a duplicate executable attempt ID")
+        return combined, registry
+
+    def _freeze_refinements(self, execution: Sequence[Mapping[str, Any]], _beams: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+        inventory = self._execution_id_address_inventory(execution)
+        rows: list[dict[str, Any]] = []
+        atomic_write_json(self.run_root / "CONDITIONAL_REFINEMENT_REGISTRY.json", {
+            "schema": "stage24_stage21_v5_runtime_refinement_closure_v1",
+            "campaign_id": CAMPAIGN_ID,
+            "rows": rows,
+            "row_count": 0,
+            "registry_sha256": canonical_hash(rows),
+            "adaptive_refinement": "disabled",
+            "reason": "Do not perform adaptive refinement. All 6,144 additions are pre-outcome broad Sobol attempts.",
+            "source_execution_registry_rows": len(execution),
+            "source_executable_attempt_id_count": len({row["executable_attempt_id"] for row in execution}),
+            "source_canonical_economic_address_count": len({row["canonical_economic_address_sha256"] for row in execution}),
+            "source_execution_registry_id_address_inventory_sha256": canonical_hash(inventory),
+            "source_execution_registry_row_inventory_sha256": canonical_hash(list(execution)),
+            "registration_boundary": "frozen Stage-21 V5 registry before any shadow or economic outcome",
+            "status": "frozen_no_runtime_refinement",
+        })
+        return rows
 
     def _a2_bindings(self, execution: Sequence[Mapping[str, Any]], beams: Sequence[Mapping[str, Any]]) -> dict[str, Mapping[str, Any]]:
         slot = {row["parent_slot"]: row for row in beams}
@@ -468,8 +488,7 @@ class CampaignOrchestrator:
         centers = self._freeze_beams(execution, output_name="FROZEN_REFINEMENT_CENTER_REGISTRY.json")
         refinement_records = self._freeze_refinements(execution, centers)
         refinements = [row for row in refinement_records if row.get("status") == "registered_refinement"]
-        combined_execution = [*execution, *refinements]
-        combined_registry = {**registry, **{row["executable_attempt_id"]: row for row in refinements}}
+        combined_execution, combined_registry = self._bind_frozen_execution(execution, refinements)
         self._run_jobs("conditional_refinement", self._refinement_jobs(refinements, combined_registry, cache))
         state["completed_stages"].extend(["plateau_and_refinement", "conditional_refinement_execution"]); atomic_write_json(self.stage_state, state)
         parent_beams = self._freeze_beams(combined_execution, output_name="FROZEN_PARENT_BEAM_REGISTRY.json"); state["completed_stages"].append("parent_beam_freeze"); atomic_write_json(self.stage_state, state)

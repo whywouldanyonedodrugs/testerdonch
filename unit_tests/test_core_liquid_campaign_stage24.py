@@ -12,7 +12,7 @@ from tools.core_liquid_campaign.cache import SemanticCacheWriter, _restore_metad
 from tools.core_liquid_campaign.canonical import atomic_write_json, canonical_hash, pretty_json_bytes, sha256_file
 from tools.core_liquid_campaign.a1_state import initial_state, transition
 from tools.core_liquid_campaign.family_engines.common import EngineInputError, weak_percentile, weak_percentile_prevalidated_sorted
-from tools.core_liquid_campaign.campaign import CampaignOrchestrator
+from tools.core_liquid_campaign.campaign import CampaignContractError, CampaignOrchestrator
 from tools.core_liquid_campaign.controls import CONTROL_IDS, derive_control_inputs, execute_control
 from tools.core_liquid_campaign.executor import AuthorizationError, CacheAuthority, dispatch_registered_attempt
 from tools.core_liquid_campaign.engine_types import DailyBar, ExactPopulationTableView, ExactPopulationView
@@ -710,6 +710,43 @@ class Stage24KnownDefectTests(unittest.TestCase):
             orchestrator = object.__new__(CampaignOrchestrator)
             orchestrator.run_root = root
             self.assertEqual(orchestrator._freeze_beams([row]), [])
+
+    def test_stage21_v5_runtime_refinements_are_disabled_and_hash_bound(self) -> None:
+        execution = [
+            self._attempt("A4_TSMOM_V7", "frozen-a4"),
+            self._attempt("A1_COMPRESSION_V2", "frozen-a1"),
+        ]
+        inventory = CampaignOrchestrator._execution_id_address_inventory(execution)
+        with tempfile.TemporaryDirectory() as raw:
+            orchestrator = object.__new__(CampaignOrchestrator)
+            orchestrator.run_root = Path(raw)
+            rows = orchestrator._freeze_refinements(execution, [{
+                "family_id": "A4_TSMOM_V7",
+                "canonical_economic_address_sha256": execution[0]["canonical_economic_address_sha256"],
+            }])
+            self.assertEqual([], rows)
+            record = json.loads((Path(raw) / "CONDITIONAL_REFINEMENT_REGISTRY.json").read_text(encoding="utf-8"))
+            self.assertEqual("stage24_stage21_v5_runtime_refinement_closure_v1", record["schema"])
+            self.assertEqual("disabled", record["adaptive_refinement"])
+            self.assertEqual(0, record["row_count"])
+            self.assertEqual([], record["rows"])
+            self.assertEqual(canonical_hash([]), record["registry_sha256"])
+            self.assertEqual(len(execution), record["source_execution_registry_rows"])
+            self.assertEqual(canonical_hash(inventory), record["source_execution_registry_id_address_inventory_sha256"])
+            self.assertEqual(canonical_hash(execution), record["source_execution_registry_row_inventory_sha256"])
+            self.assertEqual(
+                "Do not perform adaptive refinement. All 6,144 additions are pre-outcome broad Sobol attempts.",
+                record["reason"],
+            )
+
+    def test_runtime_economic_address_creation_fails_closed(self) -> None:
+        execution = [self._attempt("A4_TSMOM_V7", "frozen-a4")]
+        rogue = self._attempt("A1_COMPRESSION_V2", "unregistered-runtime-row")
+        with self.assertRaisesRegex(CampaignContractError, "differs from the frozen Stage-21 V5 registry"):
+            CampaignOrchestrator._bind_frozen_execution(execution, [rogue])
+        combined, registry = CampaignOrchestrator._bind_frozen_execution(execution, [])
+        self.assertEqual(execution, combined)
+        self.assertEqual({"frozen-a4"}, set(registry))
 
     def test_completed_terminal_requires_forensics(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
