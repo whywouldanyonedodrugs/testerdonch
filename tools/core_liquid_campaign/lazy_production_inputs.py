@@ -213,15 +213,17 @@ class LazyProductionFamilyInputAdapter:
         if self._pit_record is None:
             raise LazyProductionInputError("virtual cache omits PIT membership")
         self._pit_by_day = self._load_pit()
-        population_root = self.a1_population_manifest_path.parent.parent.parent
-        if self.a3_population_manifest_path.parent.parent.parent != population_root:
-            raise LazyProductionInputError("A1/A3 population tables do not share one immutable cache root")
+        a1_population_root = self.a1_population_manifest_path.parent.parent.parent
+        a3_population_root = self.a3_population_manifest_path.parent.parent.parent
         try:
-            self._a1 = A1PopulationTableAuthority(population_root, self.a1_population_manifest_path)
-            self._a3 = A3PopulationTableAuthority(population_root, self.a3_population_manifest_path)
+            self._a1 = A1PopulationTableAuthority(a1_population_root, self.a1_population_manifest_path)
+            self._a3 = A3PopulationTableAuthority(a3_population_root, self.a3_population_manifest_path)
         except (OSError, KeyError, ValueError, PopulationTableError) as exc:
             raise LazyProductionInputError("population-table authority verification failed") from exc
-        self._population_root = population_root
+        self._population_roots = {
+            "A1_COMPRESSION_V2": a1_population_root,
+            "A3_STARTER_RETEST_V3": a3_population_root,
+        }
         self._index_cache: dict[str, tuple[SourcePart, ...]] = {}
         self._verified_source_paths: set[str] = set()
         self._daily_cache: dict[tuple[str, datetime], tuple[Any, ...]] = {}
