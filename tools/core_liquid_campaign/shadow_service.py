@@ -61,6 +61,7 @@ class FinalPacketInterfaceCanaryAuthorization:
             or self.spec.get("protected_outcomes_authorized") is not False
             or self.spec.get("capitalcom_payload_access") is not False
             or int(self.spec.get("workers", -1)) != 1
+            or not 5 <= int(self.spec.get("heartbeat_seconds", -1)) <= 60
         ):
             raise ShadowAuthorizationError("final packet canary scope is invalid or broadened")
         manifest = json.loads(self.manifest_path.read_text(encoding="utf-8"))
@@ -724,7 +725,8 @@ def run_final_packet_interface_canary(spec_path: Path) -> dict[str, Any]:
         limits = ResourceLimits(
             max_workers=1, max_jobs_in_flight=1, max_rss_bytes=10 * 1024**3,
             max_output_bytes=256 * 1024**2, minimum_free_disk_bytes=8 * 1024**3,
-            heartbeat_seconds=1, graceful_stop_seconds=300, wall_time_seconds=None,
+            heartbeat_seconds=int(spec["heartbeat_seconds"]),
+            graceful_stop_seconds=300, wall_time_seconds=None,
         )
         orchestrator = CampaignOrchestrator(
             packet_root=packet_root, run_root=run_root / "campaign",
