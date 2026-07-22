@@ -1,0 +1,28 @@
+{
+  "schema": "stage24_independent_heartbeat_resume_review_v1",
+  "disposition": "PASS",
+  "reviewed_parent": "26d01cf7e689b474a977cf66035900bcfa60ff6a",
+  "reviewed_commit": "429f6f43a60aef05a91b2a5e57612b2ba0de4e62",
+  "material_findings": [],
+  "immediate_detached_resume_authorized": true,
+  "findings": {
+    "prior_generation_monotonic_timestamp_used_for_current_liveness": false,
+    "current_generation_liveness_baseline": "supervisor_start_monotonic",
+    "heartbeat_schedule_seconds": 1800,
+    "heartbeat_stale_bound_seconds": 3900,
+    "genuinely_stale_current_generation_still_stops_workers": true,
+    "late_artifact_commit_after_stop_prevented": true,
+    "marker_reconciliation_changed": false,
+    "failure_classification_changed": false,
+    "job_identity_changed": false,
+    "economic_semantics_changed": false
+  },
+  "verification": {
+    "focused_tests_passed": 2,
+    "affected_stage24_module_tests_passed": 37,
+    "git_diff_check": "pass",
+    "worktree_during_review": "clean",
+    "economic_outcomes_opened": false,
+    "protected_outcomes_opened": false
+  }
+}
