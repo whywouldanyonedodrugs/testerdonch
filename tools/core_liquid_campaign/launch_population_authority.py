@@ -247,7 +247,7 @@ def validate_launch_population_authority(payload: Mapping[str, Any], *, verify_f
         raise LaunchPopulationAuthorityError("launch population authority inventory hash differs")
     if verify_files:
         for key in (
-            "execution_input_authority", "fold_graph", "pit_membership", "a1_population_table",
+            "execution_input_authority", "virtual_base_execution_input_authority", "fold_graph", "pit_membership", "a1_population_table",
             "a3_population_table", "benchmark_semantic_frames",
         ):
             record = payload[key]
@@ -258,10 +258,22 @@ def validate_launch_population_authority(payload: Mapping[str, Any], *, verify_f
 
 def build_launch_population_authority(
     *, repository_root: Path, execution_authority_path: Path, virtual_cache_root: Path,
-    virtual_cache_manifest_path: Path, fold_graph_path: Path, a1_manifest_path: Path,
+    virtual_execution_authority_path: Path, virtual_cache_manifest_path: Path, fold_graph_path: Path, a1_manifest_path: Path,
     a3_manifest_path: Path, benchmark_cache_manifest_path: Path,
 ) -> dict[str, Any]:
-    execution = json.loads(execution_authority_path.read_text(encoding="utf-8")); execution_sha = sha256_file(execution_authority_path)
+    execution = json.loads(execution_authority_path.read_text(encoding="utf-8"))
+    virtual_execution = json.loads(virtual_execution_authority_path.read_text(encoding="utf-8"))
+    execution_sha = sha256_file(execution_authority_path)
+    virtual_execution_sha = sha256_file(virtual_execution_authority_path)
+    supplemental_keys = {
+        "kda02b_analytics_content_sha256", "kda02b_authority_binding",
+        "kda02b_authority_inventory_sha256", "kda02b_authority_records",
+        "kda02b_feature_contract_sha256", "kda02b_required_fields_and_units",
+    }
+    base_projection = {key: value for key, value in execution.items() if key not in supplemental_keys}
+    base_projection["schema"] = "stage23_execution_input_authority_v1"
+    if base_projection != virtual_execution:
+        raise LaunchPopulationAuthorityError("extended execution authority does not preserve the exact Stage23 A1-A4 base")
     for record in execution.get("source_records", ()):
         _verify_record(_resolve(repository_root, str(record["path"])), record, label=f"execution source {record.get('role')}")
     fold_graph = json.loads(fold_graph_path.read_text(encoding="utf-8"))
@@ -271,7 +283,7 @@ def build_launch_population_authority(
     virtual = json.loads(virtual_cache_manifest_path.read_text(encoding="utf-8"))
     source_verification = virtual.get("source_verification", {})
     funding = virtual.get("funding", {})
-    if virtual.get("schema") != "stage23_production_semantic_cache_manifest_v1" or virtual.get("authority_sha256") != execution_sha or virtual.get("campaign_symbols") != EXPECTED_SYMBOLS:
+    if virtual.get("schema") != "stage23_production_semantic_cache_manifest_v1" or virtual.get("authority_sha256") != virtual_execution_sha or virtual.get("campaign_symbols") != EXPECTED_SYMBOLS:
         raise LaunchPopulationAuthorityError("Stage23 virtual cache authority binding differs")
     if (
         int(source_verification.get("physical_parts", -1)) != EXPECTED_RAW_SOURCE_PARTS
@@ -345,6 +357,7 @@ def build_launch_population_authority(
     payload = {
         "schema": "stage24_launch_population_authority_v1", "status": "bound_outcome_free",
         "execution_input_authority": _file_binding(execution_authority_path),
+        "virtual_base_execution_input_authority": _file_binding(virtual_execution_authority_path),
         "fold_graph": _file_binding(fold_graph_path),
         "virtual_cache": {**_file_binding(virtual_cache_manifest_path), "root": str(virtual_cache_root.resolve()), "artifacts": len(artifacts), "symbol_indexes": len(symbol_records)},
         "source_authority": {
@@ -380,6 +393,7 @@ def parser() -> argparse.ArgumentParser:
     result = argparse.ArgumentParser(description="Build the immutable outcome-free Stage24 launch population authority")
     result.add_argument("--repository-root", type=Path, required=True)
     result.add_argument("--execution-authority", type=Path, required=True)
+    result.add_argument("--virtual-execution-authority", type=Path, required=True)
     result.add_argument("--virtual-cache-root", type=Path, required=True)
     result.add_argument("--virtual-cache-manifest", type=Path, required=True)
     result.add_argument("--fold-graph", type=Path, required=True)
@@ -394,6 +408,7 @@ def main() -> int:
     args = parser().parse_args()
     payload = build_launch_population_authority(
         repository_root=args.repository_root, execution_authority_path=args.execution_authority,
+        virtual_execution_authority_path=args.virtual_execution_authority,
         virtual_cache_root=args.virtual_cache_root, virtual_cache_manifest_path=args.virtual_cache_manifest,
         fold_graph_path=args.fold_graph, a1_manifest_path=args.a1_manifest, a3_manifest_path=args.a3_manifest,
         benchmark_cache_manifest_path=args.benchmark_cache_manifest,
