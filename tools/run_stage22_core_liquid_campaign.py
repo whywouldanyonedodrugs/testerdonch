@@ -43,6 +43,36 @@ class TelegramTransport:
         self._request("sendMessage", {"chat_id": self._chat_id, "text": "Stage 22 heartbeat " + json.dumps(allowed, sort_keys=True)})
         return True
 
+    def launch(self, payload: Mapping[str, Any]) -> bool:
+        allowed = {
+            key: payload[key]
+            for key in ("service_identity", "status", "run_root", "workers")
+            if key in payload
+        }
+        self._request(
+            "sendMessage",
+            {
+                "chat_id": self._chat_id,
+                "text": "Stage 24 detached shadow active " + json.dumps(allowed, sort_keys=True),
+            },
+        )
+        return True
+
+    def complete(self, payload: Mapping[str, Any]) -> bool:
+        allowed = {
+            key: payload[key]
+            for key in ("service_identity", "status", "run_root", "health_release")
+            if key in payload
+        }
+        self._request(
+            "sendMessage",
+            {
+                "chat_id": self._chat_id,
+                "text": "Stage 24 detached shadow complete " + json.dumps(allowed, sort_keys=True),
+            },
+        )
+        return True
+
     def bound_stop(self, payload: Mapping[str, Any]) -> bool:
         allowed = {
             key: payload[key]

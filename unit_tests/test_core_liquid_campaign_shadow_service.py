@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
@@ -24,6 +24,61 @@ from tools.core_liquid_campaign.shadow_service import ProductionShadowCampaignOr
 
 
 class Stage24RealShadowServiceTests(unittest.TestCase):
+    @staticmethod
+    def _event_locator_policy(days: int = 1) -> dict[str, object]:
+        return {
+            "schema": "stage24_shadow_event_locator_policy_v2",
+            "selection": "actual_production_enumerator_pre_entry_event_locators",
+            "target_eligible_event_days_per_attempt_partition": days,
+            "maximum_candidate_locators_per_attempt_partition": 100,
+            "empty_attempt_partitions_preserved": True,
+            "real_post_entry_values_used": False,
+            "economic_values_used_for_selection": False,
+            "synthetic_payoff_generated_after_locator_freeze": True,
+            "full_launch_population_authority_preserved": True,
+        }
+
+    @patch("tools.core_liquid_campaign.executor._generate_events")
+    def test_event_locator_sampler_yields_only_actual_enumerator_match(self, generate: Mock) -> None:
+        decision = datetime(2024, 2, 1, tzinfo=timezone.utc)
+        complete = Mock(); complete.partitions = {}
+        adapter = Mock(); frame = Mock(); adapter.frame.return_value = frame
+        bounded = BoundedShadowPopulationSchedule(
+            complete, self._event_locator_policy(), population_adapter=adapter,
+        )
+        bounded._candidate_pairs = Mock(return_value=iter([
+            ("PF_XBTUSD", decision - timedelta(days=1)), ("PF_XBTUSD", decision),
+        ]))
+        generate.side_effect = [[], [{"decision_ts": decision}]]
+        row = {
+            "family_id": "A4_TSMOM_V7", "executable_attempt_id": "a4",
+            "canonical_economic_address_sha256": "a" * 64, "config": {},
+        }
+        selected = list(bounded.iter_batch_locators(
+            (row,), phase="inner_validation", outer_fold_id="2024Q1", inner_fold_id="M_202402",
+        ))
+        self.assertEqual([decision], [item.decision_ts for item in selected])
+        self.assertEqual(2, adapter.frame.call_count)
+        self.assertIs(frame, bounded.frame(selected[0]))
+
+    @patch("tools.core_liquid_campaign.executor._generate_events", return_value=[])
+    def test_event_locator_sampler_preserves_explicit_empty_when_no_real_event_exists(self, generate: Mock) -> None:
+        decision = datetime(2024, 2, 1, tzinfo=timezone.utc)
+        complete = Mock(); complete.partitions = {}; adapter = Mock(); adapter.frame.return_value = Mock()
+        bounded = BoundedShadowPopulationSchedule(
+            complete, self._event_locator_policy(), population_adapter=adapter,
+        )
+        bounded._candidate_pairs = Mock(return_value=iter([("PF_XBTUSD", decision)]))
+        row = {
+            "family_id": "A4_TSMOM_V7", "executable_attempt_id": "a4",
+            "canonical_economic_address_sha256": "a" * 64, "config": {},
+        }
+        self.assertEqual([], list(bounded.iter_batch_locators(
+            (row,), phase="inner_validation", outer_fold_id="2024Q1", inner_fold_id="M_202402",
+        )))
+        self.assertEqual("fail_insufficient_event_days", bounded.last_reconciliation["status"])
+        self.assertEqual({"a4": 0}, bounded.last_reconciliation["eligible_event_days_by_attempt"])
+
     def test_bounded_schedule_populates_exact_attempt_identity_for_real_adapter(self) -> None:
         locator = FamilyDecisionLocator(
             "A4_TSMOM_V7", "outer_evaluation", "2024Q1", None,
@@ -203,18 +258,24 @@ class Stage24RealShadowServiceTests(unittest.TestCase):
             atomic_write_jsonl(packet_root / "FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl", [])
             atomic_write_jsonl(packet_root / "FINAL_CONTROL_REGISTRY.jsonl", [])
             cache_path = root / "cache.json"; atomic_write_json(cache_path, {})
+            reused_path = root / "reused.json"
+            atomic_write_json(reused_path, {"prior_campaign_run_root": str(root / "prior")})
             spec = {
                 "repository_root": str(Path.cwd()), "run_root": str(root / "run"),
                 "service_identity": "fixture.service", "workers": 1, "heartbeat_seconds": 1,
                 "identity_bindings": {"fixture": True}, "synthetic_provider_version": "fixture-shadow",
                 "population_slice_policy": {
-                    "schema": "stage24_shadow_population_slice_policy_v1",
-                    "selection": "first_authority_order_locator_on_each_distinct_UTC_day",
-                    "maximum_distinct_days_per_attempt_partition": 2,
+                    "schema": "stage24_shadow_event_locator_policy_v2",
+                    "selection": "actual_production_enumerator_pre_entry_event_locators",
+                    "target_eligible_event_days_per_attempt_partition": 2,
+                    "maximum_candidate_locators_per_attempt_partition": 100,
+                    "empty_attempt_partitions_preserved": True,
+                    "real_post_entry_values_used": False,
                     "economic_values_used_for_selection": False,
-                    "benchmark_frame_values_used": False,
+                    "synthetic_payoff_generated_after_locator_freeze": True,
                     "full_launch_population_authority_preserved": True,
                 },
+                "reused_evidence_authority": {"path": str(reused_path)},
                 "kda02b_slice_policy": {
                     "schema": "stage24_shadow_kda02b_slice_policy_v1",
                     "selection": "first_authority_order_eligible_record_per_outer_fold",
@@ -238,7 +299,9 @@ class Stage24RealShadowServiceTests(unittest.TestCase):
                 "kda02b_lazy_population_authority": {"path": str(kda), "sha256": sha256_file(kda)},
             }
             campaign = orchestrator.return_value
-            campaign.run.side_effect = lambda: self._complete_campaign_fixture(root / "run/campaign")
+            campaign.run.side_effect = lambda: self._complete_campaign_fixture(
+                root / "run/campaign", stage="event_locator_inner_development",
+            )
             verify_terminal.return_value = {"status": "pass", "inventory_sha256": "a" * 64}
             verify_worker_evidence.return_value = {"economic_outcomes_opened": False, "materialized_shadow_ledger_rows": 1}
             transport = Mock(); transport.preflight.return_value = True; transport.heartbeat.return_value = True
@@ -255,6 +318,9 @@ class Stage24RealShadowServiceTests(unittest.TestCase):
             self.assertEqual("fixture-shadow", kwargs["payoff_provider"].campaign_identity)
             self.assertEqual(0, kwargs["payoff_provider"].real_post_entry_rows_opened)
             self.assertNotIn("dispatch_registered_attempt", run_shadow_service.__code__.co_names)
+            self.assertEqual("event_locator_inner_development", campaign.inner_development_stage_name)
+            transport.launch.assert_called_once()
+            transport.complete.assert_called_once()
 
     @patch("tools.core_liquid_campaign.shadow_service._write_shadow_bound_stop")
     @patch("tools.core_liquid_campaign.shadow_service.ProductionShadowCampaignOrchestrator")
@@ -307,10 +373,10 @@ class Stage24RealShadowServiceTests(unittest.TestCase):
             })
 
     @staticmethod
-    def _complete_campaign_fixture(root: Path) -> dict[str, object]:
+    def _complete_campaign_fixture(root: Path, *, stage: str = "inner_development") -> dict[str, object]:
         root.mkdir(parents=True, exist_ok=True)
         atomic_write_json(root / "STAGE_JOB_RECONCILIATION.json", {"pass": True})
-        atomic_write_json(root / "inner_development/SUPERVISOR_STATE.json", {
+        atomic_write_json(root / stage / "SUPERVISOR_STATE.json", {
             "first_real_unit_reconciled": True, "health_release": True, "heartbeat_success_count": 1,
         })
         return {"status": "complete", "completed_stages": ["terminal_reconciliation"]}

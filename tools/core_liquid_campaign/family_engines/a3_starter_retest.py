@@ -145,7 +145,18 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
             "matched_parent_event_id": control_directive["parent_event_id"],
         }]
     events: list[dict[str, Any]] = []
-    for index in range(1, len(bars) - 4):
+    confirmation = str(config["confirmation"])
+    confirmation_offset = 0 if control_id in {"A3_CONFIRMATION_REMOVED", "A3_MATCHED_PSEUDO_EVENT"} else {
+        "one_close": 0,
+        "two_closes": 1,
+        "close_plus_15m_delay": 3,
+    }.get(confirmation)
+    if confirmation_offset is None:
+        raise EngineInputError(f"unsupported A3 confirmation: {confirmation}")
+    # Only the registered confirmation closes plus the next authorized open
+    # are required.  Reserving the longest four-bar branch unconditionally
+    # makes shorter confirmations unreachable on a pre-entry-only frame.
+    for index in range(1, len(bars) - confirmation_offset - 1):
         prior, crossing = bars[index - 1], bars[index]
         pseudo_match = control_id == "A3_MATCHED_PSEUDO_EVENT" and require_utc(crossing.close_ts) == require_utc(frame.decision_ts)
         crossed = pseudo_match or (prior.close <= level < crossing.close if side == 1 else prior.close >= level > crossing.close)
@@ -156,7 +167,6 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
             _, passes = percentile_from_population(magnitude, _population(frame, lookback, atr_window, str(config["breakout_rank_scope"]), side), str(config["breakout_rank_min"]))
             if not passes:
                 continue
-        confirmation = str(config["confirmation"])
         if control_id in {"A3_CONFIRMATION_REMOVED", "A3_MATCHED_PSEUDO_EVENT"} or confirmation == "one_close":
             confirmation_indices = (index,)
         elif confirmation == "two_closes":

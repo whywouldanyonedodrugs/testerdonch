@@ -116,7 +116,11 @@ class ProductionShadowCampaignOrchestrator(CampaignOrchestrator):
 def _verify_shadow_worker_evidence(campaign_root: Path) -> dict[str, Any]:
     materialized = 0
     provider_versions: set[str] = set()
-    for stage in ("kda02b_adjudication", "outer_evaluation", "conditional_materialization", "conditional_controls"):
+    for stage in (
+        "kda02b_adjudication", "outer_evaluation", "conditional_materialization", "conditional_controls",
+        "event_locator_outer_evaluation", "event_locator_conditional_materialization",
+        "event_locator_conditional_controls",
+    ):
         artifact_root = campaign_root / stage / "artifacts"
         for path in sorted(artifact_root.glob("*.json")):
             result = json.loads(path.read_text(encoding="utf-8")).get("result", {})
@@ -202,8 +206,27 @@ class ShadowAuthorization:
         self._bound_file(authority_record, repository_root=repository_root)
         if authority_record.get("sha256") != "9e546e9376408f97bc3bc2ef2862c06e746864eacbd9a5a70f0e71680eeeccdf":
             raise ShadowAuthorizationError("Stage 24 task hash differs")
+        continuation = spec.get("continuation_task")
+        if continuation is not None:
+            if not isinstance(continuation, Mapping):
+                raise ShadowAuthorizationError("Stage 24 continuation task binding is invalid")
+            self._bound_file(continuation, repository_root=repository_root)
+            if continuation.get("sha256") != "6da86984b890314ea4422c8787d5c6de282342385c6505005358bac31e3493d3":
+                raise ShadowAuthorizationError("Stage 24 continuation task hash differs")
         for record in spec.get("bound_files", ()):
             self._bound_file(record, repository_root=repository_root)
+        reused = spec.get("reused_evidence_authority")
+        if reused is not None:
+            if not isinstance(reused, Mapping):
+                raise ShadowAuthorizationError("reused evidence authority record is invalid")
+            reused_path = self._bound_file(reused, repository_root=repository_root)
+            reused_payload = json.loads(reused_path.read_text(encoding="utf-8"))
+            if (
+                reused_payload.get("schema") != "stage24_reused_shadow_evidence_authority_v1"
+                or reused_payload.get("status") != "pass"
+                or reused_payload.get("economic_outcomes_opened") is not False
+            ):
+                raise ShadowAuthorizationError("reused shadow evidence authority is invalid")
         actual_commit = subprocess.run(
             ["git", "-C", str(repository_root), "rev-parse", "HEAD"],
             check=True,
@@ -275,6 +298,12 @@ def run_shadow_service(spec_path: Path) -> dict[str, Any]:
         "telegram_preflight": "pass",
     }
     atomic_write_json(state_path, state)
+    telegram.launch({
+        "service_identity": spec["service_identity"],
+        "status": "active",
+        "run_root": str(run_root),
+        "workers": int(spec["workers"]),
+    })
     repository_root = Path(str(spec["repository_root"]))
     try:
         authorization = ShadowCampaignAuthorization(spec, repository_root)
@@ -294,16 +323,31 @@ def run_shadow_service(spec_path: Path) -> dict[str, Any]:
         graceful_stop_seconds=300,
         wall_time_seconds=None,
     )
-    provider = ShadowPayoffProvider(str(spec["synthetic_provider_version"]))
+    scenario_record = spec["shadow_campaign_packet"].get("synthetic_scenario_matrix")
+    scenario_payload = (
+        json.loads(Path(str(scenario_record["path"])).read_text(encoding="utf-8"))
+        if isinstance(scenario_record, Mapping) else None
+    )
+    scenario_rows = [] if scenario_payload is None else scenario_payload.get("assignments", ())
+    provider = ShadowPayoffProvider(
+        str(spec["synthetic_provider_version"]),
+        scenario_by_attempt={str(row["executable_attempt_id"]): str(row["scenario"]) for row in scenario_rows},
+        concentration_symbol_by_attempt={
+            str(row["executable_attempt_id"]): str(row["concentration_symbol"])
+            for row in scenario_rows if row.get("concentration_symbol")
+        },
+    )
     launch_record = manifest["launch_population_authority"]
     launch_path = Path(str(launch_record["path"]))
     complete_schedule = LaunchPopulationSchedule(launch_path, str(launch_record["sha256"]))
-    population_schedule = BoundedShadowPopulationSchedule(complete_schedule, spec["population_slice_policy"])
     population_adapter = LazyProductionFamilyInputAdapter.from_launch_population_authority(
         launch_authority_path=launch_path,
         launch_authority_sha256=str(launch_record["sha256"]),
         repository_root=repository_root,
         construction_mode="shadow_no_outcome",
+    )
+    population_schedule = BoundedShadowPopulationSchedule(
+        complete_schedule, spec["population_slice_policy"], population_adapter=population_adapter,
     )
     kda_record = manifest["kda02b_lazy_population_authority"]
     kda_path = Path(str(kda_record["path"]))
@@ -327,6 +371,19 @@ def run_shadow_service(spec_path: Path) -> dict[str, Any]:
         population_adapter=population_adapter,
         kda02b_population_adapter=kda_adapter,
     )
+    if spec["population_slice_policy"].get("schema") == "stage24_shadow_event_locator_policy_v2":
+        reused_record = spec.get("reused_evidence_authority")
+        if not isinstance(reused_record, Mapping):
+            raise ShadowAuthorizationError("event-locator resume lacks its reused evidence authority")
+        reused_payload = json.loads(Path(str(reused_record["path"])).read_text(encoding="utf-8"))
+        orchestrator.reuse_structural_shadow = True
+        orchestrator.structural_evidence_run_root = Path(str(reused_payload["prior_campaign_run_root"]))
+        orchestrator.inner_development_stage_name = "event_locator_inner_development"
+        orchestrator.conditional_refinement_stage_name = "event_locator_conditional_refinement"
+        orchestrator.a2_inner_development_stage_name = "event_locator_a2_inner_development"
+        orchestrator.outer_evaluation_stage_name = "event_locator_outer_evaluation"
+        orchestrator.conditional_controls_stage_name = "event_locator_conditional_controls"
+        orchestrator.conditional_materialization_stage_name = "event_locator_conditional_materialization"
     try:
         campaign_state = orchestrator.run()
     except CampaignContractError as exc:
@@ -363,7 +420,12 @@ def run_shadow_service(spec_path: Path) -> dict[str, Any]:
     stage_reconciliation = json.loads((run_root / "campaign" / "STAGE_JOB_RECONCILIATION.json").read_text(encoding="utf-8"))
     if stage_reconciliation.get("pass") is not True:
         raise ShadowAuthorizationError("real CampaignOrchestrator stage-marker reconciliation failed")
-    health_state = json.loads((run_root / "campaign" / "inner_development" / "SUPERVISOR_STATE.json").read_text(encoding="utf-8"))
+    health_stage = (
+        "event_locator_inner_development"
+        if spec["population_slice_policy"].get("schema") == "stage24_shadow_event_locator_policy_v2"
+        else "inner_development"
+    )
+    health_state = json.loads((run_root / "campaign" / health_stage / "SUPERVISOR_STATE.json").read_text(encoding="utf-8"))
     if health_state.get("first_real_unit_reconciled") is not True or health_state.get("health_release") is not True or int(health_state.get("heartbeat_success_count", 0)) < 1:
         raise ShadowAuthorizationError("real CampaignOrchestrator health release lacks a reconciled unit or scheduled heartbeat")
     worker_evidence = _verify_shadow_worker_evidence(run_root / "campaign")
@@ -380,6 +442,12 @@ def run_shadow_service(spec_path: Path) -> dict[str, Any]:
         "shadow_worker_evidence": worker_evidence,
     })
     atomic_write_json(state_path, state)
+    telegram.complete({
+        "service_identity": spec["service_identity"],
+        "status": state["status"],
+        "run_root": str(run_root),
+        "health_release": state["health_release"],
+    })
     hold = float(spec.get("hold_after_health_seconds", 0.0))
     if hold > 0:
         time.sleep(hold)

@@ -11,6 +11,7 @@ from typing import Any, Callable, Iterable, Mapping, Sequence
 from .canonical import atomic_write_json, canonical_hash, sha256_file
 from .controls import execute_control, matched_pseudo_event_directives, maximum_holding_for_parent, reconcile_control_duplicates
 from .executor import CacheAuthority, ExecutionAuthorization, PayoffProvider, dispatch_registered_attempt, execute_cached_synthetic_attempt, execute_registered_attempt
+from .engine_types import _mark_validated_frame
 from .family_engines.common import EngineInputError, require_utc
 from .lazy_production_inputs import FamilyDecisionLocator, LazyProductionFamilyInputAdapter
 from .population_execution import LaunchPopulationSchedule
@@ -326,7 +327,8 @@ class CampaignOrchestrator:
             for locator in locators:
                 locator_count += 1
                 try:
-                    frame = adapter.frame(locator)
+                    schedule_frame = getattr(schedule, "frame", None)
+                    frame = schedule_frame(locator) if callable(schedule_frame) else adapter.frame(locator)
                     parent_frame = None
                     if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
                         if parent_row is None:
@@ -487,12 +489,19 @@ class CampaignOrchestrator:
             unavailable: dict[str, list[dict[str, Any]]] = {str(row["executable_attempt_id"]): [] for row in ordered}
             locator_count = 0
             prototype = ordered[0]
-            for locator in schedule.iter_locators(
-                prototype, phase=phase, outer_fold_id=outer_fold_id, inner_fold_id=inner_fold_id,
-            ):
+            batch_iterator = getattr(schedule, "iter_batch_locators", None)
+            locators = (
+                batch_iterator(ordered, phase=phase, outer_fold_id=outer_fold_id, inner_fold_id=inner_fold_id)
+                if callable(batch_iterator)
+                else schedule.iter_locators(
+                    prototype, phase=phase, outer_fold_id=outer_fold_id, inner_fold_id=inner_fold_id,
+                )
+            )
+            for locator in locators:
                 locator_count += 1
                 try:
-                    frame = adapter.frame(locator)
+                    schedule_frame = getattr(schedule, "frame", None)
+                    frame = schedule_frame(locator) if callable(schedule_frame) else adapter.frame(locator)
                 except EngineInputError as exc:
                     for row in ordered:
                         unavailable[str(row["executable_attempt_id"])].append({
@@ -511,6 +520,7 @@ class CampaignOrchestrator:
                         "decision_locator": bound_locator.identity_payload(),
                         "decision_locator_sha256": canonical_hash(bound_locator.identity_payload()),
                     })
+                    _mark_validated_frame(bound_frame)
                     try:
                         dispatched = dispatch_registered_attempt(
                             row, (bound_frame,), registry_by_id=registry, payoff_provider=self.payoff_provider,
@@ -565,6 +575,7 @@ class CampaignOrchestrator:
                 "registered_attempt_id": f"batch:{canonical_hash(sorted(observations))}",
                 "batch_results": results, "batch_size": len(results),
                 "shared_family_input_locator_count": locator_count,
+                "event_locator_reconciliation": getattr(schedule, "last_reconciliation", None),
             })
         return task
 
@@ -612,8 +623,8 @@ class CampaignOrchestrator:
                 payloads.append(result)
         return payloads
 
-    def _require_completed_stage(self, stage_name: str) -> set[str]:
-        stage_root = self.run_root / stage_name
+    def _require_completed_stage(self, stage_name: str, *, root: Path | None = None) -> set[str]:
+        stage_root = (self.run_root if root is None else root) / stage_name
         state_path = stage_root / "SUPERVISOR_STATE.json"
         if not state_path.is_file():
             raise CampaignContractError(f"completed {stage_name} stage has no supervisor state")
@@ -645,11 +656,14 @@ class CampaignOrchestrator:
 
     def _freeze_beams(self, execution: Sequence[Mapping[str, Any]], *, output_name: str = "FROZEN_BEAM_REGISTRY.json") -> list[dict[str, Any]]:
         rows_by_id = {row["executable_attempt_id"]: row for row in execution}
-        payloads = self._completed_payloads(self.run_root / "inner_development")
-        a2_root = self.run_root / "a2_inner_development"
+        inner_stage = str(getattr(self, "inner_development_stage_name", "inner_development"))
+        a2_stage = str(getattr(self, "a2_inner_development_stage_name", "a2_inner_development"))
+        refinement_stage = str(getattr(self, "conditional_refinement_stage_name", "conditional_refinement"))
+        payloads = self._completed_payloads(self.run_root / inner_stage)
+        a2_root = self.run_root / a2_stage
         if a2_root.exists():
             payloads.extend(self._completed_payloads(a2_root))
-        refinement_root = self.run_root / "conditional_refinement"
+        refinement_root = self.run_root / refinement_stage
         if refinement_root.exists():
             payloads.extend(self._completed_payloads(refinement_root))
         grouped: dict[tuple[str, str], list[dict[str, Any]]] = {}
@@ -870,12 +884,39 @@ class CampaignOrchestrator:
 
     def run(self) -> dict[str, Any]:
         manifest, execution, controls, registry, cache = self._authority()
+        inner_stage = str(getattr(self, "inner_development_stage_name", "inner_development"))
+        kda_stage = str(getattr(self, "kda02b_stage_name", "kda02b_adjudication"))
+        refinement_stage = str(getattr(self, "conditional_refinement_stage_name", "conditional_refinement"))
+        a2_stage = str(getattr(self, "a2_inner_development_stage_name", "a2_inner_development"))
+        outer_stage = str(getattr(self, "outer_evaluation_stage_name", "outer_evaluation"))
+        control_stage = str(getattr(self, "conditional_controls_stage_name", "conditional_controls"))
+        materialization_stage = str(getattr(self, "conditional_materialization_stage_name", "conditional_materialization"))
+        reuse_structural = bool(getattr(self, "reuse_structural_shadow", False))
         carried_forward_jobs: dict[str, set[str]] = {}
         if self.stage_state.is_file():
             prior = json.loads(self.stage_state.read_text(encoding="utf-8"))
         else:
             prior = None
-        if prior is not None and prior.get("completed_stages") == ["cache_validation", "inner_development"]:
+        if reuse_structural:
+            reuse_root = Path(str(getattr(self, "structural_evidence_run_root", self.run_root)))
+            structural_jobs = self._require_completed_stage("inner_development", root=reuse_root)
+            carried_forward_jobs["structural_inner_development"] = structural_jobs
+            carried_forward_jobs[kda_stage] = self._require_completed_stage("kda02b_adjudication", root=reuse_root)
+            atomic_write_json(self.run_root / "STRUCTURAL_SHADOW_EVIDENCE_CLASSIFICATION.json", {
+                "schema": "stage24_structural_shadow_evidence_classification_v1",
+                "inner_development_marker_count": len(structural_jobs),
+                "classification": "structural_shadow_only_zero_observation_sampling",
+                "nonempty_selection_evidence": False,
+                "markers_deleted_or_rewritten": False,
+                "kda02b_reused_without_rerun": True,
+                "reused_evidence_run_root": str(reuse_root),
+                "status": "preserved",
+            })
+            state = {"schema": "stage22_campaign_stage_state_v1", "campaign_id": manifest["campaign_id"], "stage_graph": list(STAGE_GRAPH), "completed_stages": ["cache_validation", "structural_inner_development_reused", "kda02b_adjudication_reused"], "status": "running"}
+            atomic_write_json(self.stage_state, state)
+            self._run_jobs(inner_stage, self._inner_jobs(execution, registry, cache), require_health_release=True)
+            state["completed_stages"].append(inner_stage); atomic_write_json(self.stage_state, state)
+        elif prior is not None and prior.get("completed_stages") == ["cache_validation", "inner_development"]:
             if prior.get("campaign_id") != manifest["campaign_id"] or prior.get("stage_graph") != list(STAGE_GRAPH):
                 raise CampaignContractError("resumable campaign stage identity differs")
             carried_forward_jobs["inner_development"] = self._require_completed_stage("inner_development")
@@ -884,17 +925,18 @@ class CampaignOrchestrator:
         else:
             state = {"schema": "stage22_campaign_stage_state_v1", "campaign_id": manifest["campaign_id"], "stage_graph": list(STAGE_GRAPH), "completed_stages": ["cache_validation"], "status": "running"}
             atomic_write_json(self.stage_state, state)
-            self._run_jobs("inner_development", self._inner_jobs(execution, registry, cache), require_health_release=True); state["completed_stages"].append("inner_development"); atomic_write_json(self.stage_state, state)
-        self._run_jobs("kda02b_adjudication", self._kda_jobs(execution, registry, cache)); state["completed_stages"].append("kda02b_adjudication"); atomic_write_json(self.stage_state, state)
+            self._run_jobs(inner_stage, self._inner_jobs(execution, registry, cache), require_health_release=True); state["completed_stages"].append(inner_stage); atomic_write_json(self.stage_state, state)
+        if not reuse_structural:
+            self._run_jobs(kda_stage, self._kda_jobs(execution, registry, cache)); state["completed_stages"].append(kda_stage); atomic_write_json(self.stage_state, state)
         centers = self._freeze_beams(execution, output_name="FROZEN_REFINEMENT_CENTER_REGISTRY.json")
         refinement_records = self._freeze_refinements(execution, centers)
         refinements = [row for row in refinement_records if row.get("status") == "registered_refinement"]
         combined_execution, combined_registry = self._bind_frozen_execution(execution, refinements)
-        self._run_jobs("conditional_refinement", self._refinement_jobs(refinements, combined_registry, cache))
+        self._run_jobs(refinement_stage, self._refinement_jobs(refinements, combined_registry, cache))
         state["completed_stages"].extend(["plateau_and_refinement", "conditional_refinement_execution"]); atomic_write_json(self.stage_state, state)
         parent_beams = self._freeze_beams(combined_execution, output_name="FROZEN_PARENT_BEAM_REGISTRY.json"); state["completed_stages"].append("parent_beam_freeze"); atomic_write_json(self.stage_state, state)
         bindings = self._a2_bindings(combined_execution, parent_beams); state["completed_stages"].append("a2_parent_resolution"); atomic_write_json(self.stage_state, state)
-        self._run_jobs("a2_inner_development", self._a2_inner_jobs(combined_execution, combined_registry, cache, bindings)); state["completed_stages"].append("a2_inner_development"); atomic_write_json(self.stage_state, state)
+        self._run_jobs(a2_stage, self._a2_inner_jobs(combined_execution, combined_registry, cache, bindings)); state["completed_stages"].append(a2_stage); atomic_write_json(self.stage_state, state)
         beams = self._freeze_beams(combined_execution); state["completed_stages"].append("final_beam_freeze"); atomic_write_json(self.stage_state, state)
         # The same exact worker path is used for A2, outer folds and controls;
         # their job generators are determined solely by the frozen beam and
@@ -905,19 +947,22 @@ class CampaignOrchestrator:
         # Actual outer/control jobs are intentionally constructed only after
         # the preceding immutable stage files exist, preventing eager work.
         outer_jobs = self._outer_jobs(combined_execution, combined_registry, cache, beams, bindings)
-        self._run_jobs("outer_evaluation", outer_jobs); state["completed_stages"].append("outer_evaluation"); atomic_write_json(self.stage_state, state)
-        self._run_jobs("conditional_controls", self._control_jobs(combined_execution, controls, combined_registry, cache, beams, bindings)); state["completed_stages"].append("conditional_controls"); atomic_write_json(self.stage_state, state)
-        outer_payloads = self._completed_payloads(self.run_root / "outer_evaluation")
+        self._run_jobs(outer_stage, outer_jobs); state["completed_stages"].append(outer_stage); atomic_write_json(self.stage_state, state)
+        self._run_jobs(control_stage, self._control_jobs(combined_execution, controls, combined_registry, cache, beams, bindings)); state["completed_stages"].append(control_stage); atomic_write_json(self.stage_state, state)
+        outer_payloads = self._completed_payloads(self.run_root / outer_stage)
         surface = json.loads((self.run_root / "DEVELOPMENT_SELECTION_SURFACE.json").read_text(encoding="utf-8"))["rows"]
         materialized = materialization_policy(surface)
         atomic_write_json(self.run_root / "MATERIALIZATION_REGISTRY.json", {"schema": "stage22_materialization_registry_v1", "addresses": materialized, "status": "frozen"})
-        self._run_jobs("conditional_materialization", self._materialization_jobs(combined_execution, combined_registry, cache, materialized, bindings))
+        self._run_jobs(materialization_stage, self._materialization_jobs(combined_execution, combined_registry, cache, materialized, bindings))
         state["completed_stages"].append("conditional_materialization")
-        kda_payloads = self._completed_payloads(self.run_root / "kda02b_adjudication")
-        control_payloads = self._completed_payloads(self.run_root / "conditional_controls")
+        reuse_root = Path(str(getattr(self, "structural_evidence_run_root", self.run_root)))
+        kda_payloads = self._completed_payloads(reuse_root / "kda02b_adjudication" if reuse_structural else self.run_root / kda_stage)
+        control_payloads = self._completed_payloads(self.run_root / control_stage)
         stage_payloads = []
-        for stage_name in ("inner_development", "kda02b_adjudication", "conditional_refinement", "a2_inner_development", "outer_evaluation", "conditional_materialization"):
+        stage_names = (inner_stage, refinement_stage, a2_stage, outer_stage, materialization_stage)
+        for stage_name in stage_names:
             stage_payloads.extend(self._completed_payloads(self.run_root / stage_name))
+        stage_payloads.extend(kda_payloads)
         strategy_rows = _read_jsonl(self.packet_root / "FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl")
         terminal = campaign_terminal_records(
             strategy_rows=strategy_rows, execution_rows=combined_execution, control_registry=controls,
@@ -925,14 +970,15 @@ class CampaignOrchestrator:
             fold_order=OUTER_FOLDS,
         )
         expected_jobs = {
-            "inner_development": carried_forward_jobs.get("inner_development") or {job for job, _ in self._inner_jobs(execution, registry, cache)},
-            "kda02b_adjudication": {job for job, _ in self._kda_jobs(execution, registry, cache)},
-            "conditional_refinement": {job for job, _ in self._refinement_jobs(refinements, combined_registry, cache)},
-            "a2_inner_development": {job for job, _ in self._a2_inner_jobs(combined_execution, combined_registry, cache, bindings)},
-            "outer_evaluation": {job for job, _ in self._outer_jobs(combined_execution, combined_registry, cache, beams, bindings)},
-            "conditional_controls": {job for job, _ in self._control_jobs(combined_execution, controls, combined_registry, cache, beams, bindings)},
-            "conditional_materialization": {job for job, _ in self._materialization_jobs(combined_execution, combined_registry, cache, materialized, bindings)},
+            inner_stage: {job for job, _ in self._inner_jobs(execution, registry, cache)},
+            refinement_stage: {job for job, _ in self._refinement_jobs(refinements, combined_registry, cache)},
+            a2_stage: {job for job, _ in self._a2_inner_jobs(combined_execution, combined_registry, cache, bindings)},
+            outer_stage: {job for job, _ in self._outer_jobs(combined_execution, combined_registry, cache, beams, bindings)},
+            control_stage: {job for job, _ in self._control_jobs(combined_execution, controls, combined_registry, cache, beams, bindings)},
+            materialization_stage: {job for job, _ in self._materialization_jobs(combined_execution, combined_registry, cache, materialized, bindings)},
         }
+        if not reuse_structural:
+            expected_jobs[kda_stage] = {job for job, _ in self._kda_jobs(execution, registry, cache)}
         job_rows = []
         all_workers_stopped = True
         for stage_name, expected in expected_jobs.items():
@@ -978,7 +1024,8 @@ class CampaignOrchestrator:
     def _a2_inner_jobs(self, execution: Sequence[Mapping[str, Any]], registry: Mapping[str, Mapping[str, Any]], cache: Mapping[str, Any], bindings: Mapping[str, Mapping[str, Any]]) -> Iterable[tuple[str, Callable[[], Any]]]:
         overlays = [row for row in execution if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1" and row["executable_attempt_id"] in bindings]
         parent_payloads: dict[tuple[str, str, str], Mapping[str, Any]] = {}
-        for payload in self._completed_payloads(self.run_root / "inner_development"):
+        inner_stage = str(getattr(self, "inner_development_stage_name", "inner_development"))
+        for payload in self._completed_payloads(self.run_root / inner_stage):
             pieces = str(payload.get("registered_job_id", "")).split(":", 3)
             if len(pieces) == 4 and pieces[0] == "inner":
                 parent_payloads[(pieces[1], pieces[2], str(payload.get("registered_attempt_id")))] = payload

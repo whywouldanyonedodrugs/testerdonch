@@ -598,6 +598,27 @@ class Stage24KnownDefectTests(unittest.TestCase):
         self.assertTrue(all(item["synthetic_funding_rows"] == 242 for item in result["ledger"]))
         self.assertTrue(all(item["real_post_entry_rows_opened"] == 0 for item in result["ledger"]))
 
+    def test_fixed_shadow_scenarios_drive_unchanged_accounting_positive_and_negative(self) -> None:
+        config = baseline_config("A4_TSMOM_V7")
+        frame = a4_frame(config)
+        results = {}
+        for scenario in ("stable_pass", "negative_fail"):
+            attempt_id = f"scenario-{scenario}"
+            row = {
+                "campaign_id": CAMPAIGN_ID, "family_id": "A4_TSMOM_V7", "config": config,
+                "execution_disposition": "execute_once", "executable_attempt_id": attempt_id,
+                "canonical_economic_address_sha256": economic_address("A4_TSMOM_V7", config)[1],
+                "duplicate_of_executable_attempt_id": None,
+            }
+            provider = ShadowPayoffProvider("stage24-fixed-scenarios", scenario_by_attempt={attempt_id: scenario})
+            result = dispatch_registered_attempt(row, (frame,), registry_by_id={attempt_id: row}, payoff_provider=provider)
+            self.assertTrue(result["observations"])
+            self.assertTrue(all(item["synthetic_scenario"] == scenario for item in result["ledger"]))
+            self.assertTrue(all(item["actual_accounting_path_executed"] for item in result["ledger"]))
+            results[scenario] = result["aggregate"]["base_net_bps"]
+        self.assertGreater(results["stable_pass"], 0.0)
+        self.assertLess(results["negative_fail"], 0.0)
+
     def test_every_deterministic_control_receives_parent_frames(self) -> None:
         for family, controls in CONTROL_IDS.items():
             engine_family = family

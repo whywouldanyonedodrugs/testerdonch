@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+import math
 import subprocess
 from collections import Counter
 from dataclasses import replace
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -24,7 +26,34 @@ class ShadowCampaignPacketError(RuntimeError):
 class BoundedShadowPopulationSchedule:
     """Outcome-free canary slice over an already validated full schedule."""
 
-    def __init__(self, complete_schedule: Any, policy: Mapping[str, Any]) -> None:
+    def __init__(self, complete_schedule: Any, policy: Mapping[str, Any], *, population_adapter: Any | None = None) -> None:
+        self.complete_schedule = complete_schedule
+        self.population_adapter = population_adapter
+        self.partitions = getattr(complete_schedule, "partitions", {})
+        self._last_frame_key: tuple[Any, ...] | None = None
+        self._last_frame: Any | None = None
+        self._a1_raw_arrays: dict[str, tuple[Any, Any]] = {}
+        if policy.get("schema") == "stage24_shadow_event_locator_policy_v2":
+            expected_v2 = {
+                "schema": "stage24_shadow_event_locator_policy_v2",
+                "selection": "actual_production_enumerator_pre_entry_event_locators",
+                "target_eligible_event_days_per_attempt_partition": int(policy.get("target_eligible_event_days_per_attempt_partition", 0)),
+                "maximum_candidate_locators_per_attempt_partition": int(policy.get("maximum_candidate_locators_per_attempt_partition", 0)),
+                "empty_attempt_partitions_preserved": True,
+                "real_post_entry_values_used": False,
+                "economic_values_used_for_selection": False,
+                "synthetic_payoff_generated_after_locator_freeze": True,
+                "full_launch_population_authority_preserved": True,
+            }
+            if (
+                dict(policy) != expected_v2
+                or not 1 <= expected_v2["target_eligible_event_days_per_attempt_partition"] <= 30
+                or not 100 <= expected_v2["maximum_candidate_locators_per_attempt_partition"] <= 10_000
+            ):
+                raise ShadowCampaignPacketError("shadow event-locator policy is invalid or broadened")
+            self.policy = expected_v2
+            self.mode = "production_event_locator"
+            return
         expected = {
             "schema": "stage24_shadow_population_slice_policy_v1",
             "selection": "first_authority_order_locator_on_each_distinct_UTC_day",
@@ -35,11 +64,13 @@ class BoundedShadowPopulationSchedule:
         }
         if dict(policy) != expected or not 1 <= expected["maximum_distinct_days_per_attempt_partition"] <= 30:
             raise ShadowCampaignPacketError("shadow population slice policy is invalid or broadened")
-        self.complete_schedule = complete_schedule
         self.policy = expected
-        self.partitions = getattr(complete_schedule, "partitions", {})
+        self.mode = "legacy_first_daily"
 
     def iter_locators(self, attempt: Mapping[str, Any], **kwargs: Any) -> Iterable[Any]:
+        if self.mode == "production_event_locator":
+            yield from self.iter_batch_locators((attempt,), **kwargs)
+            return
         selected_days: set[object] = set()
         maximum = int(self.policy["maximum_distinct_days_per_attempt_partition"])
         for locator in self.complete_schedule.iter_locators(attempt, **kwargs):
@@ -57,6 +88,286 @@ class BoundedShadowPopulationSchedule:
 
     def count(self, attempt: Mapping[str, Any], **kwargs: Any) -> int:
         return sum(1 for _ in self.iter_locators(attempt, **kwargs))
+
+    @staticmethod
+    def _confirmation_offset(config: Mapping[str, Any]) -> timedelta:
+        base = str(config["base_duration"]); units = {"h": 12, "d": 288}
+        base_bars = int(base[:-1]) * units[base[-1]]
+        confirmation = {"one_close": 1, "two_closes": 2, "close_plus_bounded_15m_delay": 4}[str(config["confirmation"])]
+        return timedelta(minutes=5 * (base_bars + confirmation))
+
+    def _pit_eligible(self, attempt: Mapping[str, Any], symbol: str, decision: datetime) -> bool:
+        adapter = self.population_adapter
+        if adapter is None:
+            raise ShadowCampaignPacketError("production event-locator sampling lacks its FamilyInput adapter")
+        day_ms = int(decision.replace(hour=0, minute=0, second=0, microsecond=0).timestamp() * 1000)
+        row = next((item for item in adapter._pit_by_day.get(day_ms, ()) if str(item["symbol"]) == symbol), None)
+        if row is None or not bool(row[f"top_{int(attempt['config']['PIT_liquidity_top_n'])}"]):
+            return False
+        return int(row["decision_count_5m"]) == 288 or decision == decision.replace(hour=0, minute=0)
+
+    def _a3_candidates(
+        self,
+        rows: Sequence[Mapping[str, Any]],
+        partition: Any,
+        partition_key: tuple[str, str, str | None],
+    ) -> Iterable[tuple[str, datetime]]:
+        import numpy as np
+
+        adapter = self.population_adapter
+        if adapter is None:
+            raise ShadowCampaignPacketError("A3 event sampling lacks its FamilyInput adapter")
+        root = adapter._a3.cache_root; manifest = adapter._a3.manifest
+        candidates: set[tuple[str, datetime]] = set()
+        end_ms = partition.evaluation_end_exclusive_ms - 11 * 86_400_000
+        for row in rows:
+            config = row["config"]; side = 1 if config["direction"] == "long" else -1
+            scope = str(config["breakout_rank_scope"])
+            confirmation_offset = {
+                "one_close": timedelta(0), "two_closes": timedelta(minutes=5),
+                "close_plus_15m_delay": timedelta(minutes=15),
+            }.get(str(config["confirmation"]))
+            if scope not in {"symbol_side", "global_side"} or confirmation_offset is None:
+                raise ShadowCampaignPacketError("bounded A3 event cohort has an unsupported scope or confirmation")
+            name = f"A3_breakout:lookback={config['breakout_lookback_days']}:atr={config['ATR_window_days']}:side={side}"
+            record = manifest["features"].get(name)
+            if record is None:
+                raise ShadowCampaignPacketError(f"A3 event-locator authority omits {name}")
+            timestamps = np.load(root / record["timestamps_path"], mmap_mode="r", allow_pickle=False)
+            symbols = np.load(root / record["symbols_path"], mmap_mode="r", allow_pickle=False)
+            values = np.load(root / record["values_path"], mmap_mode="r", allow_pickle=False)
+            offset_ms = int(confirmation_offset.total_seconds() * 1000)
+            begin = int(np.searchsorted(timestamps, partition.evaluation_start_ms - offset_ms, side="left"))
+            end = int(np.searchsorted(timestamps, end_ms - offset_ms, side="left"))
+            training = adapter.partitions[partition_key]
+            training_start_ms = int(training["training_start"].timestamp() * 1000)
+            training_end_ms = int(training["training_end_exclusive"].timestamp() * 1000)
+            probability = int(str(config["breakout_rank_min"])[1:]) / 100.0
+            thresholds: dict[int, float] = {}
+            for timestamp, code, value in zip(timestamps[begin:end], symbols[begin:end], values[begin:end]):
+                code_value = int(code); threshold_key = code_value if scope == "symbol_side" else 0
+                if threshold_key not in thresholds:
+                    symbol_mask = (timestamps >= training_start_ms) & (timestamps < training_end_ms) & np.isfinite(values)
+                    if scope == "symbol_side":
+                        symbol_mask &= symbols == code_value
+                    population = np.asarray(values[symbol_mask], dtype="<f8")
+                    thresholds[threshold_key] = math.inf if len(population) < 30 else float(np.quantile(population, probability, method="linear"))
+                if float(value) < thresholds[threshold_key]:
+                    continue
+                decision = datetime.fromtimestamp(int(timestamp) / 1000, tz=timezone.utc) + confirmation_offset
+                symbol = adapter._a3.by_code[int(code)]
+                if self._pit_eligible(row, symbol, decision):
+                    candidates.add((symbol, decision))
+        yield from sorted(candidates, key=lambda item: (item[1], item[0]))
+
+    def _a1_candidates(
+        self,
+        rows: Sequence[Mapping[str, Any]],
+        partition: Any,
+        partition_key: tuple[str, str, str | None],
+    ) -> Iterable[tuple[str, datetime]]:
+        import numpy as np
+        from .production_population_tables import _load_trade_arrays
+
+        adapter = self.population_adapter
+        if adapter is None:
+            raise ShadowCampaignPacketError("A1 event sampling lacks its FamilyInput adapter")
+        authority = adapter._a1; root = authority.cache_root; manifest = authority.manifest
+        timestamps = authority._timestamps; symbols = authority._symbols
+        candidates: set[tuple[str, datetime]] = set()
+        for row in rows:
+            config = row["config"]
+            if config["direction"] not in {"long", "short"} or config["impulse_rank_scope"] != "symbol_side":
+                raise ShadowCampaignPacketError("bounded A1 event cohort requires a directional symbol-side impulse address")
+            side = 1 if config["direction"] == "long" else -1
+            name = f"A1_impulse:window={config['impulse_window']}"
+            values = np.load(root / manifest["features"][name]["path"], mmap_mode="r", allow_pickle=False)
+            threshold_probability = int(str(config["impulse_rank_min"])[1:]) / 100.0
+            offset = self._confirmation_offset(config)
+            base = str(config["base_duration"]); base_bars = int(base[:-1]) * {"h": 12, "d": 288}[base[-1]]
+            if config["shape_rank_scope"] != "symbol":
+                raise ShadowCampaignPacketError("bounded A1 event cohort requires symbol-local shape ranks")
+            contraction_name = f"A1_contraction:base={base}:baseline={config['contraction_baseline']}"
+            contraction_values = np.load(root / manifest["features"][contraction_name]["path"], mmap_mode="r", allow_pickle=False)
+            smoothness_values = None
+            if config["smoothness_rank_min"] != "none":
+                smoothness_name = f"A1_smoothness:base={base}"
+                smoothness_values = np.load(root / manifest["features"][smoothness_name]["path"], mmap_mode="r", allow_pickle=False)
+            training_start_ms = int(adapter.partitions[partition_key]["training_start"].timestamp() * 1000)
+            training_end_ms = int(adapter.partitions[partition_key]["training_end_exclusive"].timestamp() * 1000)
+            for symbol, code in sorted(authority.symbol_codes.items()):
+                left = int(np.searchsorted(symbols, code, side="left")); right = int(np.searchsorted(symbols, code, side="right"))
+                symbol_times = timestamps[left:right]; symbol_values = np.asarray(values[left:right], dtype="<f8") * side
+                training = symbol_values[(symbol_times >= training_start_ms) & (symbol_times < training_end_ms) & np.isfinite(symbol_values)]
+                if len(training) < 30:
+                    continue
+                ordered_impulse = np.sort(training, kind="mergesort")
+                impulse_start_ms = partition.evaluation_start_ms - int(offset.total_seconds() * 1000)
+                impulse_end_ms = partition.evaluation_end_exclusive_ms - 11 * 86_400_000 - int(offset.total_seconds() * 1000)
+                start = int(np.searchsorted(symbol_times, impulse_start_ms, side="left")); stop = int(np.searchsorted(symbol_times, impulse_end_ms, side="left"))
+                local = symbol_values[start:stop]
+                if not len(local):
+                    continue
+                previous = symbol_values[max(0, start - 1):max(0, stop - 1)]
+                if start == 0:
+                    previous = np.concatenate((np.asarray([np.nan]), local[:-1]))
+                current_percentiles = np.searchsorted(ordered_impulse, local, side="right") / len(ordered_impulse)
+                previous_percentiles = np.searchsorted(ordered_impulse, previous, side="right") / len(ordered_impulse)
+                crossed = np.flatnonzero(np.isfinite(local) & (current_percentiles >= threshold_probability) & np.isfinite(previous) & (previous_percentiles < threshold_probability))
+                shape_training_mask = (symbol_times >= training_start_ms) & (symbol_times < training_end_ms)
+                contraction_training = np.sort(np.asarray(contraction_values[left:right][shape_training_mask & np.isfinite(contraction_values[left:right])], dtype="<f8"), kind="mergesort")
+                smoothness_training = None if smoothness_values is None else np.sort(np.asarray(smoothness_values[left:right][shape_training_mask & np.isfinite(smoothness_values[left:right])], dtype="<f8"), kind="mergesort")
+                raw_times = raw_closes = None
+                for local_index in crossed:
+                    physical_index = left + start + int(local_index)
+                    base_end_index = physical_index + base_bars
+                    if base_end_index >= right or int(timestamps[base_end_index]) - int(timestamps[physical_index]) != base_bars * 300_000:
+                        continue
+                    if config["contraction_rank_max"] != "none":
+                        contraction = float(contraction_values[base_end_index])
+                        contraction_max = int(str(config["contraction_rank_max"])[1:]) / 100.0
+                        if not len(contraction_training) or not math.isfinite(contraction) or float(np.searchsorted(contraction_training, contraction, side="right")) / len(contraction_training) > contraction_max:
+                            continue
+                    if smoothness_training is not None:
+                        smoothness = float(smoothness_values[base_end_index])
+                        smoothness_min = int(str(config["smoothness_rank_min"])[1:]) / 100.0
+                        if not len(smoothness_training) or not math.isfinite(smoothness) or float(np.searchsorted(smoothness_training, smoothness, side="right")) / len(smoothness_training) < smoothness_min:
+                            continue
+                    if raw_times is None or raw_closes is None:
+                        cached_raw = self._a1_raw_arrays.get(symbol)
+                        if cached_raw is None:
+                            cached_raw = _load_trade_arrays(adapter._parts(symbol))
+                            self._a1_raw_arrays[symbol] = cached_raw
+                        raw_times, raw_closes = cached_raw
+                    impulse_close_ms = int(symbol_times[start + int(local_index)])
+                    raw_index = int(np.searchsorted(raw_times, impulse_close_ms - 300_000, side="left"))
+                    impulse_bars = {"6h": 72, "12h": 144, "1d": 288, "3d": 864, "7d": 2016}[str(config["impulse_window"])]
+                    confirmation_offsets = {
+                        "one_close": (base_bars + 1,),
+                        "two_closes": (base_bars + 1, base_bars + 2),
+                        "close_plus_bounded_15m_delay": (base_bars + 1, base_bars + 4),
+                    }[str(config["confirmation"])]
+                    required_end = raw_index + max(confirmation_offsets)
+                    if raw_index >= len(raw_times) or int(raw_times[raw_index]) != impulse_close_ms - 300_000 or raw_index < impulse_bars or required_end >= len(raw_times):
+                        continue
+                    if int(raw_times[required_end]) - int(raw_times[raw_index]) != max(confirmation_offsets) * 300_000:
+                        continue
+                    extreme = (
+                        float(np.max(raw_closes[raw_index - impulse_bars:raw_index + 1]))
+                        if side == 1 else float(np.min(raw_closes[raw_index - impulse_bars:raw_index + 1]))
+                    )
+                    base_closes = raw_closes[raw_index + 1:raw_index + base_bars + 1]
+                    confirmation_closes = raw_closes[[raw_index + item for item in confirmation_offsets]]
+                    if np.any(side * (base_closes - extreme) > 0) or np.any(side * (confirmation_closes - extreme) <= 0):
+                        continue
+                    decision = datetime.fromtimestamp(int(symbol_times[start + int(local_index)]) / 1000, tz=timezone.utc) + offset
+                    if self._pit_eligible(row, symbol, decision):
+                        candidates.add((symbol, decision))
+        yield from sorted(candidates, key=lambda item: (item[1], item[0]))
+
+    def _candidate_pairs(self, rows: Sequence[Mapping[str, Any]], *, phase: str, outer_fold_id: str, inner_fold_id: str | None) -> Iterable[tuple[str, datetime]]:
+        family = str(rows[0]["family_id"])
+        partition_key = (phase, outer_fold_id, inner_fold_id)
+        partition = self.complete_schedule.partition(phase=phase, outer_fold_id=outer_fold_id, inner_fold_id=inner_fold_id)
+        if family == "A1_COMPRESSION_V2":
+            yield from self._a1_candidates(rows, partition, partition_key)
+        elif family == "A3_STARTER_RETEST_V3":
+            yield from self._a3_candidates(rows, partition, partition_key)
+        elif family == "A4_TSMOM_V7":
+            seen: set[tuple[str, datetime]] = set()
+            for row in rows:
+                for locator in self.complete_schedule.iter_locators(row, phase=phase, outer_fold_id=outer_fold_id, inner_fold_id=inner_fold_id):
+                    if locator.decision_ts.timestamp() * 1000 >= partition.evaluation_end_exclusive_ms - 11 * 86_400_000:
+                        continue
+                    key = locator.symbol, locator.decision_ts
+                    if key not in seen:
+                        seen.add(key); yield key
+        else:
+            raise ShadowCampaignPacketError("event-locator sampler received a non-parent family")
+
+    def iter_batch_locators(self, rows: Sequence[Mapping[str, Any]], **kwargs: Any) -> Iterable[Any]:
+        from .a1_state import initial_state
+        from .family_engines import a1_compression
+        from .executor import _generate_events
+        from .family_engines.common import EngineInputError, require_utc
+        from .lazy_production_inputs import FamilyDecisionLocator
+        from .engine_types import _mark_validated_frame
+
+        if self.mode != "production_event_locator":
+            yield from self.iter_locators(rows[0], **kwargs)
+            return
+        if not rows or self.population_adapter is None:
+            raise ShadowCampaignPacketError("event-locator batch is empty or lacks its production adapter")
+        family = str(rows[0]["family_id"])
+        prototype = rows[0]
+        target = int(self.policy["target_eligible_event_days_per_attempt_partition"])
+        maximum = int(self.policy["maximum_candidate_locators_per_attempt_partition"]) * len(rows)
+        eligible_days: dict[str, set[object]] = {str(row["executable_attempt_id"]): set() for row in rows}
+        scanned = 0
+        for symbol, decision in self._candidate_pairs(rows, **kwargs):
+            scanned += 1
+            if scanned > maximum:
+                break
+            locator = FamilyDecisionLocator(
+                family, str(kwargs["phase"]), str(kwargs["outer_fold_id"]), kwargs.get("inner_fold_id"),
+                symbol, decision, str(prototype["executable_attempt_id"]),
+                str(prototype["canonical_economic_address_sha256"]),
+            )
+            try:
+                frame = self.population_adapter.frame(locator)
+            except EngineInputError:
+                continue
+            matched = False
+            for row in rows:
+                try:
+                    if family == "A1_COMPRESSION_V2":
+                        bound = replace(frame, metadata={**frame.metadata, "a1_persistent_state": initial_state().payload()})
+                        _mark_validated_frame(bound)
+                        events = _generate_events(family, bound, row["config"], None, None)
+                        if any(require_utc(event["decision_ts"]) == decision for event in events):
+                            _, events = a1_compression.advance_persistent_state(bound, row["config"], events)
+                    else:
+                        events = _generate_events(family, frame, row["config"], None, None)
+                    exact = [event for event in events if require_utc(event["decision_ts"]) == decision]
+                except EngineInputError:
+                    exact = []
+                if exact:
+                    eligible_days[str(row["executable_attempt_id"])].add(decision.date()); matched = True
+            if not matched:
+                continue
+            self._last_frame_key = (family, symbol, decision, str(kwargs["outer_fold_id"]), kwargs.get("inner_fold_id"))
+            self._last_frame = frame
+            yield locator
+            if all(len(days) >= target for days in eligible_days.values()):
+                self.last_reconciliation = {
+                    "family_id": family,
+                    "partition": {key: value for key, value in kwargs.items() if key in {"phase", "outer_fold_id", "inner_fold_id"}},
+                    "eligible_event_days_by_attempt": {key: len(value) for key, value in sorted(eligible_days.items())},
+                    "candidate_locators_scanned": scanned,
+                    "real_post_entry_rows_opened": 0,
+                    "economic_outcomes_opened": False,
+                    "status": "pass",
+                }
+                return
+        missing = {identity: len(days) for identity, days in eligible_days.items() if len(days) < target}
+        self.last_reconciliation = {
+            "family_id": family,
+            "partition": {key: value for key, value in kwargs.items() if key in {"phase", "outer_fold_id", "inner_fold_id"}},
+            "eligible_event_days_by_attempt": {key: len(value) for key, value in sorted(eligible_days.items())},
+            "candidate_locators_scanned": scanned,
+            "real_post_entry_rows_opened": 0,
+            "economic_outcomes_opened": False,
+            "status": "pass" if not missing else "fail_insufficient_event_days",
+        }
+        return
+
+    def frame(self, locator: Any) -> Any:
+        key = (locator.family_id, locator.symbol, locator.decision_ts, locator.outer_fold_id, locator.inner_fold_id)
+        if self._last_frame_key == key and self._last_frame is not None:
+            return self._last_frame
+        if self.population_adapter is None:
+            raise ShadowCampaignPacketError("event-locator frame cache lacks its production adapter")
+        return self.population_adapter.frame(locator)
 
 
 class BoundedShadowKDA02BAdapter:
@@ -135,15 +446,86 @@ def _exact_subset(
     return output
 
 
-def _topology_neighborhood(family: str, rows: Sequence[Mapping[str, Any]], *, required_id: str | None = None) -> list[Mapping[str, Any]]:
-    eligible = [row for row in rows if row.get("family_id") == family and selection_role_eligible(row)]
+def _shadow_scenario_matrix(execution: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    """Freeze test-only payoff scenarios from identities, never outcome values."""
+
+    parent_ids = {
+        str(row.get("resolved_parent_executable_attempt_id"))
+        for row in execution
+        if row.get("family_id") == "A2_PRIOR_HIGH_RS_CONTEXT_V1"
+        and row.get("config", {}).get("parent_binding_mode") == "source_attempt"
+    }
+    assignments: list[dict[str, Any]] = []
+    failures = iter(("negative_fail", "unstable_fail", "sparse_fail", "concentration_fail") * 3)
+    for family in ("A4_TSMOM_V7", "A1_COMPRESSION_V2", "A3_STARTER_RETEST_V3"):
+        rows = sorted(
+            (row for row in execution if row.get("family_id") == family),
+            key=lambda row: (
+                sum(
+                    row.get("config", {}).get(field) != "none"
+                    for field in ("contraction_rank_max", "smoothness_rank_min")
+                ) if family == "A1_COMPRESSION_V2" else 0,
+                str(row["canonical_economic_address_sha256"]),
+            ),
+        )
+        if len(rows) < 5:
+            raise ShadowCampaignPacketError(f"shadow scenario matrix lacks a five-address {family} neighborhood")
+        stable = {str(row["executable_attempt_id"]) for row in rows[:3]} | (parent_ids & {str(row["executable_attempt_id"]) for row in rows})
+        while len(stable) < 3:
+            stable.add(str(rows[len(stable)]["executable_attempt_id"]))
+        for row in rows:
+            identity = str(row["executable_attempt_id"])
+            scenario = "stable_pass" if identity in stable else next(failures)
+            assignments.append({
+                "executable_attempt_id": identity,
+                "canonical_economic_address_sha256": str(row["canonical_economic_address_sha256"]),
+                "family_id": family,
+                "scenario": scenario,
+                "concentration_symbol": "PF_XBTUSD" if scenario == "concentration_fail" else None,
+            })
+    observed = {str(row["scenario"]) for row in assignments}
+    expected = {"stable_pass", "negative_fail", "unstable_fail", "sparse_fail", "concentration_fail"}
+    if observed != expected or not parent_ids <= {str(row["executable_attempt_id"]) for row in assignments if row["scenario"] == "stable_pass"}:
+        raise ShadowCampaignPacketError("shadow scenario matrix does not cover every fixed scenario or A2 source parent")
+    payload = {
+        "schema": "stage24_fixed_synthetic_scenario_matrix_v1",
+        "selection_rule": "configuration_only_filter_count_then_canonical_address_first_three_stable_plus_every_A2_source_parent_then_fixed_failure_cycle",
+        "assignments": assignments,
+        "assignment_inventory_sha256": canonical_hash(assignments),
+        "fixed_before_synthetic_payoff": True,
+        "real_outcomes_used": False,
+        "economic_outcomes_opened": False,
+    }
+    return payload
+
+
+def _topology_neighborhood(
+    family: str,
+    rows: Sequence[Mapping[str, Any]],
+    *,
+    required_id: str | None = None,
+    required_config: Mapping[str, Any] | None = None,
+    preferred_center_id: str | None = None,
+) -> list[Mapping[str, Any]]:
+    eligible = [
+        row for row in rows
+        if row.get("family_id") == family
+        and selection_role_eligible(row)
+        and all(row.get("config", {}).get(key) == value for key, value in (required_config or {}).items())
+    ]
     if required_id is not None:
         required = next((row for row in rows if str(row.get("executable_attempt_id")) == required_id), None)
         if required is None or required.get("family_id") != family:
             raise ShadowCampaignPacketError("required A2 source parent is absent or has the wrong family")
     else:
         required = None
-    for center in sorted(eligible, key=lambda row: str(row["canonical_economic_address_sha256"])):
+    centers = sorted(eligible, key=lambda row: str(row["canonical_economic_address_sha256"]))
+    if preferred_center_id is not None:
+        preferred = next((row for row in centers if str(row["executable_attempt_id"]) == preferred_center_id), None)
+        if preferred is None:
+            raise ShadowCampaignPacketError("preferred topology center is absent")
+        centers = [preferred]
+    for center in centers:
         neighbors = sorted(
             (row for row in eligible if gower_distance(family, center["config"], row["config"]) <= 0.15),
             key=lambda row: (gower_distance(family, center["config"], row["config"]), str(row["canonical_economic_address_sha256"])),
@@ -190,6 +572,13 @@ def select_bounded_shadow_identities(source_packet_root: Path) -> dict[str, list
         selected_rows.extend(_topology_neighborhood(
             family, execution,
             required_id=parent_id if parent.get("family_id") == family else None,
+            required_config=(
+                {"breakout_rank_scope": "global_side", "confirmation": "one_close"}
+                if family == "A3_STARTER_RETEST_V3" else
+                None
+            ),
+            preferred_center_id="A1_COMPRESSION_V2:S22:L:1668:1"
+            if family == "A1_COMPRESSION_V2" else None,
         ))
     selected_rows.extend(a2_selected)
     kda = [row for row in execution if row.get("family_id") == "KDA02B_SURVIVOR_ADJUDICATION_V1"]
@@ -223,6 +612,7 @@ def build_bounded_shadow_packet(
     kda02b_population_manifest_path: Path,
     executable_attempt_ids: Sequence[str],
     control_attempt_ids: Sequence[str],
+    include_synthetic_scenario_matrix: bool = False,
 ) -> dict[str, Any]:
     """Freeze an exact no-outcome subset consumed by CampaignOrchestrator.
 
@@ -300,6 +690,9 @@ def build_bounded_shadow_packet(
     }
     for name, rows in (("strategy", strategy), ("execution", execution), ("controls", controls), ("counterparts", counterparts)):
         atomic_write_jsonl(output_paths[name], rows)
+    scenario_path = output_root / "SYNTHETIC_SCENARIO_MATRIX.json"
+    if include_synthetic_scenario_matrix:
+        atomic_write_json(scenario_path, _shadow_scenario_matrix(execution))
 
     source_records = {name: _file_record(path, f"full_frozen_{name}_registry") for name, path in source_paths.items()}
     subset_records = {name: _file_record(path, f"bounded_shadow_{name}_registry") for name, path in output_paths.items()}
@@ -355,6 +748,8 @@ def build_bounded_shadow_packet(
         "protected_outcomes_authorized": False,
         "capitalcom_payload_access": False,
     }
+    if include_synthetic_scenario_matrix:
+        manifest["synthetic_scenario_matrix"] = _file_record(scenario_path, "fixed_synthetic_scenario_matrix")
     manifest_path = output_root / "SHADOW_CAMPAIGN_MANIFEST.json"
     atomic_write_json(manifest_path, manifest)
     request = {
@@ -379,7 +774,7 @@ def build_bounded_shadow_packet(
     }
     approval_path = output_root / "SHADOW_EXTERNAL_AUTHORIZATION.json"
     atomic_write_json(approval_path, approval)
-    return {
+    packet = {
         "packet_root": str(output_root),
         "manifest": _file_record(manifest_path, "shadow_campaign_manifest"),
         "approval_request": _file_record(request_path, "shadow_authorization_request"),
@@ -390,6 +785,9 @@ def build_bounded_shadow_packet(
         "kda02b_population_authority": kda_record,
         "subset_authority": _file_record(subset_path, "shadow_subset_authority"),
     }
+    if include_synthetic_scenario_matrix:
+        packet["synthetic_scenario_matrix"] = _file_record(scenario_path, "fixed_synthetic_scenario_matrix")
+    return packet
 
 
 def build_shadow_service_authority(
@@ -405,7 +803,12 @@ def build_shadow_service_authority(
     heartbeat_seconds: int = 1,
     hold_after_health_seconds: float = 0.0,
     maximum_distinct_days_per_attempt_partition: int = 2,
+    production_event_locator_sampling: bool = False,
+    target_eligible_event_days_per_attempt_partition: int = 6,
+    maximum_candidate_locators_per_attempt_partition: int = 1000,
     maximum_kda02b_eligible_records_per_cell_fold: int = 1,
+    reused_evidence_authority_path: Path | None = None,
+    continuation_task_path: Path | None = None,
 ) -> dict[str, Any]:
     if workers < 1 or workers > 4:
         raise ShadowCampaignPacketError("shadow worker count is outside the frozen one-to-four bound")
@@ -432,14 +835,34 @@ def build_shadow_service_authority(
         "complete_kda02b_population_authority_sha256": packet["kda02b_population_authority"]["sha256"],
         "synthetic_provider_version": "stage24-real-orchestrator-shadow-v1",
     }
-    population_slice_policy = {
+    continuation_task = None
+    if continuation_task_path is not None:
+        continuation_task = _file_record(continuation_task_path, "stage24_event_locator_continuation_task")
+        if continuation_task["sha256"] != "6da86984b890314ea4422c8787d5c6de282342385c6505005358bac31e3493d3":
+            raise ShadowCampaignPacketError("Stage 24 event-locator continuation task hash differs")
+        identity_bindings["continuation_task_sha256"] = continuation_task["sha256"]
+    reused_evidence = None
+    if reused_evidence_authority_path is not None:
+        reused_evidence = _file_record(reused_evidence_authority_path, "stage24_reused_shadow_evidence_authority")
+        identity_bindings["reused_evidence_authority_sha256"] = reused_evidence["sha256"]
+    population_slice_policy = ({
+        "schema": "stage24_shadow_event_locator_policy_v2",
+        "selection": "actual_production_enumerator_pre_entry_event_locators",
+        "target_eligible_event_days_per_attempt_partition": target_eligible_event_days_per_attempt_partition,
+        "maximum_candidate_locators_per_attempt_partition": maximum_candidate_locators_per_attempt_partition,
+        "empty_attempt_partitions_preserved": True,
+        "real_post_entry_values_used": False,
+        "economic_values_used_for_selection": False,
+        "synthetic_payoff_generated_after_locator_freeze": True,
+        "full_launch_population_authority_preserved": True,
+    } if production_event_locator_sampling else {
         "schema": "stage24_shadow_population_slice_policy_v1",
         "selection": "first_authority_order_locator_on_each_distinct_UTC_day",
         "maximum_distinct_days_per_attempt_partition": maximum_distinct_days_per_attempt_partition,
         "economic_values_used_for_selection": False,
         "benchmark_frame_values_used": False,
         "full_launch_population_authority_preserved": True,
-    }
+    })
     BoundedShadowPopulationSchedule(object(), population_slice_policy)
     identity_bindings["population_slice_policy_sha256"] = canonical_hash(population_slice_policy)
     kda02b_slice_policy = {
@@ -476,6 +899,10 @@ def build_shadow_service_authority(
         "protected_outcomes_authorized": False,
         "capitalcom_payload_access": False,
     }
+    if continuation_task is not None:
+        spec["continuation_task"] = continuation_task
+    if reused_evidence is not None:
+        spec["reused_evidence_authority"] = reused_evidence
     atomic_write_json(spec_path, spec)
     return spec
 

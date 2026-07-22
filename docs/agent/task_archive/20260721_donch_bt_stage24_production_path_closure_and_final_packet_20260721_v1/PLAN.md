@@ -22,6 +22,12 @@ publish the final launch-approval packet without launching economics.
 - Dynamic continuity sequence 6 and Stage-22/23 evidence hashes passed.
 - Economic run authorization: absent. Real post-entry payoff, protected and
   Capital.com readers remain closed.
+- Exact bounded sampling-continuation authority SHA-256:
+  `6da86984b890314ea4422c8787d5c6de282342385c6505005358bac31e3493d3`.
+  It preserves the 1,984 prior zero-observation markers as
+  `structural_shadow_only_zero_observation_sampling`, preserves completed
+  KDA02B and benchmark evidence, and authorizes only an outcome-free targeted
+  event-locator cohort with a pre-frozen synthetic scenario matrix.
 
 ## Implementation milestones
 
@@ -41,6 +47,22 @@ publish the final launch-approval packet without launching economics.
    independent review and repair until `PASS`.
 7. Only after `PASS`: finalize immutable packet, non-force integrate/push,
    round-trip Drive handoff, and publish one continuity transaction.
+8. Preserve the stopped v17 root and create a new versioned targeted acceptance
+   root. Freeze the existing configuration-only A1–A4 topology cohort and the
+   five test-only scenario assignments before generating any synthetic payoff.
+9. Replace arbitrary first-daily timestamp sampling only in shadow mode with
+   actual engine-confirmed pre-entry event locators from authorized production
+   `FamilyInput` frames; retain real identities and the synthetic-only payoff
+   firewall.
+10. Run the bounded cohort through unchanged aggregation, plateau/beam rules,
+    A2 resolution, all applicable 20 controls, materialization, forensics and
+    terminal reconciliation. Reuse completed KDA02B, the 1,200-unit benchmark,
+    and genuine stop/resume evidence unless the commit-delta audit invalidates
+    an exact component.
+11. After focused and replay-invariance tests pass, perform one independent
+    review, bind one supported detached canary to the final commit, require
+    Telegram preflight/terminal notification, and stop interactive polling if
+    runtime exceeds 30 minutes.
 
 ## Acceptance and failure behavior
 
@@ -95,3 +117,30 @@ publish the final launch-approval packet without launching economics.
   generation's persisted monotonic heartbeat time as current liveness. The
   restart-local heartbeat baseline was repaired without changing the 30-minute
   schedule or 3,900-second stale bound; focused restart/stale-stop tests pass.
+- 2026-07-22: The reviewed restart completed the KDA02B batch and preserved all
+  11 old denominator failures as superseded history. It then stopped correctly
+  because all 168 A1–A4 candidate/fold selection rows contained zero events:
+  the old one-arbitrary-timestamp-per-day shadow slice was structural evidence
+  only and could not yield a production selection surface. The new exact
+  continuation authority classifies those 1,984 markers accordingly and
+  authorizes only a targeted real-event-locator sampling correction.
+- 2026-07-22: The targeted sampler now derives candidate timestamps from the
+  verified production population authorities and admits them only after the
+  actual family enumerator produces a matching pre-entry event. Empty
+  attempt/partition observations remain explicit; no real post-entry payoff or
+  funding row is opened.
+- 2026-07-22: Real pre-entry probes exposed path-local A1 and A3 loop bounds
+  that reserved the longest confirmation tail for every registered
+  confirmation. The bounds now require only each configuration's exact
+  confirmation closes and next scheduled open. One-, two- and delayed-close
+  regression fixtures pass through the real engines.
+- 2026-07-22: The fixed synthetic scenario matrix is configuration/identity
+  selected before payoff construction and covers stable, negative, unstable,
+  sparse and concentration routes through unchanged accounting. The new v18
+  service reuses the immutable v17 structural/KDA evidence under a hash-bound
+  authority, uses distinct event-locator stage names, and sends explicit
+  Telegram launch, heartbeat, bound-stop and terminal-completion messages.
+- 2026-07-22: The complete affected suite passed: 94 tests total (76 production
+  campaign/service tests in 210.447 seconds plus 18 population/input/benchmark
+  tests in 1.880 seconds). `git diff --check` is clean. Independent review and
+  final detached launch gates remain pending.

@@ -174,7 +174,15 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
     episodes: list[dict[str, Any]] = []
     minimum_index = max(impulse_n, baseline_n)
     index = minimum_index
-    while index + base_n + 4 < len(bars):
+    confirmation = str(config["confirmation"])
+    required_tail = {
+        "one_close": 2,
+        "two_closes": 3,
+        "close_plus_bounded_15m_delay": 5,
+    }.get(confirmation)
+    if required_tail is None:
+        raise EngineInputError(f"unsupported A1 confirmation: {confirmation}")
+    while index + base_n + required_tail < len(bars):
         if history_restore_index is not None and index > history_restore_index:
             for candidate_side in sides:
                 armed[candidate_side] = True
@@ -257,7 +265,6 @@ def evaluate(frame: FamilyInput, config: Mapping[str, Any], *, control_id: str |
             index = base_end
             continue
         first_confirmation = base_end
-        confirmation = str(config["confirmation"])
         if confirmation == "one_close":
             confirmation_indices = (first_confirmation,)
         elif confirmation == "two_closes":

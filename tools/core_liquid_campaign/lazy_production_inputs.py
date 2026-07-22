@@ -10,7 +10,7 @@ from typing import Any, Mapping, Sequence
 
 from .a1_state import initial_state
 from .canonical import canonical_hash, sha256_file
-from .engine_types import ContextInputs, FamilyInput, FundingInput, KRAKEN_PLATFORM, PROTECTED_START, SignalBar
+from .engine_types import ContextInputs, FamilyInput, FundingInput, KRAKEN_PLATFORM, PROTECTED_START, SignalBar, _mark_validated_frame
 from .family_engines import a1_compression, a3_starter_retest
 from .production_cache import SourcePart
 from .production_inputs import (
@@ -226,7 +226,7 @@ class LazyProductionFamilyInputAdapter:
         }
         self._index_cache: dict[str, tuple[SourcePart, ...]] = {}
         self._verified_source_paths: set[str] = set()
-        self._daily_cache: dict[tuple[str, datetime], tuple[Any, ...]] = {}
+        self._daily_cache: dict[str, tuple[datetime, tuple[Any, ...]]] = {}
         self._bars_cache: OrderedDict[tuple[str, datetime], tuple[Any, ...]] = OrderedDict()
         self._funding_cache: OrderedDict[tuple[str, datetime], tuple[tuple[datetime, str, float], ...]] = OrderedDict()
         self._threshold_cache: OrderedDict[tuple[Any, ...], tuple[dict[str, Any], list[dict[str, Any]]]] = OrderedDict()
@@ -508,23 +508,37 @@ class LazyProductionFamilyInputAdapter:
             self._bars_cache.pop(removable)
         return rows
 
+    def _bounded_pre_entry_bars(self, symbol: str, cutoff: datetime, *, days: int = 181) -> tuple[Any, ...]:
+        """Decode only the bounded history consumed by A1/A3 at this decision."""
+        cutoff = _utc(cutoff)
+        start = max(RANKABLE_START, cutoff - timedelta(days=days))
+        parts = self._verified_trade_parts(symbol, start, cutoff)
+        rows = _load_trade_bars(parts, start, cutoff)
+        if not rows or any(row.close_ts > cutoff for row in rows):
+            raise LazyProductionInputError("bounded pre-entry trade history is empty or crosses its decision")
+        return rows
+
     def _daily(self, symbol: str, cutoff: datetime) -> tuple[Any, ...]:
         cutoff = _utc(cutoff)
         day = cutoff.replace(hour=0, minute=0, second=0, microsecond=0)
         availability_boundary = day if cutoff == day else day + timedelta(microseconds=1)
-        key = symbol, availability_boundary
-        cached = self._daily_cache.get(key)
-        if cached is not None:
-            return cached
-        parts = self._verified_trade_parts(symbol, RANKABLE_START, cutoff)
-        rows = tuple(row for row in _load_daily_bars(parts, RANKABLE_START, cutoff) if row.close_ts < cutoff)
+        cached = self._daily_cache.get(symbol)
+        if cached is not None and cached[0] == availability_boundary:
+            return cached[1]
+        if cached is not None and cached[0] < availability_boundary:
+            previous_boundary, previous_rows = cached
+            start = previous_rows[-1].close_ts if previous_rows else RANKABLE_START
+            parts = self._verified_trade_parts(symbol, start, cutoff)
+            appended = tuple(row for row in _load_daily_bars(parts, start, cutoff) if row.close_ts < cutoff)
+            rows = (*previous_rows, *appended)
+        elif cached is not None:
+            rows = tuple(row for row in cached[1] if row.close_ts < cutoff)
+        else:
+            parts = self._verified_trade_parts(symbol, RANKABLE_START, cutoff)
+            rows = tuple(row for row in _load_daily_bars(parts, RANKABLE_START, cutoff) if row.close_ts < cutoff)
         if any(row.close_ts >= cutoff for row in rows):
             raise LazyProductionInputError("daily loader admitted a not-yet-completed day")
-        # Daily context changes only at a UTC-day boundary. Keep one requested
-        # day so sequential five-minute locators cannot grow memory unbounded.
-        if self._daily_cache and next(iter(self._daily_cache))[1] != key[1]:
-            self._daily_cache.clear()
-        self._daily_cache[key] = rows
+        self._daily_cache[symbol] = (availability_boundary, tuple(rows))
         return rows
 
     def _funding(self, symbol: str, cutoff: datetime) -> tuple[tuple[datetime, str, float], ...]:
@@ -667,7 +681,13 @@ class LazyProductionFamilyInputAdapter:
         snapshot = _snapshot(day_rows, locator.decision_ts)
         target_decile = int(snapshot["lagged_liquidity_deciles"][locator.symbol])
         populations, unavailable = self._populations(locator, partition, target_decile)
-        completed = tuple(row for row in self._bars(locator.symbol, locator.decision_ts) if locator.decision_ts - timedelta(days=181) <= row.open_ts and row.close_ts <= locator.decision_ts)
+        bounded_loader = getattr(self, "_bounded_pre_entry_bars", None)
+        source_bars = (
+            bounded_loader(locator.symbol, locator.decision_ts)
+            if locator.family_id in {"A1_COMPRESSION_V2", "A3_STARTER_RETEST_V3"} and callable(bounded_loader)
+            else self._bars(locator.symbol, locator.decision_ts)
+        )
+        completed = tuple(row for row in source_bars if locator.decision_ts - timedelta(days=181) <= row.open_ts and row.close_ts <= locator.decision_ts)
         schedule_bar = self._execution_schedule_bar(locator.symbol, locator.decision_ts, completed)
         bars = (*completed, schedule_bar)
         daily = tuple(row for row in self._daily(locator.symbol, locator.decision_ts) if row.close_ts < locator.decision_ts)
@@ -728,6 +748,7 @@ class LazyProductionFamilyInputAdapter:
         )
         frame = with_source_authority(frame, self.authority)
         frame.validate()
+        _mark_validated_frame(frame)
         return frame
 
 

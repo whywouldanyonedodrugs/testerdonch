@@ -190,6 +190,40 @@ class EngineAccountingControlTests(unittest.TestCase):
             self.assertIsNotNone(result.activation_index)
             self.assertLess(result.activation_index, result.reclaim_index)
 
+    def test_a3_short_confirmations_execute_on_pre_entry_only_frame(self) -> None:
+        for confirmation in ("one_close", "two_closes", "close_plus_15m_delay"):
+            config = normalize_config("A3_STARTER_RETEST_V3", {
+                **baseline_config("A3_STARTER_RETEST_V3"), "confirmation": confirmation,
+            })
+            frame = a3_frame(config)
+            if confirmation == "two_closes":
+                bars = list(frame.five_minute_bars)
+                crossing = next(index for index in range(1, len(bars)) if bars[index - 1].close <= 100.0 < bars[index].close)
+                bars[crossing + 1] = replace(
+                    bars[crossing + 1], high=max(bars[crossing + 1].high, 101.3),
+                    low=min(bars[crossing + 1].low, 101.2), close=101.3,
+                )
+                frame = replace(frame, five_minute_bars=tuple(bars))
+            completed = tuple(bar for bar in frame.five_minute_bars if bar.close_ts <= frame.decision_ts)
+            next_open = next(bar for bar in frame.five_minute_bars if bar.open_ts >= frame.decision_ts)
+            firewalled = replace(frame, five_minute_bars=(*completed, next_open))
+            events = a3_starter_retest.evaluate(firewalled, config)
+            self.assertTrue(events, confirmation)
+            self.assertTrue(all(event["decision_ts"] == frame.decision_ts for event in events))
+
+    def test_a1_short_confirmations_reach_next_open_on_pre_entry_only_frame(self) -> None:
+        for confirmation in ("one_close", "two_closes", "close_plus_bounded_15m_delay"):
+            config = normalize_config("A1_COMPRESSION_V2", {
+                **baseline_config("A1_COMPRESSION_V2"), "confirmation": confirmation,
+            })
+            frame = a1_frame(config)
+            completed = tuple(bar for bar in frame.five_minute_bars if bar.close_ts <= frame.decision_ts)
+            next_open = next(bar for bar in frame.five_minute_bars if bar.open_ts >= frame.decision_ts)
+            firewalled = replace(frame, five_minute_bars=(*completed, next_open))
+            events = a1_compression.evaluate(firewalled, config)
+            self.assertTrue(events, confirmation)
+            self.assertTrue(all(event["decision_ts"] == frame.decision_ts for event in events))
+
     def test_a4_exact_estimators_and_control_semantics(self) -> None:
         values = [10.0, 11.0, 13.0, 12.0]
         alpha = 2.0 / 3.0
