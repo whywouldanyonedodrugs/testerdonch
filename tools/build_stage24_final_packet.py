@@ -57,6 +57,34 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         or len(kda_artifacts) != 171
     ):
         raise RuntimeError("final cache authority does not contain the exact complete frame inventory")
+    launch_population = json.loads(args.launch_population_authority.read_text(encoding="utf-8"))
+    if launch_population.get("schema") != "stage24_launch_population_authority_v1" or launch_population.get("status") != "bound_outcome_free":
+        raise RuntimeError("launch-population authority is invalid")
+    kda_population = json.loads(args.kda_population_manifest.read_text(encoding="utf-8"))
+    if (
+        kda_population.get("schema") != "stage24_kda02b_lazy_population_index_v1"
+        or kda_population.get("status") != "pass"
+        or kda_population.get("economic_outcomes_opened") is not False
+        or int(kda_population.get("protected_rows_opened", -1)) != 0
+    ):
+        raise RuntimeError("KDA02B population authority is invalid")
+    reused = json.loads(args.reused_evidence_authority.read_text(encoding="utf-8"))
+    if (
+        reused.get("schema") != "stage24_reused_shadow_evidence_authority_v1"
+        or reused.get("status") != "pass"
+        or reused.get("economic_outcomes_opened") is not False
+        or reused.get("markers_deleted_rewritten_or_recomputed") is not False
+    ):
+        raise RuntimeError("reused-evidence authority is invalid")
+    reused_verification = json.loads(args.reused_startup_verification.read_text(encoding="utf-8"))
+    if (
+        reused_verification.get("schema") != "stage24_reused_evidence_startup_verification_v1"
+        or reused_verification.get("status") != "pass"
+        or int(reused_verification.get("total_file_count", -1)) != 6_373
+        or int(reused_verification.get("unique_file_count", -1)) != 6_373
+        or reused_verification.get("reused_evidence_authority_sha256") != sha256_file(args.reused_evidence_authority)
+    ):
+        raise RuntimeError("reused-evidence startup verification is invalid")
 
     args.output_root.mkdir(parents=True, exist_ok=True)
     for name in (
@@ -66,6 +94,10 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     ):
         shutil.copy2(args.packet_root / name, args.output_root / name)
     shutil.copy2(args.execution_input_authority, args.output_root / "EXECUTION_INPUT_AUTHORITY.json")
+    shutil.copy2(args.launch_population_authority, args.output_root / "LAUNCH_POPULATION_AUTHORITY.json")
+    shutil.copy2(args.kda_population_manifest, args.output_root / "KDA02B_LAZY_POPULATION_MANIFEST.json")
+    shutil.copy2(args.reused_evidence_authority, args.output_root / "REUSED_SHADOW_EVIDENCE_AUTHORITY.json")
+    shutil.copy2(args.reused_startup_verification, args.output_root / "REUSED_EVIDENCE_STARTUP_VERIFICATION.json")
     kda_reconciliation_path = args.cache_manifest.parent.parent / "KDA02B_RECONCILIATION.json"
     if not kda_reconciliation_path.is_file():
         raise RuntimeError("final KDA02B reconciliation is absent")
@@ -102,6 +134,10 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         "control_registry": sha256_file(args.output_root / "FINAL_CONTROL_REGISTRY.jsonl"),
         "a2_counterpart_registry": sha256_file(args.output_root / "A2_PARENT_COUNTERPART_REGISTRY.jsonl"),
         "execution_input_authority": sha256_file(args.output_root / "EXECUTION_INPUT_AUTHORITY.json"),
+        "launch_population_authority": sha256_file(args.output_root / "LAUNCH_POPULATION_AUTHORITY.json"),
+        "kda02b_population_authority": sha256_file(args.output_root / "KDA02B_LAZY_POPULATION_MANIFEST.json"),
+        "reused_evidence_authority": sha256_file(args.output_root / "REUSED_SHADOW_EVIDENCE_AUTHORITY.json"),
+        "reused_evidence_startup_verification": sha256_file(args.output_root / "REUSED_EVIDENCE_STARTUP_VERIFICATION.json"),
         "cache_authority_manifest": sha256_file(args.cache_manifest),
         "code_inventory": sha256_file(args.output_root / "CODE_HASH_INVENTORY.json"),
         "production_readiness_gate": sha256_file(args.output_root / "PRODUCTION_READINESS_GATE.json"),
@@ -167,6 +203,10 @@ Launch only after an external approval JSON binds all of:
 - control registry `{primary['control_registry']}`
 - cache authority `{primary['cache_authority_manifest']}`
 - execution-input authority `{primary['execution_input_authority']}`
+- launch-population authority `{primary['launch_population_authority']}`
+- KDA02B population authority `{primary['kda02b_population_authority']}`
+- reused-evidence authority `{primary['reused_evidence_authority']}`
+- reused-evidence startup verification `{primary['reused_evidence_startup_verification']}`
 - KDA02B reconciliation `{primary['kda02b_reconciliation']}`
 
 Repeat authority, source, cache, resource, synthetic-canary and secure Telegram gates atomically. Launch through the reviewed detached service, require one reconciled real unit and the first scheduled heartbeat before health release, and preserve renewable checkpoint accounting without a hard wall stop. Do not access protected or Capital.com data.
@@ -186,6 +226,8 @@ Repeat authority, source, cache, resource, synthetic-canary and secure Telegram 
         "registry_sha256": primary["strategy_registry"],
         "control_registry_sha256": primary["control_registry"],
         "cache_authority_manifest_sha256": primary["cache_authority_manifest"],
+        "reused_evidence_authority_sha256": primary["reused_evidence_authority"],
+        "launch_task_sha256": sha256_file(args.output_root / "FINAL_LAUNCH_TASK.md"),
     }
 
 
@@ -195,6 +237,10 @@ def main() -> int:
     parser.add_argument("--packet-root", type=Path, required=True)
     parser.add_argument("--cache-manifest", type=Path, required=True)
     parser.add_argument("--execution-input-authority", type=Path, required=True)
+    parser.add_argument("--launch-population-authority", type=Path, required=True)
+    parser.add_argument("--kda-population-manifest", type=Path, required=True)
+    parser.add_argument("--reused-evidence-authority", type=Path, required=True)
+    parser.add_argument("--reused-startup-verification", type=Path, required=True)
     parser.add_argument("--gate", type=Path, required=True)
     parser.add_argument("--review", type=Path, required=True)
     parser.add_argument("--output-root", type=Path, required=True)

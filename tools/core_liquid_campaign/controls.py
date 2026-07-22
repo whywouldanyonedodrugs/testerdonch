@@ -432,6 +432,8 @@ def execute_control(
     result["paired_control"] = {
         "parent_event_count": len(parent_observations), "control_event_count": len(result["observations"]),
         "paired_count": len(set(paired_ids)),
+        "parent_event_ids": sorted(parent_by_id),
+        "control_event_ids": sorted(set(paired_ids)),
         "coverage": len(set(paired_ids)) / len(parent_observations) if parent_observations else 0.0,
         "parent_minus_control_by_utc_day": {day: sum(values) / len(values) for day, values in sorted(paired_days.items())},
         "pairing_order": "exact parent_event_id carried by the registered allocator; unchanged-event controls pair by identical event ID",

@@ -25,6 +25,16 @@ class ShadowAuthorizationError(PermissionError):
     pass
 
 
+def _notify_bound_stop(telegram: Any, *, service_identity: str, status: str, reason: str, resumable: bool) -> bool:
+    sanitized_reason = " ".join(str(reason).split())[:1_000]
+    return bool(telegram.bound_stop({
+        "service_identity": service_identity,
+        "status": status,
+        "reason": sanitized_reason,
+        "resumable": resumable,
+    }))
+
+
 class ProductionShadowCampaignOrchestrator(CampaignOrchestrator):
     """Real stage graph with controls decoded by the real lazy population adapter."""
 
@@ -75,12 +85,19 @@ class ProductionShadowCampaignOrchestrator(CampaignOrchestrator):
                 parent_row = None
                 if parent["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1" and parent_binding is not None:
                     parent_row = registry.get(str(parent_binding.get("parent_executable_attempt_id")))
-                locators = tuple(self.population_schedule.iter_locators(
+                schedule_frame = getattr(self.population_schedule, "frame", None)
+                locators = []
+                frames = []
+                for locator in self.population_schedule.iter_locators(
                     parent,
                     phase="outer_evaluation", outer_fold_id=str(control["fold"]), inner_fold_id=None,
                     parent_attempt=parent_row,
-                ))
-                frames = tuple(self.population_adapter.frame(locator) for locator in locators)
+                ):
+                    locators.append(locator)
+                    frames.append(
+                        schedule_frame(locator) if callable(schedule_frame) else self.population_adapter.frame(locator)
+                    )
+                locators = tuple(locators); frames = tuple(frames)
                 if not frames:
                     raise CampaignContractError("shadow control population slice is empty")
                 parent_frames = None
@@ -99,6 +116,10 @@ class ProductionShadowCampaignOrchestrator(CampaignOrchestrator):
                     parent_frames=parent_frames,
                     payoff_provider=self.payoff_provider,
                 )
+                if parent["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+                    paired = result.get("paired_control", {})
+                    if set(paired.get("parent_event_ids", ())) != set(paired.get("control_event_ids", ())):
+                        raise CampaignContractError("A2 control event identities differ from its exact parent")
                 attestation = getattr(self.payoff_provider, "attestation", None)
                 return {
                     **_jsonable(result), "registered_job_id": job_id,
@@ -191,6 +212,30 @@ class ShadowAuthorization:
             raise ShadowAuthorizationError(f"shadow authority file mismatch: {record.get('role')}")
         return path
 
+    @staticmethod
+    def _verify_reused_inventory(section: Mapping[str, Any], *, label: str) -> dict[str, Any]:
+        files = section.get("files")
+        if not isinstance(files, list) or int(section.get("file_count", -1)) != len(files):
+            raise ShadowAuthorizationError(f"reused {label} inventory count differs")
+        for record in files:
+            if not isinstance(record, Mapping):
+                raise ShadowAuthorizationError(f"reused {label} inventory record is invalid")
+            path = Path(str(record.get("path", "")))
+            if (
+                not path.is_file()
+                or path.stat().st_size != int(record.get("bytes", -1))
+                or sha256_file(path) != record.get("sha256")
+            ):
+                raise ShadowAuthorizationError(f"reused {label} evidence bytes differ")
+        if canonical_hash(files) != section.get("inventory_sha256"):
+            raise ShadowAuthorizationError(f"reused {label} inventory hash differs")
+        return {
+            "label": label,
+            "file_count": len(files),
+            "inventory_sha256": str(section["inventory_sha256"]),
+            "verified_paths_sha256": canonical_hash(sorted(str(record["path"]) for record in files)),
+        }
+
     def require(self) -> dict[str, Any]:
         if not self.spec_path.is_file():
             raise ShadowAuthorizationError("shadow service specification is absent")
@@ -216,6 +261,7 @@ class ShadowAuthorization:
         for record in spec.get("bound_files", ()):
             self._bound_file(record, repository_root=repository_root)
         reused = spec.get("reused_evidence_authority")
+        reused_verification = None
         if reused is not None:
             if not isinstance(reused, Mapping):
                 raise ShadowAuthorizationError("reused evidence authority record is invalid")
@@ -227,6 +273,54 @@ class ShadowAuthorization:
                 or reused_payload.get("economic_outcomes_opened") is not False
             ):
                 raise ShadowAuthorizationError("reused shadow evidence authority is invalid")
+            verified_sections = []
+            all_paths: list[str] = []
+            for label, expected_count in (
+                ("structural_inner_development", 3_969),
+                ("kda02b_adjudication", 3),
+                ("representative_benchmark", 2_401),
+            ):
+                section = reused_payload.get(label)
+                if not isinstance(section, Mapping):
+                    raise ShadowAuthorizationError(f"reused {label} evidence is absent")
+                verified_sections.append(self._verify_reused_inventory(section, label=label))
+                if int(section.get("file_count", -1)) != expected_count:
+                    raise ShadowAuthorizationError(f"reused {label} frozen file count differs")
+                all_paths.extend(str(record["path"]) for record in section["files"])
+            if len(all_paths) != 6_373 or len(set(all_paths)) != 6_373:
+                raise ShadowAuthorizationError("reused evidence total or unique file count differs")
+            if (
+                int(reused_payload["structural_inner_development"].get("marker_count", -1)) != 1_984
+                or int(reused_payload["structural_inner_development"].get("artifact_count", -1)) != 1_984
+                or int(reused_payload["representative_benchmark"].get("completed_count", -1)) != 1_200
+                or reused_payload.get("markers_deleted_rewritten_or_recomputed") is not False
+            ):
+                raise ShadowAuthorizationError("reused evidence reconciliation differs")
+            delta_record = reused_payload.get("commit_delta_impact_audit")
+            if not isinstance(delta_record, Mapping):
+                raise ShadowAuthorizationError("reused evidence lacks the commit-delta audit binding")
+            delta_path = Path(str(delta_record.get("path", "")))
+            delta_sha256 = str(delta_record.get("sha256", ""))
+            if (
+                len(delta_sha256) != 64
+                or any(character not in "0123456789abcdef" for character in delta_sha256)
+                or delta_sha256 != "f97675dbbf45e267243dd011d13834ecd9b18a721900ca1ed92101b0b1a12e0d"
+                or not delta_path.is_file()
+                or sha256_file(delta_path) != delta_sha256
+            ):
+                raise ShadowAuthorizationError("commit-delta audit hash reference differs")
+            reused_verification = {
+                "schema": "stage24_reused_evidence_startup_verification_v1",
+                "launch_generation_scope": "once_before_worker_supervisor_start",
+                "reused_evidence_authority_sha256": str(reused["sha256"]),
+                "sections": verified_sections,
+                "total_file_count": len(all_paths),
+                "unique_file_count": len(set(all_paths)),
+                "all_paths_sha256": canonical_hash(sorted(all_paths)),
+                "commit_delta_impact_audit_sha256": delta_sha256,
+                "status": "pass",
+            }
+            reused_verification["verification_sha256"] = canonical_hash(reused_verification)
         actual_commit = subprocess.run(
             ["git", "-C", str(repository_root), "rev-parse", "HEAD"],
             check=True,
@@ -263,15 +357,17 @@ class ShadowAuthorization:
             raise ShadowAuthorizationError("shadow KDA02B slice policy binding differs")
         if not 1 <= int(spec.get("workers", 0)) <= 4:
             raise ShadowAuthorizationError("shadow worker bound differs")
+        if reused_verification is not None:
+            spec["_startup_reused_evidence_verification"] = reused_verification
         return spec
 
 
-def run_shadow_service(spec_path: Path) -> dict[str, Any]:
-    spec = ShadowAuthorization(spec_path).require()
-    from tools.run_stage22_core_liquid_campaign import TelegramTransport
-
+def _run_shadow_service(spec: Mapping[str, Any], telegram: Any) -> dict[str, Any]:
     run_root = Path(str(spec["run_root"]))
     run_root.mkdir(parents=True, exist_ok=True)
+    startup_verification = spec.get("_startup_reused_evidence_verification")
+    if isinstance(startup_verification, Mapping):
+        atomic_write_json(run_root / "REUSED_EVIDENCE_STARTUP_VERIFICATION.json", startup_verification)
     state_path = run_root / "SHADOW_CAMPAIGN_STATE.json"
     if state_path.is_file():
         prior = json.loads(state_path.read_text(encoding="utf-8"))
@@ -280,9 +376,6 @@ def run_shadow_service(spec_path: Path) -> dict[str, Any]:
             if prior.get("identity_bindings_sha256") != canonical_hash(spec["identity_bindings"]):
                 raise ShadowAuthorizationError("completed shadow state identity differs from the service specification")
             return prior
-    telegram = TelegramTransport()
-    if telegram.preflight() is not True:
-        raise ShadowAuthorizationError("secure Telegram preflight failed")
     state = {
         "schema": "stage24_shadow_campaign_state_v2",
         "status": "running",
@@ -407,12 +500,13 @@ def run_shadow_service(spec_path: Path) -> dict[str, Any]:
             "terminal_bound_stop_inventory": bound_terminal,
         })
         atomic_write_json(state_path, state)
-        telegram.bound_stop({
-            "service_identity": spec["service_identity"],
-            "status": state["status"],
-            "reason": state["reason"],
-            "resumable": True,
-        })
+        _notify_bound_stop(
+            telegram,
+            service_identity=str(spec["service_identity"]),
+            status=str(state["status"]),
+            reason=str(state["reason"]),
+            resumable=True,
+        )
         return state
     if campaign_state.get("status") != "complete":
         raise ShadowAuthorizationError("real CampaignOrchestrator did not reach terminal completion")
@@ -452,6 +546,44 @@ def run_shadow_service(spec_path: Path) -> dict[str, Any]:
     if hold > 0:
         time.sleep(hold)
     return state
+
+
+def run_shadow_service(spec_path: Path) -> dict[str, Any]:
+    """Run the service and notify on every post-preflight exceptional stop."""
+    spec = ShadowAuthorization(spec_path).require()
+    from tools.run_stage22_core_liquid_campaign import TelegramTransport
+    telegram = TelegramTransport()
+    if telegram.preflight() is not True:
+        raise ShadowAuthorizationError("secure Telegram preflight failed")
+    try:
+        return _run_shadow_service(spec, telegram)
+    except Exception as exc:
+        try:
+            run_root = Path(str(spec["run_root"]))
+            service_identity = str(spec["service_identity"])
+            state_path = run_root / "SHADOW_CAMPAIGN_STATE.json"
+            state = json.loads(state_path.read_text(encoding="utf-8")) if state_path.is_file() else {}
+            state.update({
+                "status": "pre_outcome_launch_failure",
+                "reason": str(exc),
+                "health_release": False,
+                "resumable": False,
+                "economic_outcomes_opened": False,
+            })
+            run_root.mkdir(parents=True, exist_ok=True)
+            atomic_write_json(state_path, state)
+            _notify_bound_stop(
+                telegram,
+                service_identity=service_identity,
+                status=str(state["status"]),
+                reason=str(state["reason"]),
+                resumable=False,
+            )
+        except Exception:
+            # Preserve the owning exception; a transport failure must not mask
+            # the launch/resource/authorization failure that stopped work.
+            pass
+        raise
 
 
 def main() -> int:

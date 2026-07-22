@@ -320,11 +320,30 @@ class CampaignOrchestrator:
             main_null_parent_ids: set[str] = set()
             main_null_control_ids: set[str] = set()
             locator_count = 0
-            locators = fixed_parent_event_locators if fixed_parent_event_locators is not None else schedule.iter_locators(
-                row, phase=phase, outer_fold_id=outer_fold_id,
-                inner_fold_id=inner_fold_id, parent_attempt=parent_row,
+            a1_states: dict[str, Mapping[str, Any]] = {}
+            last_locator_key: tuple[Any, ...] | None = None
+            locators = (
+                sorted(
+                    fixed_parent_event_locators,
+                    key=lambda item: (
+                        require_utc(item.decision_ts), item.symbol,
+                        canonical_hash(item.identity_payload()),
+                    ),
+                )
+                if fixed_parent_event_locators is not None
+                else schedule.iter_locators(
+                    row, phase=phase, outer_fold_id=outer_fold_id,
+                    inner_fold_id=inner_fold_id, parent_attempt=parent_row,
+                )
             )
             for locator in locators:
+                locator_key = (
+                    require_utc(locator.decision_ts), locator.symbol,
+                    canonical_hash(locator.identity_payload()),
+                )
+                if last_locator_key is not None and locator_key < last_locator_key:
+                    raise CampaignContractError("population locators are not in canonical chronological order")
+                last_locator_key = locator_key
                 locator_count += 1
                 try:
                     schedule_frame = getattr(schedule, "frame", None)
@@ -339,6 +358,12 @@ class CampaignOrchestrator:
                             executable_attempt_id=str(parent_row["executable_attempt_id"]),
                             canonical_economic_address_sha256=str(parent_row["canonical_economic_address_sha256"]),
                         ))
+                    if row["family_id"] == "A1_COMPRESSION_V2" and locator.symbol in a1_states:
+                        frame = replace(frame, metadata={
+                            **frame.metadata,
+                            "a1_persistent_state": a1_states[locator.symbol],
+                            "a1_state_origin": "prior_canonical_locator_checkpoint",
+                        })
                     result = dispatch_registered_attempt(
                         row,
                         (frame,),
@@ -347,6 +372,11 @@ class CampaignOrchestrator:
                         parent_frames=(parent_frame,) if parent_frame is not None else None,
                         payoff_provider=self.payoff_provider,
                     )
+                    if row["family_id"] == "A1_COMPRESSION_V2":
+                        checkpoints = result.get("a1_persistent_state_checkpoints", {})
+                        if len(checkpoints) != 1:
+                            raise CampaignContractError("A1 locator did not return one final checkpoint")
+                        a1_states[locator.symbol] = dict(next(iter(checkpoints.values())))
                 except EngineInputError as exc:
                     unavailable.append({
                         "status": "unavailable_data",
@@ -373,6 +403,8 @@ class CampaignOrchestrator:
                 observations.extend(selected)
                 if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
                     paired = result.get("paired_parent", {})
+                    if set(paired.get("parent_event_ids", ())) != set(paired.get("overlay_event_ids", ())):
+                        raise CampaignContractError("A2 parent/overlay event identities differ")
                     paired_parent_attempts.add(str(paired.get("parent_executable_attempt_id")))
                     paired_parent_ids.update(str(value) for value in paired.get("parent_event_ids", ()))
                     paired_overlay_ids.update(str(value) for value in paired.get("overlay_event_ids", ()))
@@ -438,6 +470,10 @@ class CampaignOrchestrator:
                 "registered_job_id": job_id,
                 "registered_attempt_id": row["executable_attempt_id"],
             }
+            if row["family_id"] == "A1_COMPRESSION_V2":
+                payload["a1_final_state_checkpoints"] = {
+                    symbol: value for symbol, value in sorted(a1_states.items())
+                }
             if materialize:
                 payload.update({"observations": accepted, "ledger": ledgers})
             if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
@@ -487,7 +523,11 @@ class CampaignOrchestrator:
         def task() -> dict[str, Any]:
             observations: dict[str, list[Any]] = {str(row["executable_attempt_id"]): [] for row in ordered}
             unavailable: dict[str, list[dict[str, Any]]] = {str(row["executable_attempt_id"]): [] for row in ordered}
+            a1_states: dict[str, dict[str, Mapping[str, Any]]] = {
+                str(row["executable_attempt_id"]): {} for row in ordered
+            }
             locator_count = 0
+            last_locator_key: tuple[Any, ...] | None = None
             prototype = ordered[0]
             batch_iterator = getattr(schedule, "iter_batch_locators", None)
             locators = (
@@ -498,6 +538,13 @@ class CampaignOrchestrator:
                 )
             )
             for locator in locators:
+                locator_key = (
+                    require_utc(locator.decision_ts), locator.symbol,
+                    canonical_hash(locator.identity_payload()),
+                )
+                if last_locator_key is not None and locator_key < last_locator_key:
+                    raise CampaignContractError("batch locators are not in canonical chronological order")
+                last_locator_key = locator_key
                 locator_count += 1
                 try:
                     schedule_frame = getattr(schedule, "frame", None)
@@ -520,6 +567,12 @@ class CampaignOrchestrator:
                         "decision_locator": bound_locator.identity_payload(),
                         "decision_locator_sha256": canonical_hash(bound_locator.identity_payload()),
                     })
+                    if row["family_id"] == "A1_COMPRESSION_V2" and locator.symbol in a1_states[identity]:
+                        bound_frame = replace(bound_frame, metadata={
+                            **bound_frame.metadata,
+                            "a1_persistent_state": a1_states[identity][locator.symbol],
+                            "a1_state_origin": "prior_canonical_locator_checkpoint",
+                        })
                     _mark_validated_frame(bound_frame)
                     try:
                         dispatched = dispatch_registered_attempt(
@@ -531,6 +584,11 @@ class CampaignOrchestrator:
                             "decision_ts": locator.decision_ts.isoformat(), "reason": str(exc),
                         })
                         continue
+                    if row["family_id"] == "A1_COMPRESSION_V2":
+                        checkpoints = dispatched.get("a1_persistent_state_checkpoints", {})
+                        if len(checkpoints) != 1:
+                            raise CampaignContractError("A1 batch locator did not return one final checkpoint")
+                        a1_states[identity][locator.symbol] = dict(next(iter(checkpoints.values())))
                     selected = list(dispatched.get("observations", ()))
                     if row["family_id"] == "A1_COMPRESSION_V2":
                         selected = [item for item in selected if require_utc(item.decision_ts) == locator.decision_ts]
@@ -570,6 +628,10 @@ class CampaignOrchestrator:
                     "cache_manifest_sha256": sha256_file(self.cache_authority.manifest_path),
                     "external_approval_sha256": sha256_file(self.authorization.external_approval_path),
                 })
+                if row["family_id"] == "A1_COMPRESSION_V2":
+                    results[-1]["a1_final_state_checkpoints"] = {
+                        symbol: value for symbol, value in sorted(a1_states[identity].items())
+                    }
             return _jsonable({
                 "status": "complete", "registered_job_id": job_id,
                 "registered_attempt_id": f"batch:{canonical_hash(sorted(observations))}",
@@ -954,7 +1016,7 @@ class CampaignOrchestrator:
         materialized = materialization_policy(surface)
         atomic_write_json(self.run_root / "MATERIALIZATION_REGISTRY.json", {"schema": "stage22_materialization_registry_v1", "addresses": materialized, "status": "frozen"})
         self._run_jobs(materialization_stage, self._materialization_jobs(combined_execution, combined_registry, cache, materialized, bindings))
-        state["completed_stages"].append("conditional_materialization")
+        state["completed_stages"].append(materialization_stage)
         reuse_root = Path(str(getattr(self, "structural_evidence_run_root", self.run_root)))
         kda_payloads = self._completed_payloads(reuse_root / "kda02b_adjudication" if reuse_structural else self.run_root / kda_stage)
         control_payloads = self._completed_payloads(self.run_root / control_stage)
@@ -1242,7 +1304,12 @@ class CampaignOrchestrator:
     def _materialization_jobs(self, execution: Sequence[Mapping[str, Any]], registry: Mapping[str, Mapping[str, Any]], cache: Mapping[str, Any], addresses: Sequence[str], bindings: Mapping[str, Mapping[str, Any]]) -> Iterable[tuple[str, Callable[[], Any]]]:
         by_address = {row["canonical_economic_address_sha256"]: row for row in execution}
         aggregate_source: dict[tuple[str, str, str], Mapping[str, Any]] = {}
-        for stage_name in ("inner_development", "conditional_refinement", "a2_inner_development"):
+        source_stages = (
+            str(getattr(self, "inner_development_stage_name", "inner_development")),
+            str(getattr(self, "conditional_refinement_stage_name", "conditional_refinement")),
+            str(getattr(self, "a2_inner_development_stage_name", "a2_inner_development")),
+        )
+        for stage_name in source_stages:
             stage_root = self.run_root / stage_name
             if not stage_root.exists():
                 continue

@@ -3,14 +3,16 @@ from __future__ import annotations
 import json
 import tempfile
 import unittest
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
-from tools.core_liquid_campaign.canonical import atomic_write_json, atomic_write_jsonl, sha256_file
-from tools.core_liquid_campaign.campaign import CampaignContractError
-from tools.core_liquid_campaign.schema import CAMPAIGN_ID
+from tools.core_liquid_campaign.canonical import atomic_write_json, atomic_write_jsonl, canonical_hash, sha256_file
+from tools.core_liquid_campaign.campaign import CampaignContractError, CampaignOrchestrator
+from tools.core_liquid_campaign.runtime import LazySupervisor, ResourceGateError, ResourceLimits
+from tools.core_liquid_campaign.schema import CAMPAIGN_ID, baseline_config, economic_address, normalize_config
 from tools.core_liquid_campaign.shadow_campaign import (
     BoundedShadowPopulationSchedule,
     BoundedShadowKDA02BAdapter,
@@ -19,8 +21,11 @@ from tools.core_liquid_campaign.shadow_campaign import (
     build_bounded_shadow_packet,
 )
 from tools.core_liquid_campaign.lazy_production_inputs import FamilyDecisionLocator
-from tools.core_liquid_campaign.shadow_service import run_shadow_service
+from tools.core_liquid_campaign.executor import dispatch_registered_attempt
+from tools.core_liquid_campaign.synthetic import a1_frame
+from tools.core_liquid_campaign.shadow_service import ShadowAuthorization, _verify_shadow_worker_evidence, run_shadow_service
 from tools.core_liquid_campaign.shadow_service import ProductionShadowCampaignOrchestrator
+from tools.core_liquid_campaign.shadow_payoff import ShadowPayoffProvider
 
 
 class Stage24RealShadowServiceTests(unittest.TestCase):
@@ -78,6 +83,264 @@ class Stage24RealShadowServiceTests(unittest.TestCase):
         )))
         self.assertEqual("fail_insufficient_event_days", bounded.last_reconciliation["status"])
         self.assertEqual({"a4": 0}, bounded.last_reconciliation["eligible_event_days_by_attempt"])
+
+    def test_a2_event_locators_are_derived_from_exact_parent_locators(self) -> None:
+        decision = datetime(2024, 2, 1, tzinfo=timezone.utc)
+        parent_locator = FamilyDecisionLocator(
+            "A1_COMPRESSION_V2", "outer_evaluation", "2024Q1", None,
+            "PF_XBTUSD", decision, "parent", "a" * 64,
+        )
+        bounded = BoundedShadowPopulationSchedule(
+            Mock(), self._event_locator_policy(), population_adapter=Mock(),
+        )
+        bounded.iter_batch_locators = Mock(return_value=iter([parent_locator]))
+        parent = {"family_id": "A1_COMPRESSION_V2", "executable_attempt_id": "parent", "canonical_economic_address_sha256": "a" * 64}
+        overlay = {"family_id": "A2_PRIOR_HIGH_RS_CONTEXT_V1", "executable_attempt_id": "overlay", "canonical_economic_address_sha256": "b" * 64}
+        locators = list(bounded.iter_locators(
+            overlay, phase="outer_evaluation", outer_fold_id="2024Q1",
+            inner_fold_id=None, parent_attempt=parent,
+        ))
+        self.assertEqual(("A2_PRIOR_HIGH_RS_CONTEXT_V1", "overlay", "b" * 64), (
+            locators[0].family_id, locators[0].executable_attempt_id,
+            locators[0].canonical_economic_address_sha256,
+        ))
+        bounded.iter_batch_locators.assert_called_once_with(
+            (parent,), phase="outer_evaluation", outer_fold_id="2024Q1", inner_fold_id=None,
+        )
+        parent_frame = a1_frame()
+        bounded._last_frame = parent_frame
+        overlay_frame = bounded.frame(locators[0])
+        self.assertIsNot(parent_frame, overlay_frame)
+        self.assertEqual("A2_PRIOR_HIGH_RS_CONTEXT_V1", overlay_frame.metadata["requested_family_id"])
+        self.assertEqual(locators[0].identity_payload(), overlay_frame.metadata["decision_locator"])
+        self.assertEqual(
+            canonical_hash(locators[0].identity_payload()),
+            overlay_frame.metadata["decision_locator_sha256"],
+        )
+
+    def test_one_a2_outer_job_uses_exact_parent_and_preserves_event_identity(self) -> None:
+        parent_config = normalize_config("A1_COMPRESSION_V2", baseline_config("A1_COMPRESSION_V2"))
+        parent = {
+            "campaign_id": CAMPAIGN_ID, "family_id": "A1_COMPRESSION_V2",
+            "config": parent_config, "executable_attempt_id": "a2-parent",
+            "canonical_economic_address_sha256": economic_address("A1_COMPRESSION_V2", parent_config)[1],
+            "execution_disposition": "execute_once", "duplicate_of_executable_attempt_id": None,
+        }
+        overlay_config = normalize_config("A2_PRIOR_HIGH_RS_CONTEXT_V1", baseline_config("A2_PRIOR_HIGH_RS_CONTEXT_V1"))
+        template = canonical_hash({"mode": "beam_slot", "parent_slot": "A1_COMPRESSION_V2:2024Q1:beam:01"})
+        overlay = {
+            "campaign_id": CAMPAIGN_ID, "family_id": "A2_PRIOR_HIGH_RS_CONTEXT_V1",
+            "config": overlay_config, "executable_attempt_id": "a2-overlay",
+            "canonical_economic_address_sha256": economic_address("A2_PRIOR_HIGH_RS_CONTEXT_V1", overlay_config)[1],
+            "execution_disposition": "execute_if_parent_available", "duplicate_of_executable_attempt_id": None,
+            "parent_binding_template_id": template,
+            "parent_only_counterpart_id": "parent-only", "overlay_counterpart_id": "overlay",
+        }
+        binding = {
+            "status": "bound", "parent_binding_template_id": template,
+            "parent_executable_attempt_id": "a2-parent",
+            "parent_only_counterpart_id": "parent-only", "overlay_counterpart_id": "overlay",
+        }
+        frame = replace(a1_frame(parent_config), symbol="PF_XBTUSD")
+        locator = FamilyDecisionLocator(
+            "A2_PRIOR_HIGH_RS_CONTEXT_V1", "outer_evaluation", "2024Q1", None,
+            frame.symbol, frame.decision_ts, "a2-overlay", overlay["canonical_economic_address_sha256"],
+        )
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw); cache_manifest = root / "cache.json"; approval = root / "approval.json"
+            atomic_write_json(cache_manifest, {}); atomic_write_json(approval, {})
+            campaign = CampaignOrchestrator.__new__(CampaignOrchestrator)
+            campaign.population_schedule = Mock(); campaign.population_schedule.iter_locators.return_value = iter([locator])
+            campaign.population_schedule.frame.return_value = frame
+            campaign.population_adapter = Mock(); campaign.population_adapter.frame.return_value = frame
+            campaign.payoff_provider = ShadowPayoffProvider("a2-outer-focused")
+            campaign.cache_authority = SimpleNamespace(manifest_path=cache_manifest)
+            campaign.authorization = SimpleNamespace(external_approval_path=approval)
+            task = campaign._population_execution_job(
+                overlay, {"a2-parent": parent, "a2-overlay": overlay}, "outer:2024Q1:a2-overlay",
+                phase="outer_evaluation", outer_fold_id="2024Q1", inner_fold_id=None,
+                parent_binding=binding, materialize=True,
+            )
+            result = task()
+        self.assertTrue(result["paired_parent"]["parent_event_identity_match"])
+        self.assertEqual(result["paired_parent"]["parent_event_ids"], result["paired_parent"]["overlay_event_ids"])
+        self.assertEqual(1, result["population_locator_count"])
+
+    def test_a2_exact_parent_execution_is_one_four_worker_and_restart_invariant(self) -> None:
+        parent_config = normalize_config("A1_COMPRESSION_V2", baseline_config("A1_COMPRESSION_V2"))
+        parent = {
+            "campaign_id": CAMPAIGN_ID, "family_id": "A1_COMPRESSION_V2",
+            "config": parent_config, "executable_attempt_id": "a2-worker-parent",
+            "canonical_economic_address_sha256": economic_address("A1_COMPRESSION_V2", parent_config)[1],
+            "execution_disposition": "execute_once", "duplicate_of_executable_attempt_id": None,
+        }
+        overlay_config = normalize_config("A2_PRIOR_HIGH_RS_CONTEXT_V1", baseline_config("A2_PRIOR_HIGH_RS_CONTEXT_V1"))
+        template = canonical_hash({"mode": "beam_slot", "parent_slot": "A1_COMPRESSION_V2:2024Q1:beam:01"})
+        overlay = {
+            "campaign_id": CAMPAIGN_ID, "family_id": "A2_PRIOR_HIGH_RS_CONTEXT_V1",
+            "config": overlay_config, "executable_attempt_id": "a2-worker-overlay",
+            "canonical_economic_address_sha256": economic_address("A2_PRIOR_HIGH_RS_CONTEXT_V1", overlay_config)[1],
+            "execution_disposition": "execute_if_parent_available", "duplicate_of_executable_attempt_id": None,
+            "parent_binding_template_id": template, "parent_only_counterpart_id": "parent-only",
+            "overlay_counterpart_id": "overlay",
+        }
+        binding = {
+            "parent_binding_template_id": template, "parent_executable_attempt_id": parent["executable_attempt_id"],
+            "parent_only_counterpart_id": "parent-only", "overlay_counterpart_id": "overlay",
+        }
+        frame = a1_frame(parent_config)
+
+        def jobs():
+            for index in range(4):
+                job_id = f"a2-parent-worker-{index}"
+                def task(job_id=job_id):
+                    result = dispatch_registered_attempt(
+                        overlay, (frame,), registry_by_id={
+                            str(parent["executable_attempt_id"]): parent,
+                            str(overlay["executable_attempt_id"]): overlay,
+                        }, parent_binding=binding, parent_frames=(frame,),
+                        payoff_provider=ShadowPayoffProvider("stage24-a2-worker-invariance"),
+                    )
+                    return {
+                        "registered_attempt_id": job_id,
+                        "signature": canonical_hash({
+                            "parent": result["paired_parent"]["parent_event_ids"],
+                            "overlay": result["paired_parent"]["overlay_event_ids"],
+                            "aggregate": result["aggregate"],
+                        }),
+                    }
+                yield job_id, task
+
+        def signatures(root: Path) -> dict[str, str]:
+            return {
+                payload["job_id"]: payload["result"]["signature"]
+                for path in sorted((root / "artifacts").glob("*.json"))
+                for payload in (json.loads(path.read_text(encoding="utf-8")),)
+            }
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw); common = dict(max_jobs_in_flight=4, minimum_free_disk_bytes=1, minimum_free_disk_fraction=0.0)
+            one_root = root / "one"; four_root = root / "four"; restart_root = root / "restart"
+            one = LazySupervisor(one_root, ResourceLimits(max_workers=1, **common)).run(iter(jobs()))
+            four = LazySupervisor(four_root, ResourceLimits(max_workers=4, **common)).run(iter(jobs()))
+            stopped = LazySupervisor(restart_root, ResourceLimits(max_workers=1, **common)).run(iter(jobs()), stop_after_completions=1)
+            resumed = LazySupervisor(restart_root, ResourceLimits(max_workers=1, **common)).run(iter(jobs()))
+            self.assertEqual(("complete", "complete", "graceful_bound_stop", "complete"), (
+                one["status"], four["status"], stopped["status"], resumed["status"],
+            ))
+            self.assertEqual(signatures(one_root), signatures(four_root))
+            self.assertEqual(signatures(one_root), signatures(restart_root))
+
+    @patch("tools.core_liquid_campaign.family_engines.a1_compression.advance_persistent_state")
+    @patch("tools.core_liquid_campaign.executor._generate_events")
+    def test_a1_event_sampler_is_preentry_only_and_does_not_own_runtime_state(
+        self, generate: Mock, advance: Mock,
+    ) -> None:
+        config = __import__("tools.core_liquid_campaign.schema", fromlist=["baseline_config"]).baseline_config("A1_COMPRESSION_V2")
+        frame = a1_frame(config)
+        first = frame.decision_ts
+        second = first + timedelta(days=1)
+        adapter = Mock(); adapter.frame.side_effect = lambda locator: replace(frame, decision_ts=locator.decision_ts)
+        bounded = BoundedShadowPopulationSchedule(Mock(), self._event_locator_policy(days=2), population_adapter=adapter)
+        bounded._candidate_pairs = Mock(return_value=iter([("PF_XBTUSD", first), ("PF_XBTUSD", second)]))
+        generate.side_effect = lambda _family, _frame, _config, _control, _directive: [{"decision_ts": _frame.decision_ts}]
+        checkpoints = iter((
+            {"state": "checkpoint-one"}, {"state": "checkpoint-two"},
+        ))
+        advance.side_effect = lambda bound, _config, events: (
+            SimpleNamespace(payload=lambda: next(checkpoints)), tuple(events),
+        )
+        row = {
+            "family_id": "A1_COMPRESSION_V2", "executable_attempt_id": "a1",
+            "canonical_economic_address_sha256": "a" * 64, "config": config,
+        }
+        list(bounded.iter_batch_locators(
+            (row,), phase="inner_validation", outer_fold_id="2024Q1", inner_fold_id="M_202401",
+        ))
+        second_bound = advance.call_args_list[1].args[0]
+        self.assertEqual("history_rebuild", second_bound.metadata["a1_persistent_state"]["state"])
+        self.assertFalse(hasattr(bounded, "bind_attempt_frame"))
+
+    def test_materialization_reads_configured_event_locator_stage_names(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            orchestrator = CampaignOrchestrator.__new__(CampaignOrchestrator)
+            orchestrator.run_root = Path(raw)
+            orchestrator.inner_development_stage_name = "event_locator_inner_development"
+            orchestrator.conditional_refinement_stage_name = "event_locator_conditional_refinement"
+            orchestrator.a2_inner_development_stage_name = "event_locator_a2_inner_development"
+            (orchestrator.run_root / "event_locator_inner_development").mkdir()
+            row = {
+                "family_id": "A4_TSMOM_V7", "executable_attempt_id": "a4",
+                "canonical_economic_address_sha256": "a" * 64, "config": {},
+            }
+            a2 = {
+                "family_id": "A2_PRIOR_HIGH_RS_CONTEXT_V1", "executable_attempt_id": "a2",
+                "canonical_economic_address_sha256": "b" * 64, "config": {},
+            }
+            sources = [{
+                "registered_job_id": "inner:2024Q1:M_202401:a4",
+                "registered_attempt_id": "a4", "aggregate": {},
+            }, {
+                "registered_job_id": "inner:2024Q1:M_202401:a2",
+                "registered_attempt_id": "a2", "aggregate": {},
+            }]
+            orchestrator._completed_payloads = Mock(side_effect=lambda path: sources if path.name == "event_locator_inner_development" else [])
+            orchestrator._artifacts = Mock(return_value=(Path("fixture"),))
+            orchestrator._partition = Mock(return_value={"phase": "inner_validation", "outer_fold_id": "2024Q1", "inner_fold_id": "M_202401"})
+            orchestrator._execution_job = Mock(return_value=lambda: {})
+            orchestrator.population_schedule = None
+            cache = {"artifacts": [{"fixture": True}]}
+            jobs = list(orchestrator._materialization_jobs(
+                [row, a2], {"a4": row, "a2": a2}, cache, ["a" * 64, "b" * 64], {"a2": {}},
+            ))
+            self.assertEqual(2, len(jobs))
+            self.assertTrue(all(task()["aggregate_materialized_equal"] for _, task in jobs))
+            self.assertIn("event_locator_inner_development", [call.args[0].name for call in orchestrator._completed_payloads.call_args_list])
+
+    def test_reused_evidence_inventory_fails_closed_on_byte_drift(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            path = Path(raw) / "marker.json"; atomic_write_json(path, {"status": "complete"})
+            files = [{"path": str(path), "bytes": path.stat().st_size, "sha256": sha256_file(path)}]
+            from tools.core_liquid_campaign.canonical import canonical_hash
+            section = {"files": files, "file_count": 1, "inventory_sha256": canonical_hash(files)}
+            verified = ShadowAuthorization._verify_reused_inventory(section, label="fixture")
+            self.assertEqual((1, section["inventory_sha256"]), (verified["file_count"], verified["inventory_sha256"]))
+            original = path.read_bytes(); path.write_bytes(original + b"x")
+            with self.assertRaisesRegex(Exception, "evidence bytes differ"):
+                ShadowAuthorization._verify_reused_inventory(section, label="fixture")
+            path.write_bytes(original)
+            path.unlink()
+            with self.assertRaisesRegex(Exception, "evidence bytes differ"):
+                ShadowAuthorization._verify_reused_inventory(section, label="fixture")
+
+    def test_reused_evidence_inventory_fails_closed_on_count_and_aggregate_hash(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            path = Path(raw) / "marker.json"; atomic_write_json(path, {"status": "complete"})
+            files = [{"path": str(path), "bytes": path.stat().st_size, "sha256": sha256_file(path)}]
+            from tools.core_liquid_campaign.canonical import canonical_hash
+            with self.assertRaisesRegex(Exception, "inventory count differs"):
+                ShadowAuthorization._verify_reused_inventory({
+                    "files": files, "file_count": 2, "inventory_sha256": canonical_hash(files),
+                }, label="fixture")
+            with self.assertRaisesRegex(Exception, "inventory hash differs"):
+                ShadowAuthorization._verify_reused_inventory({
+                    "files": files, "file_count": 1, "inventory_sha256": "0" * 64,
+                }, label="fixture")
+
+    def test_derived_a2_shadow_attestation_passes_terminal_firewall(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            artifact = root / "event_locator_outer_evaluation/artifacts/a2.json"
+            atomic_write_json(artifact, {"result": {"ledger": [{
+                "event_id": "parent-event", "status": "complete",
+                "parent_ledger_sha256": "a" * 64,
+                "shadow_only": True, "economic_outcome_opened": False,
+                "real_post_entry_rows_opened": 0, "real_funding_rows_opened": 0,
+                "actual_accounting_path_executed": True,
+                "provider_version": "stage24_deterministic_synthetic_post_entry_v1",
+            }]}})
+            result = _verify_shadow_worker_evidence(root)
+            self.assertEqual(1, result["materialized_shadow_ledger_rows"])
 
     def test_bounded_schedule_populates_exact_attempt_identity_for_real_adapter(self) -> None:
         locator = FamilyDecisionLocator(
@@ -209,32 +472,66 @@ class Stage24RealShadowServiceTests(unittest.TestCase):
         self, execute_control: Mock, reconcile: Mock,
     ) -> None:
         with tempfile.TemporaryDirectory() as raw:
-            parent = {"executable_attempt_id": "a4", "family_id": "A4_TSMOM_V7", "config": {}}
+            parent_row = {
+                "executable_attempt_id": "a1-parent", "family_id": "A1_COMPRESSION_V2", "config": {},
+                "canonical_economic_address_sha256": "b" * 64,
+            }
+            parent = {
+                "executable_attempt_id": "a2", "family_id": "A2_PRIOR_HIGH_RS_CONTEXT_V1", "config": {},
+                "canonical_economic_address_sha256": "a" * 64,
+            }
             control = {
-                "control_attempt_id": "control", "control_id": "A4_CONTEXT_REMOVED",
-                "family": "A4_TSMOM_V7", "fold": "2024Q1",
-                "parent_slot": "A4_TSMOM_V7:2024Q1:beam:01", "effective_seed": 1,
+                "control_attempt_id": "control", "control_id": "A2_CONTEXT_REMOVED",
+                "family": "A2_PRIOR_HIGH_RS_CONTEXT_V1", "fold": "2024Q1",
+                "parent_slot": "A2_PRIOR_HIGH_RS_CONTEXT_V1:2024Q1:beam:01", "effective_seed": 1,
                 "execution_status": "execute_once",
             }
             reconcile.return_value = [control]
-            execute_control.return_value = {"status": "complete", "observations": [], "ledger": [], "aggregate": {}}
+            execute_control.return_value = {
+                "status": "complete", "observations": [], "ledger": [], "aggregate": {},
+                "paired_control": {"parent_event_ids": ["event"], "control_event_ids": ["event"]},
+            }
             campaign = ProductionShadowCampaignOrchestrator.__new__(ProductionShadowCampaignOrchestrator)
-            campaign.population_schedule = Mock(); campaign.population_schedule.iter_locators.return_value = iter(["locator"])
-            campaign.population_adapter = Mock(); campaign.population_adapter.frame.return_value = "actual-production-frame"
+            locator = FamilyDecisionLocator(
+                "A2_PRIOR_HIGH_RS_CONTEXT_V1", "outer_evaluation", "2024Q1", None,
+                "PF_XBTUSD", datetime(2024, 2, 1, tzinfo=timezone.utc), "a2", "a" * 64,
+            )
+            second_locator = replace(locator, decision_ts=locator.decision_ts + timedelta(days=1))
+            call_order = []
+            def locators():
+                for item in (locator, second_locator):
+                    call_order.append(("yield", item.decision_ts)); yield item
+            campaign.population_schedule = Mock(); campaign.population_schedule.iter_locators.side_effect = lambda *args, **kwargs: locators()
+            campaign.population_schedule.frame.side_effect = lambda item: (
+                call_order.append(("frame", item.decision_ts)) or f"overlay-{item.decision_ts.isoformat()}"
+            )
+            campaign.population_adapter = Mock(); campaign.population_adapter.frame.return_value = "exact-parent-frame"
             campaign.run_root = Path(raw)
             campaign.payoff_provider = Mock(); campaign.payoff_provider.attestation.return_value = {"economic_outcomes_opened": False}
             campaign.cache_authority = Mock()
             jobs = campaign._control_jobs(
-                [parent], [control], {"a4": parent}, {},
-                [{"parent_slot": control["parent_slot"], "executable_attempt_id": "a4"}], {},
+                [parent_row, parent], [control], {"a1-parent": parent_row, "a2": parent}, {},
+                [{"parent_slot": control["parent_slot"], "executable_attempt_id": "a2"}],
+                {"a2": {"parent_executable_attempt_id": "a1-parent"}},
             )
             job_id, task = next(iter(jobs)); result = task()
             self.assertEqual("control:control", job_id)
-            campaign.population_adapter.frame.assert_called_once_with("locator")
+            self.assertEqual([
+                ("yield", locator.decision_ts), ("frame", locator.decision_ts),
+                ("yield", second_locator.decision_ts), ("frame", second_locator.decision_ts),
+            ], call_order)
+            parent_locator = campaign.population_adapter.frame.call_args_list[0].args[0]
+            self.assertEqual(("A1_COMPRESSION_V2", "a1-parent"), (
+                parent_locator.family_id, parent_locator.executable_attempt_id,
+            ))
             campaign.cache_authority.load_frames.assert_not_called()
             self.assertEqual("LaunchPopulationSchedule->LazyProductionFamilyInputAdapter", result["input_path"])
             self.assertEqual(0, result["benchmark_probe_frames_used"])
-            self.assertEqual(("actual-production-frame",), execute_control.call_args.args[2])
+            self.assertEqual((
+                f"overlay-{locator.decision_ts.isoformat()}",
+                f"overlay-{second_locator.decision_ts.isoformat()}",
+            ), execute_control.call_args.args[2])
+            self.assertEqual(("exact-parent-frame", "exact-parent-frame"), execute_control.call_args.kwargs["parent_frames"])
 
     @patch("tools.core_liquid_campaign.shadow_service.BoundedShadowKDA02BAdapter")
     @patch("tools.core_liquid_campaign.shadow_service.KDA02BLazyFamilyInputAdapter")
@@ -370,6 +667,28 @@ class Stage24RealShadowServiceTests(unittest.TestCase):
             transport.bound_stop.assert_called_once_with({
                 "service_identity": "fixture.service", "status": "global_resumable_bound_stop",
                 "reason": "fixture stage failure", "resumable": True,
+            })
+
+    @patch("tools.core_liquid_campaign.shadow_service.ShadowAuthorization")
+    @patch("tools.core_liquid_campaign.shadow_service._run_shadow_service", side_effect=ResourceGateError("rss limit"))
+    def test_service_delivers_notification_for_non_campaign_exception(self, _run: Mock, authorization: Mock) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw); spec = root / "spec.json"
+            atomic_write_json(spec, {
+                "run_root": str(root / "run"),
+                "service_identity": "qlmg-stage24-shadow-fixture.service",
+            })
+            authorization.return_value.require.return_value = {
+                "run_root": str(root / "run"),
+                "service_identity": "qlmg-stage24-shadow-fixture.service",
+            }
+            transport = Mock(); transport.preflight.return_value = True; transport.bound_stop.return_value = True
+            with patch("tools.run_stage22_core_liquid_campaign.TelegramTransport", return_value=transport):
+                with self.assertRaisesRegex(ResourceGateError, "rss limit"):
+                    run_shadow_service(spec)
+            transport.bound_stop.assert_called_once_with({
+                "service_identity": "qlmg-stage24-shadow-fixture.service",
+                "status": "pre_outcome_launch_failure", "reason": "rss limit", "resumable": False,
             })
 
     @staticmethod

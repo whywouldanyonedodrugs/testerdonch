@@ -144,3 +144,19 @@ publish the final launch-approval packet without launching economics.
   campaign/service tests in 210.447 seconds plus 18 population/input/benchmark
   tests in 1.880 seconds). `git diff --check` is clean. Independent review and
   final detached launch gates remain pending.
+- 2026-07-22: Before the bounded F1/F2/F3/F5 remediation pass, the preserved
+  six-file partial code/test diff from reviewed commit `8a00039` was recorded
+  without reset or stash. Binary diff SHA-256:
+  `79664d8f6a646eb6f5c83a25b5eb824d0b0a22e147921ba72bd685cf39c93a6e`.
+  The existing v18 packet remains invalid for launch and no economic run is
+  authorized. The corrected physical commit-delta audit SHA-256 is
+  `f97675dbbf45e267243dd011d13834ecd9b18a721900ca1ed92101b0b1a12e0d`.
+- 2026-07-22: The bounded F1/F2/F3/F5 patch and narrow F4/F6/F7 closures pass
+  104 affected tests, including exact A2 parent/control identities, configured
+  materialization routing, A1 and A2 one-/four-worker and atomic-restart
+  invariance, reused-file drift failures, terminal shadow attestation, and the
+  centralized notifier path. No preserved campaign marker was rerun.
+- 2026-07-22: One bounded real pre-entry A1 slice produced one registered event
+  for `A1_COMPRESSION_V2:S22:L:1673:1` at `PF_ETHUSD` on
+  `2023-07-06T05:45:00Z`; the persisted evidence records zero economic,
+  protected, real-post-entry, or Capital.com rows opened.

@@ -156,4 +156,25 @@ def transition(
     raise EngineInputError(f"unknown A1 transition action: {action}")
 
 
-__all__ = ["A1PersistentState", "A1_STATES", "ACTIVE_STATES", "initial_state", "transition"]
+def bind_actual_exit(state: A1PersistentState, exit_ts: datetime) -> A1PersistentState:
+    """Bind the known executable exit without advancing observation time.
+
+    The confirmation checkpoint owns the episode until its actual exit.  A
+    later decision advances through ``episode_terminal`` at this boundary;
+    decisions before it remain suppressed.  Binding the future boundary must
+    not move ``last_valid_ts`` ahead of those intervening decisions.
+    """
+    state.validate()
+    exit_ts = require_utc(exit_ts)
+    if state.state not in ACTIVE_STATES or state.last_valid_ts is None:
+        raise EngineInputError("A1 actual exit binding lacks an active episode")
+    if exit_ts <= require_utc(state.last_valid_ts):
+        raise EngineInputError("A1 actual exit is not after its confirmation checkpoint")
+    if state.cooldown_until is not None and require_utc(state.cooldown_until) != exit_ts:
+        raise EngineInputError("A1 actual exit binding conflicts with its persisted boundary")
+    result = replace(state, cooldown_until=exit_ts)
+    result.validate()
+    return result
+
+
+__all__ = ["A1PersistentState", "A1_STATES", "ACTIVE_STATES", "bind_actual_exit", "initial_state", "transition"]

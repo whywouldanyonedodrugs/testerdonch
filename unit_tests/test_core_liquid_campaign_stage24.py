@@ -275,6 +275,57 @@ class Stage24KnownDefectTests(unittest.TestCase):
         self.assertEqual(combined_final, resumed_final)
         self.assertEqual(frames[1].decision_ts, combined_final["last_valid_ts"])
 
+    def test_a1_canonical_stream_is_one_four_worker_and_atomic_restart_invariant(self) -> None:
+        row = self._attempt("A1_COMPRESSION_V2", "persisted-a1-workers")
+        anchors = (datetime(2025, 5, 1, tzinfo=timezone.utc), datetime(2025, 5, 15, tzinfo=timezone.utc))
+        frames = tuple(replace(a1_frame(row["config"], anchor=anchor), metadata={
+            **a1_frame(row["config"], anchor=anchor).metadata,
+            "production_input": True,
+            "a1_persistent_state": initial_state().payload(),
+        }) for anchor in anchors)
+
+        def jobs():
+            for index in range(4):
+                job_id = f"a1-stream-{index}"
+                def task(job_id=job_id):
+                    result = dispatch_registered_attempt(
+                        row, frames, registry_by_id={row["executable_attempt_id"]: row},
+                        payoff_provider=ShadowPayoffProvider("stage24-a1-worker-invariance"),
+                    )
+                    return {
+                        "registered_attempt_id": job_id,
+                        "signature": canonical_hash({
+                            "events": [item.event_id for item in result["observations"]],
+                            "aggregate": result["aggregate"],
+                            "checkpoints": self._control_result_signature({
+                                "status": "checkpoint",
+                                "ledger": result["a1_persistent_state_checkpoints"],
+                            }),
+                        }),
+                    }
+                yield job_id, task
+
+        def signatures(root: Path) -> dict[str, str]:
+            return {
+                json.loads(path.read_text(encoding="utf-8"))["job_id"]:
+                json.loads(path.read_text(encoding="utf-8"))["result"]["signature"]
+                for path in sorted((root / "artifacts").glob("*.json"))
+            }
+
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            common = dict(max_jobs_in_flight=4, minimum_free_disk_bytes=1, minimum_free_disk_fraction=0.0)
+            one_root = root / "one"; four_root = root / "four"; restart_root = root / "restart"
+            one = LazySupervisor(one_root, ResourceLimits(max_workers=1, **common)).run(iter(jobs()))
+            four = LazySupervisor(four_root, ResourceLimits(max_workers=4, **common)).run(iter(jobs()))
+            first = LazySupervisor(restart_root, ResourceLimits(max_workers=1, **common)).run(iter(jobs()), stop_after_completions=1)
+            resumed = LazySupervisor(restart_root, ResourceLimits(max_workers=1, **common)).run(iter(jobs()))
+            self.assertEqual(("complete", "complete", "graceful_bound_stop", "complete"), (
+                one["status"], four["status"], first["status"], resumed["status"],
+            ))
+            self.assertEqual(signatures(one_root), signatures(four_root))
+            self.assertEqual(signatures(one_root), signatures(restart_root))
+
     def test_production_gate_a1_evidence_is_canonical_json_serializable(self) -> None:
         evidence = _a1_state_gate()
         self.assertEqual("pass", evidence["status"])
@@ -717,6 +768,19 @@ class Stage24KnownDefectTests(unittest.TestCase):
                 reverse = execute_control(control, parent, list(reversed(frames)), **kwargs)
                 self.assertEqual("complete", forward["status"], control_id)
                 self.assertGreater(len(forward["observations"]), 0, control_id)
+                if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+                    self.assertEqual(
+                        set(forward["paired_control"]["parent_event_ids"]),
+                        set(forward["paired_control"]["control_event_ids"]),
+                        control_id,
+                    )
+                    for ledger_row in forward["ledger"]:
+                        if ledger_row.get("status") == "complete":
+                            self.assertIs(ledger_row.get("shadow_only"), True, control_id)
+                            self.assertIs(ledger_row.get("economic_outcome_opened"), False, control_id)
+                            self.assertEqual(0, ledger_row.get("real_post_entry_rows_opened"), control_id)
+                            self.assertEqual(0, ledger_row.get("real_funding_rows_opened"), control_id)
+                            self.assertIs(ledger_row.get("actual_accounting_path_executed"), True, control_id)
                 self.assertEqual(self._control_result_signature(forward), self._control_result_signature(reverse), control_id)
                 executed.append(control_id)
         self.assertEqual(20, len(executed))

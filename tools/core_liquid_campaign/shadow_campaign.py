@@ -69,6 +69,28 @@ class BoundedShadowPopulationSchedule:
 
     def iter_locators(self, attempt: Mapping[str, Any], **kwargs: Any) -> Iterable[Any]:
         if self.mode == "production_event_locator":
+            if attempt.get("family_id") == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+                parent = kwargs.pop("parent_attempt", None)
+                if not isinstance(parent, Mapping):
+                    raise ShadowCampaignPacketError("A2 event-locator sampling lacks its exact parent")
+                for locator in self.iter_batch_locators((parent,), **kwargs):
+                    overlay_locator = replace(
+                        locator,
+                        family_id="A2_PRIOR_HIGH_RS_CONTEXT_V1",
+                        executable_attempt_id=str(attempt["executable_attempt_id"]),
+                        canonical_economic_address_sha256=str(attempt["canonical_economic_address_sha256"]),
+                    )
+                    # The real adapter intentionally rejects generic A2
+                    # locators.  Preserve the exact parent-derived pre-entry
+                    # frame under the registered overlay locator; the owning
+                    # executor constructs the parent frame separately.
+                    self._last_frame_key = (
+                        overlay_locator.family_id, overlay_locator.symbol,
+                        overlay_locator.decision_ts, overlay_locator.outer_fold_id,
+                        overlay_locator.inner_fold_id,
+                    )
+                    yield overlay_locator
+                return
             yield from self.iter_batch_locators((attempt,), **kwargs)
             return
         selected_days: set[object] = set()
@@ -324,11 +346,11 @@ class BoundedShadowPopulationSchedule:
                         bound = replace(frame, metadata={**frame.metadata, "a1_persistent_state": initial_state().payload()})
                         _mark_validated_frame(bound)
                         events = _generate_events(family, bound, row["config"], None, None)
-                        if any(require_utc(event["decision_ts"]) == decision for event in events):
-                            _, events = a1_compression.advance_persistent_state(bound, row["config"], events)
+                        _, events = a1_compression.advance_persistent_state(bound, row["config"], events)
+                        exact = [event for event in events if require_utc(event["decision_ts"]) == decision]
                     else:
                         events = _generate_events(family, frame, row["config"], None, None)
-                    exact = [event for event in events if require_utc(event["decision_ts"]) == decision]
+                        exact = [event for event in events if require_utc(event["decision_ts"]) == decision]
                 except EngineInputError:
                     exact = []
                 if exact:
@@ -364,11 +386,21 @@ class BoundedShadowPopulationSchedule:
     def frame(self, locator: Any) -> Any:
         key = (locator.family_id, locator.symbol, locator.decision_ts, locator.outer_fold_id, locator.inner_fold_id)
         if self._last_frame_key == key and self._last_frame is not None:
+            if locator.family_id == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+                from .engine_types import _mark_validated_frame
+
+                rebound = replace(self._last_frame, metadata={
+                    **self._last_frame.metadata,
+                    "requested_family_id": locator.family_id,
+                    "decision_locator": locator.identity_payload(),
+                    "decision_locator_sha256": canonical_hash(locator.identity_payload()),
+                })
+                _mark_validated_frame(rebound)
+                return rebound
             return self._last_frame
         if self.population_adapter is None:
             raise ShadowCampaignPacketError("event-locator frame cache lacks its production adapter")
         return self.population_adapter.frame(locator)
-
 
 class BoundedShadowKDA02BAdapter:
     """Cap eligible KDA frames by fold while preserving unavailable rows seen."""

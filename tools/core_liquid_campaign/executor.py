@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, Callable, Mapping, Sequence
 
 from .accounting import aggregate_parent_legs, simulate_leg
+from .a1_state import bind_actual_exit
 from .cache import decoded_frame_with_locator
 from .canonical import canonical_hash, sha256_file
 from .engine_types import FamilyInput, KRAKEN_PLATFORM, PROTECTED_START, RANKABLE_START
@@ -672,31 +673,89 @@ def dispatch_registered_attempt(
                    "component_metrics": (*inherited_components, *tuple(overlay["context_components"]))},
             )
             observations.append(observation)
-            ledger.append({"event_id": event_id, "status": "complete", "parent_executable_attempt_id": parent_id, "parent_only_counterpart_id": row["parent_only_counterpart_id"], "overlay_counterpart_id": row["overlay_counterpart_id"], "context_multiplier": multiplier, "context_components": overlay["context_components"], "parent_ledger_sha256": canonical_hash(source_ledger)})
+            shadow_fields = (
+                "shadow_only", "economic_outcome_opened", "real_post_entry_rows_opened",
+                "real_funding_rows_opened", "actual_accounting_path_executed", "provider_version",
+            )
+            present_shadow_fields = {key for key in shadow_fields if key in source_ledger}
+            if present_shadow_fields and present_shadow_fields != set(shadow_fields):
+                raise AuthorizationError("A2 parent shadow attestation is incomplete")
+            firewall_fields = {key: source_ledger[key] for key in shadow_fields} if present_shadow_fields else {}
+            ledger.append({
+                "event_id": event_id, "status": "complete",
+                "parent_executable_attempt_id": parent_id,
+                "parent_only_counterpart_id": row["parent_only_counterpart_id"],
+                "overlay_counterpart_id": row["overlay_counterpart_id"],
+                "context_multiplier": multiplier,
+                "context_components": overlay["context_components"],
+                "parent_ledger_sha256": canonical_hash(source_ledger),
+                **firewall_fields,
+            })
     else:
         generated_work: list[tuple[FamilyInput, dict[str, Any]]] = []
         a1_state_checkpoints: dict[str, Mapping[str, Any]] = {}
         carried_a1_state: dict[str, Mapping[str, Any]] = {}
-        ordered_frames = (
-            sorted(frames, key=lambda item: (item.symbol, require_utc(item.decision_ts), item.content_sha256()))
-            if family == "A1_COMPRESSION_V2" else frames
+        production_a1 = family == "A1_COMPRESSION_V2" and any(
+            frame.metadata.get("production_input") is True for frame in frames
         )
-        for frame in ordered_frames:
-            frame.validate()
-            source_frame_hash = frame.content_sha256()
-            directive = None if control_directives is None else control_directives.get(source_frame_hash)
-            effective_frame = frame
-            if family == "A1_COMPRESSION_V2" and frame.metadata.get("production_input") is True and frame.symbol in carried_a1_state:
-                effective_frame = replace(
-                    frame,
-                    metadata={**frame.metadata, "a1_persistent_state": carried_a1_state[frame.symbol], "a1_state_origin": "prior_ordered_frame_checkpoint"},
+        if production_a1 and not all(frame.metadata.get("production_input") is True for frame in frames):
+            raise EngineInputError("A1 production stream mixes production and fixture frames")
+
+        def materialize_event(frame: FamilyInput, event: Mapping[str, Any]) -> EventObservation | None:
+            materializer = _simulate_event if payoff_provider is None else payoff_provider
+            if payoff_provider is None:
+                observation, materialized = materializer(frame, family, config, event)
+            else:
+                observation, materialized = materializer(
+                    frame, str(row["executable_attempt_id"]), family, config, event,
                 )
-            generated = _generate_events(family, effective_frame, config, control_id, directive)
-            if family == "A1_COMPRESSION_V2" and frame.metadata.get("production_input") is True:
+            materialized["engine_event"] = {
+                key: (require_utc(value).isoformat() if isinstance(value, datetime) else value)
+                for key, value in event.items()
+                if key in {"event_id", "cohort_id", "side", "decision_ts", "entry_index", "signal_scalar", "starter_fraction", "add_fraction", "control_add_lag_bars", "matched_parent_event_id"}
+            }
+            ledger.append(materialized)
+            if observation is not None:
+                observations.append(observation)
+            return observation
+
+        if production_a1:
+            ordered_frames = sorted(
+                frames,
+                key=lambda item: (require_utc(item.decision_ts), item.symbol, item.content_sha256()),
+            )
+            for frame in ordered_frames:
+                frame.validate()
+                source_frame_hash = frame.content_sha256()
+                prior = carried_a1_state.get(frame.symbol, frame.metadata.get("a1_persistent_state"))
+                if not isinstance(prior, Mapping):
+                    raise EngineInputError("A1 canonical stream lacks its starting checkpoint")
+                effective_frame = replace(frame, metadata={
+                    **frame.metadata,
+                    "a1_persistent_state": prior,
+                    "a1_state_origin": "canonical_chronological_stream_checkpoint",
+                })
+                directive = None if control_directives is None else control_directives.get(source_frame_hash)
+                generated = _generate_events(family, effective_frame, config, control_id, directive)
                 checkpoint, generated = a1_compression.advance_persistent_state(effective_frame, config, generated)
+                exact = tuple(
+                    event for event in generated
+                    if require_utc(event["decision_ts"]) == require_utc(frame.decision_ts)
+                )
+                if len(exact) > 1:
+                    raise EngineInputError("A1 canonical stream emitted multiple owned events at one decision")
+                observation = materialize_event(effective_frame, exact[0]) if exact else None
+                if observation is not None:
+                    checkpoint = bind_actual_exit(checkpoint, observation.exit_ts)
                 carried_a1_state[frame.symbol] = checkpoint.payload()
                 a1_state_checkpoints[source_frame_hash] = checkpoint.payload()
-            generated_work.extend((effective_frame, event) for event in generated)
+        else:
+            for frame in frames:
+                frame.validate()
+                source_frame_hash = frame.content_sha256()
+                directive = None if control_directives is None else control_directives.get(source_frame_hash)
+                generated = _generate_events(family, frame, config, control_id, directive)
+                generated_work.extend((frame, event) for event in generated)
         generated_work = sorted(
             generated_work,
             key=lambda item: (
@@ -712,25 +771,7 @@ def dispatch_registered_attempt(
                 event["signal_reversal_close_ts"] = () if reversal is None else (reversal,)
             generated_work = ordered_work
         for frame, event in generated_work:
-            materializer = _simulate_event if payoff_provider is None else payoff_provider
-            if payoff_provider is None:
-                observation, materialized = materializer(frame, family, config, event)
-            else:
-                observation, materialized = materializer(
-                    frame,
-                    str(row["executable_attempt_id"]),
-                    family,
-                    config,
-                    event,
-                )
-            materialized["engine_event"] = {
-                key: (require_utc(value).isoformat() if isinstance(value, datetime) else value)
-                for key, value in event.items()
-                if key in {"event_id", "cohort_id", "side", "decision_ts", "entry_index", "signal_scalar", "starter_fraction", "add_fraction", "control_add_lag_bars", "matched_parent_event_id"}
-            }
-            ledger.append(materialized)
-            if observation is not None:
-                observations.append(observation)
+            materialize_event(frame, event)
     # Exact actual-exit non-overlap by definition and symbol.
     accepted: list[EventObservation] = []
     last_exit: dict[str, datetime] = {}
