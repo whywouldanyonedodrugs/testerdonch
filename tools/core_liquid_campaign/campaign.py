@@ -56,9 +56,53 @@ STAGE_GRAPH = (
     "terminal_reconciliation",
 )
 
+POPULATION_AUTHORITY_BINDING_CONTRACT = {
+    "launch_population_authority": {
+        "primary_hash": "launch_population_authority",
+        "role": "complete_A1_A4_launch_population_authority",
+    },
+    "kda02b_lazy_population_authority": {
+        "primary_hash": "kda02b_population_authority",
+        "role": "complete_KDA02B_launch_population_authority",
+    },
+}
+
 
 class CampaignContractError(RuntimeError):
     pass
+
+
+def require_population_authority_bindings(
+    manifest: Mapping[str, Any], packet_root: Path,
+) -> dict[str, tuple[dict[str, Any], Path]]:
+    """Resolve the exact final-packet population mappings or fail closed."""
+    primary = manifest.get("primary_hashes")
+    if not isinstance(primary, Mapping):
+        raise CampaignContractError("complete launch population primary hashes are absent")
+    resolved: dict[str, tuple[dict[str, Any], Path]] = {}
+    for field, contract in POPULATION_AUTHORITY_BINDING_CONTRACT.items():
+        raw = manifest.get(field)
+        if not isinstance(raw, Mapping) or set(raw) != {"path", "bytes", "role", "sha256"}:
+            raise CampaignContractError(f"complete launch population mapping is absent or malformed: {field}")
+        record = dict(raw)
+        path_value = record.get("path")
+        byte_count = record.get("bytes")
+        digest = record.get("sha256")
+        if (
+            not isinstance(path_value, str) or not path_value
+            or not isinstance(byte_count, int) or isinstance(byte_count, bool) or byte_count <= 0
+            or record.get("role") != contract["role"]
+            or not isinstance(digest, str) or len(digest) != 64
+            or any(character not in "0123456789abcdef" for character in digest)
+            or digest != primary.get(contract["primary_hash"])
+        ):
+            raise CampaignContractError(f"complete launch population mapping differs: {field}")
+        raw_path = Path(path_value)
+        path = raw_path if raw_path.is_absolute() else packet_root / raw_path
+        if not path.is_file() or path.stat().st_size != byte_count or sha256_file(path) != digest:
+            raise CampaignContractError(f"complete launch population authority bytes differ: {field}")
+        resolved[field] = (record, path)
+    return resolved
 
 
 def _jsonable(value: Any) -> Any:
@@ -109,30 +153,11 @@ class CampaignOrchestrator:
 
     def _authority(self) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], dict[str, dict[str, Any]], dict[str, Any]]:
         manifest = self.authorization.require()
-        population_binding = manifest.get("launch_population_authority")
-        kda_population_binding = manifest.get("kda02b_lazy_population_authority")
-        if not isinstance(population_binding, Mapping) or not isinstance(kda_population_binding, Mapping):
-            raise CampaignContractError("complete launch population authorities are absent")
-        population_path = Path(str(population_binding.get("path", "")))
-        if not population_path.is_absolute():
-            population_path = self.packet_root / population_path
-        if (
-            not population_path.is_file()
-            or population_path.stat().st_size != int(population_binding.get("bytes", -1))
-            or sha256_file(population_path) != population_binding.get("sha256")
-        ):
-            raise CampaignContractError("A1-A4 launch population authority bytes differ")
+        population_bindings = require_population_authority_bindings(manifest, self.packet_root)
+        population_binding, population_path = population_bindings["launch_population_authority"]
         population = json.loads(population_path.read_text(encoding="utf-8"))
         validate_launch_population_authority(population)
-        kda_manifest_path = Path(str(kda_population_binding.get("path", "")))
-        if not kda_manifest_path.is_absolute():
-            kda_manifest_path = self.packet_root / kda_manifest_path
-        if (
-            not kda_manifest_path.is_file()
-            or kda_manifest_path.stat().st_size != int(kda_population_binding.get("bytes", -1))
-            or sha256_file(kda_manifest_path) != kda_population_binding.get("sha256")
-        ):
-            raise CampaignContractError("KDA02B launch population authority bytes differ")
+        _kda_population_binding, kda_manifest_path = population_bindings["kda02b_lazy_population_authority"]
         validate_kda02b_lazy_population_index(kda_manifest_path.parent)
         expected_cache = manifest.get("primary_hashes", {}).get("cache_authority_manifest") or manifest.get("primary_hashes", {}).get("production_cache_manifest")
         if expected_cache != sha256_file(self.cache_authority.manifest_path):

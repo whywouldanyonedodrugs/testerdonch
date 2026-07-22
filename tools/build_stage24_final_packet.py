@@ -9,12 +9,52 @@ from pathlib import Path
 from typing import Any
 
 from tools.core_liquid_campaign.canonical import atomic_write_bytes, atomic_write_json, canonical_hash, sha256_file
+from tools.core_liquid_campaign.campaign import require_population_authority_bindings
 from tools.core_liquid_campaign.packet import _code_inventory
 from tools.core_liquid_campaign.schema import CAMPAIGN_ID
 
 
 def _git(root: Path, *args: str) -> str:
     return subprocess.run(["git", "-C", str(root), *args], check=True, capture_output=True, text=True).stdout.strip()
+
+
+def _require_reused_review_delta(
+    repository_root: Path, head: str, review_commit: str, delta_audit_path: Path | None,
+) -> dict[str, Any]:
+    if delta_audit_path is None or not delta_audit_path.is_file():
+        raise RuntimeError("reused full review requires a physical launch-interface delta audit")
+    if subprocess.run(
+        ["git", "-C", str(repository_root), "merge-base", "--is-ancestor", review_commit, head],
+        check=False,
+    ).returncode != 0:
+        raise RuntimeError("reused full review commit is not an ancestor of the packet implementation")
+    audit = json.loads(delta_audit_path.read_text(encoding="utf-8"))
+    changed = _git(repository_root, "diff", "--name-only", f"{review_commit}..{head}").splitlines()
+    records = audit.get("changed_files")
+    if (
+        audit.get("schema") != "stage24_launch_packet_interface_delta_audit_v1"
+        or audit.get("status") != "pass"
+        or audit.get("base_reviewed_commit") != review_commit
+        or audit.get("target_commit") != head
+        or not isinstance(records, list)
+        or sorted(str(record.get("path")) for record in records) != sorted(changed)
+        or any(
+            record.get("classification") not in {
+                "packet_builder_interface", "fail_closed_runtime_interface",
+                "shadow_no_outcome_canary", "focused_test", "task_archive",
+            }
+            for record in records
+        )
+        or any(audit.get(field) is not False for field in (
+            "economic_semantics_changed", "registry_identity_changed", "control_identity_changed",
+            "selection_arithmetic_changed", "cache_or_input_authority_changed",
+            "protected_data_policy_changed",
+        ))
+        or audit.get("reused_evidence_verified") is not True
+        or audit.get("zero_economic_units_executed") is not True
+    ):
+        raise RuntimeError("launch-interface delta audit is incomplete or broadened")
+    return audit
 
 
 def _inventory(root: Path, *, excluded: set[str] | None = None) -> list[dict[str, Any]]:
@@ -26,6 +66,33 @@ def _inventory(root: Path, *, excluded: set[str] | None = None) -> list[dict[str
     ]
 
 
+def _population_authority_mappings(
+    output_root: Path,
+    primary: dict[str, str],
+    *,
+    launch_population_authority: Path | None = None,
+    kda02b_population_authority: Path | None = None,
+) -> dict[str, dict[str, Any]]:
+    launch_path = launch_population_authority or output_root / "LAUNCH_POPULATION_AUTHORITY.json"
+    kda_path = kda02b_population_authority or output_root / "KDA02B_LAZY_POPULATION_MANIFEST.json"
+    mappings = {
+        "launch_population_authority": {
+            "path": str(launch_path.resolve()),
+            "bytes": launch_path.stat().st_size,
+            "role": "complete_A1_A4_launch_population_authority",
+            "sha256": primary["launch_population_authority"],
+        },
+        "kda02b_lazy_population_authority": {
+            "path": str(kda_path.resolve()),
+            "bytes": kda_path.stat().st_size,
+            "role": "complete_KDA02B_launch_population_authority",
+            "sha256": primary["kda02b_population_authority"],
+        },
+    }
+    require_population_authority_bindings({"primary_hashes": primary, **mappings}, output_root)
+    return mappings
+
+
 def build(args: argparse.Namespace) -> dict[str, Any]:
     if _git(args.repository_root, "status", "--porcelain=v1"):
         raise RuntimeError("Stage 24 final packet requires a clean reviewed worktree")
@@ -35,8 +102,9 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     review = json.loads(args.review.read_text(encoding="utf-8"))
     if review.get("verdict") != "PASS" or int(review.get("blocking_findings", -1)) != 0:
         raise RuntimeError("Stage 24 final packet requires an independent PASS with zero blocking findings")
-    if review.get("implementation_commit") != head:
-        raise RuntimeError("independent review does not bind the final implementation commit")
+    review_commit = str(review.get("implementation_commit", ""))
+    if review_commit != head:
+        _require_reused_review_delta(args.repository_root, head, review_commit, args.delta_audit)
     for key, expected in (("economic_outcomes_opened", False), ("capitalcom_payload_opened", False)):
         if review.get(key) is not expected:
             raise RuntimeError(f"independent review firewall field differs: {key}")
@@ -98,6 +166,8 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     shutil.copy2(args.kda_population_manifest, args.output_root / "KDA02B_LAZY_POPULATION_MANIFEST.json")
     shutil.copy2(args.reused_evidence_authority, args.output_root / "REUSED_SHADOW_EVIDENCE_AUTHORITY.json")
     shutil.copy2(args.reused_startup_verification, args.output_root / "REUSED_EVIDENCE_STARTUP_VERIFICATION.json")
+    if args.delta_audit is not None:
+        shutil.copy2(args.delta_audit, args.output_root / "DELTA_IMPACT_AUDIT.json")
     kda_reconciliation_path = args.cache_manifest.parent.parent / "KDA02B_RECONCILIATION.json"
     if not kda_reconciliation_path.is_file():
         raise RuntimeError("final KDA02B reconciliation is absent")
@@ -142,9 +212,16 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         "code_inventory": sha256_file(args.output_root / "CODE_HASH_INVENTORY.json"),
         "production_readiness_gate": sha256_file(args.output_root / "PRODUCTION_READINESS_GATE.json"),
         "independent_review": sha256_file(args.output_root / "FINAL_INDEPENDENT_REVIEW.json"),
+        "delta_impact_audit": sha256_file(args.output_root / "DELTA_IMPACT_AUDIT.json"),
         "kda02b_reconciliation": sha256_file(args.output_root / "KDA02B_RECONCILIATION.json"),
     }
     authority = json.loads((args.output_root / "EXECUTION_INPUT_AUTHORITY.json").read_text(encoding="utf-8"))
+    population_authority_mappings = _population_authority_mappings(
+        args.output_root,
+        primary,
+        launch_population_authority=args.launch_population_authority,
+        kda02b_population_authority=args.kda_population_manifest,
+    )
     manifest = {
         "schema": "stage24_final_executable_campaign_manifest_v1",
         "campaign_id": CAMPAIGN_ID,
@@ -158,6 +235,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             "kda02b_adjudication_folds": 9,
         },
         "primary_hashes": primary,
+        **population_authority_mappings,
         "execution_input_authority": authority,
         "cache_authority": cache_authority,
         "resource_limits": {
@@ -173,6 +251,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         "protected_rows_opened": 0,
         "capitalcom_payload_opened": False,
     }
+    require_population_authority_bindings(manifest, args.output_root)
     atomic_write_json(args.output_root / "FINAL_CAMPAIGN_MANIFEST.json", manifest)
     request = {
         "schema": "stage24_final_human_approval_request_v1",
@@ -243,6 +322,7 @@ def main() -> int:
     parser.add_argument("--reused-startup-verification", type=Path, required=True)
     parser.add_argument("--gate", type=Path, required=True)
     parser.add_argument("--review", type=Path, required=True)
+    parser.add_argument("--delta-audit", type=Path, required=True)
     parser.add_argument("--output-root", type=Path, required=True)
     parser.add_argument("--implementation-commit", required=True)
     args = parser.parse_args()

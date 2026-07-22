@@ -106,6 +106,8 @@ def parser() -> argparse.ArgumentParser:
     canary.add_argument("--run-root", type=Path, required=True)
     shadow = sub.add_parser("shadow-run")
     shadow.add_argument("--spec", type=Path, required=True)
+    final_canary = sub.add_parser("final-packet-shadow-canary")
+    final_canary.add_argument("--spec", type=Path, required=True)
     return result
 
 
@@ -118,6 +120,11 @@ def main() -> int:
         from tools.core_liquid_campaign.shadow_service import run_shadow_service
 
         print(json.dumps(run_shadow_service(args.spec), sort_keys=True))
+        return 0
+    if args.command == "final-packet-shadow-canary":
+        from tools.core_liquid_campaign.shadow_service import run_final_packet_interface_canary
+
+        print(json.dumps(run_final_packet_interface_canary(args.spec), sort_keys=True))
         return 0
     if args.command == "detached-canary":
         marker = args.run_root / "DETACHED_CANARY_COMPLETE"

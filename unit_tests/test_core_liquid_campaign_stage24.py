@@ -7,12 +7,14 @@ import weakref
 from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from unittest.mock import Mock, patch
 
+from tools.build_stage24_final_packet import _population_authority_mappings
 from tools.core_liquid_campaign.cache import SemanticCacheWriter, _restore_metadata
 from tools.core_liquid_campaign.canonical import atomic_write_json, canonical_hash, pretty_json_bytes, sha256_file
 from tools.core_liquid_campaign.a1_state import initial_state, transition
 from tools.core_liquid_campaign.family_engines.common import EngineInputError, weak_percentile, weak_percentile_prevalidated_sorted
-from tools.core_liquid_campaign.campaign import CampaignContractError, CampaignOrchestrator
+from tools.core_liquid_campaign.campaign import CampaignContractError, CampaignOrchestrator, require_population_authority_bindings
 from tools.core_liquid_campaign.controls import CONTROL_IDS, derive_control_inputs, execute_control
 from tools.core_liquid_campaign.executor import AuthorizationError, CacheAuthority, dispatch_registered_attempt
 from tools.core_liquid_campaign.engine_types import DailyBar, ExactPopulationTableView, ExactPopulationView
@@ -1062,6 +1064,93 @@ class Stage24KnownDefectTests(unittest.TestCase):
             self.assertEqual("old defect", state["superseded_failed_attempts"]["legacy-job"]["error"])
             self.assertEqual(4, state["superseded_failed_attempts"]["legacy-job"]["preserved_attempt_count"])
             self.assertEqual("absent_from_complete_reviewed_lazy_registry", state["superseded_failed_attempts"]["legacy-job"]["superseded_reason"])
+
+
+class Stage24FinalPacketPopulationBindingTests(unittest.TestCase):
+    @staticmethod
+    def _fixture(root: Path) -> dict[str, object]:
+        launch = root / "LAUNCH_POPULATION_AUTHORITY.json"
+        kda = root / "KDA02B_LAZY_POPULATION_MANIFEST.json"
+        atomic_write_json(launch, {"schema": "fixture_launch_population"})
+        atomic_write_json(kda, {"schema": "fixture_kda02b_population"})
+        primary = {
+            "launch_population_authority": sha256_file(launch),
+            "kda02b_population_authority": sha256_file(kda),
+        }
+        mappings = _population_authority_mappings(root, primary)
+        return {"primary_hashes": primary, **mappings}
+
+    def test_packet_builder_emits_complete_exact_mappings_and_physical_bindings(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            manifest = self._fixture(root)
+            resolved = require_population_authority_bindings(manifest, root)
+            self.assertEqual(
+                {"path", "bytes", "role", "sha256"},
+                set(manifest["launch_population_authority"]),
+            )
+            self.assertEqual(
+                {"path", "bytes", "role", "sha256"},
+                set(manifest["kda02b_lazy_population_authority"]),
+            )
+            self.assertEqual(
+                manifest["primary_hashes"]["launch_population_authority"],
+                manifest["launch_population_authority"]["sha256"],
+            )
+            self.assertEqual(
+                manifest["primary_hashes"]["kda02b_population_authority"],
+                manifest["kda02b_lazy_population_authority"]["sha256"],
+            )
+            for record, path in resolved.values():
+                self.assertEqual(path.stat().st_size, record["bytes"])
+                self.assertEqual(sha256_file(path), record["sha256"])
+
+    def test_missing_malformed_and_mismatched_mappings_fail_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            valid = self._fixture(root)
+            cases = []
+            missing = dict(valid); missing.pop("launch_population_authority"); cases.append(missing)
+            malformed = json.loads(json.dumps(valid)); malformed["launch_population_authority"]["extra"] = True; cases.append(malformed)
+            wrong_role = json.loads(json.dumps(valid)); wrong_role["kda02b_lazy_population_authority"]["role"] = "wrong"; cases.append(wrong_role)
+            mismatched = json.loads(json.dumps(valid)); mismatched["launch_population_authority"]["sha256"] = "a" * 64; cases.append(mismatched)
+            wrong_bytes = json.loads(json.dumps(valid)); wrong_bytes["kda02b_lazy_population_authority"]["bytes"] += 1; cases.append(wrong_bytes)
+            for manifest in cases:
+                with self.subTest(manifest=manifest), self.assertRaises(CampaignContractError):
+                    require_population_authority_bindings(manifest, root)
+
+    @patch("tools.core_liquid_campaign.campaign.validate_kda02b_lazy_population_index")
+    @patch("tools.core_liquid_campaign.campaign.validate_launch_population_authority")
+    def test_real_campaign_authority_parser_accepts_exact_builder_schema(
+        self, _launch_validator: Mock, _kda_validator: Mock,
+    ) -> None:
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            manifest = self._fixture(root)
+            for name, key in (
+                ("FINAL_REGISTERED_CONFIGURATION_REGISTRY.jsonl", "strategy_registry"),
+                ("FINAL_EXECUTION_REGISTRY.jsonl", "execution_registry"),
+                ("FINAL_CONTROL_REGISTRY.jsonl", "control_registry"),
+                ("A2_PARENT_COUNTERPART_REGISTRY.jsonl", "a2_counterpart_registry"),
+            ):
+                path = root / name; path.write_bytes(b"")
+                manifest["primary_hashes"][key] = sha256_file(path)
+            cache_path = root / "SEMANTIC_CACHE_MANIFEST.json"
+            atomic_write_json(cache_path, {"artifacts": []})
+            manifest["primary_hashes"]["cache_authority_manifest"] = sha256_file(cache_path)
+            authorization = Mock(); authorization.require.return_value = manifest
+            cache = Mock(); cache.manifest_path = cache_path; cache.preload_frames.return_value = ({"artifacts": []}, ())
+            orchestrator = CampaignOrchestrator(
+                packet_root=root, run_root=root / "run", repository_root=root,
+                cache_authority=cache, authorization=authorization,
+                heartbeat=lambda _payload: True,
+                limits=ResourceLimits(max_workers=1, max_jobs_in_flight=1, minimum_free_disk_bytes=1),
+            )
+            parsed, execution, controls, registry, cache_payload = orchestrator._authority()
+            self.assertIs(parsed, manifest)
+            self.assertEqual(([], [], {}, {"artifacts": []}), (execution, controls, registry, cache_payload))
+            _launch_validator.assert_called_once()
+            _kda_validator.assert_called_once_with(root)
 
 
 if __name__ == "__main__":

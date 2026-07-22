@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Mapping
 
 from .canonical import atomic_write_json, canonical_hash, sha256_file
-from .campaign import CampaignContractError, CampaignOrchestrator, STAGE_GRAPH, _jsonable
+from .campaign import CampaignContractError, CampaignOrchestrator, STAGE_GRAPH, _jsonable, require_population_authority_bindings
 from .controls import execute_control, reconcile_control_duplicates
 from .executor import CacheAuthority
 from .kda02b_lazy_family_input import KDA02BLazyFamilyInputAdapter
@@ -23,6 +23,91 @@ from .terminal import terminal_package, verify_terminal_inventory
 
 class ShadowAuthorizationError(PermissionError):
     pass
+
+
+class FinalPacketInterfaceCanaryAuthorization:
+    """Exact final-manifest authority that can authorize only a no-outcome interface canary."""
+
+    def __init__(self, spec_path: Path) -> None:
+        self.spec_path = spec_path
+        self.spec = json.loads(spec_path.read_text(encoding="utf-8"))
+        packet = self.spec.get("final_campaign_packet")
+        if not isinstance(packet, Mapping):
+            raise ShadowAuthorizationError("final packet canary binding is absent")
+        self.packet = dict(packet)
+        self.repository_root = Path(str(self.spec.get("repository_root", "")))
+        self.manifest_path = self._require_record(self.packet.get("manifest"), "manifest")
+        self.approval_request_path = self._require_record(self.packet.get("approval_request"), "approval_request")
+        self.external_approval_path = self._require_record(self.packet.get("shadow_authorization"), "shadow_authorization")
+
+    @staticmethod
+    def _require_record(raw: object, label: str) -> Path:
+        if not isinstance(raw, Mapping) or set(raw) != {"path", "bytes", "role", "sha256"}:
+            raise ShadowAuthorizationError(f"final packet canary record is malformed: {label}")
+        path = Path(str(raw.get("path", "")))
+        if (
+            not path.is_file()
+            or path.stat().st_size != int(raw.get("bytes", -1))
+            or sha256_file(path) != raw.get("sha256")
+        ):
+            raise ShadowAuthorizationError(f"final packet canary bytes differ: {label}")
+        return path
+
+    def require(self) -> dict[str, Any]:
+        if (
+            self.spec.get("schema") != "stage24_final_packet_interface_canary_spec_v1"
+            or self.spec.get("mode") != "shadow_no_outcome"
+            or self.spec.get("economic_outcomes_authorized") is not False
+            or self.spec.get("protected_outcomes_authorized") is not False
+            or self.spec.get("capitalcom_payload_access") is not False
+            or int(self.spec.get("workers", -1)) != 1
+        ):
+            raise ShadowAuthorizationError("final packet canary scope is invalid or broadened")
+        manifest = json.loads(self.manifest_path.read_text(encoding="utf-8"))
+        request = json.loads(self.approval_request_path.read_text(encoding="utf-8"))
+        approval = json.loads(self.external_approval_path.read_text(encoding="utf-8"))
+        manifest_hash = sha256_file(self.manifest_path)
+        request_hash = sha256_file(self.approval_request_path)
+        if (
+            manifest.get("schema") != "stage24_final_executable_campaign_manifest_v1"
+            or manifest.get("authorization_state") != "awaiting_one_exact_external_human_launch_approval"
+            or manifest.get("economic_outcomes_opened") is not False
+            or manifest.get("capitalcom_payload_opened") is not False
+            or int(manifest.get("protected_rows_opened", -1)) != 0
+            or request.get("final_campaign_manifest_sha256") != manifest_hash
+        ):
+            raise ShadowAuthorizationError("regenerated final manifest/request is not a closed pre-approval packet")
+        if (
+            approval.get("authorization") != "execute_exact_stage24_final_packet_interface_shadow_no_outcome"
+            or approval.get("final_campaign_manifest_sha256") != manifest_hash
+            or approval.get("final_human_approval_request_sha256") != request_hash
+            or approval.get("economic_outcomes_authorized") is not False
+            or approval.get("protected_outcomes_authorized") is not False
+            or approval.get("capitalcom_payload_access") is not False
+        ):
+            raise ShadowAuthorizationError("exact final packet no-outcome authorization differs")
+        head = subprocess.run(
+            ["git", "-C", str(self.repository_root), "rev-parse", "HEAD"],
+            check=True, capture_output=True, text=True,
+        ).stdout.strip()
+        if head != manifest.get("repository", {}).get("implementation_commit"):
+            raise ShadowAuthorizationError("final packet canary repository commit differs")
+        packet_root = self.manifest_path.parent
+        for record in manifest.get("artifact_dependencies", ()):
+            path = packet_root / str(record.get("path", ""))
+            if not path.is_file() or path.stat().st_size != int(record.get("bytes", -1)) or sha256_file(path) != record.get("sha256"):
+                raise ShadowAuthorizationError(f"final packet dependency differs: {record.get('path')}")
+        inventory_path = self._require_record(self.packet.get("packet_inventory"), "packet_inventory")
+        inventory = json.loads(inventory_path.read_text(encoding="utf-8"))
+        files = inventory.get("files")
+        if not isinstance(files, list) or inventory.get("inventory_sha256") != canonical_hash(files):
+            raise ShadowAuthorizationError("final packet inventory identity differs")
+        for record in files:
+            path = packet_root / str(record.get("path", ""))
+            if not path.is_file() or path.stat().st_size != int(record.get("bytes", -1)) or sha256_file(path) != record.get("sha256"):
+                raise ShadowAuthorizationError(f"final packet inventory bytes differ: {record.get('path')}")
+        require_population_authority_bindings(manifest, packet_root)
+        return manifest
 
 
 def _notify_bound_stop(telegram: Any, *, service_identity: str, status: str, reason: str, resumable: bool) -> bool:
@@ -583,6 +668,115 @@ def run_shadow_service(spec_path: Path) -> dict[str, Any]:
             # Preserve the owning exception; a transport failure must not mask
             # the launch/resource/authorization failure that stopped work.
             pass
+        raise
+
+
+def run_final_packet_interface_canary(spec_path: Path) -> dict[str, Any]:
+    """Exercise one registered unit through the final manifest without opening economic outcomes."""
+    from tools.run_stage22_core_liquid_campaign import TelegramTransport
+
+    authorization = FinalPacketInterfaceCanaryAuthorization(spec_path)
+    spec = authorization.spec
+    manifest = authorization.require()
+    telegram = TelegramTransport()
+    if telegram.preflight() is not True:
+        raise ShadowAuthorizationError("secure Telegram preflight failed")
+    run_root = Path(str(spec["run_root"])); run_root.mkdir(parents=True, exist_ok=True)
+    service_identity = str(spec["service_identity"])
+    telegram.launch({"service_identity": service_identity, "status": "shadow_no_outcome", "run_root": str(run_root), "workers": 1})
+    try:
+        packet_root = authorization.manifest_path.parent
+        resolved = require_population_authority_bindings(manifest, packet_root)
+        launch_record, launch_path = resolved["launch_population_authority"]
+        _kda_record, kda_path = resolved["kda02b_lazy_population_authority"]
+        cache_path = FinalPacketInterfaceCanaryAuthorization._require_record(
+            authorization.packet.get("cache_manifest"), "cache_manifest",
+        )
+        execution_input_path = FinalPacketInterfaceCanaryAuthorization._require_record(
+            authorization.packet.get("execution_input_authority"), "execution_input_authority",
+        )
+        cache = CacheAuthority(cache_path, cache_path.parent)
+        complete_schedule = LaunchPopulationSchedule(launch_path, str(launch_record["sha256"]))
+        population_adapter = LazyProductionFamilyInputAdapter.from_launch_population_authority(
+            launch_authority_path=launch_path,
+            launch_authority_sha256=str(launch_record["sha256"]),
+            repository_root=authorization.repository_root,
+            construction_mode="shadow_no_outcome",
+        )
+        schedule = BoundedShadowPopulationSchedule(
+            complete_schedule,
+            {
+                "schema": "stage24_shadow_population_slice_policy_v1",
+                "selection": "first_authority_order_locator_on_each_distinct_UTC_day",
+                "maximum_distinct_days_per_attempt_partition": 1,
+                "economic_values_used_for_selection": False,
+                "benchmark_frame_values_used": False,
+                "full_launch_population_authority_preserved": True,
+            },
+            population_adapter=population_adapter,
+        )
+        kda_adapter = KDA02BLazyFamilyInputAdapter(
+            index_root=kda_path.parent,
+            authority_path=execution_input_path,
+            repository_root=authorization.repository_root,
+            mode="shadow_no_outcome",
+        )
+        limits = ResourceLimits(
+            max_workers=1, max_jobs_in_flight=1, max_rss_bytes=10 * 1024**3,
+            max_output_bytes=256 * 1024**2, minimum_free_disk_bytes=8 * 1024**3,
+            heartbeat_seconds=1, graceful_stop_seconds=300, wall_time_seconds=None,
+        )
+        orchestrator = CampaignOrchestrator(
+            packet_root=packet_root, run_root=run_root / "campaign",
+            repository_root=authorization.repository_root, cache_authority=cache,
+            authorization=authorization, heartbeat=telegram.heartbeat, limits=limits,
+            payoff_provider=ShadowPayoffProvider("stage24-final-packet-interface-canary-v1"),
+            population_schedule=schedule, population_adapter=population_adapter,
+            kda02b_population_adapter=kda_adapter,
+        )
+        parsed, execution, _controls, registry, cache_payload = orchestrator._authority()
+        candidate = next((row for row in execution if row.get("family_id") == "A4_TSMOM_V7"), None)
+        partition = next((
+            record.get("campaign_partition", {}) for record in cache_payload.get("artifacts", ())
+            if record.get("campaign_partition", {}).get("phase") == "inner_validation"
+        ), None)
+        if candidate is None or not isinstance(partition, Mapping):
+            raise ShadowAuthorizationError("final packet canary has no production-shaped registered unit")
+        job_id = "final-packet-interface-canary:" + str(candidate["executable_attempt_id"])
+        atomic_write_json(orchestrator.stage_state, {
+            "schema": "stage22_campaign_stage_state_v1", "campaign_id": parsed["campaign_id"],
+            "stage_graph": list(STAGE_GRAPH), "completed_stages": ["cache_validation"], "status": "running",
+        })
+        task = orchestrator._population_execution_job(
+            candidate, registry, job_id, phase="inner_validation",
+            outer_fold_id=str(partition["outer_fold_id"]), inner_fold_id=str(partition["inner_fold_id"]),
+        )
+        supervisor = orchestrator._run_jobs("final_packet_interface_canary", iter(((job_id, task),)), require_health_release=True)
+        if (
+            supervisor.get("status") != "complete"
+            or int(supervisor.get("completed_count", 0)) != 1
+            or supervisor.get("first_real_unit_reconciled") is not True
+            or supervisor.get("health_release") is not True
+            or int(supervisor.get("heartbeat_success_count", 0)) < 1
+            or supervisor.get("worker_pids")
+            or supervisor.get("all_workers_stopped") is not True
+        ):
+            raise ShadowAuthorizationError("final packet interface canary did not reconcile one healthy unit")
+        result = {
+            "schema": "stage24_final_packet_interface_canary_result_v1",
+            "status": "complete", "mode": "shadow_no_outcome",
+            "service_identity": service_identity, "manifest_sha256": sha256_file(authorization.manifest_path),
+            "registered_production_shaped_units": 1, "first_real_unit_reconciled": True,
+            "health_release": True, "scheduled_heartbeat_delivered": True,
+            "both_population_authorities_constructed": True, "all_workers_stopped": True,
+            "worker_pids": [], "economic_outcomes_opened": False,
+            "protected_outcomes_opened": False, "capitalcom_payload_opened": False,
+        }
+        atomic_write_json(run_root / "FINAL_PACKET_INTERFACE_CANARY_RESULT.json", result)
+        telegram.complete({"service_identity": service_identity, "status": "complete", "run_root": str(run_root), "health_release": True})
+        return result
+    except Exception as exc:
+        _notify_bound_stop(telegram, service_identity=service_identity, status="pre_outcome_canary_bound_stop", reason=str(exc), resumable=False)
         raise
 
 
