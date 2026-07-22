@@ -103,6 +103,10 @@ def reconcile_registered_population_routes(
     families = Counter(str(row["family_id"]) for row in execution_rows)
     if set(families) != set(FAMILY_ORDER):
         raise PopulationReadinessError("registered population routes omit a frozen family")
+    shared_scans = Counter()
+    for family, top, clock in route_groups:
+        census = expanded[str(top)]
+        shared_scans[family] += int(census[f"a4_{clock}"] if family == "A4_TSMOM_V7" else census["decisions_5m"])
     records_identity = canonical_hash(address_records)
     return {
         "schema": "stage24_registered_population_route_reconciliation_v1",
@@ -111,6 +115,8 @@ def reconcile_registered_population_routes(
         "families": dict(sorted(families.items())),
         "direct_PIT_addresses": dict(sorted(direct_addresses.items())),
         "direct_PIT_attempt_fold_decision_units": dict(sorted(direct.items())),
+        "shared_FamilyInput_route_scan_units": dict(sorted(shared_scans.items())),
+        "shared_frame_batching": "one FamilyInput construction per family/top-N/clock locator; configuration identities rebound without source reread",
         "direct_route_groups": [
             {"family_id": family, "PIT_liquidity_top_n": top, "clock": clock, "addresses": count}
             for (family, top, clock), count in sorted(route_groups.items())
@@ -120,6 +126,7 @@ def reconcile_registered_population_routes(
             "beam_slot_templates": a2_beam_templates,
             "source_parent_decision_scan_upper_bound": a2_parent_scan_upper_bound,
             "opportunity_identity": "exact parent engine event; never generic PIT substitution",
+            "production_schedule": "persisted exact completed parent event locators; no generic PIT rescan",
         },
         "KDA02B": {
             **expected_kda,
