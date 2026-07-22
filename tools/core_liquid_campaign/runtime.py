@@ -555,6 +555,13 @@ def detached_shadow_service_spec(repository_root: Path, run_root: Path, spec_pat
         raise ResourceGateError("invalid shadow service specification hash")
     if not spec_path.is_file() or sha256_file(spec_path) != spec_sha256:
         raise ResourceGateError("shadow service specification bytes differ")
+    try:
+        shadow_spec = json.loads(spec_path.read_text(encoding="utf-8"))
+        workers = int(shadow_spec["workers"])
+    except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
+        raise ResourceGateError("shadow service specification lacks a valid worker count") from exc
+    if not 1 <= workers <= 4:
+        raise ResourceGateError("shadow service worker count is outside the frozen bound")
     if not telegram_env_file.is_file():
         raise ResourceGateError("Telegram environment file is absent")
     secret_stat = telegram_env_file.stat()
@@ -581,7 +588,7 @@ def detached_shadow_service_spec(repository_root: Path, run_root: Path, spec_pat
         "service_id": service_id,
         "working_directory": str(repository_root),
         "run_root": str(run_root),
-        "workers": 1,
+        "workers": workers,
         "restart": "on-failure",
         "restart_limit": 3,
         "independent_of_chat": True,
