@@ -16,7 +16,7 @@ from tools.core_liquid_campaign.campaign import CampaignContractError, CampaignO
 from tools.core_liquid_campaign.controls import CONTROL_IDS, derive_control_inputs, execute_control
 from tools.core_liquid_campaign.executor import AuthorizationError, CacheAuthority, dispatch_registered_attempt
 from tools.core_liquid_campaign.engine_types import DailyBar, ExactPopulationTableView, ExactPopulationView
-from tools.core_liquid_campaign.schema import CAMPAIGN_ID, baseline_config, economic_address, normalize_config
+from tools.core_liquid_campaign.schema import CAMPAIGN_ID, baseline_config, economic_address, family_schemas, normalize_config
 from tools.core_liquid_campaign.shadow_payoff import ShadowPayoffProvider
 from tools.core_liquid_campaign.shadow_service import _write_shadow_bound_stop
 from tools.core_liquid_campaign.synthetic import a1_frame, a3_frame, a4_frame, frame_for_family, kda_frame, with_source_authority
@@ -475,7 +475,23 @@ class Stage24KnownDefectTests(unittest.TestCase):
         closes = np.asarray([109.0, 111.0, 112.0], dtype="<f8")
         pit = {day_ms: {"average_liquidity_rank": 3.0, "eligible_population": 20}}
         events = _a3_symbol_events(times, closes, daily, pit)
-        for lookback in (20, 60, 120, 250):
+        registered_lookbacks = next(
+            spec.allowed_values
+            for spec in family_schemas["A3_STARTER_RETEST_V3"].axes
+            if spec.name == "breakout_lookback_days"
+        )
+        self.assertEqual((5, 10, 20, 60), registered_lookbacks)
+        self.assertEqual(
+            {
+                f"A3_breakout:lookback={lookback}:atr={atr}:side={side}"
+                for lookback in registered_lookbacks
+                for atr in (10, 20, 40, 60)
+                for side in (-1, 1)
+            },
+            set(events),
+        )
+        self.assertFalse(any("lookback=120:" in key or "lookback=250:" in key for key in events))
+        for lookback in registered_lookbacks:
             for atr in (10, 20, 40, 60):
                 self.assertEqual(
                     [(day_ms + 600_000, 2, 0.05)],

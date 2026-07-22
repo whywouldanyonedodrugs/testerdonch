@@ -432,7 +432,7 @@ def _thresholds(
                     raw = a2_arrays[name]
                     add(name, np.asarray(raw[time_mask & np.isfinite(raw)], dtype="<f8"))
 
-    for lookback in (() if a2_proximity_arrays is not None and skip_a3 else (20, 60, 120, 250)):
+    for lookback in (() if a2_proximity_arrays is not None and skip_a3 else (5, 10, 20, 60)):
         for atr_window in (10, 20, 40, 60):
             for side in (-1, 1):
                 values = []
@@ -768,7 +768,7 @@ class ProductionFamilyInputBuilder:
                                 training_start=training_start, training_end=training_end,
                             )
                     a3_populations: dict[str, ThresholdPopulation] = {}
-                    for lookback in (20, 60, 120, 250):
+                    for lookback in (5, 10, 20, 60):
                         for atr_window in (10, 20, 40, 60):
                             for side in (-1, 1):
                                 for scope in ("symbol_side", "liquidity_decile_side", "global_side"):

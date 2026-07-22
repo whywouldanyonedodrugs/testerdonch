@@ -152,7 +152,7 @@ def census_a3(manifest: Mapping[str, Any], cache_root: Path, membership: Mapping
     unique: dict[str, set[tuple[str, int, int, int]]] = {key: set() for key in ("all", "10", "20", "40")}
     expected_names = {
         f"A3_breakout:lookback={lookback}:atr={atr}:side={side}"
-        for lookback in (20, 60, 120, 250) for atr in (10, 20, 40, 60) for side in (-1, 1)
+        for lookback in (5, 10, 20, 60) for atr in (10, 20, 40, 60) for side in (-1, 1)
     }
     if set(manifest.get("features", {})) != expected_names:
         raise LaunchPopulationAuthorityError("A3 feature signature inventory differs from the frozen 32 signatures")

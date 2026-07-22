@@ -461,7 +461,7 @@ def _a3_symbol_events(
         by_day[int(day)] = (int(start), int(start + count))
     result: dict[str, list[tuple[int, int, float]]] = {
         f"A3_breakout:lookback={lookback}:atr={atr}:side={side}": []
-        for lookback in (20, 60, 120, 250) for atr in (10, 20, 40, 60) for side in (-1, 1)
+        for lookback in (5, 10, 20, 60) for atr in (10, 20, 40, 60) for side in (-1, 1)
     }
     for day_ms, membership in sorted(pit_by_day.items()):
         bounds = by_day.get(day_ms); history_index = daily_index.get(day_ms)
@@ -473,7 +473,7 @@ def _a3_symbol_events(
         indices = np.arange(begin, end, dtype=np.int64)
         eligible = indices > 0
         eligible &= times[indices] - times[np.maximum(indices - 1, 0)] == FIVE_MINUTES_MS
-        for lookback in (20, 60, 120, 250):
+        for lookback in (5, 10, 20, 60):
             if history_index + 1 < lookback:
                 continue
             prior = daily[history_index - lookback + 1:history_index + 1]
@@ -552,7 +552,7 @@ class A3PopulationTableCompiler:
             atomic_write_json(progress_path, progress)
         if set(progress["completed"]) != set(symbols):
             raise PopulationTableError("A3 sparse population table did not complete every symbol")
-        feature_names = tuple(f"A3_breakout:lookback={lookback}:atr={atr}:side={side}" for lookback in (20, 60, 120, 250) for atr in (10, 20, 40, 60) for side in (-1, 1))
+        feature_names = tuple(f"A3_breakout:lookback={lookback}:atr={atr}:side={side}" for lookback in (5, 10, 20, 60) for atr in (10, 20, 40, 60) for side in (-1, 1))
         merged = {name: {"timestamps": [], "symbols": [], "deciles": [], "values": []} for name in feature_names}
         shard_inventory = []
         for symbol in symbols:
