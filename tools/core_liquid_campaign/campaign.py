@@ -314,12 +314,22 @@ class CampaignOrchestrator:
                 locator_count += 1
                 try:
                     frame = adapter.frame(locator)
+                    parent_frame = None
+                    if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+                        if parent_row is None:
+                            raise CampaignContractError("bound A2 population locator has no exact parent row")
+                        parent_frame = adapter.frame(replace(
+                            locator,
+                            family_id=str(parent_row["family_id"]),
+                            executable_attempt_id=str(parent_row["executable_attempt_id"]),
+                            canonical_economic_address_sha256=str(parent_row["canonical_economic_address_sha256"]),
+                        ))
                     result = dispatch_registered_attempt(
                         row,
                         (frame,),
                         registry_by_id=registry,
                         parent_binding=parent_binding,
-                        parent_frames=(frame,) if parent_row is not None else None,
+                        parent_frames=(parent_frame,) if parent_frame is not None else None,
                         payoff_provider=self.payoff_provider,
                     )
                 except EngineInputError as exc:
@@ -363,7 +373,7 @@ class CampaignOrchestrator:
                     }
                     null_result = execute_control(
                         null_control, row, (frame,), registry_by_id=registry,
-                        parent_binding=parent_binding, parent_frames=(frame,),
+                        parent_binding=parent_binding, parent_frames=(parent_frame,),
                         payoff_provider=self.payoff_provider,
                     )
                     null_paired = null_result.get("paired_control", {})
