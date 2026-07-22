@@ -16,6 +16,7 @@ class PopulationExecutionTests(unittest.TestCase):
         rows = [
             {"day_open_ms": 1_704_067_200_000, "symbol": "PF_XBTUSD", "average_liquidity_rank": 1.0, "decision_count_5m": 288, "top_10": True, "top_20": True, "top_40": True},
             {"day_open_ms": 1_704_067_200_000, "symbol": "PF_ETHUSD", "average_liquidity_rank": 2.0, "decision_count_5m": 288, "top_10": True, "top_20": True, "top_40": True},
+            {"day_open_ms": 1_704_067_200_000, "symbol": "PF_ADAUSD", "average_liquidity_rank": 3.0, "decision_count_5m": 288, "top_10": True, "top_20": True, "top_40": True},
             {"day_open_ms": 1_704_153_600_000, "symbol": "PF_XBTUSD", "average_liquidity_rank": 1.0, "decision_count_5m": 1, "top_10": True, "top_20": True, "top_40": True},
         ]
         pit.write_text("".join(json.dumps(row, sort_keys=True) + "\n" for row in rows), encoding="utf-8")
@@ -35,13 +36,22 @@ class PopulationExecutionTests(unittest.TestCase):
                 schedule = LaunchPopulationSchedule(path, sha256_file(path))
             a1 = {"family_id": "A1_COMPRESSION_V2", "config": {"PIT_liquidity_top_n": 10}, "executable_attempt_id": "a1", "canonical_economic_address_sha256": "1" * 64}
             a4 = {"family_id": "A4_TSMOM_V7", "config": {"PIT_liquidity_top_n": 10, "rebalance": "8h"}, "executable_attempt_id": "a4", "canonical_economic_address_sha256": "2" * 64}
-            self.assertEqual(577, schedule.count(a1, phase="outer_evaluation", outer_fold_id="2024Q1", inner_fold_id=None))
-            self.assertEqual(7, schedule.count(a4, phase="outer_evaluation", outer_fold_id="2024Q1", inner_fold_id=None))
+            self.assertEqual(865, schedule.count(a1, phase="outer_evaluation", outer_fold_id="2024Q1", inner_fold_id=None))
+            self.assertEqual(10, schedule.count(a4, phase="outer_evaluation", outer_fold_id="2024Q1", inner_fold_id=None))
             locators = list(schedule.iter_locators(a4, phase="outer_evaluation", outer_fold_id="2024Q1", inner_fold_id=None))
-            self.assertEqual(7, len(locators))
+            self.assertEqual(10, len(locators))
             self.assertEqual(("PF_XBTUSD", 0), (locators[0].symbol, locators[0].decision_ts.hour))
             self.assertEqual("a4", locators[0].executable_attempt_id)
             self.assertEqual("2" * 64, locators[0].canonical_economic_address_sha256)
+            representatives = schedule.representative_locators(
+                a4,
+                phase="outer_evaluation",
+                outer_fold_id="2024Q1",
+                inner_fold_id=None,
+                symbol_size_bytes={"PF_ADAUSD": 10, "PF_ETHUSD": 20, "PF_XBTUSD": 30},
+            )
+            self.assertEqual(("PF_ADAUSD", "PF_ETHUSD", "PF_XBTUSD"), tuple(item.symbol for item in representatives))
+            self.assertTrue(all(item.decision_ts.hour == 0 for item in representatives))
 
     def test_a2_requires_exact_parent(self) -> None:
         with tempfile.TemporaryDirectory() as raw:

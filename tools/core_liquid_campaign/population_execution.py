@@ -143,5 +143,59 @@ class LaunchPopulationSchedule:
                     str(attempt["canonical_economic_address_sha256"]),
                 )
 
+    def representative_locators(
+        self,
+        attempt: Mapping[str, Any],
+        *,
+        phase: str,
+        outer_fold_id: str,
+        inner_fold_id: str | None,
+        symbol_size_bytes: Mapping[str, int],
+        parent_attempt: Mapping[str, Any] | None = None,
+    ) -> tuple[FamilyDecisionLocator, ...]:
+        """Return small/median/large source-size locators for one partition.
+
+        The sample is selected entirely from immutable input size and PIT
+        membership.  It never reads feature values, payoffs, ranks or outcomes.
+        All returned locators remain ordinary launch-authority locators and are
+        consumed by the same production ``FamilyInput`` adapter.
+        """
+        family = str(attempt["family_id"])
+        source = attempt
+        if family == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+            if parent_attempt is None or parent_attempt.get("family_id") != attempt.get("config", {}).get("parent_family"):
+                raise PopulationExecutionError("A2 representative schedule lacks its exact parent")
+            source = parent_attempt
+        source_family = str(source["family_id"]); config = source["config"]
+        partition = self.partition(phase=phase, outer_fold_id=outer_fold_id, inner_fold_id=inner_fold_id)
+        top_n = self._top_n(source)
+        rows = list(self._eligible_rows(partition, top_n))
+        if not rows:
+            raise PopulationExecutionError("representative partition has no PIT-eligible rows")
+        symbols = sorted(
+            {str(row["symbol"]) for row in rows},
+            key=lambda symbol: (int(symbol_size_bytes.get(symbol, -1)), symbol),
+        )
+        if any(symbol not in symbol_size_bytes or int(symbol_size_bytes[symbol]) <= 0 for symbol in symbols):
+            raise PopulationExecutionError("representative source-size authority is incomplete")
+        selected_symbols = tuple(dict.fromkeys((symbols[0], symbols[len(symbols) // 2], symbols[-1])))
+        output = []
+        for symbol in selected_symbols:
+            row = next(item for item in rows if str(item["symbol"]) == symbol)
+            offsets = self._decision_offsets(row, source_family, config)
+            offset = next(iter(offsets), None)
+            if offset is None:
+                raise PopulationExecutionError("representative route contains no decision offset")
+            day = datetime.fromtimestamp(int(row["day_open_ms"]) / 1000, tz=UTC)
+            output.append(FamilyDecisionLocator(
+                family, phase, outer_fold_id, inner_fold_id,
+                symbol, day + timedelta(minutes=5 * int(offset)),
+                str(attempt["executable_attempt_id"]),
+                str(attempt["canonical_economic_address_sha256"]),
+            ))
+        if len(output) != 3:
+            raise PopulationExecutionError("representative partition lacks three source-size strata")
+        return tuple(output)
+
 
 __all__ = ["LaunchPopulationSchedule", "PopulationExecutionError", "PopulationPartition"]

@@ -18,6 +18,10 @@ from .executor import CacheAuthority, dispatch_registered_attempt
 from .family_engines.common import EngineInputError
 from .family_engines import kda02b_adjudication
 from .schema import FAMILY_ORDER, OUTER_FOLDS
+from .population_benchmark import run_population_benchmark
+from .population_readiness import reconcile_registered_population_routes
+from .launch_population_authority import validate_launch_population_authority
+from .kda02b_population_index import validate_kda02b_lazy_population_index
 from .selection import aggregate_streaming
 from .shadow_payoff import ShadowPayoffProvider
 from .stage24_probes import control_production_shadow_probe, representative_production_benchmark
@@ -90,6 +94,25 @@ def _registry_gate(packet_root: Path) -> tuple[dict[str, Any], list[dict[str, An
         "execution_registry_sha256": sha256_file(execution_path),
         "control_registry_sha256": sha256_file(control_path),
     }, strategy, execution, controls)
+
+
+def _launch_population_gate(
+    execution: list[dict[str, Any]],
+    launch_authority_path: Path,
+    kda_population_manifest_path: Path,
+) -> dict[str, Any]:
+    launch = json.loads(launch_authority_path.read_text(encoding="utf-8"))
+    validate_launch_population_authority(launch, verify_files=True)
+    kda = validate_kda02b_lazy_population_index(kda_population_manifest_path.parent)
+    reconciliation = reconcile_registered_population_routes(execution, launch, kda)
+    return {
+        "schema": "stage24_launch_population_gate_v1", "status": "pass",
+        "launch_population_authority_sha256": sha256_file(launch_authority_path),
+        "kda02b_population_authority_sha256": sha256_file(kda_population_manifest_path),
+        "benchmark_probe_substituted_for_launch": False,
+        "reconciliation": reconciliation,
+        "economic_outcomes_opened": False, "protected_rows_opened": 0,
+    }
 
 
 def _bounded_cold_warm_replay(
@@ -330,7 +353,7 @@ def _selection_gate(execution: list[dict[str, Any]], benchmark: Mapping[str, Any
     passed = (
         len(execution) == 11963 and len(a2) == 2654 and atomic_bindings
         and probe.get("pass") is True and benchmark.get("status") == "pass"
-        and int(benchmark.get("stratified_units", 0)) >= 1200
+        and int(benchmark.get("scheduled_dispatch_units", 0)) >= 17_721
     )
     return {
         "status": "pass" if passed else "fail",
@@ -340,7 +363,7 @@ def _selection_gate(execution: list[dict[str, Any]], benchmark: Mapping[str, Any
         "empty_inner_folds": "explicit_negative_infinity_preserved",
         "materialization_frozen_before_shadow_values": True,
         "aggregate_materialized_probe": probe,
-        "representative_actual_dispatch_units": benchmark.get("stratified_units"),
+        "representative_actual_dispatch_units": benchmark.get("scheduled_dispatch_units"),
         "restart_reuse": "hash_reconciled_markers",
     }
 
@@ -451,6 +474,9 @@ def run_gate(args: argparse.Namespace) -> dict[str, Any]:
     checks: dict[str, Mapping[str, Any]] = {}
     checks["authority"] = _authority_gate(args.repository_root, args.stage24_task)
     registry, strategy, execution, controls = _registry_gate(args.packet_root); checks["registries"] = registry
+    checks["launch_populations"] = _launch_population_gate(
+        execution, args.launch_population_authority, args.kda_population_manifest,
+    )
     authority_path = args.execution_input_authority or args.packet_root / "EXECUTION_INPUT_AUTHORITY.json"
     execution_input_authority = json.loads(authority_path.read_text(encoding="utf-8"))
     cache, frames = _cache_gate(args.cache_manifest, authority_path); checks["cache_authority"] = cache
@@ -460,11 +486,13 @@ def run_gate(args: argparse.Namespace) -> dict[str, Any]:
     checks["controls"] = control_production_shadow_probe(args.output / "control_workers", controls, frames, execution)
     del frames
     gc.collect()
-    checks["representative_benchmark"] = representative_production_benchmark(
-        args.output / "representative_benchmark",
-        execution,
-        cache_manifest_path=args.cache_manifest,
-        execution_input_authority=execution_input_authority,
+    checks["representative_benchmark"] = run_population_benchmark(
+        output_root=args.output / "representative_benchmark",
+        execution_registry_path=args.packet_root / "FINAL_EXECUTION_REGISTRY.jsonl",
+        launch_authority_path=args.launch_population_authority,
+        kda_manifest_path=args.kda_population_manifest,
+        execution_authority_path=authority_path,
+        repository_root=args.repository_root,
     )
     checks["selection_A2_materialization"] = _selection_gate(execution, checks["representative_benchmark"])
     checks["a1_state"] = _a1_state_gate()
@@ -495,6 +523,14 @@ def parser() -> argparse.ArgumentParser:
     result.add_argument("--packet-root", type=Path, default=Path("results/rebaseline/stage23_stage22_v04_remediation_20260721_v07"))
     result.add_argument("--cache-manifest", type=Path, default=Path("results/rebaseline/stage24_production_readiness_20260721_v05/semantic_cache/SEMANTIC_CACHE_MANIFEST.json"))
     result.add_argument("--execution-input-authority", type=Path)
+    result.add_argument(
+        "--launch-population-authority", type=Path,
+        default=Path("results/rebaseline/stage24_launch_population_authority_20260722_v02/LAUNCH_POPULATION_AUTHORITY.json"),
+    )
+    result.add_argument(
+        "--kda-population-manifest", type=Path,
+        default=Path("results/rebaseline/stage24_kda02b_lazy_population_20260722_v01/KDA02B_LAZY_POPULATION_MANIFEST.json"),
+    )
     result.add_argument(
         "--shadow-service-root",
         type=Path,
