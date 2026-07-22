@@ -34,10 +34,10 @@ EXPECTED_EXPANDED_COUNTS = {
     "40": {"symbol_days": 180_560, "decisions_5m": 51_989_800, "a4_8h": 541_600, "a4_1d": 180_560},
 }
 EXPECTED_A3_COUNTS = {
-    "raw_signature_rows": {"all": 179_689, "10": 13_759, "20": 27_309, "40": 54_732},
-    "fold_expanded_signature_rows": {"all": 706_464, "10": 61_579, "20": 123_641, "40": 245_886},
-    "unique_crossing_keys_without_atr": {"all": 45_266, "10": 3_456, "20": 6_860, "40": 13_780},
-    "fold_expanded_unique_crossing_keys_without_atr": {"all": 177_763, "10": 15_401, "20": 30_944, "40": 61_654},
+    "raw_signature_rows": {"all": 509_028, "10": 37_340, "20": 76_874, "40": 156_736},
+    "fold_expanded_signature_rows": {"all": 2_003_068, "10": 160_000, "20": 331_436, "40": 678_433},
+    "unique_crossing_keys_without_atr": {"all": 128_950, "10": 9_412, "20": 19_401, "40": 39_678},
+    "fold_expanded_unique_crossing_keys_without_atr": {"all": 506_296, "10": 40_021, "20": 83_009, "40": 170_396},
 }
 
 
@@ -363,13 +363,13 @@ def build_launch_population_authority(
         "source_authority": {
             "physical_parts": len(raw_parts), "source_bytes": int(source_verification["source_bytes"]),
             "source_rows": int(source_verification["source_rows"]),
-            "source_record_inventory_sha256": str(virtual["semantic_contract"]["source_record_inventory_sha256"]),
+            "source_record_inventory_sha256": str(virtual["semantic_inputs"]["source_record_inventory_sha256"]),
             "raw_source_parts_physically_verified": True,
         },
         "funding_authority": {
             "symbols": int(funding["symbols"]), "rows": int(funding["rows"]),
             "inventory_sha256": str(funding["inventory_sha256"]),
-            "manifest_sha256": str(virtual["semantic_contract"]["funding_manifest_sha256"]),
+            "manifest_sha256": str(virtual["semantic_inputs"]["funding_manifest_sha256"]),
         },
         "pit_membership": _file_binding(pit_path),
         "a1_population_table": {**_file_binding(a1_manifest_path), "rows": int(a1["rows"]), "features": len(a1["features"]), "reuse": "existing_hash_bound_mmap_no_copy"},

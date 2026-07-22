@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 
 from tools.core_liquid_campaign.launch_population_authority import (
+    EXPECTED_A3_COUNTS,
     LaunchPopulationAuthorityError,
     canonical_hash,
     census_pit,
@@ -62,10 +63,7 @@ class LaunchPopulationAuthorityTests(unittest.TestCase):
                 },
             },
             "a3_sparse_census": {
-                "raw_signature_rows": {"all": 179_689, "10": 13_759, "20": 27_309, "40": 54_732},
-                "fold_expanded_signature_rows": {"all": 706_464, "10": 61_579, "20": 123_641, "40": 245_886},
-                "unique_crossing_keys_without_atr": {"all": 45_266, "10": 3_456, "20": 6_860, "40": 13_780},
-                "fold_expanded_unique_crossing_keys_without_atr": {"all": 177_763, "10": 15_401, "20": 30_944, "40": 61_654},
+                **{key: dict(value) for key, value in EXPECTED_A3_COUNTS.items()},
                 "fold_expanded_by_phase": {},
             },
         }
@@ -96,12 +94,7 @@ class LaunchPopulationAuthorityTests(unittest.TestCase):
                     "40": {"symbol_days": 180_560, "decisions_5m": 51_989_800, "a4_8h": 541_600, "a4_1d": 180_560},
                 },
             },
-            "a3_sparse_census": {
-                "raw_signature_rows": {"all": 179_689, "10": 13_759, "20": 27_309, "40": 54_732},
-                "fold_expanded_signature_rows": {"all": 706_464, "10": 61_579, "20": 123_641, "40": 245_886},
-                "unique_crossing_keys_without_atr": {"all": 45_266, "10": 3_456, "20": 6_860, "40": 13_780},
-                "fold_expanded_unique_crossing_keys_without_atr": {"all": 177_763, "10": 15_401, "20": 30_944, "40": 61_654},
-            },
+            "a3_sparse_census": {key: dict(value) for key, value in EXPECTED_A3_COUNTS.items()},
         }
         payload["authority_inventory_sha256"] = canonical_hash(payload)
         validate_launch_population_authority(payload, verify_files=False)
