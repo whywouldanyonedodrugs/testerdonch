@@ -103,15 +103,21 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     if review.get("verdict") != "PASS" or int(review.get("blocking_findings", -1)) != 0:
         raise RuntimeError("Stage 24 final packet requires an independent PASS with zero blocking findings")
     review_commit = str(review.get("implementation_commit", ""))
+    delta_audit = None
     if review_commit != head:
-        _require_reused_review_delta(args.repository_root, head, review_commit, args.delta_audit)
+        delta_audit = _require_reused_review_delta(args.repository_root, head, review_commit, args.delta_audit)
     for key, expected in (("economic_outcomes_opened", False), ("capitalcom_payload_opened", False)):
         if review.get(key) is not expected:
             raise RuntimeError(f"independent review firewall field differs: {key}")
     if int(review.get("protected_rows_opened", -1)) != 0:
         raise RuntimeError("independent review opened protected rows")
     gate = json.loads(args.gate.read_text(encoding="utf-8"))
-    if gate.get("status") != "pass" or gate.get("implementation_commit") != head:
+    gate_commit = str(gate.get("implementation_commit", ""))
+    if (
+        gate.get("status") != "pass"
+        or gate_commit not in {head, review_commit}
+        or (gate_commit != head and delta_audit is None)
+    ):
         raise RuntimeError("production-readiness gate is not a PASS at the reviewed commit")
     cache = json.loads(args.cache_manifest.read_text(encoding="utf-8"))
     cache_artifacts = cache.get("artifacts", [])
