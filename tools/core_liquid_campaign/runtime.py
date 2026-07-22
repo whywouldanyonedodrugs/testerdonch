@@ -558,16 +558,23 @@ def detached_shadow_service_spec(repository_root: Path, run_root: Path, spec_pat
     try:
         shadow_spec = json.loads(spec_path.read_text(encoding="utf-8"))
         workers = int(shadow_spec["workers"])
+        bound_service_identity = str(shadow_spec["service_identity"])
     except (KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
         raise ResourceGateError("shadow service specification lacks a valid worker count") from exc
     if not 1 <= workers <= 4:
         raise ResourceGateError("shadow service worker count is outside the frozen bound")
+    if not bound_service_identity.endswith(".service"):
+        raise ResourceGateError("shadow service specification lacks a unit identity")
+    service_id = bound_service_identity.removesuffix(".service")
+    if not service_id.startswith("qlmg-stage24-shadow-") or any(
+        character not in "abcdefghijklmnopqrstuvwxyz0123456789-" for character in service_id
+    ):
+        raise ResourceGateError("shadow service specification has an unsafe unit identity")
     if not telegram_env_file.is_file():
         raise ResourceGateError("Telegram environment file is absent")
     secret_stat = telegram_env_file.stat()
     if secret_stat.st_uid != os.getuid() or secret_stat.st_mode & 0o077:
         raise ResourceGateError("Telegram environment file owner/mode is unsafe")
-    service_id = f"qlmg-stage24-shadow-{spec_sha256[:12]}"
     command = [
         str(repository_root / ".venv/bin/python"),
         "-m",

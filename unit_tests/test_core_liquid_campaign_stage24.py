@@ -846,7 +846,10 @@ class Stage24KnownDefectTests(unittest.TestCase):
             repository = root / "repository"
             repository.mkdir()
             spec_path = root / "SHADOW_SERVICE_SPEC.json"
-            atomic_write_json(spec_path, {"schema": "stage24_shadow_service_spec_v1", "workers": 4})
+            atomic_write_json(spec_path, {
+                "schema": "stage24_shadow_service_spec_v1", "workers": 4,
+                "service_identity": "qlmg-stage24-shadow-fixture.service",
+            })
             telegram = root / "telegram.env"
             telegram.write_text("TOKEN=fixture\n", encoding="utf-8")
             telegram.chmod(0o600)
@@ -870,6 +873,7 @@ class Stage24KnownDefectTests(unittest.TestCase):
             )
             self.assertIsNone(service["environment"]["PYTHONPATH"])
             self.assertEqual(4, service["workers"])
+            self.assertEqual("qlmg-stage24-shadow-fixture", service["service_id"])
 
     def test_stale_scheduled_heartbeat_stops_workers_without_late_commit(self) -> None:
         import time
