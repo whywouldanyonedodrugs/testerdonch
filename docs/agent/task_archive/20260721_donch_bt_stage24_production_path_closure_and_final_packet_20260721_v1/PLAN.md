@@ -84,3 +84,9 @@ publish the final launch-approval packet without launching economics.
   base, sums their disjoint denominators, and verifies streaming/materialized
   equality. The real minimal job and all-11-variant worker/order/restart
   invariance validation passed without economic or protected outcome access.
+- 2026-07-22: The independent KDA02B resume review at `fbd60c8` returned
+  `PASS` with no material findings. It authorized exact reuse of all 1,984
+  reconciled inner markers and a detached resume from the KDA02B boundary after
+  final commit binding, authority audit and secure Telegram preflight. The
+  missing bound-stop Telegram message was traced to an absent notification call
+  in the real shadow exception path and repaired with a focused passing test.

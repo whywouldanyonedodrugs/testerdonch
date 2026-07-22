@@ -1,0 +1,58 @@
+{
+  "schema": "stage24_independent_kda02b_resume_review_v1",
+  "disposition": "PASS",
+  "reviewed_commit": "fbd60c8f59bef464136e61a58d41988b9d3725a4",
+  "reviewed_parent": "1797ac6258503d91c147d58b4833f692344e376b",
+  "material_findings": [],
+  "detached_idempotent_resume_authorized": true,
+  "review_scope": [
+    "immutable Stage20 KDA02B denominator equivalence",
+    "aggregate/materialized equality with invariant preserved",
+    "all 11 variants and side/component/duplicate/missing/zero-exposure coverage",
+    "worker/order/graceful-stop/restart invariance",
+    "exact reuse of 1984 completed inner markers",
+    "preservation of superseded KDA failure history",
+    "bound-stop Telegram notification",
+    "absence of economic or protected semantic expansion"
+  ],
+  "denominator_evidence": {
+    "opportunity_formula": "30 * accepted_events / eligible_days",
+    "occupancy_formula": "actual_exposure_seconds / (187 * interval_seconds)",
+    "fold_days": [92, 91, 91, 92, 92, 90, 91, 92, 92],
+    "eligible_days": 823,
+    "eligible_symbol_seconds": 13297046400,
+    "inconsistent_aggregate_denominator_invariant_changed": false
+  },
+  "evidence_hashes": {
+    "denominator_trace_physical_sha256": "3980a7bb85c4854b20801c9f0f1d5440b43aa1db1e48bbeb64610709710bba61",
+    "denominator_trace_internal_sha256": "e039b1177b0b425cde83ee3de7bcb7dfbc5ae7edc2936ab1606c3a5a220f4094",
+    "all_variant_report_physical_sha256": "d7244c84d7f355b16f3969935b9d5429f6562e12028e54a54fb919ba5b917d62",
+    "all_variant_report_internal_sha256": "f6f5f426aa5aeb032f0820e38eb6d4b16f35a6af5668cf9f8d511b504b8b4da7",
+    "invariant_result_sha256": "2bcd839976c315dacb61b50218b8e9164ee71c2813f8cc6433ad7b3a5f4802b4",
+    "worker_order_restart_artifact_sha256": "ec4b9fd2be4ca001c7cf7aae37087733860cc2e55d38f4c9dfca82aaf70eb2d2",
+    "stage20_accounting_code_sha256": "cd86e3edeab11c4e7a76fd95b7c1d73f02341d08174856829120d13d2fa00e54",
+    "stage20_campaign_driver_sha256": "fea91035d519a7476a7896a45dd12e5288f78be74c6b393d278ec14b744eb93d",
+    "inner_marker_inventory_sha256": "070e90ea44d276c34560c3013fc90a7be0fe04ed6dbee6ebd5bc86a3d2c3e6f3",
+    "inner_supervisor_state_sha256": "94b8975396ce3d367e538ca7df0c89c6fb2217837bdd19e2b77085859481a614"
+  },
+  "coverage": {
+    "registered_kda02b_variants": 11,
+    "inner_markers_reconciled": 1984,
+    "inner_artifacts_reconciled": 1984,
+    "prior_kda_failures_preserved": 11,
+    "prior_attempts_per_kda_failure": 4,
+    "independent_focused_tests_passed": 16
+  },
+  "launch_boundary": {
+    "replace_old_service_commit_binding": true,
+    "repeat_authority_hashes": true,
+    "secure_telegram_preflight_required": true,
+    "a1_a4_recomputation_required": false
+  },
+  "review_access": {
+    "economic_outcomes_opened": false,
+    "protected_payloads_opened": false,
+    "capitalcom_data_opened": false,
+    "remote_writes_performed": false
+  }
+}

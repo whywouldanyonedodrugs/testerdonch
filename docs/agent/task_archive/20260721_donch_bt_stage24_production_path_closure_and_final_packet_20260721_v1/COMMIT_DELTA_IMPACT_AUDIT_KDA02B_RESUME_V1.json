@@ -1,0 +1,53 @@
+{
+  "schema": "stage24_commit_delta_impact_audit_v1",
+  "status": "pass",
+  "baseline_reviewed_commit": "3c874997f674ce1b59982a6fe598eeaa5f50b8cf",
+  "proposed_runtime_commit": "fbd60c8",
+  "scope": "git diff 3c874997f674ce1b59982a6fe598eeaa5f50b8cf..fbd60c8",
+  "economic_outcomes_opened": false,
+  "protected_outcomes_opened": false,
+  "capitalcom_payloads_opened": false,
+  "files": [
+    {"path": "docs/agent/task_archive/20260721_donch_bt_stage24_production_path_closure_and_final_packet_20260721_v1/PLAN.md", "classification": "documentation/test/packet-only"},
+    {"path": "tools/core_liquid_campaign/campaign.py", "classification": "runtime but path-local", "reason": "shared population batching, exact completed-stage carry-forward, and KDA02B Stage20 denominator reconciliation; frozen registries and selection formulas are unchanged"},
+    {"path": "tools/core_liquid_campaign/kda02b_denominator.py", "classification": "runtime but path-local", "reason": "restores the immutable Stage20 187-symbol and additive disjoint-interval accounting contract without weakening aggregate invariants"},
+    {"path": "tools/core_liquid_campaign/kda02b_lazy_family_input.py", "classification": "cache/input-affecting", "reason": "corrects KDA02B FamilyInput denominator metadata from the 117-row adapter population to the immutable Stage20 187-symbol campaign base"},
+    {"path": "tools/core_liquid_campaign/kda02b_production.py", "classification": "cache/input-affecting", "reason": "keeps newly constructed KDA02B cache metadata equivalent to the immutable Stage20 187-symbol denominator"},
+    {"path": "tools/core_liquid_campaign/population_benchmark.py", "classification": "runtime but path-local"},
+    {"path": "tools/core_liquid_campaign/population_execution.py", "classification": "runtime but path-local"},
+    {"path": "tools/core_liquid_campaign/population_readiness.py", "classification": "cache/input-affecting"},
+    {"path": "tools/core_liquid_campaign/production_readiness_gate.py", "classification": "runtime but path-local"},
+    {"path": "tools/core_liquid_campaign/runtime.py", "classification": "runtime but path-local", "reason": "preserves exhausted failures absent from a superseding reviewed lazy registry as immutable superseded history"},
+    {"path": "tools/core_liquid_campaign/shadow_service.py", "classification": "runtime but path-local", "reason": "real production-shadow path and explicit bound-stop notification"},
+    {"path": "tools/run_stage22_core_liquid_campaign.py", "classification": "runtime but path-local", "reason": "secret-safe Telegram bound-stop transport"},
+    {"path": "tools/trace_stage24_kda02b_denominator.py", "classification": "documentation/test/packet-only"},
+    {"path": "tools/validate_stage24_kda02b_resume.py", "classification": "documentation/test/packet-only"},
+    {"path": "unit_tests/test_core_liquid_campaign_population_benchmark.py", "classification": "documentation/test/packet-only"},
+    {"path": "unit_tests/test_core_liquid_campaign_population_orchestrator.py", "classification": "documentation/test/packet-only"},
+    {"path": "unit_tests/test_core_liquid_campaign_shadow_service.py", "classification": "documentation/test/packet-only"},
+    {"path": "unit_tests/test_core_liquid_campaign_stage24.py", "classification": "documentation/test/packet-only"},
+    {"path": "unit_tests/test_kda02b_denominator.py", "classification": "documentation/test/packet-only"},
+    {"path": "unit_tests/test_population_execution.py", "classification": "documentation/test/packet-only"}
+  ],
+  "classification_counts": {
+    "documentation/test/packet-only": 9,
+    "runtime but path-local": 8,
+    "cache/input-affecting": 3,
+    "registry/control/selection-affecting": 0,
+    "economic-semantic-affecting": 0
+  },
+  "frozen_authorities": {
+    "shadow_campaign_manifest_sha256": "f4894a04bbffd472ab45dd3c02951e3ae10cdcbe3c7b1f29fc9723a2982021a1",
+    "shadow_authorization_request_sha256": "d2b6694b3b2ccf4098e0d14c2ec2cd6d607a519b658ab5516f7963f1db3d0131",
+    "shadow_external_authorization_sha256": "a93bb9b77b63189a6d08dc975c35283e9375748b2e82dfcf3af86853af0b6366",
+    "execution_input_authority_sha256": "8c1703f091c862ee788efa5c0721c218085f13828ae1ccae407dcf2d14b80340",
+    "launch_population_authority_sha256": "153e5a27e14b820c46f6171a3df8a5f55ae6aad124fc3f2af34ac1e1e3aca85a",
+    "kda02b_lazy_population_manifest_sha256": "a5ab39ab3d1270f62a09208b35befe53f4d2490f19e2b31d5505d16820b0e2a8"
+  },
+  "reuse_decision": {
+    "inner_development": "reuse all 1984 hash-reconciled markers",
+    "kda02b_adjudication": "rerun only the reviewed KDA02B batch from the existing empty-marker boundary",
+    "broader_shadow_rerun_required": false,
+    "reason": "no registry/control identity, input schema, selection arithmetic, orchestration-wide, or economic-semantic change invalidates the completed inner evidence"
+  }
+}
