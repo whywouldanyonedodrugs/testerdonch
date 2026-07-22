@@ -227,7 +227,17 @@ class KDA02BLazyFamilyInputAdapter:
             frame=frame,
         )
 
-    def stream(self) -> Iterator[KDA02BLazyFamilyInputRecord]:
+    def stream(
+        self,
+        *,
+        cell_id: str | None = None,
+        outer_fold_id: str | None = None,
+    ) -> Iterator[KDA02BLazyFamilyInputRecord]:
+        """Yield the complete index or one exact registered cell/fold slice."""
+        if cell_id is not None and not cell_id:
+            raise KDA02BLazyFamilyInputError("KDA02B cell filter is empty")
+        if outer_fold_id is not None and not outer_fold_id:
+            raise KDA02BLazyFamilyInputError("KDA02B fold filter is empty")
         current_symbol: str | None = None
         feature_frame: Any = None
         economic_funding: tuple[tuple[datetime, str, float], ...] = ()
@@ -239,6 +249,10 @@ class KDA02BLazyFamilyInputAdapter:
         prior_order: tuple[str, str, datetime, str, str] | None = None
         for row in self._index_rows():
             symbol = str(row["symbol"]); fold = str(row["outer_fold_id"]); decision = _utc(row["decision_ts"])
+            if cell_id is not None and str(row["cell_id"]) != cell_id:
+                continue
+            if outer_fold_id is not None and fold != outer_fold_id:
+                continue
             order = (symbol, fold, decision, str(row["cell_id"]), str(row["event_id"]))
             if prior_order is not None and order <= prior_order:
                 raise KDA02BLazyFamilyInputError("KDA02B lazy input order is not strict symbol/fold/decision/cell/event")
@@ -354,11 +368,16 @@ class KDA02BLazyFamilyInputAdapter:
             frame.validate()
             yield self._record(row, frame)
         expected = self.index_manifest["counts"]
-        if counts["eligible"] != expected["eligible_event_rows"] or counts["typed_unavailable"] != expected["unavailable_event_rows"]:
+        if cell_id is None and outer_fold_id is None and (
+            counts["eligible"] != expected["eligible_event_rows"]
+            or counts["typed_unavailable"] != expected["unavailable_event_rows"]
+        ):
             raise KDA02BLazyFamilyInputError("KDA02B lazy FamilyInput terminal count differs")
         self.last_reconciliation = {
             "eligible_frames": counts["eligible"],
             "typed_unavailable_rows_without_frames": counts["typed_unavailable"],
+            "cell_id": cell_id,
+            "outer_fold_id": outer_fold_id,
             "mode": self.mode,
             "economic_outcomes_opened": self.mode == ECONOMIC_MODE,
             "status": "pass",

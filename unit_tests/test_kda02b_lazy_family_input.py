@@ -189,10 +189,24 @@ class KDA02BLazyFamilyInputTests(unittest.TestCase):
             self.assertEqual({
                 "eligible_frames": 3,
                 "typed_unavailable_rows_without_frames": 1,
+                "cell_id": None,
+                "outer_fold_id": None,
                 "mode": SHADOW_MODE,
                 "economic_outcomes_opened": False,
                 "status": "pass",
             }, adapter.last_reconciliation)
+
+            cell_id = eligible[0].cell_id
+            fold_id = eligible[0].outer_fold_id
+            filtered_adapter = KDA02BLazyFamilyInputAdapter(
+                index_root=index_root, authority_path=sources.authority_path,
+                repository_root=root, mode=SHADOW_MODE, expectations=expected,
+            )
+            filtered = list(filtered_adapter.stream(cell_id=cell_id, outer_fold_id=fold_id))
+            self.assertTrue(filtered)
+            self.assertTrue(all(record.cell_id == cell_id and record.outer_fold_id == fold_id for record in filtered))
+            self.assertEqual(cell_id, filtered_adapter.last_reconciliation["cell_id"])
+            self.assertEqual(fold_id, filtered_adapter.last_reconciliation["outer_fold_id"])
 
     def test_economic_mode_requires_explicit_hash_and_then_uses_authorized_ohlc_and_funding(self) -> None:
         with tempfile.TemporaryDirectory() as raw:
