@@ -120,19 +120,21 @@ def _verify_shadow_worker_evidence(campaign_root: Path) -> dict[str, Any]:
         artifact_root = campaign_root / stage / "artifacts"
         for path in sorted(artifact_root.glob("*.json")):
             result = json.loads(path.read_text(encoding="utf-8")).get("result", {})
-            for row in result.get("ledger", ()):
-                if row.get("status") != "complete":
-                    continue
-                if (
-                    row.get("shadow_only") is not True
-                    or row.get("economic_outcome_opened") is not False
-                    or row.get("real_post_entry_rows_opened") != 0
-                    or row.get("real_funding_rows_opened") != 0
-                    or row.get("actual_accounting_path_executed") is not True
-                ):
-                    raise ShadowAuthorizationError("worker materialization crossed or omitted the shadow outcome firewall")
-                provider_versions.add(str(row.get("provider_version")))
-                materialized += 1
+            payloads = result.get("batch_results") if isinstance(result.get("batch_results"), list) else (result,)
+            for payload in payloads:
+                for row in payload.get("ledger", ()):
+                    if row.get("status") != "complete":
+                        continue
+                    if (
+                        row.get("shadow_only") is not True
+                        or row.get("economic_outcome_opened") is not False
+                        or row.get("real_post_entry_rows_opened") != 0
+                        or row.get("real_funding_rows_opened") != 0
+                        or row.get("actual_accounting_path_executed") is not True
+                    ):
+                        raise ShadowAuthorizationError("worker materialization crossed or omitted the shadow outcome firewall")
+                    provider_versions.add(str(row.get("provider_version")))
+                    materialized += 1
     if materialized < 1 or provider_versions != {"stage24_deterministic_synthetic_post_entry_v1"}:
         raise ShadowAuthorizationError("real stage graph has no reconciled ShadowPayoffProvider worker evidence")
     return {

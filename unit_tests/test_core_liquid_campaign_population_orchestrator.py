@@ -10,7 +10,8 @@ from tools.core_liquid_campaign.campaign import CampaignOrchestrator
 from tools.core_liquid_campaign.kda02b_lazy_family_input import KDA02BLazyFamilyInputRecord
 from tools.core_liquid_campaign.schema import CAMPAIGN_ID, baseline_config, economic_address, normalize_config
 from tools.core_liquid_campaign.shadow_payoff import ShadowPayoffProvider
-from tools.core_liquid_campaign.synthetic import kda_frame
+from tools.core_liquid_campaign.synthetic import a4_frame, kda_frame
+from tools.core_liquid_campaign.lazy_production_inputs import FamilyDecisionLocator
 
 
 UTC = timezone.utc
@@ -26,7 +27,57 @@ class _KDAAdapter:
         yield from self.records
 
 
+class _Schedule:
+    def __init__(self, locator):
+        self.locator = locator
+
+    def iter_locators(self, *_args, **_kwargs):
+        yield self.locator
+
+
+class _FrameAdapter:
+    def __init__(self, frame):
+        self.value = frame; self.calls = 0
+
+    def frame(self, _locator):
+        self.calls += 1
+        return self.value
+
+
 class PopulationOrchestratorTests(unittest.TestCase):
+    def test_direct_population_batch_constructs_one_frame_for_same_route(self) -> None:
+        first_config = normalize_config("A4_TSMOM_V7", baseline_config("A4_TSMOM_V7"))
+        second_config = normalize_config("A4_TSMOM_V7", {**first_config, "exit": "time_3d"})
+        rows = []
+        for index, config in enumerate((first_config, second_config)):
+            rows.append({
+                "campaign_id": CAMPAIGN_ID, "family_id": "A4_TSMOM_V7", "config": config,
+                "execution_disposition": "execute_once", "executable_attempt_id": f"a4-{index}",
+                "canonical_economic_address_sha256": economic_address("A4_TSMOM_V7", config)[1],
+                "duplicate_of_executable_attempt_id": None,
+            })
+        frame = a4_frame(first_config)
+        locator = FamilyDecisionLocator(
+            "A4_TSMOM_V7", "outer_evaluation", "2024Q1", None,
+            "PF_XBTUSD", frame.decision_ts, rows[0]["executable_attempt_id"], rows[0]["canonical_economic_address_sha256"],
+        )
+        adapter = _FrameAdapter(frame)
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw); cache = root / "cache.json"; cache.write_text("{}\n"); approval = root / "approval.json"; approval.write_text("{}\n")
+            orchestrator = CampaignOrchestrator.__new__(CampaignOrchestrator)
+            orchestrator.population_schedule = _Schedule(locator); orchestrator.population_adapter = adapter
+            orchestrator.cache_authority = SimpleNamespace(manifest_path=cache)
+            orchestrator.authorization = SimpleNamespace(external_approval_path=approval)
+            orchestrator.payoff_provider = ShadowPayoffProvider("direct-population-batch-test")
+            task = orchestrator._direct_population_batch_job(
+                tuple(rows), {row["executable_attempt_id"]: row for row in rows}, "batch-job",
+                phase="outer_evaluation", outer_fold_id="2024Q1", inner_fold_id=None,
+            )
+            result = task()
+        self.assertEqual(1, adapter.calls)
+        self.assertEqual(2, result["batch_size"])
+        self.assertEqual({"a4-0", "a4-1"}, {row["registered_attempt_id"] for row in result["batch_results"]})
+
     def test_kda_population_job_dispatches_eligible_and_preserves_local_unavailable(self) -> None:
         config = normalize_config("KDA02B_SURVIVOR_ADJUDICATION_V1", baseline_config("KDA02B_SURVIVOR_ADJUDICATION_V1"))
         address = economic_address("KDA02B_SURVIVOR_ADJUDICATION_V1", config)[1]
@@ -61,7 +112,10 @@ class PopulationOrchestratorTests(unittest.TestCase):
             orchestrator.payoff_provider = ShadowPayoffProvider("population-orchestrator-test")
             jobs = list(orchestrator._kda_jobs((row,), {"kda-fixture": row}, {}))
             self.assertEqual(1, len(jobs))
-            result = jobs[0][1]()
+            batch = jobs[0][1]()
+            self.assertEqual("kda02b-batch:" + str(config["stage20_cell_id"]), batch["registered_job_id"])
+            self.assertEqual(1, batch["batch_size"])
+            result = batch["batch_results"][0]
         self.assertEqual("complete", result["status"])
         self.assertEqual(1, result["population_eligible_records"])
         self.assertEqual(1, result["typed_unavailable_observation_count"])

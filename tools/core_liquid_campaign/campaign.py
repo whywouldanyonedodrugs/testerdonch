@@ -12,7 +12,7 @@ from .canonical import atomic_write_json, canonical_hash, sha256_file
 from .controls import execute_control, matched_pseudo_event_directives, maximum_holding_for_parent, reconcile_control_duplicates
 from .executor import CacheAuthority, ExecutionAuthorization, PayoffProvider, dispatch_registered_attempt, execute_cached_synthetic_attempt, execute_registered_attempt
 from .family_engines.common import EngineInputError, require_utc
-from .lazy_production_inputs import LazyProductionFamilyInputAdapter
+from .lazy_production_inputs import FamilyDecisionLocator, LazyProductionFamilyInputAdapter
 from .population_execution import LaunchPopulationSchedule
 from .runtime import LazySupervisor, ResourceLimits
 from .schema import CAMPAIGN_ID, FAMILY_ORDER, OUTER_FOLDS, complexity, economic_address, family_schemas, normalize_config
@@ -180,9 +180,19 @@ class CampaignOrchestrator:
             "cache_manifest_sha256": sha256_file(self.cache_authority.manifest_path),
         }
         def validator(job_id: str, result: Any) -> bool:
-            if not isinstance(result, Mapping) or result.get("registered_job_id") != job_id or result.get("registered_attempt_id") is None or result.get("status") != "complete" or not isinstance(result.get("aggregate"), Mapping):
+            if not isinstance(result, Mapping) or result.get("registered_job_id") != job_id or result.get("status") != "complete":
                 return False
-            if result.get("cache_manifest_sha256") != bindings["cache_manifest_sha256"] or result.get("external_approval_sha256") != bindings["external_approval_sha256"]:
+            batch = result.get("batch_results")
+            rows = list(batch) if isinstance(batch, list) else [result]
+            if not rows or any(
+                not isinstance(row, Mapping)
+                or row.get("registered_attempt_id") is None
+                or row.get("status") != "complete"
+                or not isinstance(row.get("aggregate"), Mapping)
+                or row.get("cache_manifest_sha256") != bindings["cache_manifest_sha256"]
+                or row.get("external_approval_sha256") != bindings["external_approval_sha256"]
+                for row in rows
+            ):
                 return False
             campaign_state = json.loads(self.stage_state.read_text(encoding="utf-8"))
             if campaign_state.get("campaign_id") != CAMPAIGN_ID or campaign_state.get("status") != "running":
@@ -281,6 +291,7 @@ class CampaignOrchestrator:
         inner_fold_id: str | None,
         parent_binding: Mapping[str, Any] | None = None,
         materialize: bool = False,
+        fixed_parent_event_locators: Sequence[Any] | None = None,
     ) -> Callable[[], Any]:
         """Stream one registered attempt over its complete lazy PIT partition."""
         if self.population_schedule is None or self.population_adapter is None:
@@ -304,13 +315,11 @@ class CampaignOrchestrator:
             main_null_parent_ids: set[str] = set()
             main_null_control_ids: set[str] = set()
             locator_count = 0
-            for locator in schedule.iter_locators(
-                row,
-                phase=phase,
-                outer_fold_id=outer_fold_id,
-                inner_fold_id=inner_fold_id,
-                parent_attempt=parent_row,
-            ):
+            locators = fixed_parent_event_locators if fixed_parent_event_locators is not None else schedule.iter_locators(
+                row, phase=phase, outer_fold_id=outer_fold_id,
+                inner_fold_id=inner_fold_id, parent_attempt=parent_row,
+            )
+            for locator in locators:
                 locator_count += 1
                 try:
                     frame = adapter.frame(locator)
@@ -409,6 +418,10 @@ class CampaignOrchestrator:
                 "aggregate": aggregate,
                 "observation_count": len(accepted),
                 "event_ids": sorted(item.event_id for item in accepted),
+                "event_locators": [{
+                    "event_id": item.event_id, "symbol": item.symbol,
+                    "decision_ts": require_utc(item.decision_ts).isoformat(),
+                } for item in sorted(accepted, key=lambda value: value.event_id)],
                 "day_base_net_bps": day_values,
                 "population_locator_count": locator_count,
                 "typed_unavailable_observation_count": len(unavailable),
@@ -443,6 +456,114 @@ class CampaignOrchestrator:
             return _jsonable(payload)
         return task
 
+    def _direct_population_batch_job(
+        self,
+        rows: Sequence[Mapping[str, Any]],
+        registry: Mapping[str, Mapping[str, Any]],
+        job_id: str,
+        *,
+        phase: str,
+        outer_fold_id: str,
+        inner_fold_id: str | None,
+    ) -> Callable[[], Any]:
+        """Share each exact FamilyInput across same-route frozen addresses."""
+        if self.population_schedule is None or self.population_adapter is None or not rows:
+            raise CampaignContractError("direct population batch lacks its complete launch adapter")
+        route = {
+            (str(row["family_id"]), int(row["config"]["PIT_liquidity_top_n"]), str(row["config"].get("rebalance", "5m")))
+            for row in rows
+        }
+        if len(route) != 1 or next(iter(route))[0] not in {"A4_TSMOM_V7", "A1_COMPRESSION_V2", "A3_STARTER_RETEST_V3"}:
+            raise CampaignContractError("direct population batch mixes launch routes")
+        ordered = tuple(sorted(rows, key=lambda row: str(row["executable_attempt_id"])))
+        schedule = self.population_schedule; adapter = self.population_adapter
+
+        def task() -> dict[str, Any]:
+            observations: dict[str, list[Any]] = {str(row["executable_attempt_id"]): [] for row in ordered}
+            unavailable: dict[str, list[dict[str, Any]]] = {str(row["executable_attempt_id"]): [] for row in ordered}
+            locator_count = 0
+            prototype = ordered[0]
+            for locator in schedule.iter_locators(
+                prototype, phase=phase, outer_fold_id=outer_fold_id, inner_fold_id=inner_fold_id,
+            ):
+                locator_count += 1
+                try:
+                    frame = adapter.frame(locator)
+                except EngineInputError as exc:
+                    for row in ordered:
+                        unavailable[str(row["executable_attempt_id"])].append({
+                            "status": "unavailable_data", "symbol": locator.symbol,
+                            "decision_ts": locator.decision_ts.isoformat(), "reason": str(exc),
+                        })
+                    continue
+                for row in ordered:
+                    identity = str(row["executable_attempt_id"])
+                    bound_locator = replace(
+                        locator, executable_attempt_id=identity,
+                        canonical_economic_address_sha256=str(row["canonical_economic_address_sha256"]),
+                    )
+                    bound_frame = replace(frame, metadata={
+                        **frame.metadata,
+                        "decision_locator": bound_locator.identity_payload(),
+                        "decision_locator_sha256": canonical_hash(bound_locator.identity_payload()),
+                    })
+                    try:
+                        dispatched = dispatch_registered_attempt(
+                            row, (bound_frame,), registry_by_id=registry, payoff_provider=self.payoff_provider,
+                        )
+                    except EngineInputError as exc:
+                        unavailable[identity].append({
+                            "status": "unavailable_data", "symbol": locator.symbol,
+                            "decision_ts": locator.decision_ts.isoformat(), "reason": str(exc),
+                        })
+                        continue
+                    selected = list(dispatched.get("observations", ()))
+                    if row["family_id"] == "A1_COMPRESSION_V2":
+                        selected = [item for item in selected if require_utc(item.decision_ts) == locator.decision_ts]
+                    observations[identity].extend(selected)
+            results = []
+            for row in ordered:
+                identity = str(row["executable_attempt_id"]); accepted = []; last_exit: dict[str, datetime] = {}
+                for item in sorted(observations[identity], key=lambda value: (value.symbol, value.entry_ts, value.event_id)):
+                    if item.symbol not in last_exit or item.entry_ts >= last_exit[item.symbol]:
+                        accepted.append(item); last_exit[item.symbol] = item.exit_ts
+                cohort_sums: dict[tuple[str, str], float] = {}
+                for observation in accepted:
+                    key = (observation.market_day, observation.cohort_id or observation.event_id)
+                    cohort_sums[key] = cohort_sums.get(key, 0.0) + float(observation.base_net_bps)
+                days = sorted({key[0] for key in cohort_sums})
+                day_values = {
+                    day: sum(value for (item_day, _), value in cohort_sums.items() if item_day == day)
+                    / sum(item_day == day for item_day, _ in cohort_sums)
+                    for day in days
+                }
+                results.append({
+                    "status": "complete", "campaign_id": CAMPAIGN_ID,
+                    "executable_attempt_id": identity, "registered_attempt_id": identity,
+                    "registered_job_id": f"inner:{outer_fold_id}:{inner_fold_id}:{identity}",
+                    "batch_registered_job_id": job_id,
+                    "canonical_economic_address_sha256": row["canonical_economic_address_sha256"],
+                    "aggregate": aggregate_streaming(iter(accepted)), "observation_count": len(accepted),
+                    "event_ids": sorted(item.event_id for item in accepted), "day_base_net_bps": day_values,
+                    "event_locators": [{
+                        "event_id": item.event_id, "symbol": item.symbol,
+                        "decision_ts": require_utc(item.decision_ts).isoformat(),
+                    } for item in sorted(accepted, key=lambda value: value.event_id)],
+                    "population_locator_count": locator_count,
+                    "typed_unavailable_observation_count": len(unavailable[identity]),
+                    "typed_unavailable_observations": unavailable[identity],
+                    "materialization": "aggregate_only",
+                    "cache_manifest_sha256": sha256_file(self.cache_authority.manifest_path),
+                    "external_approval_sha256": sha256_file(self.authorization.external_approval_path),
+                })
+            return _jsonable({
+                "status": "complete", "registered_job_id": job_id,
+                "registered_attempt_id": f"batch:{canonical_hash(sorted(observations))}",
+                "batch_results": results, "batch_size": len(results),
+                "shared_family_input_locator_count": locator_count,
+            })
+        return task
+
     def _inner_jobs(self, execution: Sequence[Mapping[str, Any]], registry: Mapping[str, Mapping[str, Any]], cache: Mapping[str, Any]) -> Iterable[tuple[str, Callable[[], Any]]]:
         non_overlay = [row for row in execution if row["family_id"] not in {"A2_PRIOR_HIGH_RS_CONTEXT_V1", "KDA02B_SURVIVOR_ADJUDICATION_V1"}]
         for outer in OUTER_FOLDS:
@@ -451,14 +572,24 @@ class CampaignOrchestrator:
                 raise CampaignContractError(f"no inner-fold cache artifacts for {outer}")
             for inner in inner_ids:
                 artifacts = self._artifacts(cache, phase="inner_validation", outer_fold_id=outer, inner_fold_id=inner)
-                for row in non_overlay:
-                    job_id = f"inner:{outer}:{inner}:{row['executable_attempt_id']}"
-                    if self.population_schedule is not None:
-                        yield job_id, self._population_execution_job(
-                            row, registry, job_id, phase="inner_validation",
+                if self.population_schedule is not None:
+                    groups: dict[tuple[str, int, str], list[Mapping[str, Any]]] = {}
+                    for row in non_overlay:
+                        route = (
+                            str(row["family_id"]), int(row["config"]["PIT_liquidity_top_n"]),
+                            str(row["config"].get("rebalance", "5m")),
+                        )
+                        groups.setdefault(route, []).append(row)
+                    for route, rows in sorted(groups.items()):
+                        family, top_n, clock = route
+                        job_id = f"inner-batch:{outer}:{inner}:{family}:{top_n}:{clock}"
+                        yield job_id, self._direct_population_batch_job(
+                            tuple(rows), registry, job_id, phase="inner_validation",
                             outer_fold_id=outer, inner_fold_id=inner,
                         )
-                    else:
+                else:
+                    for row in non_overlay:
+                        job_id = f"inner:{outer}:{inner}:{row['executable_attempt_id']}"
                         yield job_id, self._execution_job(row, artifacts, registry, job_id)
 
     @staticmethod
@@ -469,7 +600,12 @@ class CampaignOrchestrator:
             artifact = stage_root / marker["artifact"]
             if sha256_file(artifact) != marker["artifact_sha256"]:
                 raise CampaignContractError("stage artifact hash mismatch during reconciliation")
-            payloads.append(json.loads(artifact.read_text(encoding="utf-8"))["result"])
+            result = json.loads(artifact.read_text(encoding="utf-8"))["result"]
+            batch = result.get("batch_results") if isinstance(result, Mapping) else None
+            if isinstance(batch, list):
+                payloads.extend(dict(row) for row in batch)
+            else:
+                payloads.append(result)
         return payloads
 
     def _freeze_beams(self, execution: Sequence[Mapping[str, Any]], *, output_name: str = "FROZEN_BEAM_REGISTRY.json") -> list[dict[str, Any]]:
@@ -794,6 +930,11 @@ class CampaignOrchestrator:
 
     def _a2_inner_jobs(self, execution: Sequence[Mapping[str, Any]], registry: Mapping[str, Mapping[str, Any]], cache: Mapping[str, Any], bindings: Mapping[str, Mapping[str, Any]]) -> Iterable[tuple[str, Callable[[], Any]]]:
         overlays = [row for row in execution if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1" and row["executable_attempt_id"] in bindings]
+        parent_payloads: dict[tuple[str, str, str], Mapping[str, Any]] = {}
+        for payload in self._completed_payloads(self.run_root / "inner_development"):
+            pieces = str(payload.get("registered_job_id", "")).split(":", 3)
+            if len(pieces) == 4 and pieces[0] == "inner":
+                parent_payloads[(pieces[1], pieces[2], str(payload.get("registered_attempt_id")))] = payload
         for outer in OUTER_FOLDS:
             inner_ids = sorted({str(self._partition(record).get("inner_fold_id")) for record in cache["artifacts"] if self._partition(record).get("phase") == "inner_validation" and self._partition(record).get("outer_fold_id") == outer})
             for inner in inner_ids:
@@ -815,10 +956,23 @@ class CampaignOrchestrator:
                         })
                         continue
                     if self.population_schedule is not None:
+                        parent_id = str(binding["parent_executable_attempt_id"])
+                        source = parent_payloads.get((outer, inner, parent_id))
+                        if source is None:
+                            raise CampaignContractError("A2 has no exact completed parent aggregate/event source")
+                        raw_locators = source.get("event_locators", ())
+                        if {str(item.get("event_id")) for item in raw_locators} != set(source.get("event_ids", ())):
+                            raise CampaignContractError("A2 parent event locator inventory differs from parent aggregate")
+                        fixed = tuple(FamilyDecisionLocator(
+                            "A2_PRIOR_HIGH_RS_CONTEXT_V1", "inner_validation", outer, inner,
+                            str(item["symbol"]), datetime.fromisoformat(str(item["decision_ts"]).replace("Z", "+00:00")),
+                            str(row["executable_attempt_id"]), str(row["canonical_economic_address_sha256"]),
+                        ) for item in raw_locators)
                         yield job_id, self._population_execution_job(
                             row, registry, job_id, phase="inner_validation",
                             outer_fold_id=outer, inner_fold_id=inner,
                             parent_binding=binding,
+                            fixed_parent_event_locators=fixed,
                         )
                     else:
                         yield job_id, self._execution_job(row, artifacts, registry, job_id, parent_binding=binding, parent_artifact_paths=artifacts)
@@ -826,13 +980,16 @@ class CampaignOrchestrator:
     def _kda_jobs(self, execution: Sequence[Mapping[str, Any]], registry: Mapping[str, Mapping[str, Any]], cache: Mapping[str, Any]) -> Iterable[tuple[str, Callable[[], Any]]]:
         rows = [row for row in execution if row["family_id"] == "KDA02B_SURVIVOR_ADJUDICATION_V1"]
         if self.kda02b_population_adapter is not None:
+            by_cell: dict[str, list[Mapping[str, Any]]] = {}
             for row in rows:
-                cell_id = str(row["config"]["stage20_cell_id"])
-                job_id = f"kda02b:{row['executable_attempt_id']}"
+                by_cell.setdefault(str(row["config"]["stage20_cell_id"]), []).append(row)
+            for cell_id, cell_rows in sorted(by_cell.items()):
+                ordered_rows = tuple(sorted(cell_rows, key=lambda row: str(row["config"]["adjudication_variant"])))
+                job_id = f"kda02b-batch:{cell_id}"
 
-                def population_task(row=row, cell_id=cell_id, job_id=job_id):
-                    observations = []
-                    ledger: list[dict[str, Any]] = []
+                def population_task(cell_id=cell_id, ordered_rows=ordered_rows, job_id=job_id):
+                    observations: dict[str, list[Any]] = {str(row["executable_attempt_id"]): [] for row in ordered_rows}
+                    ledgers: dict[str, list[dict[str, Any]]] = {str(row["executable_attempt_id"]): [] for row in ordered_rows}
                     unavailable: list[dict[str, Any]] = []
                     eligible_records = 0
                     for record in self.kda02b_population_adapter.stream(cell_id=cell_id):
@@ -852,44 +1009,47 @@ class CampaignOrchestrator:
                         if record.frame is None:
                             raise CampaignContractError("eligible KDA02B population record has no FamilyInput")
                         eligible_records += 1
-                        directives = None
-                        if row["config"]["adjudication_variant"] == "generic_structure_control":
-                            directives = {
-                                record.frame.content_sha256(): {
+                        for row in ordered_rows:
+                            directives = None
+                            if row["config"]["adjudication_variant"] == "generic_structure_control":
+                                directives = {record.frame.content_sha256(): {
                                     "allocator": "matched_pseudo_event_allocator_v2",
                                     "matched_decision_ts": record.frame.decision_ts,
-                                }
-                            }
-                        dispatched = dispatch_registered_attempt(
-                            row, (record.frame,), registry_by_id=registry,
-                            control_directives=directives,
-                            payoff_provider=self.payoff_provider,
-                        )
-                        observations.extend(dispatched.get("observations", ()))
-                        ledger.extend(dispatched.get("ledger", ()))
-                    accepted = []
-                    last_exit: dict[str, datetime] = {}
-                    for item in sorted(observations, key=lambda value: (value.symbol, value.entry_ts, value.event_id)):
-                        if item.symbol not in last_exit or item.entry_ts >= last_exit[item.symbol]:
-                            accepted.append(item); last_exit[item.symbol] = item.exit_ts
+                                }}
+                            dispatched = dispatch_registered_attempt(
+                                row, (record.frame,), registry_by_id=registry,
+                                control_directives=directives, payoff_provider=self.payoff_provider,
+                            )
+                            identity = str(row["executable_attempt_id"])
+                            observations[identity].extend(dispatched.get("observations", ()))
+                            ledgers[identity].extend(dispatched.get("ledger", ()))
+                    batch_results = []
+                    for row in ordered_rows:
+                        identity = str(row["executable_attempt_id"]); accepted = []; last_exit: dict[str, datetime] = {}
+                        for item in sorted(observations[identity], key=lambda value: (value.symbol, value.entry_ts, value.event_id)):
+                            if item.symbol not in last_exit or item.entry_ts >= last_exit[item.symbol]:
+                                accepted.append(item); last_exit[item.symbol] = item.exit_ts
+                        batch_results.append({
+                            "status": "complete", "family_id": row["family_id"],
+                            "registered_attempt_id": identity, "registered_job_id": f"kda02b:{identity}",
+                            "batch_registered_job_id": job_id,
+                            "canonical_economic_address_sha256": row["canonical_economic_address_sha256"],
+                            "aggregate": aggregate_streaming(iter(accepted)), "observations": accepted,
+                            "ledger": ledgers[identity], "observation_count": len(accepted),
+                            "event_ids": sorted(item.event_id for item in accepted),
+                            "population_eligible_records": eligible_records,
+                            "typed_unavailable_observation_count": len(unavailable),
+                            "typed_unavailable_observations": unavailable,
+                            "materialization": "full_registered_ledger",
+                            "cache_manifest_sha256": sha256_file(self.cache_authority.manifest_path),
+                            "external_approval_sha256": sha256_file(self.authorization.external_approval_path),
+                            "shadow_attestation": self.payoff_provider.attestation() if callable(getattr(self.payoff_provider, "attestation", None)) else None,
+                        })
                     return _jsonable({
-                        "status": "complete",
-                        "family_id": row["family_id"],
-                        "registered_attempt_id": row["executable_attempt_id"],
-                        "registered_job_id": job_id,
-                        "canonical_economic_address_sha256": row["canonical_economic_address_sha256"],
-                        "aggregate": aggregate_streaming(iter(accepted)),
-                        "observations": accepted,
-                        "ledger": ledger,
-                        "observation_count": len(accepted),
-                        "event_ids": sorted(item.event_id for item in accepted),
-                        "population_eligible_records": eligible_records,
-                        "typed_unavailable_observation_count": len(unavailable),
-                        "typed_unavailable_observations": unavailable,
-                        "materialization": "full_registered_ledger",
-                        "cache_manifest_sha256": sha256_file(self.cache_authority.manifest_path),
-                        "external_approval_sha256": sha256_file(self.authorization.external_approval_path),
-                        "shadow_attestation": self.payoff_provider.attestation() if callable(getattr(self.payoff_provider, "attestation", None)) else None,
+                        "status": "complete", "registered_job_id": job_id,
+                        "registered_attempt_id": f"kda02b-batch:{cell_id}",
+                        "batch_results": batch_results,
+                        "batch_size": len(batch_results),
                     })
 
                 yield job_id, population_task
@@ -990,10 +1150,18 @@ class CampaignOrchestrator:
                     if source is None:
                         raise CampaignContractError("materialization has no exact aggregate-only source")
                     if self.population_schedule is not None:
+                        fixed = None
+                        if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1":
+                            fixed = tuple(FamilyDecisionLocator(
+                                "A2_PRIOR_HIGH_RS_CONTEXT_V1", "inner_validation", outer, inner,
+                                str(item["symbol"]), datetime.fromisoformat(str(item["decision_ts"]).replace("Z", "+00:00")),
+                                str(row["executable_attempt_id"]), str(row["canonical_economic_address_sha256"]),
+                            ) for item in source.get("event_locators", ()))
                         task = self._population_execution_job(
                             row, registry, job_id, phase="inner_validation",
                             outer_fold_id=outer, inner_fold_id=inner,
                             parent_binding=bindings.get(row["executable_attempt_id"]), materialize=True,
+                            fixed_parent_event_locators=fixed,
                         )
                     else:
                         task = self._execution_job(row, artifacts, registry, job_id, parent_binding=bindings.get(row["executable_attempt_id"]), parent_artifact_paths=artifacts if row["family_id"] == "A2_PRIOR_HIGH_RS_CONTEXT_V1" else None, materialize=True)
