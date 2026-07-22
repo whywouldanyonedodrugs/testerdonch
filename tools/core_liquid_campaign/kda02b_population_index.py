@@ -428,7 +428,11 @@ def build_kda02b_lazy_population_index(
                         "translation_id": str(row["translation_id"]),
                         "outer_fold_id": model.removeprefix("Q_"),
                         "decision_ts": decision,
-                        "onset_ts": _utc(row["onset_ts"]),
+                        # Stage20 preserves a null onset for event grammars that
+                        # have no separately defined onset.  It is optional
+                        # locator metadata, so retain null exactly rather than
+                        # inventing a timestamp or rejecting an eligible event.
+                        "onset_ts": None if row["onset_ts"] is None else _utc(row["onset_ts"]),
                         "side": str(row["side"]), "horizon": str(row["horizon"]),
                         "status": status, "unavailable_reason": reason,
                         "event_tape_sha256": str(file_record["sha256"]),

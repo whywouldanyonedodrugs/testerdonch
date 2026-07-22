@@ -109,7 +109,7 @@ class KDA02BPopulationIndexTests(unittest.TestCase):
                     "cell_id": cell, "family": "KDA02B", "symbol": symbol,
                     "decision_ts": decisions[symbol], "side": side,
                     "horizon": axes["horizon"], "model_id": model,
-                    "onset_ts": decisions[symbol] - timedelta(minutes=5),
+                    "onset_ts": None if event_id == "a-1" else decisions[symbol] - timedelta(minutes=5),
                 })
             path = root / f"events-{symbol}.parquet"
             pq.write_table(pa.Table.from_pylist(tape_rows), path)
@@ -180,6 +180,7 @@ class KDA02BPopulationIndexTests(unittest.TestCase):
             event_rows = pq.read_table(output / "KDA02B_EVENT_INDEX.parquet").to_pylist()
             unavailable = [row for row in event_rows if row["status"] == "typed_unavailable"]
             self.assertEqual(1, len(unavailable))
+            self.assertIsNone(next(row for row in event_rows if row["event_id"] == "a-1")["onset_ts"])
             self.assertEqual(LOCAL_UNAVAILABLE_REASON, unavailable[0]["unavailable_reason"])
             self.assertEqual(unavailable[0]["decision_ts"] - timedelta(minutes=5), unavailable[0]["feature_timestamp_utc"])
             self.assertFalse(manifest["economic_outcomes_opened"])
